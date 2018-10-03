@@ -1,0 +1,1 @@
+# fastonosql_core
