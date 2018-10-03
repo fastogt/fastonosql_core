@@ -16,7 +16,7 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "core/db/redis_compatible/sentinel_info.h"
+#include <fastonosql/core/db/redis_compatible/sentinel_info.h>
 
 #include <hiredis/hiredis.h> // for redisReply
 

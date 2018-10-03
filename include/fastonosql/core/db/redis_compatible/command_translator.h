@@ -21,7 +21,7 @@
 #include <fastonosql/core/icommand_translator.h> // for ICommandTranslator
 
 #if defined(PRO_VERSION)
-#include "core/module_info.h"
+#include <fastonosql/core/module_info.h>
 #endif
 
 #define REDIS_GET_PTTL_COMMAND "PTTL"

@@ -16,7 +16,7 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "core/db/redis_compatible/cluster_infos.h"
+#include <fastonosql/core/db/redis_compatible/cluster_infos.h>
 
 #include <memory>   // for __shared_ptr
 #include <stddef.h> // for size_t
@@ -27,7 +27,7 @@
 #include <common/string_util.h>    // for Tokenize
 #include <common/value.h>          // for ErrorValue, etc
 
-#include "core/connection_types.h" // for connectionTypes::REDIS, etc
+#include <fastonosql/core/connection_types.h> // for connectionTypes::REDIS, etc
 
 #define MARKER "\n"
 

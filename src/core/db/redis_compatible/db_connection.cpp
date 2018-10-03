@@ -26,8 +26,8 @@ extern "C" {
 #include <common/file_system/string_path_utils.h>
 
 #if defined(PRO_VERSION)
-#include "core/db/redis_compatible/cluster_infos.h"
-#include "core/db/redis_compatible/sentinel_info.h"
+#include <fastonosql/core/db/redis_compatible/cluster_infos.h>
+#include <fastonosql/core/db/redis_compatible/sentinel_info.h>
 #endif
 
 #include <fastonosql/core/db/redis_compatible/database_info.h>

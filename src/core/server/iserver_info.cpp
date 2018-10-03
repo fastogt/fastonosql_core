@@ -56,7 +56,6 @@ void ServerDiscoveryInfoBase::SetHost(
 
 ServerDiscoveryInfoBase::~ServerDiscoveryInfoBase() {}
 
-#if defined(PRO_VERSION)
 ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(
     connectionTypes ctype, const ServerCommonInfo &info)
     : ServerDiscoveryInfoBase(ctype, info) {}
@@ -70,7 +69,6 @@ ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(
 ServerDiscoveryClusterInfo::~ServerDiscoveryClusterInfo() {}
 
 bool ServerDiscoveryClusterInfo::Self() const { return self_; }
-#endif
 
 IStateField::~IStateField() {}
 

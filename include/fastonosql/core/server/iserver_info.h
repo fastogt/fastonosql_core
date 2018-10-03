@@ -64,7 +64,6 @@ private:
   ServerCommonInfo info_;
 };
 
-#if defined(PRO_VERSION)
 class ServerDiscoverySentinelInfo : public ServerDiscoveryInfoBase {
 public:
   virtual ~ServerDiscoverySentinelInfo();
@@ -92,7 +91,6 @@ private:
 
 typedef std::shared_ptr<ServerDiscoveryClusterInfo>
     ServerDiscoveryClusterInfoSPtr;
-#endif
 
 struct IStateField {
   virtual common::Value *GetValueByIndex(unsigned char index) const = 0;

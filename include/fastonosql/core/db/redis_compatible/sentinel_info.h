@@ -20,7 +20,7 @@
 
 #include <common/error.h> // for Error
 
-#include "core/server/iserver_info.h" // for ServerCommonInfo (ptr only), etc
+#include <fastonosql/core/server/iserver_info.h> // for ServerCommonInfo (ptr only), etc
 
 struct redisReply;
 
