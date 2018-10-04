@@ -29,10 +29,10 @@ ServerCommonInfo::ServerCommonInfo(const std::string& name,
                                    ServerConnectionState cstate)
     : name(name), type(type), state(state), cstate(cstate) {}
 
-ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(connectionTypes ctype, const ServerCommonInfo& info)
+ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(ConnectionTypes ctype, const ServerCommonInfo& info)
     : ctype_(ctype), info_(info) {}
 
-connectionTypes ServerDiscoveryInfoBase::GetConnectionType() const {
+ConnectionTypes ServerDiscoveryInfoBase::GetConnectionType() const {
   return ctype_;
 }
 
@@ -58,12 +58,12 @@ void ServerDiscoveryInfoBase::SetHost(const common::net::HostAndPortAndSlot& hos
 
 ServerDiscoveryInfoBase::~ServerDiscoveryInfoBase() {}
 
-ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(connectionTypes ctype, const ServerCommonInfo& info)
+ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(ConnectionTypes ctype, const ServerCommonInfo& info)
     : ServerDiscoveryInfoBase(ctype, info) {}
 
 ServerDiscoverySentinelInfo::~ServerDiscoverySentinelInfo() {}
 
-ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(connectionTypes ctype, const ServerCommonInfo& info, bool self)
+ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(ConnectionTypes ctype, const ServerCommonInfo& info, bool self)
     : ServerDiscoveryInfoBase(ctype, info), self_(self) {}
 
 ServerDiscoveryClusterInfo::~ServerDiscoveryClusterInfo() {}
@@ -76,11 +76,11 @@ IStateField::~IStateField() {}
 
 IServerInfo::~IServerInfo() {}
 
-connectionTypes IServerInfo::GetType() const {
+ConnectionTypes IServerInfo::GetType() const {
   return type_;
 }
 
-IServerInfo::IServerInfo(connectionTypes type) : type_(type) {}
+IServerInfo::IServerInfo(ConnectionTypes type) : type_(type) {}
 
 ServerInfoSnapShoot::ServerInfoSnapShoot() : msec(0), info() {}
 

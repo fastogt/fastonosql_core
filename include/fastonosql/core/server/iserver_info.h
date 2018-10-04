@@ -23,7 +23,7 @@
 #include <common/net/types.h>  // for HostAndPortAndSlot
 #include <common/types.h>      // for time64_t
 
-#include <fastonosql/core/connection_types.h>  // for connectionTypes, etc
+#include <fastonosql/core/connection_types.h>  // for ConnectionTypes, etc
 
 namespace common {
 class Value;
@@ -45,7 +45,7 @@ struct ServerCommonInfo {
 
 class ServerDiscoveryInfoBase {
  public:
-  connectionTypes GetConnectionType() const;
+  ConnectionTypes GetConnectionType() const;
   ServerCommonInfo GetInfo() const;
 
   std::string GetName() const;
@@ -55,11 +55,11 @@ class ServerDiscoveryInfoBase {
   void SetHost(const common::net::HostAndPortAndSlot& host);
 
  protected:
-  ServerDiscoveryInfoBase(connectionTypes ctype, const ServerCommonInfo& info);
+  ServerDiscoveryInfoBase(ConnectionTypes ctype, const ServerCommonInfo& info);
   ~ServerDiscoveryInfoBase();
 
  private:
-  const connectionTypes ctype_;
+  const ConnectionTypes ctype_;
   ServerCommonInfo info_;
 };
 
@@ -68,7 +68,7 @@ class ServerDiscoverySentinelInfo : public ServerDiscoveryInfoBase {
   virtual ~ServerDiscoverySentinelInfo();
 
  protected:
-  ServerDiscoverySentinelInfo(connectionTypes ctype, const ServerCommonInfo& info);
+  ServerDiscoverySentinelInfo(ConnectionTypes ctype, const ServerCommonInfo& info);
 };
 
 typedef std::shared_ptr<ServerDiscoverySentinelInfo> ServerDiscoverySentinelInfoSPtr;
@@ -79,7 +79,7 @@ class ServerDiscoveryClusterInfo : public ServerDiscoveryInfoBase {
   virtual ~ServerDiscoveryClusterInfo();
 
  protected:
-  ServerDiscoveryClusterInfo(connectionTypes ctype, const ServerCommonInfo& info, bool self);
+  ServerDiscoveryClusterInfo(ConnectionTypes ctype, const ServerCommonInfo& info, bool self);
 
  private:
   const bool self_;
@@ -94,16 +94,16 @@ struct IStateField {
 
 class IServerInfo {
  public:
-  explicit IServerInfo(connectionTypes type);
+  explicit IServerInfo(ConnectionTypes type);
   virtual ~IServerInfo();
 
-  connectionTypes GetType() const;
+  ConnectionTypes GetType() const;
   virtual std::string ToString() const = 0;
   virtual uint32_t GetVersion() const = 0;
   virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const = 0;
 
  private:
-  const connectionTypes type_;
+  const ConnectionTypes type_;
 };
 
 typedef std::shared_ptr<IServerInfo> IServerInfoSPtr;

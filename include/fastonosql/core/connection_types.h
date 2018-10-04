@@ -32,7 +32,7 @@ namespace core {
 typedef uint32_t keys_limit_t;
 typedef keys_limit_t cursor_t;
 
-enum connectionTypes {
+enum ConnectionTypes {
   REDIS = 0,
   MEMCACHED = 1,
   SSDB = 2,
@@ -50,20 +50,20 @@ enum ServerState { SUP = 0, SDOWN };
 enum ServerConnectionState { SCONNECTED = 0, SDISCONNECTED };
 enum ServerMode { STANDALONE = 0, SENTINEL, CLUSTER };
 
-extern const std::vector<connectionTypes> g_compiled_types;
+extern const std::vector<ConnectionTypes> g_compiled_types;
 
 enum ConnectionMode { InteractiveMode };
 
-bool IsRedisCompatible(connectionTypes type);
-bool IsRemoteType(connectionTypes type);
-bool IsSupportTTLKeys(connectionTypes type);
-bool IsLocalType(connectionTypes type);
-bool IsCanSSHConnection(connectionTypes type);
-bool IsCanCreateDatabase(connectionTypes type);
-bool IsCanRemoveDatabase(connectionTypes type);
-const char* ConnectionTypeToString(connectionTypes t);
+bool IsRedisCompatible(ConnectionTypes type);
+bool IsRemoteType(ConnectionTypes type);
+bool IsSupportTTLKeys(ConnectionTypes type);
+bool IsLocalType(ConnectionTypes type);
+bool IsCanSSHConnection(ConnectionTypes type);
+bool IsCanCreateDatabase(ConnectionTypes type);
+bool IsCanRemoveDatabase(ConnectionTypes type);
+const char* ConnectionTypeToString(ConnectionTypes t);
 
-template <connectionTypes conection_type>
+template <ConnectionTypes conection_type>
 struct ConnectionTraits {
   static const char* GetDBName() { return ConnectionTypeToString(conection_type); }
   static const char* GetBasedOn();
@@ -74,8 +74,8 @@ struct ConnectionTraits {
 }  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(fastonosql::core::connectionTypes t);
-bool ConvertFromString(const std::string& from, fastonosql::core::connectionTypes* out);
+std::string ConvertToString(fastonosql::core::ConnectionTypes t);
+bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionTypes* out);
 
 std::string ConvertToString(fastonosql::core::ServerTypes st);
 bool ConvertFromString(const std::string& from, fastonosql::core::ServerTypes* out);

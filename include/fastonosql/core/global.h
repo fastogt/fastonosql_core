@@ -88,7 +88,7 @@ class FastoObjectCommand : public FastoObject {
   virtual ~FastoObjectCommand();
   virtual std::string ToString() const override;
 
-  core::connectionTypes GetConnectionType() const;
+  core::ConnectionTypes GetConnectionType() const;
 
   command_buffer_t GetInputCommand() const;
   CmdLoggingType GetCommandLoggingType() const;
@@ -98,12 +98,12 @@ class FastoObjectCommand : public FastoObject {
                      common::StringValue* cmd,
                      CmdLoggingType ct,
                      const std::string& delimiter,
-                     core::connectionTypes type);
+                     core::ConnectionTypes type);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FastoObjectCommand);
 
-  const core::connectionTypes type_;
+  const core::ConnectionTypes type_;
   const CmdLoggingType ct_;
 };
 

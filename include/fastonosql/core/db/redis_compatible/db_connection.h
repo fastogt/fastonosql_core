@@ -65,7 +65,7 @@ common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv,
 common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, redisReply** out_reply);
 common::Error AuthContext(NativeConnection* context, const std::string& auth_str);
 
-template <typename Config, connectionTypes connection_type>
+template <typename Config, ConnectionTypes connection_type>
 class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, connection_type> {
  public:
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;

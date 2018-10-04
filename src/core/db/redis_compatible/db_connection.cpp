@@ -450,7 +450,7 @@ common::Error AuthContext(NativeConnection* context, const std::string& auth_str
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Connect(const config_t& config) {
   common::Error err = base_class::Connect(config);
   if (err) {
@@ -466,14 +466,14 @@ common::Error DBConnection<Config, ContType>::Connect(const config_t& config) {
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Disconnect() {
   cur_db_ = invalid_db_num;
   is_auth_ = false;
   return base_class::Disconnect();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 std::string DBConnection<Config, ContType>::GetCurrentDBName() const {
   if (IsAuthenticated()) {
     auto config = base_class::GetConfig();
@@ -485,7 +485,7 @@ std::string DBConnection<Config, ContType>::GetCurrentDBName() const {
   return base_class::GetCurrentDBName();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 bool DBConnection<Config, ContType>::IsAuthenticated() const {
   if (!base_class::IsAuthenticated()) {
     return false;
@@ -494,7 +494,7 @@ bool DBConnection<Config, ContType>::IsAuthenticated() const {
   return is_auth_;
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::CommonExec(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
@@ -517,7 +517,7 @@ common::Error DBConnection<Config, ContType>::CommonExec(const commands_args_t& 
   return err;
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::CliFormatReplyRaw(FastoObject* out, redisReply* r) {
   if (!out || !r) {
     DNOTREACHED();
@@ -539,7 +539,7 @@ common::Error DBConnection<Config, ContType>::CliFormatReplyRaw(FastoObject* out
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject* out) {
   if (!out) {
     DNOTREACHED();
@@ -570,7 +570,7 @@ common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject* out) {
   return er;
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Auth(const std::string& password) {
   common::Error err = base_class::TestIsConnected();
   if (err) {
@@ -587,7 +587,7 @@ common::Error DBConnection<Config, ContType>::Auth(const std::string& password) 
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr, long long* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
@@ -626,7 +626,7 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
@@ -672,7 +672,7 @@ common::Error DBConnection<Config, ContType>::Lrange(const NKey& key, int start,
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) {
   if (keys.empty() || !loaded_keys) {
     DNOTREACHED();
@@ -723,7 +723,7 @@ common::Error DBConnection<Config, ContType>::Mget(const std::vector<NKey>& keys
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>& keys,
                                                    std::vector<NDbKValue>* added_key) {
   if (!added_key) {
@@ -760,7 +760,7 @@ common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>&
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue>& keys, long long* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
@@ -796,7 +796,7 @@ common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValue& key, ttl_t ttl) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
@@ -826,7 +826,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValu
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue& key, long long* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
@@ -860,7 +860,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValu
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* decr) {
   if (!decr) {
     DNOTREACHED();
@@ -899,7 +899,7 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* d
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& key, int dec, long long* decr) {
   if (!decr) {
     DNOTREACHED();
@@ -938,7 +938,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& k
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key, long long* incr) {
   if (!incr) {
     DNOTREACHED();
@@ -977,7 +977,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& key, int inc, long long* incr) {
   if (!incr) {
     DNOTREACHED();
@@ -1016,7 +1016,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& k
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, double inc, std::string* str_incr) {
   if (!str_incr) {
     DNOTREACHED();
@@ -1056,7 +1056,7 @@ common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, doubl
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::PExpire(const NKey& key, ttl_t ttl) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
@@ -1087,7 +1087,7 @@ common::Error DBConnection<Config, ContType>::PExpire(const NKey& key, ttl_t ttl
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::PTTL(const NKey& key, pttl_t* ttl) {
   if (!ttl) {
     DNOTREACHED();
@@ -1132,7 +1132,7 @@ common::Error DBConnection<Config, ContType>::PTTL(const NKey& key, pttl_t* ttl)
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, long long* added) {
   if (!set || set->GetType() != common::Value::TYPE_SET || !added) {
     DNOTREACHED();
@@ -1171,7 +1171,7 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, 
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
@@ -1233,7 +1233,7 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValu
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue scores, long long* added) {
   if (!scores || scores->GetType() != common::Value::TYPE_ZSET || !added) {
     DNOTREACHED();
@@ -1272,7 +1272,7 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue score
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
                                                      int start,
                                                      int stop,
@@ -1348,7 +1348,7 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash) {
   if (!hash || hash->GetType() != common::Value::TYPE_HASH) {
     DNOTREACHED();
@@ -1386,7 +1386,7 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Hgetall(const NKey& key, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
@@ -1449,7 +1449,7 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey& key, NDbKValue
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Monitor(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
@@ -1484,7 +1484,7 @@ common::Error DBConnection<Config, ContType>::Monitor(const commands_args_t& arg
   return common::make_error(common::COMMON_EINTR);
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::Subscribe(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
@@ -1519,7 +1519,7 @@ common::Error DBConnection<Config, ContType>::Subscribe(const commands_args_t& a
   return common::make_error(common::COMMON_EINTR);
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject* out) {
   if (!out) {
     DNOTREACHED();
@@ -1564,7 +1564,7 @@ common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject* out) {
 /* Sends SYNC and reads the number of bytes in the payload.
  * Used both by
  * slaveMode() and getRDB(). */
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* payload) {
   if (!payload) {
     DNOTREACHED();
@@ -1616,7 +1616,7 @@ common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* paylo
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
                                                        const std::string& pattern,
                                                        keys_limit_t count_keys,
@@ -1676,7 +1676,7 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::KeysImpl(const std::string& key_start,
                                                        const std::string& key_end,
                                                        keys_limit_t limit,
@@ -1688,7 +1688,7 @@ common::Error DBConnection<Config, ContType>::KeysImpl(const std::string& key_st
   return ICommandTranslator::NotSupported(DB_KEYS_COMMAND);
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
@@ -1702,7 +1702,7 @@ common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t* size) {
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::FlushDBImpl() {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DB_FLUSHDB_COMMAND));
   if (!reply) {
@@ -1713,7 +1713,7 @@ common::Error DBConnection<Config, ContType>::FlushDBImpl() {
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::SelectImpl(const std::string& name, IDataBaseInfo** info) {
   int num;
   if (!common::ConvertFromString(name, &num)) {
@@ -1744,7 +1744,7 @@ common::Error DBConnection<Config, ContType>::SelectImpl(const std::string& name
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
@@ -1770,7 +1770,7 @@ common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys& keys, NKey
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   command_buffer_t set_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
@@ -1790,7 +1790,7 @@ common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key, NDbK
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   command_buffer_t get_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
@@ -1817,7 +1817,7 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::RenameImpl(const NKey& key, const key_t& new_key) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t rename_cmd;
@@ -1836,7 +1836,7 @@ common::Error DBConnection<Config, ContType>::RenameImpl(const NKey& key, const 
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
@@ -1859,7 +1859,7 @@ common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t 
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey& key, ttl_t* ttl) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
@@ -1884,7 +1884,7 @@ common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey& key, ttl_t*
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::QuitImpl() {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DB_QUIT_COMMAND));
   if (!reply) {
@@ -1897,7 +1897,7 @@ common::Error DBConnection<Config, ContType>::QuitImpl() {
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t get_dbs_cmd;
@@ -1927,7 +1927,7 @@ common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector
   return common::Error();
 }
 
-template <typename Config, connectionTypes ContType>
+template <typename Config, ConnectionTypes ContType>
 common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
     const std::vector<FastoObjectCommandIPtr>& cmds,
     void (*log_command_cb)(FastoObjectCommandIPtr command)) {

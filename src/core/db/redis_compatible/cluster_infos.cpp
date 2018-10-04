@@ -27,7 +27,7 @@
 #include <common/string_util.h>     // for Tokenize
 #include <common/value.h>           // for ErrorValue, etc
 
-#include <fastonosql/core/connection_types.h>  // for connectionTypes::REDIS, etc
+#include <fastonosql/core/connection_types.h>  // for ConnectionTypes::REDIS, etc
 
 #define MARKER "\n"
 
