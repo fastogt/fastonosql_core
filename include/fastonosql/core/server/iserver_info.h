@@ -18,97 +18,91 @@
 
 #pragma once
 
-#include <memory> // for shared_ptr
+#include <memory>  // for shared_ptr
 
-#include <common/net/types.h> // for HostAndPortAndSlot
-#include <common/types.h>     // for time64_t
+#include <common/net/types.h>  // for HostAndPortAndSlot
+#include <common/types.h>      // for time64_t
 
-#include <fastonosql/core/connection_types.h> // for connectionTypes, etc
+#include <fastonosql/core/connection_types.h>  // for connectionTypes, etc
 
 namespace common {
 class Value;
-} // namespace common
+}  // namespace common
 
 namespace fastonosql {
 namespace core {
 
 struct ServerCommonInfo {
   ServerCommonInfo();
-  ServerCommonInfo(const std::string &name, ServerTypes type, ServerState state,
-                   ServerConnectionState cstate);
+  ServerCommonInfo(const std::string& name, ServerTypes type, ServerState state, ServerConnectionState cstate);
 
-  std::string name;             // name
-  ServerTypes type;             // role
-  ServerState state;            // state
-  ServerConnectionState cstate; // conection state
+  std::string name;              // name
+  ServerTypes type;              // role
+  ServerState state;             // state
+  ServerConnectionState cstate;  // conection state
   common::net::HostAndPortAndSlot host;
 };
 
 class ServerDiscoveryInfoBase {
-public:
+ public:
   connectionTypes GetConnectionType() const;
   ServerCommonInfo GetInfo() const;
 
   std::string GetName() const;
-  void SetName(const std::string &name);
+  void SetName(const std::string& name);
 
   common::net::HostAndPortAndSlot GetHost() const;
-  void SetHost(const common::net::HostAndPortAndSlot &host);
+  void SetHost(const common::net::HostAndPortAndSlot& host);
 
-protected:
-  ServerDiscoveryInfoBase(connectionTypes ctype, const ServerCommonInfo &info);
+ protected:
+  ServerDiscoveryInfoBase(connectionTypes ctype, const ServerCommonInfo& info);
   ~ServerDiscoveryInfoBase();
 
-private:
+ private:
   const connectionTypes ctype_;
   ServerCommonInfo info_;
 };
 
 class ServerDiscoverySentinelInfo : public ServerDiscoveryInfoBase {
-public:
+ public:
   virtual ~ServerDiscoverySentinelInfo();
 
-protected:
-  ServerDiscoverySentinelInfo(connectionTypes ctype,
-                              const ServerCommonInfo &info);
+ protected:
+  ServerDiscoverySentinelInfo(connectionTypes ctype, const ServerCommonInfo& info);
 };
 
-typedef std::shared_ptr<ServerDiscoverySentinelInfo>
-    ServerDiscoverySentinelInfoSPtr;
+typedef std::shared_ptr<ServerDiscoverySentinelInfo> ServerDiscoverySentinelInfoSPtr;
 
 class ServerDiscoveryClusterInfo : public ServerDiscoveryInfoBase {
-public:
+ public:
   bool Self() const;
   virtual ~ServerDiscoveryClusterInfo();
 
-protected:
-  ServerDiscoveryClusterInfo(connectionTypes ctype,
-                             const ServerCommonInfo &info, bool self);
+ protected:
+  ServerDiscoveryClusterInfo(connectionTypes ctype, const ServerCommonInfo& info, bool self);
 
-private:
+ private:
   const bool self_;
 };
 
-typedef std::shared_ptr<ServerDiscoveryClusterInfo>
-    ServerDiscoveryClusterInfoSPtr;
+typedef std::shared_ptr<ServerDiscoveryClusterInfo> ServerDiscoveryClusterInfoSPtr;
 
 struct IStateField {
-  virtual common::Value *GetValueByIndex(unsigned char index) const = 0;
+  virtual common::Value* GetValueByIndex(unsigned char index) const = 0;
   virtual ~IStateField();
 };
 
 class IServerInfo {
-public:
+ public:
   explicit IServerInfo(connectionTypes type);
   virtual ~IServerInfo();
 
   connectionTypes GetType() const;
   virtual std::string ToString() const = 0;
   virtual uint32_t GetVersion() const = 0;
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const = 0;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const = 0;
 
-private:
+ private:
   const connectionTypes type_;
 };
 
@@ -123,5 +117,5 @@ struct ServerInfoSnapShoot {
   IServerInfoSPtr info;
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

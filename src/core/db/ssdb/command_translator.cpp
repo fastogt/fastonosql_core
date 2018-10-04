@@ -41,16 +41,13 @@ namespace fastonosql {
 namespace core {
 namespace ssdb {
 
-CommandTranslator::CommandTranslator(const std::vector<CommandHolder> &commands)
-    : ICommandTranslatorBase(commands) {}
+CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : ICommandTranslatorBase(commands) {}
 
-const char *CommandTranslator::GetDBName() const {
+const char* CommandTranslator::GetDBName() const {
   return ConnectionTraits<SSDB>::GetDBName();
 }
 
-common::Error
-CommandTranslator::CreateKeyCommandImpl(const NDbKValue &key,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
   const NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
@@ -58,39 +55,32 @@ CommandTranslator::CreateKeyCommandImpl(const NDbKValue &key,
   value_t value_str = value.GetValue();
   common::Value::Type type = key.GetType();
   if (type == common::Value::TYPE_ARRAY) {
-    wr << SSDB_SET_KEY_ARRAY_COMMAND " " << key_str.GetForCommandLine() << " "
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_ARRAY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   } else if (type == common::Value::TYPE_SET) {
-    wr << SSDB_SET_KEY_SET_COMMAND " " << key_str.GetForCommandLine() << " "
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_SET_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   } else if (type == common::Value::TYPE_ZSET) {
-    wr << SSDB_SET_KEY_ZSET_COMMAND " " << key_str.GetForCommandLine() << " "
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_ZSET_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   } else if (type == common::Value::TYPE_HASH) {
-    wr << SSDB_SET_KEY_HASH_COMMAND " " << key_str.GetForCommandLine() << " "
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_HASH_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   } else {
-    wr << SSDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " "
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   }
 
   *cmdstring = wr.str();
   return common::Error();
 }
 
-common::Error
-CommandTranslator::LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
-                                      command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
+                                                    common::Value::Type type,
+                                                    command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
   key_t key_str = key.GetKey();
   if (type == common::Value::TYPE_ARRAY) {
-    wr << SSDB_GET_KEY_ARRAY_COMMAND " " << key_str.GetForCommandLine()
-       << " 0 -1";
+    wr << SSDB_GET_KEY_ARRAY_COMMAND " " << key_str.GetForCommandLine() << " 0 -1";
   } else if (type == common::Value::TYPE_SET) {
     wr << SSDB_GET_KEY_SET_COMMAND " " << key_str.GetForCommandLine();
   } else if (type == common::Value::TYPE_ZSET) {
-    wr << SSDB_GET_KEY_ZSET_COMMAND " " << key_str.GetForCommandLine()
-       << " 0 -1";
+    wr << SSDB_GET_KEY_ZSET_COMMAND " " << key_str.GetForCommandLine() << " 0 -1";
   } else if (type == common::Value::TYPE_HASH) {
     wr << SSDB_GET_KEY_HASH_COMMAND " " << key_str.GetForCommandLine();
   } else {
@@ -101,9 +91,7 @@ CommandTranslator::LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
   return common::Error();
 }
 
-common::Error
-CommandTranslator::DeleteKeyCommandImpl(const NKey &key,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
@@ -111,39 +99,33 @@ CommandTranslator::DeleteKeyCommandImpl(const NKey &key,
   return common::Error();
 }
 
-common::Error
-CommandTranslator::RenameKeyCommandImpl(const NKey &key, const key_t &new_name,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
+                                                      const key_t& new_name,
+                                                      command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << SSDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " "
-     << new_name.GetForCommandLine();
+  wr << SSDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
 
-bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo &cmd) const {
-  return cmd.IsEqualName(SSDB_GET_KEY_COMMAND) ||
-         cmd.IsEqualName(SSDB_GET_KEY_ARRAY_COMMAND) ||
-         cmd.IsEqualName(SSDB_GET_KEY_SET_COMMAND) ||
-         cmd.IsEqualName(SSDB_GET_KEY_ZSET_COMMAND) ||
+bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
+  return cmd.IsEqualName(SSDB_GET_KEY_COMMAND) || cmd.IsEqualName(SSDB_GET_KEY_ARRAY_COMMAND) ||
+         cmd.IsEqualName(SSDB_GET_KEY_SET_COMMAND) || cmd.IsEqualName(SSDB_GET_KEY_ZSET_COMMAND) ||
          cmd.IsEqualName(SSDB_GET_KEY_HASH_COMMAND);
 }
 
-common::Error
-CommandTranslator::ChangeKeyTTLCommandImpl(const NKey &key, ttl_t ttl,
-                                           command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
+                                                         ttl_t ttl,
+                                                         command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << SSDB_CHANGE_TTL_COMMAND " " << key_str.GetForCommandLine() << " "
-     << ttl;
+  wr << SSDB_CHANGE_TTL_COMMAND " " << key_str.GetForCommandLine() << " " << ttl;
   *cmdstring = wr.str();
   return common::Error();
 }
 
-common::Error
-CommandTranslator::LoadKeyTTLCommandImpl(const NKey &key,
-                                         command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_GET_TTL_COMMAND " " << key_str.GetForCommandLine();
@@ -151,6 +133,6 @@ CommandTranslator::LoadKeyTTLCommandImpl(const NKey &key,
   return common::Error();
 }
 
-} // namespace ssdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace ssdb
+}  // namespace core
+}  // namespace fastonosql

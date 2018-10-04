@@ -18,17 +18,16 @@
 
 #include <fastonosql/core/connection_types.h>
 
-#include <common/macros.h> // for NOTREACHED, SIZEOFMASS
+#include <common/macros.h>  // for NOTREACHED, SIZEOFMASS
 
 namespace {
-const char *kConnnectionType[] = {"Redis",    "Memcached", "SSDB", "LevelDB",
-                                  "RocksDB",  "UnQLite",   "LMDB", "UpscaleDB",
-                                  "ForestDB", "Pika"};
+const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",      "LevelDB",  "RocksDB",
+                                  "UnQLite", "LMDB",      "UpscaleDB", "ForestDB", "Pika"};
 const std::string kConnnectionMode[] = {"Interactive mode"};
 const std::string kServerTypes[] = {"Master", "Slave"};
 const std::string kServerState[] = {"Up", "Down"};
 const std::string kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
-} // namespace
+}  // namespace
 
 namespace fastonosql {
 namespace core {
@@ -79,8 +78,7 @@ bool IsSupportTTLKeys(connectionTypes type) {
 }
 
 bool IsLocalType(connectionTypes type) {
-  return type == ROCKSDB || type == LEVELDB || type == LMDB ||
-         type == UPSCALEDB || type == UNQLITE || type == FORESTDB;
+  return type == ROCKSDB || type == LEVELDB || type == LMDB || type == UPSCALEDB || type == UNQLITE || type == FORESTDB;
 }
 
 bool IsCanSSHConnection(connectionTypes type) {
@@ -95,12 +93,12 @@ bool IsCanRemoveDatabase(connectionTypes type) {
   return type == LMDB || type == FORESTDB || type == ROCKSDB;
 }
 
-const char *ConnectionTypeToString(connectionTypes t) {
+const char* ConnectionTypeToString(connectionTypes t) {
   return kConnnectionType[t];
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
@@ -108,8 +106,7 @@ std::string ConvertToString(fastonosql::core::connectionTypes t) {
   return fastonosql::core::ConnectionTypeToString(t);
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::connectionTypes *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::connectionTypes* out) {
   if (!out) {
     return false;
   }
@@ -125,8 +122,7 @@ bool ConvertFromString(const std::string &from,
   return false;
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::ServerTypes *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerTypes* out) {
   if (!out) {
     return false;
   }
@@ -142,8 +138,7 @@ bool ConvertFromString(const std::string &from,
   return false;
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::ServerState *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerState* out) {
   for (size_t i = 0; i < SIZEOFMASS(kServerState); ++i) {
     if (from == kServerState[i]) {
       *out = static_cast<fastonosql::core::ServerState>(i);
@@ -171,4 +166,4 @@ std::string ConvertToString(fastonosql::core::ConnectionMode t) {
   return kConnnectionMode[t];
 }
 
-} // namespace common
+}  // namespace common

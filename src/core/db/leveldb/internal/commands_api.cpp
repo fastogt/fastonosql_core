@@ -24,24 +24,22 @@ namespace fastonosql {
 namespace core {
 namespace leveldb {
 
-common::Error CommandsApi::Info(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out) {
-  DBConnection *level = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* level = static_cast<DBConnection*>(handler);
 
   ServerInfo::Stats statsout;
-  common::Error err =
-      level->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = level->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
   if (err) {
     return err;
   }
 
   ServerInfo linf(statsout);
-  common::StringValue *val = common::Value::CreateStringValue(linf.ToString());
-  FastoObject *child = new FastoObject(out, val, level->GetDelimiter());
+  common::StringValue* val = common::Value::CreateStringValue(linf.ToString());
+  FastoObject* child = new FastoObject(out, val, level->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql

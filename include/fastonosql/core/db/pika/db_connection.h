@@ -28,26 +28,22 @@ namespace pika {
 
 typedef redis_compatible::NativeConnection NativeConnection;
 
-common::Error CreateConnection(const RConfig &config,
-                               NativeConnection **context);
-common::Error TestConnection(const RConfig &config);
+common::Error CreateConnection(const RConfig& config, NativeConnection** context);
+common::Error TestConnection(const RConfig& config);
 #if defined(PRO_VERSION)
-common::Error
-DiscoveryClusterConnection(const RConfig &config,
-                           std::vector<ServerDiscoveryClusterInfoSPtr> *infos);
-common::Error DiscoverySentinelConnection(
-    const RConfig &config, std::vector<ServerDiscoverySentinelInfoSPtr> *infos);
+common::Error DiscoveryClusterConnection(const RConfig& config, std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
+common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<ServerDiscoverySentinelInfoSPtr>* infos);
 #endif
 
 class DBConnection : public redis_compatible::DBConnection<RConfig, PIKA> {
-public:
+ public:
   typedef redis_compatible::DBConnection<RConfig, PIKA> base_class;
-  explicit DBConnection(CDBConnectionClient *client);
+  explicit DBConnection(CDBConnectionClient* client);
 
-private:
-  virtual common::Error DBkcountImpl(size_t *size) override;
+ private:
+  virtual common::Error DBkcountImpl(size_t* size) override;
 };
 
-} // namespace pika
-} // namespace core
-} // namespace fastonosql
+}  // namespace pika
+}  // namespace core
+}  // namespace fastonosql

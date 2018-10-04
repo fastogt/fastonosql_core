@@ -22,8 +22,8 @@ extern "C" {
 #include "sds/sds_fasto.h"
 }
 
-#include <common/file_system/types.h> // for prepare_path
-#include <common/sprintf.h>           // for MemSPrintf
+#include <common/file_system/types.h>  // for prepare_path
+#include <common/sprintf.h>            // for MemSPrintf
 
 #include <fastonosql/core/logger.h>
 
@@ -34,18 +34,15 @@ namespace fastonosql {
 namespace core {
 namespace rocksdb {
 
-const std::vector<const char *> g_comparator_types = {"BYTEWISE",
-                                                      "REVERSE_BYTEWISE"};
+const std::vector<const char*> g_comparator_types = {"BYTEWISE", "REVERSE_BYTEWISE"};
 
-const std::vector<const char *> g_compression_types = {
-    "NoCompression",     "SnappyCompression",
-    "ZlibCompression",   "BZip2Compression",
-    "LZ4Compression",    "LZ4HCCompression",
-    "XpressCompression", "ZSTD"};
+const std::vector<const char*> g_compression_types = {
+    "NoCompression",  "SnappyCompression", "ZlibCompression",   "BZip2Compression",
+    "LZ4Compression", "LZ4HCCompression",  "XpressCompression", "ZSTD"};
 
 namespace {
 
-Config ParseOptions(int argc, char **argv) {
+Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
     const bool lastarg = i == argc - 1;
@@ -56,24 +53,22 @@ Config ParseOptions(int argc, char **argv) {
       cfg.db_path = argv[++i];
     } else if (!strcmp(argv[i], "-c")) {
       cfg.create_if_missing = true;
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPARATOR_FIELD)) &&
-               !lastarg) {
+    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPARATOR_FIELD)) && !lastarg) {
       ComparatorType lcomparator;
       if (common::ConvertFromString(argv[++i], &lcomparator)) {
         cfg.comparator = lcomparator;
       }
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPRESSION_FIELD)) &&
-               !lastarg) {
+    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPRESSION_FIELD)) && !lastarg) {
       CompressionType lcomp;
       if (common::ConvertFromString(argv[++i], &lcomp)) {
         cfg.compression = lcomp;
       }
     } else {
       if (argv[i][0] == '-') {
-        const std::string buff =
-            common::MemSPrintf("Unrecognized option or bad number of args "
-                               "for: '%s'",
-                               argv[i]);
+        const std::string buff = common::MemSPrintf(
+            "Unrecognized option or bad number of args "
+            "for: '%s'",
+            argv[i]);
         LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
         break;
       } else {
@@ -85,20 +80,21 @@ Config ParseOptions(int argc, char **argv) {
   return cfg;
 }
 
-} // namespace
+}  // namespace
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path("~/test.rocksdb")),
-      create_if_missing(true), comparator(COMP_BYTEWISE),
+      create_if_missing(true),
+      comparator(COMP_BYTEWISE),
       compression(kNoCompression) {}
 
-} // namespace rocksdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace rocksdb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(const fastonosql::core::rocksdb::Config &conf) {
+std::string ConvertToString(const fastonosql::core::rocksdb::Config& conf) {
   fastonosql::core::config_args_t argv = conf.Args();
 
   if (conf.create_if_missing) {
@@ -112,14 +108,13 @@ std::string ConvertToString(const fastonosql::core::rocksdb::Config &conf) {
   return fastonosql::core::ConvertToStringConfigArgs(argv);
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::Config *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::Config* out) {
   if (!out || from.empty()) {
     return false;
   }
 
   int argc = 0;
-  sds *argv = sdssplitargslong(from.c_str(), &argc);
+  sds* argv = sdssplitargslong(from.c_str(), &argc);
   if (argv) {
     *out = fastonosql::core::rocksdb::ParseOptions(argc, argv);
     sdsfreesplitres(argv, argc);
@@ -133,14 +128,12 @@ std::string ConvertToString(fastonosql::core::rocksdb::ComparatorType comp) {
   return fastonosql::core::rocksdb::g_comparator_types[comp];
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::ComparatorType *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::ComparatorType* out) {
   if (!out || from.empty()) {
     return false;
   }
 
-  for (size_t i = 0; i < fastonosql::core::rocksdb::g_comparator_types.size();
-       ++i) {
+  for (size_t i = 0; i < fastonosql::core::rocksdb::g_comparator_types.size(); ++i) {
     if (from == fastonosql::core::rocksdb::g_comparator_types[i]) {
       *out = static_cast<fastonosql::core::rocksdb::ComparatorType>(i);
       return true;
@@ -155,14 +148,12 @@ std::string ConvertToString(fastonosql::core::rocksdb::CompressionType comp) {
   return fastonosql::core::rocksdb::g_compression_types[comp];
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::CompressionType *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::CompressionType* out) {
   if (!out || from.empty()) {
     return false;
   }
 
-  for (size_t i = 0; i < fastonosql::core::rocksdb::g_compression_types.size();
-       ++i) {
+  for (size_t i = 0; i < fastonosql::core::rocksdb::g_compression_types.size(); ++i) {
     if (from == fastonosql::core::rocksdb::g_compression_types[i]) {
       *out = static_cast<fastonosql::core::rocksdb::CompressionType>(i);
       return true;
@@ -173,4 +164,4 @@ bool ConvertFromString(const std::string &from,
   return false;
 }
 
-} // namespace common
+}  // namespace common

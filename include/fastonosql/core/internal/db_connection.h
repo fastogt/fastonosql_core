@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <fastonosql/core/connection_types.h> // for connectionTypes
+#include <fastonosql/core/connection_types.h>  // for connectionTypes
 
-#include <fastonosql/core/internal/connection.h> // for Connection, ConnectionAllocatorTr...
+#include <fastonosql/core/internal/connection.h>  // for Connection, ConnectionAllocatorTr...
 
 namespace fastonosql {
 namespace core {
@@ -28,9 +28,8 @@ namespace internal {
 
 template <typename NConnection, typename Config, connectionTypes ContType>
 class DBConnection {
-public:
-  typedef ConnectionAllocatorTraits<NConnection, Config>
-      ConnectionAllocatorTrait;
+ public:
+  typedef ConnectionAllocatorTraits<NConnection, Config> ConnectionAllocatorTrait;
   typedef Connection<ConnectionAllocatorTrait> dbconnection_t;
   typedef typename dbconnection_t::config_t config_t;
   typedef typename dbconnection_t::handle_t nconnection_t;
@@ -41,12 +40,8 @@ public:
 
   static connectionTypes GetConnectionType() { return connection_t; }
 
-  virtual common::Error Connect(const config_t &config) WARN_UNUSED_RESULT {
-    return connection_.Connect(config);
-  }
-  virtual common::Error Disconnect() WARN_UNUSED_RESULT {
-    return connection_.Disconnect();
-  }
+  virtual common::Error Connect(const config_t& config) WARN_UNUSED_RESULT { return connection_.Connect(config); }
+  virtual common::Error Disconnect() WARN_UNUSED_RESULT { return connection_.Disconnect(); }
 
   virtual bool IsAuthenticated() const { return IsConnected(); }
   virtual bool IsConnected() const { return connection_.IsConnected(); }
@@ -85,13 +80,13 @@ public:
     return Config::default_delimiter;
   }
 
-protected:
+ protected:
   config_t GetConfig() const { return connection_.config_; }
 
   dbconnection_t connection_;
   bool interrupted_;
 };
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

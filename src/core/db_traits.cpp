@@ -21,10 +21,11 @@
 namespace fastonosql {
 namespace core {
 
-Field::Field(const std::string &name, common::Value::Type type)
-    : name(name), type(type) {}
+Field::Field(const std::string& name, common::Value::Type type) : name(name), type(type) {}
 
-bool Field::IsIntegral() const { return common::Value::IsIntegral(type); }
+bool Field::IsIntegral() const {
+  return common::Value::IsIntegral(type);
+}
 
 std::vector<common::Value::Type> GetSupportedValueTypes(connectionTypes type) {
 #ifdef BUILD_WITH_REDIS
@@ -136,5 +137,5 @@ std::vector<info_field_t> GetInfoFieldsFromType(connectionTypes type) {
   return std::vector<info_field_t>();
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

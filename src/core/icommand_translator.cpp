@@ -28,8 +28,7 @@ extern "C" {
 namespace fastonosql {
 namespace core {
 
-common::Error ParseCommands(const command_buffer_t &cmd,
-                            std::vector<command_buffer_t> *cmds) {
+common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buffer_t>* cmds) {
   if (cmd.empty()) {
     return common::make_error("Empty command line.");
   }
@@ -53,14 +52,11 @@ common::Error ParseCommands(const command_buffer_t &cmd,
   return common::Error();
 }
 
-ICommandTranslator::ICommandTranslator(
-    const std::vector<CommandHolder> &commands)
-    : commands_(commands) {}
+ICommandTranslator::ICommandTranslator(const std::vector<CommandHolder>& commands) : commands_(commands) {}
 
 ICommandTranslator::~ICommandTranslator() {}
 
-common::Error
-ICommandTranslator::GetDatabasesCommand(command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::GetDatabasesCommand(command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -69,9 +65,7 @@ ICommandTranslator::GetDatabasesCommand(command_buffer_t *cmdstring) const {
   return common::Error();
 }
 
-common::Error
-ICommandTranslator::RemoveDBCommand(const std::string &name,
-                                    command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::RemoveDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -82,9 +76,7 @@ ICommandTranslator::RemoveDBCommand(const std::string &name,
   return common::Error();
 }
 
-common::Error
-ICommandTranslator::CreateDBCommand(const std::string &name,
-                                    command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::CreateDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -95,9 +87,7 @@ ICommandTranslator::CreateDBCommand(const std::string &name,
   return common::Error();
 }
 
-common::Error
-ICommandTranslator::SelectDBCommand(const std::string &name,
-                                    command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::SelectDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -108,8 +98,7 @@ ICommandTranslator::SelectDBCommand(const std::string &name,
   return common::Error();
 }
 
-common::Error
-ICommandTranslator::FlushDBCommand(command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::FlushDBCommand(command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -118,9 +107,7 @@ ICommandTranslator::FlushDBCommand(command_buffer_t *cmdstring) const {
   return common::Error();
 }
 
-common::Error
-ICommandTranslator::DeleteKeyCommand(const NKey &key,
-                                     command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::DeleteKeyCommand(const NKey& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -128,9 +115,9 @@ ICommandTranslator::DeleteKeyCommand(const NKey &key,
   return DeleteKeyCommandImpl(key, cmdstring);
 }
 
-common::Error
-ICommandTranslator::RenameKeyCommand(const NKey &key, const key_t &new_name,
-                                     command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::RenameKeyCommand(const NKey& key,
+                                                   const key_t& new_name,
+                                                   command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -138,9 +125,7 @@ ICommandTranslator::RenameKeyCommand(const NKey &key, const key_t &new_name,
   return RenameKeyCommandImpl(key, new_name, cmdstring);
 }
 
-common::Error
-ICommandTranslator::CreateKeyCommand(const NDbKValue &key,
-                                     command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::CreateKeyCommand(const NDbKValue& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -148,9 +133,9 @@ ICommandTranslator::CreateKeyCommand(const NDbKValue &key,
   return CreateKeyCommandImpl(key, cmdstring);
 }
 
-common::Error
-ICommandTranslator::LoadKeyCommand(const NKey &key, common::Value::Type type,
-                                   command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::LoadKeyCommand(const NKey& key,
+                                                 common::Value::Type type,
+                                                 command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -158,9 +143,7 @@ ICommandTranslator::LoadKeyCommand(const NKey &key, common::Value::Type type,
   return LoadKeyCommandImpl(key, type, cmdstring);
 }
 
-common::Error
-ICommandTranslator::ChangeKeyTTLCommand(const NKey &key, ttl_t ttl,
-                                        command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::ChangeKeyTTLCommand(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -168,9 +151,7 @@ ICommandTranslator::ChangeKeyTTLCommand(const NKey &key, ttl_t ttl,
   return ChangeKeyTTLCommandImpl(key, ttl, cmdstring);
 }
 
-common::Error
-ICommandTranslator::LoadKeyTTLCommand(const NKey &key,
-                                      command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::LoadKeyTTLCommand(const NKey& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -178,8 +159,7 @@ ICommandTranslator::LoadKeyTTLCommand(const NKey &key,
   return LoadKeyTTLCommandImpl(key, cmdstring);
 }
 
-bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t &cmd,
-                                          readable_string_t *key) const {
+bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t& cmd, readable_string_t* key) const {
   if (!key) {
     return false;
   }
@@ -190,7 +170,7 @@ bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t &cmd,
   }
 
   int argc;
-  sds *argv = sdssplitargslong(stabled_command.data(), &argc);
+  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
   if (!argv) {
     return false;
   }
@@ -200,7 +180,7 @@ bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t &cmd,
     standart_argv.push_back(command_buffer_t(argv[i], sdslen(argv[i])));
   }
 
-  const CommandHolder *cmdh = nullptr;
+  const CommandHolder* cmdh = nullptr;
   size_t off = 0;
   common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &off);
   if (err) {
@@ -218,10 +198,9 @@ bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t &cmd,
   return false;
 }
 
-common::Error
-ICommandTranslator::PublishCommand(const NDbPSChannel &channel,
-                                   const std::string &message,
-                                   command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
+                                                 const std::string& message,
+                                                 command_buffer_t* cmdstring) const {
   if (!cmdstring || message.empty()) {
     return common::make_error_inval();
   }
@@ -229,9 +208,7 @@ ICommandTranslator::PublishCommand(const NDbPSChannel &channel,
   return PublishCommandImpl(channel, message, cmdstring);
 }
 
-common::Error
-ICommandTranslator::SubscribeCommand(const NDbPSChannel &channel,
-                                     command_buffer_t *cmdstring) const {
+common::Error ICommandTranslator::SubscribeCommand(const NDbPSChannel& channel, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     return common::make_error_inval();
   }
@@ -239,19 +216,17 @@ ICommandTranslator::SubscribeCommand(const NDbPSChannel &channel,
   return SubscribeCommandImpl(channel, cmdstring);
 }
 
-common::Error
-ICommandTranslator::InvalidInputArguments(const std::string &cmd) {
-  std::string buff =
-      common::MemSPrintf("Invalid input argument(s) for command: %s.", cmd);
+common::Error ICommandTranslator::InvalidInputArguments(const std::string& cmd) {
+  std::string buff = common::MemSPrintf("Invalid input argument(s) for command: %s.", cmd);
   return common::make_error(buff);
 }
 
-common::Error ICommandTranslator::NotSupported(const std::string &cmd) {
+common::Error ICommandTranslator::NotSupported(const std::string& cmd) {
   std::string buff = common::MemSPrintf("Not supported command: %s.", cmd);
   return common::make_error(buff);
 }
 
-common::Error ICommandTranslator::UnknownCommand(const std::string &cmd) {
+common::Error ICommandTranslator::UnknownCommand(const std::string& cmd) {
   std::string buff = common::MemSPrintf("Unknown sequence: '%s'.", cmd);
   return common::make_error(buff);
 }
@@ -271,21 +246,19 @@ common::Error ICommandTranslator::UnknownSequence(commands_args_t argv) {
 std::vector<CommandInfo> ICommandTranslator::GetCommands() const {
   std::vector<CommandInfo> cmds;
   for (size_t i = 0; i < commands_.size(); ++i) {
-    const CommandHolder *cmd = &commands_[i];
+    const CommandHolder* cmd = &commands_[i];
     cmds.push_back(*cmd);
   }
   return cmds;
 }
 
-common::Error
-ICommandTranslator::FindCommand(const std::string &command_first_name,
-                                const CommandHolder **info) const {
+common::Error ICommandTranslator::FindCommand(const std::string& command_first_name, const CommandHolder** info) const {
   if (!info || command_first_name.empty()) {
     return common::make_error_inval();
   }
 
   for (size_t i = 0; i < commands_.size(); ++i) {
-    const CommandHolder *cmd = &commands_[i];
+    const CommandHolder* cmd = &commands_[i];
     if (cmd->IsEqualFirstName(command_first_name)) {
       *info = cmd;
       return common::Error();
@@ -295,15 +268,13 @@ ICommandTranslator::FindCommand(const std::string &command_first_name,
   return UnknownCommand(command_first_name);
 }
 
-common::Error ICommandTranslator::FindCommand(commands_args_t argv,
-                                              const CommandHolder **info,
-                                              size_t *off) const {
+common::Error ICommandTranslator::FindCommand(commands_args_t argv, const CommandHolder** info, size_t* off) const {
   if (!info || !off) {
     return common::make_error_inval();
   }
 
   for (size_t i = 0; i < commands_.size(); ++i) {
-    const CommandHolder *cmd = &commands_[i];
+    const CommandHolder* cmd = &commands_[i];
     size_t loff = 0;
     if (cmd->IsCommand(argv, &loff)) {
       *info = cmd;
@@ -315,8 +286,7 @@ common::Error ICommandTranslator::FindCommand(commands_args_t argv,
   return UnknownSequence(argv);
 }
 
-common::Error ICommandTranslator::TestCommandArgs(const CommandHolder *cmd,
-                                                  commands_args_t argv) const {
+common::Error ICommandTranslator::TestCommandArgs(const CommandHolder* cmd, commands_args_t argv) const {
   if (!cmd) {
     return common::make_error_inval();
   }
@@ -324,15 +294,14 @@ common::Error ICommandTranslator::TestCommandArgs(const CommandHolder *cmd,
   return cmd->TestArgs(argv);
 }
 
-common::Error
-ICommandTranslator::TestCommandLine(const command_buffer_t &cmd) const {
+common::Error ICommandTranslator::TestCommandLine(const command_buffer_t& cmd) const {
   command_buffer_t stabled_command = StableCommand(cmd);
   if (stabled_command.empty()) {
     return common::make_error_inval();
   }
 
   int argc;
-  sds *argv = sdssplitargslong(stabled_command.data(), &argc);
+  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
   if (!argv) {
     return common::make_error_inval();
   }
@@ -341,7 +310,7 @@ ICommandTranslator::TestCommandLine(const command_buffer_t &cmd) const {
   for (int i = 0; i < argc; ++i) {
     standart_argv.push_back(command_buffer_t(argv[i], sdslen(argv[i])));
   }
-  const CommandHolder *cmdh = nullptr;
+  const CommandHolder* cmdh = nullptr;
   size_t loff = 0;
   common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &loff);
   if (err) {
@@ -352,9 +321,10 @@ ICommandTranslator::TestCommandLine(const command_buffer_t &cmd) const {
   return common::Error();
 }
 
-common::Error ICommandTranslator::TestCommandLineArgs(
-    commands_args_t argv, const CommandHolder **info, size_t *off) const {
-  const CommandHolder *cmd = nullptr;
+common::Error ICommandTranslator::TestCommandLineArgs(commands_args_t argv,
+                                                      const CommandHolder** info,
+                                                      size_t* off) const {
+  const CommandHolder* cmd = nullptr;
   size_t loff = 0;
   common::Error err = FindCommand(argv, &cmd, &loff);
   if (err) {
@@ -375,5 +345,5 @@ common::Error ICommandTranslator::TestCommandLineArgs(
   return common::Error();
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

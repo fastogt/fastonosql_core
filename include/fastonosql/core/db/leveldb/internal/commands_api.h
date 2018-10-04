@@ -26,10 +26,9 @@ namespace leveldb {
 
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
+  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql

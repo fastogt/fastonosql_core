@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <common/intrusive_ptr.h> // for intrusive_ptr, etc
+#include <common/intrusive_ptr.h>  // for intrusive_ptr, etc
 #include <common/value.h>
 
 #include <fastonosql/core/connection_types.h>
@@ -33,7 +33,7 @@ class FastoObject;
 class FastoObjectCommand;
 
 template <typename T, typename... Args>
-inline common::intrusive_ptr<T> make_fasto_object(Args &&... args) {
+inline common::intrusive_ptr<T> make_fasto_object(Args&&... args) {
   return common::intrusive_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
@@ -41,51 +41,50 @@ typedef common::intrusive_ptr<FastoObject> FastoObjectIPtr;
 typedef common::intrusive_ptr<FastoObjectCommand> FastoObjectCommandIPtr;
 
 class FastoObject : public common::intrusive_ptr_base<FastoObject> {
-public:
+ public:
   typedef FastoObjectIPtr child_t;
   typedef std::vector<child_t> childs_t;
   typedef common::ValueSPtr value_t;
 
   class IFastoObjectObserver {
-  public:
+   public:
     virtual void ChildrenAdded(child_t child) = 0;
-    virtual void Updated(FastoObject *item, value_t val) = 0;
+    virtual void Updated(FastoObject* item, value_t val) = 0;
     virtual ~IFastoObjectObserver();
   };
 
-  FastoObject(FastoObject *parent, common::Value *val,
-              const std::string &delimiter); // val take ownerships
+  FastoObject(FastoObject* parent, common::Value* val,
+              const std::string& delimiter);  // val take ownerships
   virtual ~FastoObject();
 
   common::Value::Type GetType() const;
   virtual std::string ToString() const;
 
-  static FastoObject *CreateRoot(const command_buffer_t &text,
-                                 IFastoObjectObserver *observer = nullptr);
+  static FastoObject* CreateRoot(const command_buffer_t& text, IFastoObjectObserver* observer = nullptr);
 
   childs_t GetChildrens() const;
   void AddChildren(child_t child);
-  FastoObject *GetParent() const;
+  FastoObject* GetParent() const;
   void Clear();
   std::string GetDelimiter() const;
 
   value_t GetValue() const;
   void SetValue(value_t val);
 
-protected:
-  IFastoObjectObserver *observer_;
+ protected:
+  IFastoObjectObserver* observer_;
   value_t value_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(FastoObject);
 
-  FastoObject *const parent_;
+  FastoObject* const parent_;
   childs_t childrens_;
   const std::string delimiter_;
 };
 
 class FastoObjectCommand : public FastoObject {
-public:
+ public:
   virtual ~FastoObjectCommand();
   virtual std::string ToString() const override;
 
@@ -94,23 +93,25 @@ public:
   command_buffer_t GetInputCommand() const;
   CmdLoggingType GetCommandLoggingType() const;
 
-protected:
-  FastoObjectCommand(FastoObject *parent, common::StringValue *cmd,
-                     CmdLoggingType ct, const std::string &delimiter,
+ protected:
+  FastoObjectCommand(FastoObject* parent,
+                     common::StringValue* cmd,
+                     CmdLoggingType ct,
+                     const std::string& delimiter,
                      core::connectionTypes type);
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(FastoObjectCommand);
 
   const core::connectionTypes type_;
   const CmdLoggingType ct_;
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::FastoObject *obj);
+std::string ConvertToString(fastonosql::core::FastoObject* obj);
 
-} // namespace common
+}  // namespace common

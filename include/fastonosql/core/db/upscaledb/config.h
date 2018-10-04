@@ -32,12 +32,11 @@ struct Config : public LocalConfig {
   uint16_t dbnum;
 };
 
-} // namespace upscaledb
-} // namespace core
-} // namespace fastonosql
+}  // namespace upscaledb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::upscaledb::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::upscaledb::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::upscaledb::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::upscaledb::Config* out);
+}  // namespace common

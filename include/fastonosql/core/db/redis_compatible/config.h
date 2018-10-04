@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/config/config.h> // for RemoteConfig
+#include <fastonosql/core/config/config.h>  // for RemoteConfig
 
 namespace fastonosql {
 namespace core {
@@ -26,7 +26,7 @@ namespace redis_compatible {
 
 struct Config : public RemoteConfig {
   enum { db_num_default = 0 };
-  explicit Config(const common::net::HostAndPort &host);
+  explicit Config(const common::net::HostAndPort& host);
   Config();
 
   std::string hostsocket;
@@ -35,13 +35,11 @@ struct Config : public RemoteConfig {
   bool is_ssl;
 };
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string
-ConvertToString(const fastonosql::core::redis_compatible::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::redis_compatible::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::redis_compatible::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::redis_compatible::Config* out);
+}  // namespace common

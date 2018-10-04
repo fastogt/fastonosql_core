@@ -19,7 +19,7 @@
 #include <fastonosql/core/ssh_info.h>
 
 #include <common/convert2string.h>
-#include <common/file_system/types.h> // for prepare_path
+#include <common/file_system/types.h>  // for prepare_path
 
 #define DEFAULT_SSH_PORT 22
 #define DEFAULT_PUB_KEY_PATH "~/.ssh/id_rsa.pub"
@@ -36,32 +36,28 @@
 #define MARKER "\r\n"
 
 namespace {
-const std::string g_ssh_methods[] = {"0", "1", "2", "3"};
+const std::string kSshMethods[] = {"0", "1", "2", "3"};
 }
 
 namespace common {
 
-std::string ConvertToString(
-    fastonosql::core::SSHInfo::SupportedAuthenticationMethods method) {
-  if (method >= 0 && method < SIZEOFMASS(g_ssh_methods)) {
-    return g_ssh_methods[method];
+std::string ConvertToString(fastonosql::core::SSHInfo::SupportedAuthenticationMethods method) {
+  if (method >= 0 && method < SIZEOFMASS(kSshMethods)) {
+    return kSshMethods[method];
   }
 
   DNOTREACHED();
-  return g_ssh_methods[0];
+  return kSshMethods[0];
 }
 
-bool ConvertFromString(
-    const std::string &from,
-    fastonosql::core::SSHInfo::SupportedAuthenticationMethods *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo::SupportedAuthenticationMethods* out) {
   if (!out) {
     return false;
   }
 
-  for (size_t i = 0; i < SIZEOFMASS(g_ssh_methods); ++i) {
-    if (from == g_ssh_methods[i]) {
-      *out = static_cast<
-          fastonosql::core::SSHInfo::SupportedAuthenticationMethods>(i);
+  for (size_t i = 0; i < SIZEOFMASS(kSshMethods); ++i) {
+    if (from == kSshMethods[i]) {
+      *out = static_cast<fastonosql::core::SSHInfo::SupportedAuthenticationMethods>(i);
       return true;
     }
   }
@@ -70,7 +66,7 @@ bool ConvertFromString(
   return false;
 }
 
-} // namespace common
+}  // namespace common
 
 namespace fastonosql {
 namespace core {
@@ -80,33 +76,46 @@ PublicPrivate::PublicPrivate()
                     common::file_system::prepare_path(DEFAULT_PRIVATE_KEY_PATH),
                     true) {}
 
-PublicPrivate::PublicPrivate(const std::string &public_key,
-                             const std::string &private_key,
-                             bool use_public_key)
-    : public_key(public_key), private_key(private_key),
-      use_public_key(use_public_key) {}
+PublicPrivate::PublicPrivate(const std::string& public_key, const std::string& private_key, bool use_public_key)
+    : public_key(public_key), private_key(private_key), use_public_key(use_public_key) {}
 
-bool PublicPrivate::IsValid() const { return !private_key.empty(); }
+bool PublicPrivate::IsValid() const {
+  return !private_key.empty();
+}
 
 SSHInfo::SSHInfo()
     : host(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
-      user_name(), key(), current_method(UNKNOWN), password_(),
+      user_name(),
+      key(),
+      current_method(UNKNOWN),
+      password_(),
       runtime_password_() {}
 
-SSHInfo::SSHInfo(const common::net::HostAndPort &host,
-                 const std::string &user_name, const std::string &password,
-                 const std::string &public_key, const std::string &private_key,
-                 bool use_public_key, const std::string &passphrase,
+SSHInfo::SSHInfo(const common::net::HostAndPort& host,
+                 const std::string& user_name,
+                 const std::string& password,
+                 const std::string& public_key,
+                 const std::string& private_key,
+                 bool use_public_key,
+                 const std::string& passphrase,
                  SupportedAuthenticationMethods method)
-    : host(host), user_name(user_name), passphrase(passphrase),
-      key(public_key, private_key, use_public_key), current_method(method),
-      password_(), runtime_password_() {
+    : host(host),
+      user_name(user_name),
+      passphrase(passphrase),
+      key(public_key, private_key, use_public_key),
+      current_method(method),
+      password_(),
+      runtime_password_() {
   SetPassword(password);
 }
 
-SSHInfo::SSHInfo(const std::string &text)
+SSHInfo::SSHInfo(const std::string& text)
     : host(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
-      user_name(), passphrase(), key(), current_method(UNKNOWN), password_(),
+      user_name(),
+      passphrase(),
+      key(),
+      current_method(UNKNOWN),
+      password_(),
       runtime_password_() {
   size_t pos = 0;
   size_t start = 0;
@@ -148,14 +157,11 @@ SSHInfo::SSHInfo(const std::string &text)
 }
 
 std::string SSHInfo::ToString() const {
-  return HOST_FIELD ":" + common::ConvertToString(host) +
-         MARKER USER_FIELD ":" + user_name + MARKER PASSWORD_FIELD ":" +
-         GetPassword() + MARKER PUBKEY_FIELD ":" + key.public_key +
-         MARKER PRIVKEY_FIELD ":" + key.private_key +
-         MARKER USE_PUBLICKEY_FIELD ":" +
-         common::ConvertToString(key.use_public_key) +
-         MARKER PASSPHRASE_FIELD ":" + passphrase + MARKER CURMETHOD_FIELD ":" +
-         common::ConvertToString(current_method) + MARKER;
+  return HOST_FIELD ":" + common::ConvertToString(host) + MARKER USER_FIELD ":" + user_name +
+         MARKER PASSWORD_FIELD ":" + GetPassword() + MARKER PUBKEY_FIELD ":" + key.public_key +
+         MARKER PRIVKEY_FIELD ":" + key.private_key + MARKER USE_PUBLICKEY_FIELD ":" +
+         common::ConvertToString(key.use_public_key) + MARKER PASSPHRASE_FIELD ":" + passphrase +
+         MARKER CURMETHOD_FIELD ":" + common::ConvertToString(current_method) + MARKER;
 }
 
 bool SSHInfo::IsValid() const {
@@ -174,9 +180,11 @@ SSHInfo::SupportedAuthenticationMethods SSHInfo::GetAuthMethod() const {
   return current_method;
 }
 
-std::string SSHInfo::GetRuntimePassword() const { return runtime_password_; }
+std::string SSHInfo::GetRuntimePassword() const {
+  return runtime_password_;
+}
 
-void SSHInfo::SetPassword(const std::string &password) {
+void SSHInfo::SetPassword(const std::string& password) {
   runtime_password_ = password;
   if (current_method == ASK_PASSWORD) {
     password_ = std::string();
@@ -185,13 +193,14 @@ void SSHInfo::SetPassword(const std::string &password) {
   }
 }
 
-bool SSHInfo::Equals(const SSHInfo &other) const {
-  return host == other.host && GetPassword() == other.GetPassword() &&
-         passphrase == other.passphrase && user_name == other.user_name &&
-         current_method == other.current_method && key == other.key;
+bool SSHInfo::Equals(const SSHInfo& other) const {
+  return host == other.host && GetPassword() == other.GetPassword() && passphrase == other.passphrase &&
+         user_name == other.user_name && current_method == other.current_method && key == other.key;
 }
 
-std::string SSHInfo::GetPassword() const { return password_; }
+std::string SSHInfo::GetPassword() const {
+  return password_;
+}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

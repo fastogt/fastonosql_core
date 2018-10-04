@@ -18,41 +18,33 @@
 
 #pragma once
 
-#include <fastonosql/core/icommand_translator_base.h> // for ICommandTranslator
+#include <fastonosql/core/icommand_translator_base.h>  // for ICommandTranslator
 
 namespace fastonosql {
 namespace core {
 namespace memcached {
 
 class CommandTranslator : public ICommandTranslatorBase {
-public:
-  explicit CommandTranslator(const std::vector<CommandHolder> &commands);
-  virtual const char *GetDBName() const override;
+ public:
+  explicit CommandTranslator(const std::vector<CommandHolder>& commands);
+  virtual const char* GetDBName() const override;
 
-private:
-  virtual common::Error
-  CreateKeyCommandImpl(const NDbKValue &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
-                     command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  DeleteKeyCommandImpl(const NKey &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  RenameKeyCommandImpl(const NKey &key, const key_t &new_name,
-                       command_buffer_t *cmdstring) const override;
+ private:
+  virtual common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error LoadKeyCommandImpl(const NKey& key,
+                                           common::Value::Type type,
+                                           command_buffer_t* cmdstring) const override;
+  virtual common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error RenameKeyCommandImpl(const NKey& key,
+                                             const key_t& new_name,
+                                             command_buffer_t* cmdstring) const override;
 
-  virtual bool IsLoadKeyCommandImpl(const CommandInfo &cmd) const override;
+  virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
 
-  virtual common::Error
-  ChangeKeyTTLCommandImpl(const NKey &key, ttl_t ttl,
-                          command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  LoadKeyTTLCommandImpl(const NKey &key,
-                        command_buffer_t *cmdstring) const override;
+  virtual common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
+  virtual common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
 };
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql

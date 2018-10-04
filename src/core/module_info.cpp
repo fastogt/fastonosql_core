@@ -19,5 +19,5 @@
 #include <fastonosql/core/module_info.h>
 
 namespace fastonosql {
-namespace core {} // namespace core
-} // namespace fastonosql
+namespace core {}  // namespace core
+}  // namespace fastonosql

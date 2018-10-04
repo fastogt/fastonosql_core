@@ -26,20 +26,17 @@ namespace leveldb {
 namespace comparator {
 
 class IndexedDB : public ::leveldb::Comparator {
-public:
-  virtual int Compare(const ::leveldb::Slice &a,
-                      const ::leveldb::Slice &b) const override;
+ public:
+  virtual int Compare(const ::leveldb::Slice& a, const ::leveldb::Slice& b) const override;
 
-  virtual const char *Name() const override;
+  virtual const char* Name() const override;
 
-  virtual void
-  FindShortestSeparator(std::string *start,
-                        const ::leveldb::Slice &limit) const override;
+  virtual void FindShortestSeparator(std::string* start, const ::leveldb::Slice& limit) const override;
 
-  virtual void FindShortSuccessor(std::string *key) const override;
+  virtual void FindShortSuccessor(std::string* key) const override;
 };
 
-} // namespace comparator
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace comparator
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql

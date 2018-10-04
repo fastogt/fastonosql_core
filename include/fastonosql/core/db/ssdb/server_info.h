@@ -33,11 +33,11 @@ namespace core {
 namespace ssdb {
 
 class ServerInfo : public IServerInfo {
-public:
+ public:
   struct Stats : IStateField {
     Stats();
-    explicit Stats(const std::string &common_text);
-    virtual common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Stats(const std::string& common_text);
+    virtual common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string version;
     uint32_t links;
@@ -47,18 +47,17 @@ public:
   } stats_;
 
   ServerInfo();
-  explicit ServerInfo(const Stats &common);
+  explicit ServerInfo(const Stats& common);
 
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const override;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   virtual std::string ToString() const override;
   virtual uint32_t GetVersion() const override;
 };
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value);
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
-ServerInfo *MakeSsdbServerInfo(const std::string &content);
+ServerInfo* MakeSsdbServerInfo(const std::string& content);
 
-} // namespace ssdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace ssdb
+}  // namespace core
+}  // namespace fastonosql

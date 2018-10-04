@@ -21,7 +21,7 @@
 #include <functional>
 #include <vector>
 
-#include <common/error.h> // for Error
+#include <common/error.h>  // for Error
 
 #include <fastonosql/core/command_info.h>
 #include <fastonosql/core/types.h>
@@ -33,38 +33,39 @@ namespace internal {
 class CommandHandler;
 }
 
-common::Error TestArgsInRange(const CommandInfo &cmd, commands_args_t argv);
-common::Error TestArgsModule2Equal1(const CommandInfo &cmd,
-                                    commands_args_t argv);
+common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv);
+common::Error TestArgsModule2Equal1(const CommandInfo& cmd, commands_args_t argv);
 
 class CommandHolder : public CommandInfo {
-public:
+ public:
   friend class internal::CommandHandler;
 
   typedef internal::CommandHandler command_handler_t;
-  typedef std::function<common::Error(command_handler_t *, commands_args_t,
-                                      FastoObject *)>
-      function_t;
-  typedef std::function<common::Error(const CommandInfo &, commands_args_t)>
-      test_function_t;
+  typedef std::function<common::Error(command_handler_t*, commands_args_t, FastoObject*)> function_t;
+  typedef std::function<common::Error(const CommandInfo&, commands_args_t)> test_function_t;
   typedef std::vector<test_function_t> test_functions_t;
 
-  CommandHolder(const std::string &name, const std::string &params,
-                const std::string &summary, uint32_t since,
-                const std::string &example, uint8_t required_arguments_count,
-                uint8_t optional_arguments_count, Type type, function_t func,
+  CommandHolder(const std::string& name,
+                const std::string& params,
+                const std::string& summary,
+                uint32_t since,
+                const std::string& example,
+                uint8_t required_arguments_count,
+                uint8_t optional_arguments_count,
+                Type type,
+                function_t func,
                 test_functions_t tests = {&TestArgsInRange});
 
-  bool IsCommand(commands_args_t argv, size_t *offset) const;
-  bool IsEqualFirstName(const std::string &cmd_first_name) const;
+  bool IsCommand(commands_args_t argv, size_t* offset) const;
+  bool IsEqualFirstName(const std::string& cmd_first_name) const;
 
   common::Error TestArgs(commands_args_t argv) const WARN_UNUSED_RESULT;
 
-private:
+ private:
   const function_t func_;
   const size_t white_spaces_count_;
   const std::vector<test_function_t> test_funcs_;
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include <common/error.h> // for Error
+#include <common/error.h>  // for Error
 
-#include <fastonosql/core/server/iserver_info.h> // for ServerCommonInfo (ptr only), etc
+#include <fastonosql/core/server/iserver_info.h>  // for ServerCommonInfo (ptr only), etc
 
 struct redisReply;
 
@@ -29,13 +29,12 @@ namespace core {
 namespace redis_compatible {
 
 class DiscoverySentinelInfo : public ServerDiscoverySentinelInfo {
-public:
-  explicit DiscoverySentinelInfo(const ServerCommonInfo &args);
+ public:
+  explicit DiscoverySentinelInfo(const ServerCommonInfo& args);
 };
 
-common::Error MakeServerCommonInfo(struct redisReply *repl_info,
-                                   ServerCommonInfo *info);
+common::Error MakeServerCommonInfo(struct redisReply* repl_info, ServerCommonInfo* info);
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

@@ -24,9 +24,9 @@ namespace fastonosql {
 namespace core {
 
 class ConstantCommandsArray : public std::vector<CommandHolder> {
-public:
+ public:
   ConstantCommandsArray(std::initializer_list<CommandHolder> l);
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

@@ -29,28 +29,27 @@ namespace fastonosql {
 namespace core {
 namespace {
 
-const std::vector<Field> forestdb_common_fields = {
+const std::vector<Field> kForestdbCommonFields = {
     Field(FORESTDB_STATS_DB_FILE_PATH_LABEL, common::Value::TYPE_STRING),
-    Field(FORESTDB_STATS_DB_FILE_SIZE_LABEL,
-          common::Value::TYPE_ULONG_INTEGER)};
+    Field(FORESTDB_STATS_DB_FILE_SIZE_LABEL, common::Value::TYPE_ULONG_INTEGER)};
 
-} // namespace
+}  // namespace
 
 template <>
 std::vector<common::Value::Type> DBTraits<FORESTDB>::GetSupportedValueTypes() {
-  return {common::Value::TYPE_BOOLEAN,  common::Value::TYPE_INTEGER,
-          common::Value::TYPE_UINTEGER, common::Value::TYPE_DOUBLE,
-          common::Value::TYPE_STRING,   JsonValue::TYPE_JSON};
+  return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
+          common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <> std::vector<info_field_t> DBTraits<FORESTDB>::GetInfoFields() {
-  return {std::make_pair(FORESTDB_STATS_LABEL, forestdb_common_fields)};
+template <>
+std::vector<info_field_t> DBTraits<FORESTDB>::GetInfoFields() {
+  return {std::make_pair(FORESTDB_STATS_LABEL, kForestdbCommonFields)};
 }
 namespace forestdb {
 
 ServerInfo::Stats::Stats() : db_path(), db_size() {}
 
-ServerInfo::Stats::Stats(const std::string &common_text) {
+ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
@@ -71,14 +70,14 @@ ServerInfo::Stats::Stats(const std::string &common_text) {
   }
 }
 
-common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
+common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
-  case 0:
-    return new common::StringValue(db_path);
-  case 1:
-    return new common::FundamentalValue(db_size);
-  default:
-    break;
+    case 0:
+      return new common::StringValue(db_path);
+    case 1:
+      return new common::FundamentalValue(db_size);
+    default:
+      break;
   }
 
   NOTREACHED();
@@ -87,42 +86,38 @@ common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
 
 ServerInfo::ServerInfo() : IServerInfo(FORESTDB) {}
 
-ServerInfo::ServerInfo(const Stats &stats)
-    : IServerInfo(FORESTDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(FORESTDB), stats_(stats) {}
 
-common::Value *ServerInfo::GetValueByIndexes(unsigned char property,
-                                             unsigned char field) const {
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
-  case 0:
-    return stats_.GetValueByIndex(field);
-  case 1:
-    return stats_.GetValueByIndex(field);
-  default:
-    break;
+    case 0:
+      return stats_.GetValueByIndex(field);
+    case 1:
+      return stats_.GetValueByIndex(field);
+    default:
+      break;
   }
 
   NOTREACHED();
   return nullptr;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo::Stats &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
   return out << FORESTDB_STATS_DB_FILE_PATH_LABEL ":" << value.db_path << MARKER
-             << FORESTDB_STATS_DB_FILE_SIZE_LABEL ":" << value.db_size
-             << MARKER;
+             << FORESTDB_STATS_DB_FILE_SIZE_LABEL ":" << value.db_size << MARKER;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
   return out << value.ToString();
 }
 
-ServerInfo *MakeForestDBServerInfo(const std::string &content) {
+ServerInfo* MakeForestDBServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;
   }
 
-  ServerInfo *result = new ServerInfo;
-  static const std::vector<info_field_t> fields =
-      DBTraits<FORESTDB>::GetInfoFields();
+  ServerInfo* result = new ServerInfo;
+  static const std::vector<info_field_t> fields = DBTraits<FORESTDB>::GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 
@@ -144,8 +139,10 @@ std::string ServerInfo::ToString() const {
   return str.str();
 }
 
-uint32_t ServerInfo::GetVersion() const { return 0; }
+uint32_t ServerInfo::GetVersion() const {
+  return 0;
+}
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql

@@ -32,48 +32,48 @@ typedef std::basic_stringstream<command_buffer_char_t> command_buffer_writer_t;
 typedef std::deque<command_buffer_t> commands_args_t;
 typedef command_buffer_t readable_string_t;
 
-command_buffer_t StableCommand(const command_buffer_t &command);
+command_buffer_t StableCommand(const command_buffer_t& command);
 
 namespace detail {
-bool is_binary_data(const command_buffer_t &data);
-std::string hex_string(const std::string &value);
-bool have_space(const std::string &data);
-std::string string_from_hex(const std::string &value);
-bool is_json(const std::string &data);
+bool is_binary_data(const command_buffer_t& data);
+std::string hex_string(const std::string& value);
+bool have_space(const std::string& data);
+std::string string_from_hex(const std::string& value);
+bool is_json(const std::string& data);
 
-std::string unicode_string(const std::string &value);
-std::string string_from_unicode(const std::string &value);
-} // namespace detail
+std::string unicode_string(const std::string& value);
+std::string string_from_unicode(const std::string& value);
+}  // namespace detail
 
 class ReadableString {
-public:
+ public:
   enum DataType { TEXT_DATA = 0, BINARY_DATA };
 
   ReadableString();
-  ReadableString(const readable_string_t &data);
+  ReadableString(const readable_string_t& data);
 
   DataType GetType() const;
 
-  readable_string_t GetData() const;          // for direct bytes call
-  readable_string_t GetHumanReadable() const; // for diplaying
-  readable_string_t GetForCommandLine(bool need_quotes = true)
-      const; // escape if hex, or double quoted if text with space
-  void SetData(const readable_string_t &data);
+  readable_string_t GetData() const;           // for direct bytes call
+  readable_string_t GetHumanReadable() const;  // for diplaying
+  readable_string_t GetForCommandLine(
+      bool need_quotes = true) const;  // escape if hex, or double quoted if text with space
+  void SetData(const readable_string_t& data);
 
-  bool Equals(const ReadableString &other) const;
+  bool Equals(const ReadableString& other) const;
 
-private:
+ private:
   readable_string_t data_;
   DataType type_;
 };
 
-inline bool operator==(const ReadableString &r, const ReadableString &l) {
+inline bool operator==(const ReadableString& r, const ReadableString& l) {
   return r.Equals(l);
 }
 
-inline bool operator!=(const ReadableString &r, const ReadableString &l) {
+inline bool operator!=(const ReadableString& r, const ReadableString& l) {
   return !(r == l);
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

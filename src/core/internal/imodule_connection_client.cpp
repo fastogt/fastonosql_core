@@ -23,5 +23,5 @@ namespace core {
 
 IModuleConnectionClient::~IModuleConnectionClient() {}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

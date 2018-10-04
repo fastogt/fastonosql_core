@@ -18,26 +18,26 @@
 
 #pragma once
 
-#include <string> // for string
+#include <string>  // for string
 
 namespace fastonosql {
 namespace core {
 
 class NDbPSChannel {
-public:
+ public:
   NDbPSChannel();
-  NDbPSChannel(const std::string &name, size_t nos);
+  NDbPSChannel(const std::string& name, size_t nos);
 
   std::string GetName() const;
-  void SetName(const std::string &name);
+  void SetName(const std::string& name);
 
   size_t GetNumberOfSubscribers() const;
   void SetNumberOfSubscribers(size_t nos);
 
-private:
+ private:
   std::string name_;
   size_t number_of_subscribers_;
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

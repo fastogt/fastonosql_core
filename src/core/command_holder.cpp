@@ -23,55 +23,58 @@
 #include <common/sprintf.h>
 
 namespace {
-size_t count_space(const std::string &data) {
-  return std::count_if(data.begin(), data.end(),
-                       [](char c) { return std::isspace(c); });
+size_t count_space(const std::string& data) {
+  return std::count_if(data.begin(), data.end(), [](char c) { return std::isspace(c); });
 }
-} // namespace
+}  // namespace
 
 namespace fastonosql {
 namespace core {
 
-common::Error TestArgsInRange(const CommandInfo &cmd, commands_args_t argv) {
+common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
   const size_t argc = argv.size();
   const uint16_t max = cmd.GetMaxArgumentsCount();
   const uint8_t min = cmd.GetMinArgumentsCount();
   if (argc > max || argc < min) {
-    std::string buff =
-        common::MemSPrintf("Invalid input argument for command: '%s', passed "
-                           "%d arguments, must be in range %u - %u.",
-                           cmd.name, argc, min, max);
+    std::string buff = common::MemSPrintf(
+        "Invalid input argument for command: '%s', passed "
+        "%d arguments, must be in range %u - %u.",
+        cmd.name, argc, min, max);
     return common::make_error(buff);
   }
 
   return common::Error();
 }
 
-common::Error TestArgsModule2Equal1(const CommandInfo &cmd,
-                                    commands_args_t argv) {
+common::Error TestArgsModule2Equal1(const CommandInfo& cmd, commands_args_t argv) {
   const size_t argc = argv.size();
   if (argc % 2 != 1) {
-    std::string buff =
-        common::MemSPrintf("Invalid input argument for command: '%s', passed "
-                           "%d arguments, must be 1 by module 2.",
-                           cmd.name, argv.size());
+    std::string buff = common::MemSPrintf(
+        "Invalid input argument for command: '%s', passed "
+        "%d arguments, must be 1 by module 2.",
+        cmd.name, argv.size());
     return common::make_error(buff);
   }
 
   return common::Error();
 }
 
-CommandHolder::CommandHolder(const std::string &name, const std::string &params,
-                             const std::string &summary, uint32_t since,
-                             const std::string &example,
+CommandHolder::CommandHolder(const std::string& name,
+                             const std::string& params,
+                             const std::string& summary,
+                             uint32_t since,
+                             const std::string& example,
                              uint8_t required_arguments_count,
-                             uint8_t optional_arguments_count, Type type,
-                             function_t func, test_functions_t tests)
-    : CommandInfo(name, params, summary, since, example,
-                  required_arguments_count, optional_arguments_count, type),
-      func_(func), white_spaces_count_(count_space(name)), test_funcs_(tests) {}
+                             uint8_t optional_arguments_count,
+                             Type type,
+                             function_t func,
+                             test_functions_t tests)
+    : CommandInfo(name, params, summary, since, example, required_arguments_count, optional_arguments_count, type),
+      func_(func),
+      white_spaces_count_(count_space(name)),
+      test_funcs_(tests) {}
 
-bool CommandHolder::IsCommand(commands_args_t argv, size_t *offset) const {
+bool CommandHolder::IsCommand(commands_args_t argv, size_t* offset) const {
   if (argv.empty()) {
     return false;
   }
@@ -98,9 +101,8 @@ bool CommandHolder::IsCommand(commands_args_t argv, size_t *offset) const {
   return true;
 }
 
-bool CommandHolder::IsEqualFirstName(const std::string &cmd_first_name) const {
-  DCHECK(count_space(cmd_first_name) == 0)
-      << "Command (" << cmd_first_name << ") should be without spaces.";
+bool CommandHolder::IsEqualFirstName(const std::string& cmd_first_name) const {
+  DCHECK(count_space(cmd_first_name) == 0) << "Command (" << cmd_first_name << ") should be without spaces.";
   if (white_spaces_count_ == 0) {
     return IsEqualName(cmd_first_name);
   }
@@ -127,5 +129,5 @@ common::Error CommandHolder::TestArgs(commands_args_t argv) const {
   return common::Error();
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

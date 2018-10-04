@@ -19,8 +19,8 @@
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
 extern "C" {
-#include "sds/sds_fasto.h"
 #include <hiredis/hiredis.h>
+#include "sds/sds_fasto.h"
 }
 
 #include <common/file_system/string_path_utils.h>
@@ -38,64 +38,56 @@ extern "C" {
 
 #define DBSIZE "DBSIZE"
 
-#define HIREDIS_VERSION                                                        \
-  STRINGIZE(HIREDIS_MAJOR)                                                     \
+#define HIREDIS_VERSION    \
+  STRINGIZE(HIREDIS_MAJOR) \
   "." STRINGIZE(HIREDIS_MINOR) "." STRINGIZE(HIREDIS_PATCH)
 
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
 
-const char *GetHiredisVersion() { return HIREDIS_VERSION; }
+const char* GetHiredisVersion() {
+  return HIREDIS_VERSION;
+}
 
-common::Error CreateConnection(const Config &config, const SSHInfo &sinfo,
-                               NativeConnection **context) {
+common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, NativeConnection** context) {
   if (!context) {
     return common::make_error_inval();
   }
 
-  redisContext *lcontext = NULL;
+  redisContext* lcontext = NULL;
   bool is_local = !config.hostsocket.empty();
 
   if (is_local) {
-    const char *hostsocket =
-        config.hostsocket.empty() ? NULL : config.hostsocket.c_str();
+    const char* hostsocket = config.hostsocket.empty() ? NULL : config.hostsocket.c_str();
     lcontext = redisConnectUnix(hostsocket);
   } else {
     std::string host_str = config.host.GetHost();
-    const char *host = host_str.empty() ? NULL : host_str.c_str();
+    const char* host = host_str.empty() ? NULL : host_str.c_str();
     bool is_ssl = config.is_ssl;
     uint16_t port = config.host.GetPort();
-    const char *username =
-        sinfo.user_name.empty() ? NULL : sinfo.user_name.c_str();
+    const char* username = sinfo.user_name.empty() ? NULL : sinfo.user_name.c_str();
     std::string runtime_password = sinfo.GetRuntimePassword();
-    const char *password =
-        runtime_password.empty() ? NULL : runtime_password.c_str();
+    const char* password = runtime_password.empty() ? NULL : runtime_password.c_str();
     common::net::HostAndPort ssh_host = sinfo.host;
     std::string ssh_host_str = ssh_host.GetHost();
-    const char *ssh_address =
-        ssh_host_str.empty() ? NULL : ssh_host_str.c_str();
+    const char* ssh_address = ssh_host_str.empty() ? NULL : ssh_host_str.c_str();
     int ssh_port = ssh_host.GetPort();
     SSHInfo::SupportedAuthenticationMethods ssh_method = sinfo.current_method;
     PublicPrivate key = sinfo.key;
-    const char *public_key =
-        key.public_key.empty() ? NULL : key.public_key.c_str();
-    const char *private_key =
-        key.private_key.empty() ? NULL : key.private_key.c_str();
+    const char* public_key = key.public_key.empty() ? NULL : key.public_key.c_str();
+    const char* private_key = key.private_key.empty() ? NULL : key.private_key.c_str();
     bool use_public_key = key.use_public_key;
-    const char *passphrase =
-        sinfo.passphrase.empty() ? NULL : sinfo.passphrase.c_str();
+    const char* passphrase = sinfo.passphrase.empty() ? NULL : sinfo.passphrase.c_str();
     int rssh_method = SSH_UNKNOWN;
     if (ssh_method == SSHInfo::PUBLICKEY) {
       if (!private_key || !common::file_system::is_file_exist(private_key)) {
-        return common::make_error(common::MemSPrintf(
-            "Invalid input private_key path: (%s).", private_key));
+        return common::make_error(common::MemSPrintf("Invalid input private_key path: (%s).", private_key));
       }
 
       if (use_public_key) {
         if (!public_key || !common::file_system::is_file_exist(public_key)) {
-          return common::make_error(common::MemSPrintf(
-              "Invalid input public_key path: (%s).", public_key));
+          return common::make_error(common::MemSPrintf("Invalid input public_key path: (%s).", public_key));
         }
       }
       rssh_method = SSH_PUBLICKEY;
@@ -104,30 +96,25 @@ common::Error CreateConnection(const Config &config, const SSHInfo &sinfo,
     } else if (ssh_method == SSHInfo::PASSWORD) {
       rssh_method = SSH_PASSWORD;
     }
-    lcontext = redisConnectSSH(host, port, ssh_address, ssh_port, username,
-                               password, public_key, private_key, passphrase,
-                               is_ssl, rssh_method);
+    lcontext = redisConnectSSH(host, port, ssh_address, ssh_port, username, password, public_key, private_key,
+                               passphrase, is_ssl, rssh_method);
   }
 
   if (!lcontext) {
     if (is_local) {
-      return common::make_error(common::MemSPrintf(
-          "Could not connect to Redis at %s : no context", config.hostsocket));
+      return common::make_error(common::MemSPrintf("Could not connect to Redis at %s : no context", config.hostsocket));
     }
     std::string host_str = common::ConvertToString(config.host);
-    return common::make_error(common::MemSPrintf(
-        "Could not connect to Redis at %s : no context", host_str));
+    return common::make_error(common::MemSPrintf("Could not connect to Redis at %s : no context", host_str));
   }
 
   if (lcontext->err) {
     std::string buff;
     if (is_local) {
-      buff = common::MemSPrintf("Could not connect to Redis at %s : %s",
-                                config.hostsocket, lcontext->errstr);
+      buff = common::MemSPrintf("Could not connect to Redis at %s : %s", config.hostsocket, lcontext->errstr);
     } else {
       std::string host_str = common::ConvertToString(config.host);
-      buff = common::MemSPrintf("Could not connect to Redis at %s : %s",
-                                host_str, lcontext->errstr);
+      buff = common::MemSPrintf("Could not connect to Redis at %s : %s", host_str, lcontext->errstr);
     }
     redisFree(lcontext);
     return common::make_error(buff);
@@ -137,8 +124,8 @@ common::Error CreateConnection(const Config &config, const SSHInfo &sinfo,
   return common::Error();
 }
 
-common::Error TestConnection(const Config &config, const SSHInfo &sinfo) {
-  redisContext *context = NULL;
+common::Error TestConnection(const Config& config, const SSHInfo& sinfo) {
+  redisContext* context = NULL;
   common::Error err = CreateConnection(config, sinfo, &context);
   if (err) {
     return err;
@@ -155,14 +142,14 @@ common::Error TestConnection(const Config &config, const SSHInfo &sinfo) {
 }
 
 #if defined(PRO_VERSION)
-common::Error
-DiscoveryClusterConnection(const Config &rconfig, const SSHInfo &sinfo,
-                           std::vector<ServerDiscoveryClusterInfoSPtr> *infos) {
+common::Error DiscoveryClusterConnection(const Config& rconfig,
+                                         const SSHInfo& sinfo,
+                                         std::vector<ServerDiscoveryClusterInfoSPtr>* infos) {
   if (!infos) {
     return common::make_error_inval();
   }
 
-  redisContext *context = NULL;
+  redisContext* context = NULL;
   common::Error err = CreateConnection(rconfig, sinfo, &context);
   if (err) {
     return err;
@@ -175,8 +162,7 @@ DiscoveryClusterConnection(const Config &rconfig, const SSHInfo &sinfo,
   }
 
   /* Send the GET CLUSTER command. */
-  redisReply *reply =
-      reinterpret_cast<redisReply *>(redisCommand(context, GET_SERVER_TYPE));
+  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SERVER_TYPE));
   if (!reply) {
     err = common::make_error("I/O error");
     redisFree(context);
@@ -184,8 +170,7 @@ DiscoveryClusterConnection(const Config &rconfig, const SSHInfo &sinfo,
   }
 
   if (reply->type == REDIS_REPLY_STRING) {
-    err = MakeDiscoveryClusterInfo(rconfig.host,
-                                   std::string(reply->str, reply->len), infos);
+    err = MakeDiscoveryClusterInfo(rconfig.host, std::string(reply->str, reply->len), infos);
   } else if (reply->type == REDIS_REPLY_ERROR) {
     err = common::make_error(std::string(reply->str, reply->len));
   } else {
@@ -197,14 +182,14 @@ DiscoveryClusterConnection(const Config &rconfig, const SSHInfo &sinfo,
   return err;
 }
 
-common::Error DiscoverySentinelConnection(
-    const Config &rconfig, const SSHInfo &sinfo,
-    std::vector<ServerDiscoverySentinelInfoSPtr> *infos) {
+common::Error DiscoverySentinelConnection(const Config& rconfig,
+                                          const SSHInfo& sinfo,
+                                          std::vector<ServerDiscoverySentinelInfoSPtr>* infos) {
   if (!infos) {
     return common::make_error_inval();
   }
 
-  redisContext *context = NULL;
+  redisContext* context = NULL;
   common::Error err = CreateConnection(rconfig, sinfo, &context);
   if (err) {
     return err;
@@ -217,27 +202,26 @@ common::Error DiscoverySentinelConnection(
   }
 
   /* Send the GET MASTERS command. */
-  redisReply *masters_reply = reinterpret_cast<redisReply *>(
-      redisCommand(context, GET_SENTINEL_MASTERS));
+  redisReply* masters_reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_MASTERS));
   if (!masters_reply) {
     redisFree(context);
     return common::make_error("I/O error");
   }
 
   for (size_t i = 0; i < masters_reply->elements; ++i) {
-    redisReply *master_info = masters_reply->element[i];
+    redisReply* master_info = masters_reply->element[i];
     ServerCommonInfo sinf;
     common::Error lerr = MakeServerCommonInfo(master_info, &sinf);
     if (lerr) {
       continue;
     }
 
-    const char *master_name = sinf.name.c_str();
+    const char* master_name = sinf.name.c_str();
     ServerDiscoverySentinelInfoSPtr sent(new DiscoverySentinelInfo(sinf));
     infos->push_back(sent);
     /* Send the GET SLAVES command. */
-    redisReply *reply = reinterpret_cast<redisReply *>(redisCommand(
-        context, GET_SENTINEL_SLAVES_PATTERN_1ARGS_S, master_name));
+    redisReply* reply =
+        reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_SLAVES_PATTERN_1ARGS_S, master_name));
     if (!reply) {
       freeReplyObject(masters_reply);
       redisFree(context);
@@ -246,14 +230,13 @@ common::Error DiscoverySentinelConnection(
 
     if (reply->type == REDIS_REPLY_ARRAY) {
       for (size_t j = 0; j < reply->elements; ++j) {
-        redisReply *server_info = reply->element[j];
+        redisReply* server_info = reply->element[j];
         ServerCommonInfo slsinf;
         lerr = MakeServerCommonInfo(server_info, &slsinf);
         if (lerr) {
           continue;
         }
-        ServerDiscoverySentinelInfoSPtr lsent(
-            new DiscoverySentinelInfo(slsinf));
+        ServerDiscoverySentinelInfoSPtr lsent(new DiscoverySentinelInfo(slsinf));
         infos->push_back(lsent);
       }
     } else if (reply->type == REDIS_REPLY_ERROR) {
@@ -273,25 +256,22 @@ common::Error DiscoverySentinelConnection(
 }
 #endif
 
-bool IsPipeLineCommand(const char *command) {
+bool IsPipeLineCommand(const char* command) {
   if (!command) {
     DNOTREACHED();
     return false;
   }
 
   bool skip =
-      strcasecmp(command, "quit") == 0 || strcasecmp(command, "exit") == 0 ||
-      strcasecmp(command, "connect") == 0 || strcasecmp(command, "help") == 0 ||
-      strcasecmp(command, "?") == 0 || strcasecmp(command, "shutdown") == 0 ||
-      strcasecmp(command, "monitor") == 0 ||
-      strcasecmp(command, "subscribe") == 0 ||
-      strcasecmp(command, "psubscribe") == 0 ||
-      strcasecmp(command, "sync") == 0 || strcasecmp(command, "psync") == 0;
+      strcasecmp(command, "quit") == 0 || strcasecmp(command, "exit") == 0 || strcasecmp(command, "connect") == 0 ||
+      strcasecmp(command, "help") == 0 || strcasecmp(command, "?") == 0 || strcasecmp(command, "shutdown") == 0 ||
+      strcasecmp(command, "monitor") == 0 || strcasecmp(command, "subscribe") == 0 ||
+      strcasecmp(command, "psubscribe") == 0 || strcasecmp(command, "sync") == 0 || strcasecmp(command, "psync") == 0;
 
   return !skip;
 }
 
-common::Error PrintRedisContextError(NativeConnection *context) {
+common::Error PrintRedisContextError(NativeConnection* context) {
   if (!context) {
     DNOTREACHED();
     return common::make_error("Not connected");
@@ -300,59 +280,59 @@ common::Error PrintRedisContextError(NativeConnection *context) {
   return common::make_error(common::MemSPrintf("Error: %s", context->errstr));
 }
 
-common::Error ValueFromReplay(redisReply *r, common::Value **out) {
+common::Error ValueFromReplay(redisReply* r, common::Value** out) {
   if (!out || !r) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
   switch (r->type) {
-  case REDIS_REPLY_NIL: {
-    *out = common::Value::CreateNullValue();
-    break;
-  }
-  case REDIS_REPLY_ERROR: {
-    if (common::strcasestr(r->str, "NOAUTH")) { //"NOAUTH Authentication
-                                                // required."
+    case REDIS_REPLY_NIL: {
+      *out = common::Value::CreateNullValue();
+      break;
     }
-    std::string str(r->str, r->len);
-    return common::make_error(str);
-  }
-  case REDIS_REPLY_STATUS:
-  case REDIS_REPLY_STRING: {
-    std::string str(r->str, r->len);
-    *out = common::Value::CreateStringValue(str);
-    break;
-  }
-  case REDIS_REPLY_INTEGER: {
-    *out = common::Value::CreateLongLongIntegerValue(r->integer);
-    break;
-  }
-  case REDIS_REPLY_ARRAY: {
-    common::ArrayValue *arv = common::Value::CreateArrayValue();
-    for (size_t i = 0; i < r->elements; ++i) {
-      common::Value *val = NULL;
-      common::Error err = ValueFromReplay(r->element[i], &val);
-      if (err) {
-        delete arv;
-        return err;
+    case REDIS_REPLY_ERROR: {
+      if (common::strcasestr(r->str, "NOAUTH")) {  //"NOAUTH Authentication
+                                                   // required."
       }
-      arv->Append(val);
+      std::string str(r->str, r->len);
+      return common::make_error(str);
     }
-    *out = arv;
-    break;
-  }
-  default: {
-    return common::make_error(
-        common::MemSPrintf("Unknown reply type: %d", r->type));
-  }
+    case REDIS_REPLY_STATUS:
+    case REDIS_REPLY_STRING: {
+      std::string str(r->str, r->len);
+      *out = common::Value::CreateStringValue(str);
+      break;
+    }
+    case REDIS_REPLY_INTEGER: {
+      *out = common::Value::CreateLongLongIntegerValue(r->integer);
+      break;
+    }
+    case REDIS_REPLY_ARRAY: {
+      common::ArrayValue* arv = common::Value::CreateArrayValue();
+      for (size_t i = 0; i < r->elements; ++i) {
+        common::Value* val = NULL;
+        common::Error err = ValueFromReplay(r->element[i], &val);
+        if (err) {
+          delete arv;
+          return err;
+        }
+        arv->Append(val);
+      }
+      *out = arv;
+      break;
+    }
+    default: { return common::make_error(common::MemSPrintf("Unknown reply type: %d", r->type)); }
   }
 
   return common::Error();
 }
 
-common::Error ExecRedisCommand(NativeConnection *c, int argc, const char **argv,
-                               const size_t *argvlen, redisReply **out_reply) {
+common::Error ExecRedisCommand(NativeConnection* c,
+                               int argc,
+                               const char** argv,
+                               const size_t* argvlen,
+                               redisReply** out_reply) {
   if (!c) {
     DNOTREACHED();
     return common::make_error("Not connected");
@@ -369,7 +349,7 @@ common::Error ExecRedisCommand(NativeConnection *c, int argc, const char **argv,
     return PrintRedisContextError(c);
   }
 
-  void *reply = NULL;
+  void* reply = NULL;
   res = redisGetReply(c, &reply);
   if (res == REDIS_ERR) {
     /* Filter cases where we should reconnect */
@@ -383,11 +363,11 @@ common::Error ExecRedisCommand(NativeConnection *c, int argc, const char **argv,
     return PrintRedisContextError(c);
   }
 
-  redisReply *rreply = static_cast<redisReply *>(reply);
+  redisReply* rreply = static_cast<redisReply*>(reply);
   if (rreply->type == REDIS_REPLY_ERROR) {
     if (!strncmp(rreply->str, "MOVED", 5) || !strcmp(rreply->str, "ASK")) {
-      char *p = rreply->str;
-      char *s = strchr(p, ' '); /* MOVED[S]3999 127.0.0.1:6381 */
+      char* p = rreply->str;
+      char* s = strchr(p, ' '); /* MOVED[S]3999 127.0.0.1:6381 */
       p = strchr(s + 1, ' ');   /* MOVED[S]3999[P]127.0.0.1:6381 */
       *p = '\0';
       int slot = atoi(s + 1);
@@ -410,18 +390,15 @@ common::Error ExecRedisCommand(NativeConnection *c, int argc, const char **argv,
   return common::Error();
 }
 
-common::Error ExecRedisCommand(NativeConnection *c, const commands_args_t &argv,
-                               redisReply **out_reply) {
+common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv, redisReply** out_reply) {
   if (argv.empty() || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  const char **argvc =
-      static_cast<const char **>(calloc(sizeof(const char *), argv.size()));
+  const char** argvc = static_cast<const char**>(calloc(sizeof(const char*), argv.size()));
   int argcc = 0;
-  size_t *argvlen =
-      reinterpret_cast<size_t *>(malloc(argv.size() * sizeof(size_t)));
+  size_t* argvlen = reinterpret_cast<size_t*>(malloc(argv.size() * sizeof(size_t)));
   for (size_t i = 0; i < argv.size(); ++i) {
     argvc[i] = argv[i].data();
     argvlen[i] = argv[i].size();
@@ -434,40 +411,37 @@ common::Error ExecRedisCommand(NativeConnection *c, const commands_args_t &argv,
   return err;
 }
 
-common::Error ExecRedisCommand(NativeConnection *c, command_buffer_t command,
-                               redisReply **out_reply) {
+common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, redisReply** out_reply) {
   if (command.empty() || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
   int argc = 0;
-  sds *argv = sdssplitargslong(command.data(), &argc);
+  sds* argv = sdssplitargslong(command.data(), &argc);
   if (!argv) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  void *raw_argvlen_ptr = malloc(static_cast<size_t>(argc) * sizeof(size_t));
-  size_t *argvlen = reinterpret_cast<size_t *>(raw_argvlen_ptr);
+  void* raw_argvlen_ptr = malloc(static_cast<size_t>(argc) * sizeof(size_t));
+  size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
   for (int i = 0; i < argc; ++i) {
     argvlen[i] = sdslen(argv[i]);
   }
 
-  common::Error err = ExecRedisCommand(c, argc, const_cast<const char **>(argv),
-                                       argvlen, out_reply);
+  common::Error err = ExecRedisCommand(c, argc, const_cast<const char**>(argv), argvlen, out_reply);
   sdsfreesplitres(argv, argc);
   free(raw_argvlen_ptr);
   return err;
 }
 
-common::Error AuthContext(NativeConnection *context,
-                          const std::string &auth_str) {
+common::Error AuthContext(NativeConnection* context, const std::string& auth_str) {
   if (auth_str.empty()) {
     return common::Error();
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   common::Error err = ExecRedisCommand(context, {"AUTH", auth_str}, &reply);
   if (err) {
     return err;
@@ -477,7 +451,7 @@ common::Error AuthContext(NativeConnection *context,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Connect(const config_t &config) {
+common::Error DBConnection<Config, ContType>::Connect(const config_t& config) {
   common::Error err = base_class::Connect(config);
   if (err) {
     return err;
@@ -504,8 +478,7 @@ std::string DBConnection<Config, ContType>::GetCurrentDBName() const {
   if (IsAuthenticated()) {
     auto config = base_class::GetConfig();
     int db_num = config->db_num;
-    return cur_db_ != invalid_db_num ? common::ConvertToString(cur_db_)
-                                     : common::ConvertToString(db_num);
+    return cur_db_ != invalid_db_num ? common::ConvertToString(cur_db_) : common::ConvertToString(db_num);
   }
 
   DNOTREACHED();
@@ -522,9 +495,7 @@ bool DBConnection<Config, ContType>::IsAuthenticated() const {
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::CommonExec(const commands_args_t &argv,
-                                           FastoObject *out) {
+common::Error DBConnection<Config, ContType>::CommonExec(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -535,7 +506,7 @@ DBConnection<Config, ContType>::CommonExec(const commands_args_t &argv,
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, argv, &reply);
   if (err) {
     return err;
@@ -547,31 +518,29 @@ DBConnection<Config, ContType>::CommonExec(const commands_args_t &argv,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::CliFormatReplyRaw(FastoObject *out,
-                                                  redisReply *r) {
+common::Error DBConnection<Config, ContType>::CliFormatReplyRaw(FastoObject* out, redisReply* r) {
   if (!out || !r) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Value *out_val = nullptr;
+  common::Value* out_val = nullptr;
   common::Error err = ValueFromReplay(r, &out_val);
   if (err) {
-    if (err->GetDescription() == "NOAUTH") { //"NOAUTH Authentication
-                                             // required."
+    if (err->GetDescription() == "NOAUTH") {  //"NOAUTH Authentication
+                                              // required."
       is_auth_ = false;
     }
     return err;
   }
 
-  FastoObject *obj = new FastoObject(out, out_val, base_class::GetDelimiter());
+  FastoObject* obj = new FastoObject(out, out_val, base_class::GetDelimiter());
   out->AddChildren(obj);
   return common::Error();
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject *out) {
+common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -582,30 +551,27 @@ common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject *out) {
     return err;
   }
 
-  void *_reply = NULL;
+  void* _reply = NULL;
   if (redisGetReply(base_class::connection_.handle_, &_reply) != REDIS_OK) {
     /* Filter cases where we should reconnect */
-    if (base_class::connection_.handle_->err == REDIS_ERR_IO &&
-        errno == ECONNRESET) {
+    if (base_class::connection_.handle_->err == REDIS_ERR_IO && errno == ECONNRESET) {
       return common::make_error("Needed reconnect.");
     }
     if (base_class::connection_.handle_->err == REDIS_ERR_EOF) {
       return common::make_error("Needed reconnect.");
     }
 
-    return PrintRedisContextError(
-        base_class::connection_.handle_); /* avoid compiler warning */
+    return PrintRedisContextError(base_class::connection_.handle_); /* avoid compiler warning */
   }
 
-  redisReply *reply = static_cast<redisReply *>(_reply);
+  redisReply* reply = static_cast<redisReply*>(_reply);
   common::Error er = CliFormatReplyRaw(out, reply);
   freeReplyObject(reply);
   return er;
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::Auth(const std::string &password) {
+common::Error DBConnection<Config, ContType>::Auth(const std::string& password) {
   common::Error err = base_class::TestIsConnected();
   if (err) {
     return err;
@@ -622,8 +588,7 @@ DBConnection<Config, ContType>::Auth(const std::string &password) {
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Lpush(const NKey &key, NValue arr,
-                                                    long long *list_len) {
+common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr, long long* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -635,15 +600,14 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey &key, NValue arr,
   }
 
   NDbKValue rarr(key, arr);
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t lpush_cmd;
   err = tran->CreateKeyCommand(rarr, &lpush_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, lpush_cmd, &reply);
   if (err) {
     return err;
@@ -663,9 +627,7 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey &key, NValue arr,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Lrange(const NKey &key, int start,
-                                                     int stop,
-                                                     NDbKValue *loaded_key) {
+common::Error DBConnection<Config, ContType>::Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -676,22 +638,21 @@ common::Error DBConnection<Config, ContType>::Lrange(const NKey &key, int start,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t lrange_cmd;
   err = tran->Lrange(key, start, stop, &lrange_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, lrange_cmd, &reply);
   if (err) {
     return err;
   }
 
   if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value *val = nullptr;
+    common::Value* val = nullptr;
     common::Error err = ValueFromReplay(reply, &val);
     if (err) {
       delete val;
@@ -712,9 +673,7 @@ common::Error DBConnection<Config, ContType>::Lrange(const NKey &key, int start,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::Mget(const std::vector<NKey> &keys,
-                                     std::vector<NDbKValue> *loaded_keys) {
+common::Error DBConnection<Config, ContType>::Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) {
   if (keys.empty() || !loaded_keys) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -725,15 +684,14 @@ DBConnection<Config, ContType>::Mget(const std::vector<NKey> &keys,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t mget_cmd;
   err = tran->Mget(keys, &mget_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, mget_cmd, &reply);
   if (err) {
     return err;
@@ -745,8 +703,8 @@ DBConnection<Config, ContType>::Mget(const std::vector<NKey> &keys,
   }
 
   for (size_t i = 0; i < reply->elements; ++i) {
-    redisReply *key_value = reply->element[i];
-    common::Value *val = nullptr;
+    redisReply* key_value = reply->element[i];
+    common::Value* val = nullptr;
     common::Error err = ValueFromReplay(key_value, &val);
     if (err) {
       delete val;
@@ -766,9 +724,8 @@ DBConnection<Config, ContType>::Mget(const std::vector<NKey> &keys,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue> &keys,
-                                     std::vector<NDbKValue> *added_key) {
+common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>& keys,
+                                                   std::vector<NDbKValue>* added_key) {
   if (!added_key) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -779,15 +736,14 @@ DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue> &keys,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t mset_cmd;
   err = tran->Mset(keys, &mset_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, mset_cmd, &reply);
   if (err) {
     return err;
@@ -805,23 +761,20 @@ DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue> &keys,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue> &keys,
-                                       long long *result) {
+common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue>& keys, long long* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t msetnx_cmd;
   err = tran->MsetNX(keys, &msetnx_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, msetnx_cmd, &reply);
   if (err) {
     return err;
@@ -844,23 +797,20 @@ DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue> &keys,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValue &key,
-                                                    ttl_t ttl) {
+common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValue& key, ttl_t ttl) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t setex_cmd;
   err = tran->SetEx(key, ttl, &setex_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, setex_cmd, &reply);
   if (err) {
     return err;
@@ -877,23 +827,20 @@ DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValue &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue &key,
-                                                    long long *result) {
+common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue& key, long long* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t setnx_cmd;
   err = tran->SetNX(key, &setnx_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, setnx_cmd, &reply);
   if (err) {
     return err;
@@ -914,8 +861,7 @@ DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Decr(const NKey &key,
-                                                   long long *decr) {
+common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* decr) {
   if (!decr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -927,14 +873,13 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey &key,
   }
 
   std::string decr_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->Decr(key, &decr_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, decr_cmd, &reply);
   if (err) {
     return err;
@@ -955,9 +900,7 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey &key, int dec,
-                                                     long long *decr) {
+common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& key, int dec, long long* decr) {
   if (!decr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -969,14 +912,13 @@ DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey &key, int dec,
   }
 
   std::string decrby_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->DecrBy(key, dec, &decrby_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, decrby_cmd, &reply);
   if (err) {
     return err;
@@ -997,9 +939,7 @@ DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey &key, int dec,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::DBConnection::Incr(const NKey &key,
-                                                   long long *incr) {
+common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key, long long* incr) {
   if (!incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1011,14 +951,13 @@ DBConnection<Config, ContType>::DBConnection::Incr(const NKey &key,
   }
 
   std::string incr_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->Incr(key, &incr_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, incr_cmd, &reply);
   if (err) {
     return err;
@@ -1039,9 +978,7 @@ DBConnection<Config, ContType>::DBConnection::Incr(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey &key, int inc,
-                                                     long long *incr) {
+common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& key, int inc, long long* incr) {
   if (!incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1053,14 +990,13 @@ DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey &key, int inc,
   }
 
   std::string incrby_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->IncrBy(key, inc, &incrby_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, incrby_cmd, &reply);
   if (err) {
     return err;
@@ -1081,9 +1017,7 @@ DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey &key, int inc,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::IncrByFloat(const NKey &key, double inc,
-                                            std::string *str_incr) {
+common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, double inc, std::string* str_incr) {
   if (!str_incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1095,16 +1029,14 @@ DBConnection<Config, ContType>::IncrByFloat(const NKey &key, double inc,
   }
 
   std::string incrfloat_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->IncrByFloat(key, inc, &incrfloat_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
-  err =
-      ExecRedisCommand(base_class::connection_.handle_, incrfloat_cmd, &reply);
+  redisReply* reply = NULL;
+  err = ExecRedisCommand(base_class::connection_.handle_, incrfloat_cmd, &reply);
   if (err) {
     return err;
   }
@@ -1125,31 +1057,27 @@ DBConnection<Config, ContType>::IncrByFloat(const NKey &key, double inc,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::PExpire(const NKey &key,
-                                                      ttl_t ttl) {
+common::Error DBConnection<Config, ContType>::PExpire(const NKey& key, ttl_t ttl) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
   err = tran->PExpire(key, ttl, &ttl_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, ttl_cmd, &reply);
   if (err) {
     return err;
   }
 
   if (reply->integer == 0) {
-    return base_class::GenerateError(
-        REDIS_CHANGE_PTTL_COMMAND,
-        "key does not exist or the timeout could not be set.");
+    return base_class::GenerateError(REDIS_CHANGE_PTTL_COMMAND, "key does not exist or the timeout could not be set.");
   }
 
   if (base_class::client_) {
@@ -1160,8 +1088,7 @@ common::Error DBConnection<Config, ContType>::PExpire(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::PTTL(const NKey &key,
-                                                   pttl_t *ttl) {
+common::Error DBConnection<Config, ContType>::PTTL(const NKey& key, pttl_t* ttl) {
   if (!ttl) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1172,15 +1099,14 @@ common::Error DBConnection<Config, ContType>::PTTL(const NKey &key,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t pttl_cmd;
   err = tran->PTTL(key, &pttl_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, pttl_cmd, &reply);
   if (err) {
     return err;
@@ -1188,8 +1114,7 @@ common::Error DBConnection<Config, ContType>::PTTL(const NKey &key,
 
   if (reply->type != REDIS_REPLY_INTEGER) {
     freeReplyObject(reply);
-    return base_class::GenerateError(REDIS_GET_PTTL_COMMAND,
-                                     "command internal error");
+    return base_class::GenerateError(REDIS_GET_PTTL_COMMAND, "command internal error");
   }
 
   *ttl = reply->integer;
@@ -1208,8 +1133,7 @@ common::Error DBConnection<Config, ContType>::PTTL(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Sadd(const NKey &key, NValue set,
-                                                   long long *added) {
+common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, long long* added) {
   if (!set || set->GetType() != common::Value::TYPE_SET || !added) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1221,15 +1145,14 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey &key, NValue set,
   }
 
   NDbKValue rset(key, set);
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t sadd_cmd;
   err = tran->CreateKeyCommand(rset, &sadd_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, sadd_cmd, &reply);
   if (err) {
     return err;
@@ -1249,8 +1172,7 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey &key, NValue set,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Smembers(const NKey &key,
-                                                       NDbKValue *loaded_key) {
+common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1261,22 +1183,21 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey &key,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t smembers_cmd;
   err = tran->Smembers(key, &smembers_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, smembers_cmd, &reply);
   if (err) {
     return err;
   }
 
   if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value *val = nullptr;
+    common::Value* val = nullptr;
     common::Error err = ValueFromReplay(reply, &val);
     if (err) {
       delete val;
@@ -1284,16 +1205,16 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey &key,
       return err;
     }
 
-    common::ArrayValue *arr = nullptr;
+    common::ArrayValue* arr = nullptr;
     if (!val->GetAsList(&arr)) {
       delete val;
       freeReplyObject(reply);
       return common::make_error("Conversion error array to set");
     }
 
-    common::SetValue *set = common::Value::CreateSetValue();
+    common::SetValue* set = common::Value::CreateSetValue();
     for (size_t i = 0; i < arr->GetSize(); ++i) {
-      common::Value *lval = nullptr;
+      common::Value* lval = nullptr;
       if (arr->Get(i, &lval)) {
         set->Insert(lval->DeepCopy());
       }
@@ -1313,9 +1234,7 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Zadd(const NKey &key,
-                                                   NValue scores,
-                                                   long long *added) {
+common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue scores, long long* added) {
   if (!scores || scores->GetType() != common::Value::TYPE_ZSET || !added) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1327,15 +1246,14 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey &key,
   }
 
   NDbKValue rzset(key, scores);
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t zadd_cmd;
   err = tran->CreateKeyCommand(rzset, &zadd_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, zadd_cmd, &reply);
   if (err) {
     return err;
@@ -1355,9 +1273,11 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Zrange(const NKey &key, int start,
-                                                     int stop, bool withscores,
-                                                     NDbKValue *loaded_key) {
+common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
+                                                     int start,
+                                                     int stop,
+                                                     bool withscores,
+                                                     NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1368,22 +1288,21 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey &key, int start,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t zrange;
   err = tran->Zrange(key, start, stop, withscores, &zrange);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, zrange, &reply);
   if (err) {
     return err;
   }
 
   if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value *val = nullptr;
+    common::Value* val = nullptr;
     common::Error err = ValueFromReplay(reply, &val);
     if (err) {
       delete val;
@@ -1400,17 +1319,17 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey &key, int start,
       return common::Error();
     }
 
-    common::ArrayValue *arr = nullptr;
+    common::ArrayValue* arr = nullptr;
     if (!val->GetAsList(&arr)) {
       delete val;
       freeReplyObject(reply);
       return common::make_error("Conversion error array to zset");
     }
 
-    common::ZSetValue *zset = common::Value::CreateZSetValue();
+    common::ZSetValue* zset = common::Value::CreateZSetValue();
     for (size_t i = 0; i < arr->GetSize(); i += 2) {
-      common::Value *lmember = nullptr;
-      common::Value *lscore = nullptr;
+      common::Value* lmember = nullptr;
+      common::Value* lscore = nullptr;
       if (arr->Get(i, &lmember) && arr->Get(i + 1, &lscore)) {
         zset->Insert(lscore->DeepCopy(), lmember->DeepCopy());
       }
@@ -1430,8 +1349,7 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey &key, int start,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Hmset(const NKey &key,
-                                                    NValue hash) {
+common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash) {
   if (!hash || hash->GetType() != common::Value::TYPE_HASH) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1443,15 +1361,14 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey &key,
   }
 
   NDbKValue rhash(key, hash);
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t hmset_cmd;
   err = tran->CreateKeyCommand(rhash, &hmset_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, hmset_cmd, &reply);
   if (err) {
     return err;
@@ -1470,8 +1387,7 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::Hgetall(const NKey &key,
-                                                      NDbKValue *loaded_key) {
+common::Error DBConnection<Config, ContType>::Hgetall(const NKey& key, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1482,22 +1398,21 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey &key,
     return err;
   }
 
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t hgetall_cmd;
   err = tran->Hgetall(key, &hgetall_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, hgetall_cmd, &reply);
   if (err) {
     return err;
   }
 
   if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value *val = nullptr;
+    common::Value* val = nullptr;
     common::Error err = ValueFromReplay(reply, &val);
     if (err) {
       delete val;
@@ -1505,17 +1420,17 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey &key,
       return err;
     }
 
-    common::ArrayValue *arr = nullptr;
+    common::ArrayValue* arr = nullptr;
     if (!val->GetAsList(&arr)) {
       delete val;
       freeReplyObject(reply);
       return common::make_error("Conversion error array to hash");
     }
 
-    common::HashValue *hash = common::Value::CreateHashValue();
+    common::HashValue* hash = common::Value::CreateHashValue();
     for (size_t i = 0; i < arr->GetSize(); i += 2) {
-      common::Value *lkey = nullptr;
-      common::Value *lvalue = nullptr;
+      common::Value* lkey = nullptr;
+      common::Value* lvalue = nullptr;
       if (arr->Get(i, &lkey) && arr->Get(i + 1, &lvalue)) {
         hash->Insert(lkey->DeepCopy(), lvalue->DeepCopy());
       }
@@ -1535,9 +1450,7 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::Monitor(const commands_args_t &argv,
-                                        FastoObject *out) {
+common::Error DBConnection<Config, ContType>::Monitor(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1548,7 +1461,7 @@ DBConnection<Config, ContType>::Monitor(const commands_args_t &argv,
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, argv, &reply);
   if (err) {
     return err;
@@ -1561,7 +1474,7 @@ DBConnection<Config, ContType>::Monitor(const commands_args_t &argv,
     return err;
   }
 
-  while (!base_class::IsInterrupted()) { // listen loop
+  while (!base_class::IsInterrupted()) {  // listen loop
     err = CliReadReply(out);
     if (err) {
       return err;
@@ -1572,9 +1485,7 @@ DBConnection<Config, ContType>::Monitor(const commands_args_t &argv,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::Subscribe(const commands_args_t &argv,
-                                          FastoObject *out) {
+common::Error DBConnection<Config, ContType>::Subscribe(const commands_args_t& argv, FastoObject* out) {
   if (!out || argv.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1585,7 +1496,7 @@ DBConnection<Config, ContType>::Subscribe(const commands_args_t &argv,
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, argv, &reply);
   if (err) {
     return err;
@@ -1598,7 +1509,7 @@ DBConnection<Config, ContType>::Subscribe(const commands_args_t &argv,
     return err;
   }
 
-  while (!base_class::IsInterrupted()) { // listen loop
+  while (!base_class::IsInterrupted()) {  // listen loop
     err = CliReadReply(out);
     if (err) {
       return err;
@@ -1609,7 +1520,7 @@ DBConnection<Config, ContType>::Subscribe(const commands_args_t &argv,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject *out) {
+common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1630,8 +1541,7 @@ common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject *out) {
   /* Discard the payload. */
   while (payload) {
     ssize_t nread = 0;
-    int res = redisReadToBuffer(base_class::connection_.handle_, buf,
-                                (payload > sizeof(buf)) ? sizeof(buf) : payload,
+    int res = redisReadToBuffer(base_class::connection_.handle_, buf, (payload > sizeof(buf)) ? sizeof(buf) : payload,
                                 &nread);
     if (res == REDIS_ERR) {
       return common::make_error("Error reading RDB payload while SYNCing");
@@ -1655,8 +1565,7 @@ common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject *out) {
  * Used both by
  * slaveMode() and getRDB(). */
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::SendSync(unsigned long long *payload) {
+common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* payload) {
   if (!payload) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1672,8 +1581,7 @@ DBConnection<Config, ContType>::SendSync(unsigned long long *payload) {
 
   /* Send the SYNC command. */
   ssize_t nwrite = 0;
-  if (redisWriteFromBuffer(base_class::connection_.handle_, "SYNC\r\n",
-                           &nwrite) == REDIS_ERR) {
+  if (redisWriteFromBuffer(base_class::connection_.handle_, "SYNC\r\n", &nwrite) == REDIS_ERR) {
     return common::make_error("Error writing to master");
   }
 
@@ -1709,14 +1617,14 @@ DBConnection<Config, ContType>::SendSync(unsigned long long *payload) {
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::ScanImpl(
-    cursor_t cursor_in, const std::string &pattern, keys_limit_t count_keys,
-    std::vector<std::string> *keys_out, cursor_t *cursor_out) {
-  const command_buffer_t pattern_result =
-      core::internal::GetKeysPattern(cursor_in, pattern, count_keys);
-  redisReply *reply = NULL;
-  common::Error err =
-      ExecRedisCommand(base_class::connection_.handle_, pattern_result, &reply);
+common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
+                                                       const std::string& pattern,
+                                                       keys_limit_t count_keys,
+                                                       std::vector<std::string>* keys_out,
+                                                       cursor_t* cursor_out) {
+  const command_buffer_t pattern_result = core::internal::GetKeysPattern(cursor_in, pattern, count_keys);
+  redisReply* reply = NULL;
+  common::Error err = ExecRedisCommand(base_class::connection_.handle_, pattern_result, &reply);
   if (err) {
     return err;
   }
@@ -1726,7 +1634,7 @@ common::Error DBConnection<Config, ContType>::ScanImpl(
     return common::make_error("I/O error");
   }
 
-  common::Value *val = nullptr;
+  common::Value* val = nullptr;
   err = ValueFromReplay(reply, &val);
   if (err) {
     delete val;
@@ -1734,7 +1642,7 @@ common::Error DBConnection<Config, ContType>::ScanImpl(
     return err;
   }
 
-  common::ArrayValue *arr = static_cast<common::ArrayValue *>(val);
+  common::ArrayValue* arr = static_cast<common::ArrayValue*>(val);
   CHECK_EQ(2, arr->GetSize());
   std::string cursor_out_str;
   if (!arr->GetString(0, &cursor_out_str)) {
@@ -1743,7 +1651,7 @@ common::Error DBConnection<Config, ContType>::ScanImpl(
     return common::make_error("I/O error");
   }
 
-  common::ArrayValue *arr_keys = nullptr;
+  common::ArrayValue* arr_keys = nullptr;
   if (!arr->GetList(1, &arr_keys)) {
     delete val;
     freeReplyObject(reply);
@@ -1769,9 +1677,10 @@ common::Error DBConnection<Config, ContType>::ScanImpl(
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::KeysImpl(
-    const std::string &key_start, const std::string &key_end,
-    keys_limit_t limit, std::vector<std::string> *ret) {
+common::Error DBConnection<Config, ContType>::KeysImpl(const std::string& key_start,
+                                                       const std::string& key_end,
+                                                       keys_limit_t limit,
+                                                       std::vector<std::string>* ret) {
   UNUSED(key_start);
   UNUSED(key_end);
   UNUSED(limit);
@@ -1780,9 +1689,8 @@ common::Error DBConnection<Config, ContType>::KeysImpl(
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t *size) {
-  redisReply *reply = reinterpret_cast<redisReply *>(
-      redisCommand(base_class::connection_.handle_, DBSIZE));
+common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t* size) {
+  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
   if (!reply || reply->type != REDIS_REPLY_INTEGER) {
     return common::make_error("Couldn't determine " DB_DBKCOUNT_COMMAND "!");
@@ -1796,8 +1704,7 @@ common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t *size) {
 
 template <typename Config, connectionTypes ContType>
 common::Error DBConnection<Config, ContType>::FlushDBImpl() {
-  redisReply *reply = reinterpret_cast<redisReply *>(
-      redisCommand(base_class::connection_.handle_, DB_FLUSHDB_COMMAND));
+  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DB_FLUSHDB_COMMAND));
   if (!reply) {
     return PrintRedisContextError(base_class::connection_.handle_);
   }
@@ -1807,24 +1714,20 @@ common::Error DBConnection<Config, ContType>::FlushDBImpl() {
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error
-DBConnection<Config, ContType>::SelectImpl(const std::string &name,
-                                           IDataBaseInfo **info) {
+common::Error DBConnection<Config, ContType>::SelectImpl(const std::string& name, IDataBaseInfo** info) {
   int num;
   if (!common::ConvertFromString(name, &num)) {
     return common::make_error_inval();
   }
 
   command_buffer_t select_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
-  common::Error err =
-      tran->SelectDBCommand(common::ConvertToString(num), &select_cmd);
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  common::Error err = tran->SelectDBCommand(common::ConvertToString(num), &select_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, select_cmd, &reply);
   if (err) {
     return err;
@@ -1835,27 +1738,24 @@ DBConnection<Config, ContType>::SelectImpl(const std::string &name,
   size_t sz = 0;
   err = base_class::DBkcount(&sz);
   DCHECK(!err);
-  DataBaseInfo *linfo =
-      new DataBaseInfo(common::ConvertToString(num), true, sz);
+  DataBaseInfo* linfo = new DataBaseInfo(common::ConvertToString(num), true, sz);
   *info = linfo;
   freeReplyObject(reply);
   return common::Error();
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys &keys,
-                                                         NKeys *deleted_keys) {
+common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     command_buffer_t del_cmd;
-    redis_translator_t tran =
-        base_class::template GetSpecificTranslator<CommandTranslator>();
+    redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
     common::Error err = tran->DeleteKeyCommand(key, &del_cmd);
     if (err) {
       return err;
     }
 
-    redisReply *reply = NULL;
+    redisReply* reply = NULL;
     err = ExecRedisCommand(base_class::connection_.handle_, del_cmd, &reply);
     if (err) {
       return err;
@@ -1871,17 +1771,15 @@ common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys &keys,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue &key,
-                                                      NDbKValue *added_key) {
+common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   command_buffer_t set_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->CreateKeyCommand(key, &set_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, set_cmd, &reply);
   if (err) {
     return err;
@@ -1893,18 +1791,15 @@ common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::GetImpl(const NKey &key,
-                                                      NDbKValue *loaded_key) {
+common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   command_buffer_t get_cmd;
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
-  common::Error err =
-      tran->LoadKeyCommand(key, common::Value::TYPE_STRING, &get_cmd);
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  common::Error err = tran->LoadKeyCommand(key, common::Value::TYPE_STRING, &get_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, get_cmd, &reply);
   if (err) {
     return err;
@@ -1915,26 +1810,23 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey &key,
     return base_class::GenerateError(DB_GET_KEY_COMMAND, "key not found.");
   }
 
-  CHECK(reply->type == REDIS_REPLY_STRING)
-      << "Unexpected replay type: " << reply->type;
-  common::Value *val = common::Value::CreateStringValue(reply->str);
+  CHECK(reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
+  common::Value* val = common::Value::CreateStringValue(reply->str);
   *loaded_key = NDbKValue(key, NValue(val));
   freeReplyObject(reply);
   return common::Error();
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::RenameImpl(const NKey &key,
-                                                         const key_t &new_key) {
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+common::Error DBConnection<Config, ContType>::RenameImpl(const NKey& key, const key_t& new_key) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t rename_cmd;
   common::Error err = tran->RenameKeyCommand(key, new_key, &rename_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, rename_cmd, &reply);
   if (err) {
     return err;
@@ -1945,26 +1837,22 @@ common::Error DBConnection<Config, ContType>::RenameImpl(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey &key,
-                                                         ttl_t ttl) {
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
   common::Error err = tran->ChangeKeyTTLCommand(key, ttl, &ttl_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, ttl_cmd, &reply);
   if (err) {
     return err;
   }
 
   if (reply->integer == 0) {
-    return base_class::GenerateError(
-        DB_SET_TTL_COMMAND,
-        "key does not exist or the timeout could not be set.");
+    return base_class::GenerateError(DB_SET_TTL_COMMAND, "key does not exist or the timeout could not be set.");
   }
 
   freeReplyObject(reply);
@@ -1972,17 +1860,15 @@ common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey &key,
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey &key,
-                                                         ttl_t *ttl) {
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey& key, ttl_t* ttl) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
   common::Error err = tran->LoadKeyTTLCommand(key, &ttl_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = NULL;
+  redisReply* reply = NULL;
   err = ExecRedisCommand(base_class::connection_.handle_, ttl_cmd, &reply);
   if (err) {
     return err;
@@ -2000,8 +1886,7 @@ common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey &key,
 
 template <typename Config, connectionTypes ContType>
 common::Error DBConnection<Config, ContType>::QuitImpl() {
-  redisReply *reply = reinterpret_cast<redisReply *>(
-      redisCommand(base_class::connection_.handle_, DB_QUIT_COMMAND));
+  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DB_QUIT_COMMAND));
   if (!reply) {
     return PrintRedisContextError(base_class::connection_.handle_);
   }
@@ -2013,27 +1898,23 @@ common::Error DBConnection<Config, ContType>::QuitImpl() {
 }
 
 template <typename Config, connectionTypes ContType>
-common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(
-    std::vector<std::string> *dbs) {
-  redis_translator_t tran =
-      base_class::template GetSpecificTranslator<CommandTranslator>();
+common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t get_dbs_cmd;
   common::Error err = tran->GetDatabasesCommand(&get_dbs_cmd);
   if (err) {
     return err;
   }
 
-  redisReply *reply = reinterpret_cast<redisReply *>(
-      redisCommand(base_class::connection_.handle_, DB_GET_DATABASES_COMMAND));
+  redisReply* reply =
+      reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DB_GET_DATABASES_COMMAND));
   if (!reply) {
     return PrintRedisContextError(base_class::connection_.handle_);
   }
 
   size_t count_dbs;
   if (reply->type == REDIS_REPLY_ARRAY && reply->elements == 2 &&
-      common::ConvertFromString(
-          std::string(reply->element[1]->str, reply->element[1]->len),
-          &count_dbs)) {
+      common::ConvertFromString(std::string(reply->element[1]->str, reply->element[1]->len), &count_dbs)) {
     for (size_t i = 0; i < count_dbs; ++i) {
       dbs->push_back(common::ConvertToString(i));
     }
@@ -2048,7 +1929,7 @@ common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(
 
 template <typename Config, connectionTypes ContType>
 common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
-    const std::vector<FastoObjectCommandIPtr> &cmds,
+    const std::vector<FastoObjectCommandIPtr>& cmds,
     void (*log_command_cb)(FastoObjectCommandIPtr command)) {
   if (cmds.empty()) {
     return common::make_error("Invalid input command");
@@ -2073,18 +1954,16 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
     }
 
     int argc = 0;
-    sds *argv = sdssplitargslong(command.data(), &argc);
+    sds* argv = sdssplitargslong(command.data(), &argc);
     if (argv) {
       if (IsPipeLineCommand(argv[0])) {
         valid_cmds.push_back(cmd);
-        void *raw_argvlen_ptr =
-            malloc(static_cast<size_t>(argc) * sizeof(size_t));
-        size_t *argvlen = reinterpret_cast<size_t *>(raw_argvlen_ptr);
+        void* raw_argvlen_ptr = malloc(static_cast<size_t>(argc) * sizeof(size_t));
+        size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
         for (int i = 0; i < argc; ++i) {
           argvlen[i] = sdslen(argv[i]);
         }
-        redisAppendCommandArgv(base_class::connection_.handle_, argc,
-                               const_cast<const char **>(argv), argvlen);
+        redisAppendCommandArgv(base_class::connection_.handle_, argc, const_cast<const char**>(argv), argvlen);
         free(raw_argvlen_ptr);
       }
       sdsfreesplitres(argv, argc);
@@ -2102,9 +1981,9 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
 
   return common::Error();
 }
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql
 
 #include <fastonosql/core/db/pika/config.h>
 #include <fastonosql/core/db/redis/config.h>
@@ -2118,6 +1997,6 @@ template class DBConnection<redis::RConfig, REDIS>;
 #ifdef BUILD_WITH_PIKA
 template class DBConnection<pika::RConfig, PIKA>;
 #endif
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

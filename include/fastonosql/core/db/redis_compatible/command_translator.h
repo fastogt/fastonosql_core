@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/icommand_translator.h> // for ICommandTranslator
+#include <fastonosql/core/icommand_translator.h>  // for ICommandTranslator
 
 #if defined(PRO_VERSION)
 #include <fastonosql/core/module_info.h>
@@ -32,87 +32,60 @@ namespace core {
 namespace redis_compatible {
 
 class CommandTranslator : public ICommandTranslator {
-public:
-  explicit CommandTranslator(const std::vector<CommandHolder> &commands);
-  virtual const char *GetDBName() const override;
+ public:
+  explicit CommandTranslator(const std::vector<CommandHolder>& commands);
+  virtual const char* GetDBName() const override;
 
-  common::Error Zrange(const NKey &key, int start, int stop, bool withscores,
-                       command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Zrange(const NKey& key, int start, int stop, bool withscores, command_buffer_t* cmdstring)
+      WARN_UNUSED_RESULT;
 
-  common::Error Hgetall(const NKey &key,
-                        command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error Mget(const std::vector<NKey> &keys,
-                     command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error Mset(const std::vector<NDbKValue> &keys,
-                     command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error MsetNX(const std::vector<NDbKValue> &keys,
-                       command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Hgetall(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error Mget(const std::vector<NKey>& keys, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error Mset(const std::vector<NDbKValue>& keys, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error MsetNX(const std::vector<NDbKValue>& keys, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
-  common::Error Smembers(const NKey &key,
-                         command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Smembers(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
-  common::Error Lrange(const NKey &key, int start, int stop,
-                       command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Lrange(const NKey& key, int start, int stop, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
-  common::Error SetEx(const NDbKValue &key, ttl_t ttl,
-                      command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error SetNX(const NDbKValue &key,
-                      command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error SetEx(const NDbKValue& key, ttl_t ttl, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error SetNX(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
-  common::Error Decr(const NKey &key,
-                     command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error DecrBy(const NKey &key, int inc,
-                       command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Decr(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error DecrBy(const NKey& key, int inc, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
-  common::Error Incr(const NKey &key,
-                     command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error IncrBy(const NKey &key, int inc,
-                       command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error IncrByFloat(const NKey &key, double inc,
-                            command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error Incr(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error IncrBy(const NKey& key, int inc, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error IncrByFloat(const NKey& key, double inc, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
 #if defined(PRO_VERSION)
-  common::Error ModuleLoad(const ModuleInfo &module,
-                           command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
-  common::Error ModuleUnload(const ModuleInfo &module,
-                             command_buffer_t *cmdstring) WARN_UNUSED_RESULT;
+  common::Error ModuleLoad(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error ModuleUnload(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 #endif
 
-  common::Error PExpire(const NKey &key, ttl_t ttl,
-                        command_buffer_t *cmdstring) const WARN_UNUSED_RESULT;
-  common::Error PTTL(const NKey &key,
-                     command_buffer_t *cmdstring) const WARN_UNUSED_RESULT;
+  common::Error PExpire(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error PTTL(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
-private:
-  virtual common::Error
-  CreateKeyCommandImpl(const NDbKValue &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
-                     command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  DeleteKeyCommandImpl(const NKey &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  RenameKeyCommandImpl(const NKey &key, const key_t &new_name,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  ChangeKeyTTLCommandImpl(const NKey &key, ttl_t ttl,
-                          command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  LoadKeyTTLCommandImpl(const NKey &key,
-                        command_buffer_t *cmdstring) const override;
+ private:
+  virtual common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error LoadKeyCommandImpl(const NKey& key,
+                                           common::Value::Type type,
+                                           command_buffer_t* cmdstring) const override;
+  virtual common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error RenameKeyCommandImpl(const NKey& key,
+                                             const key_t& new_name,
+                                             command_buffer_t* cmdstring) const override;
+  virtual common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
+  virtual common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
 
-  virtual bool IsLoadKeyCommandImpl(const CommandInfo &cmd) const override;
+  virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
 
-  virtual common::Error
-  PublishCommandImpl(const NDbPSChannel &channel, const std::string &message,
-                     command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  SubscribeCommandImpl(const NDbPSChannel &channel,
-                       command_buffer_t *cmdstring) const override;
+  virtual common::Error PublishCommandImpl(const NDbPSChannel& channel,
+                                           const std::string& message,
+                                           command_buffer_t* cmdstring) const override;
+  virtual common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
 };
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

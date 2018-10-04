@@ -24,13 +24,10 @@ namespace fastonosql {
 namespace core {
 namespace redis {
 
-Config::Config()
-    : base_class(common::net::HostAndPort::CreateLocalHost(
-          DEFAULT_REDIS_SERVER_PORT)) {}
+Config::Config() : base_class(common::net::HostAndPort::CreateLocalHost(DEFAULT_REDIS_SERVER_PORT)) {}
 
-RConfig::RConfig(const Config &config, const SSHInfo &sinfo)
-    : Config(config), ssh_info(sinfo) {}
+RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
 
-} // namespace redis
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis
+}  // namespace core
+}  // namespace fastonosql

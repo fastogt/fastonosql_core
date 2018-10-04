@@ -32,11 +32,11 @@ struct Config : public redis_compatible::Config {
 };
 
 struct RConfig : public Config {
-  RConfig(const Config &config, const SSHInfo &sinfo);
+  RConfig(const Config& config, const SSHInfo& sinfo);
 
   SSHInfo ssh_info;
 };
 
-} // namespace pika
-} // namespace core
-} // namespace fastonosql
+}  // namespace pika
+}  // namespace core
+}  // namespace fastonosql

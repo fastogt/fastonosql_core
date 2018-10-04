@@ -29,33 +29,31 @@ namespace fastonosql {
 namespace core {
 namespace {
 
-const std::vector<Field> g_rocksdb_common_fields = {
+const std::vector<Field> kRocksdbCommonFields = {
     Field(ROCKSDB_STATS_CAMPACTIONS_LEVEL_LABEL, common::Value::TYPE_UINTEGER),
     Field(ROCKSDB_STATS_FILE_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER),
     Field(ROCKSDB_STATS_TIME_SEC_LABEL, common::Value::TYPE_UINTEGER),
     Field(ROCKSDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER),
     Field(ROCKSDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER)};
 
-} // namespace
+}  // namespace
 
 template <>
 std::vector<common::Value::Type> DBTraits<ROCKSDB>::GetSupportedValueTypes() {
-  return {common::Value::TYPE_BOOLEAN,  common::Value::TYPE_INTEGER,
-          common::Value::TYPE_UINTEGER, common::Value::TYPE_DOUBLE,
-          common::Value::TYPE_STRING,   JsonValue::TYPE_JSON};
+  return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
+          common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <> std::vector<info_field_t> DBTraits<ROCKSDB>::GetInfoFields() {
-  return {std::make_pair(ROCKSDB_STATS_LABEL, g_rocksdb_common_fields)};
+template <>
+std::vector<info_field_t> DBTraits<ROCKSDB>::GetInfoFields() {
+  return {std::make_pair(ROCKSDB_STATS_LABEL, kRocksdbCommonFields)};
 }
 
 namespace rocksdb {
 
-ServerInfo::Stats::Stats()
-    : compactions_level(0), file_size_mb(0), time_sec(0), read_mb(0),
-      write_mb(0) {}
+ServerInfo::Stats::Stats() : compactions_level(0), file_size_mb(0), time_sec(0), read_mb(0), write_mb(0) {}
 
-ServerInfo::Stats::Stats(const std::string &common_text) {
+ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
@@ -94,20 +92,20 @@ ServerInfo::Stats::Stats(const std::string &common_text) {
   }
 }
 
-common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
+common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
-  case 0:
-    return new common::FundamentalValue(compactions_level);
-  case 1:
-    return new common::FundamentalValue(file_size_mb);
-  case 2:
-    return new common::FundamentalValue(time_sec);
-  case 3:
-    return new common::FundamentalValue(read_mb);
-  case 4:
-    return new common::FundamentalValue(write_mb);
-  default:
-    break;
+    case 0:
+      return new common::FundamentalValue(compactions_level);
+    case 1:
+      return new common::FundamentalValue(file_size_mb);
+    case 2:
+      return new common::FundamentalValue(time_sec);
+    case 3:
+      return new common::FundamentalValue(read_mb);
+    case 4:
+      return new common::FundamentalValue(write_mb);
+    default:
+      break;
   }
 
   NOTREACHED();
@@ -116,44 +114,38 @@ common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
 
 ServerInfo::ServerInfo() : IServerInfo(ROCKSDB) {}
 
-ServerInfo::ServerInfo(const Stats &stats)
-    : IServerInfo(ROCKSDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(ROCKSDB), stats_(stats) {}
 
-common::Value *ServerInfo::GetValueByIndexes(unsigned char property,
-                                             unsigned char field) const {
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
-  case 0:
-    return stats_.GetValueByIndex(field);
-  default:
-    break;
+    case 0:
+      return stats_.GetValueByIndex(field);
+    default:
+      break;
   }
 
   NOTREACHED();
   return nullptr;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo::Stats &value) {
-  return out << ROCKSDB_STATS_CAMPACTIONS_LEVEL_LABEL ":"
-             << value.compactions_level << MARKER
-             << ROCKSDB_STATS_FILE_SIZE_MB_LABEL ":" << value.file_size_mb
-             << MARKER << ROCKSDB_STATS_TIME_SEC_LABEL ":" << value.time_sec
-             << MARKER << ROCKSDB_STATS_READ_MB_LABEL ":" << value.read_mb
-             << MARKER << ROCKSDB_STATS_WRITE_MB_LABEL ":" << value.write_mb
-             << MARKER;
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << ROCKSDB_STATS_CAMPACTIONS_LEVEL_LABEL ":" << value.compactions_level << MARKER
+             << ROCKSDB_STATS_FILE_SIZE_MB_LABEL ":" << value.file_size_mb << MARKER << ROCKSDB_STATS_TIME_SEC_LABEL ":"
+             << value.time_sec << MARKER << ROCKSDB_STATS_READ_MB_LABEL ":" << value.read_mb << MARKER
+             << ROCKSDB_STATS_WRITE_MB_LABEL ":" << value.write_mb << MARKER;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
   return out << value.ToString();
 }
 
-ServerInfo *MakeRocksdbServerInfo(const std::string &content) {
+ServerInfo* MakeRocksdbServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;
   }
 
-  ServerInfo *result = new ServerInfo;
-  static const std::vector<info_field_t> fields =
-      DBTraits<ROCKSDB>::GetInfoFields();
+  ServerInfo* result = new ServerInfo;
+  static const std::vector<info_field_t> fields = DBTraits<ROCKSDB>::GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 
@@ -175,8 +167,10 @@ std::string ServerInfo::ToString() const {
   return str.str();
 }
 
-uint32_t ServerInfo::GetVersion() const { return 0; }
+uint32_t ServerInfo::GetVersion() const {
+  return 0;
+}
 
-} // namespace rocksdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace rocksdb
+}  // namespace core
+}  // namespace fastonosql

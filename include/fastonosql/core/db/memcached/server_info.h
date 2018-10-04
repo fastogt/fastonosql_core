@@ -50,11 +50,11 @@ namespace core {
 namespace memcached {
 
 class ServerInfo : public IServerInfo {
-public:
+ public:
   struct Stats : IStateField {
     Stats();
-    explicit Stats(const std::string &common_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Stats(const std::string& common_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t pid;
     uint32_t uptime;
@@ -81,18 +81,17 @@ public:
   } stats_;
 
   ServerInfo();
-  explicit ServerInfo(const Stats &common);
+  explicit ServerInfo(const Stats& common);
 
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const override;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   virtual std::string ToString() const override;
   virtual uint32_t GetVersion() const override;
 };
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value);
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
-ServerInfo *MakeMemcachedServerInfo(const std::string &content);
+ServerInfo* MakeMemcachedServerInfo(const std::string& content);
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql

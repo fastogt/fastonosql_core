@@ -18,16 +18,16 @@
 
 #include <fastonosql/core/db/redis_compatible/cluster_infos.h>
 
-#include <memory>   // for __shared_ptr
-#include <stddef.h> // for size_t
+#include <stddef.h>  // for size_t
+#include <memory>    // for __shared_ptr
 
-#include <common/convert2string.h> // for ConvertFromString
-#include <common/macros.h>         // for NOTREACHED
-#include <common/net/types.h>      // for HostAndPortAndSlot, etc
-#include <common/string_util.h>    // for Tokenize
-#include <common/value.h>          // for ErrorValue, etc
+#include <common/convert2string.h>  // for ConvertFromString
+#include <common/macros.h>          // for NOTREACHED
+#include <common/net/types.h>       // for HostAndPortAndSlot, etc
+#include <common/string_util.h>     // for Tokenize
+#include <common/value.h>           // for ErrorValue, etc
 
-#include <fastonosql/core/connection_types.h> // for connectionTypes::REDIS, etc
+#include <fastonosql/core/connection_types.h>  // for connectionTypes::REDIS, etc
 
 #define MARKER "\n"
 
@@ -35,14 +35,12 @@ namespace fastonosql {
 namespace core {
 namespace redis_compatible {
 
-DiscoveryClusterInfo::DiscoveryClusterInfo(const ServerCommonInfo &info,
-                                           bool self)
+DiscoveryClusterInfo::DiscoveryClusterInfo(const ServerCommonInfo& info, bool self)
     : ServerDiscoveryClusterInfo(REDIS, info, self) {}
 
 namespace {
 
-common::Error MakeServerCommonInfoFromLine(const std::string &line,
-                                           ServerCommonInfo *info, bool *self) {
+common::Error MakeServerCommonInfoFromLine(const std::string& line, ServerCommonInfo* info, bool* self) {
   if (line.empty() || !info || !self) {
     return common::make_error_inval();
   }
@@ -60,62 +58,62 @@ common::Error MakeServerCommonInfoFromLine(const std::string &line,
 
     if (ch == ' ' || i == len - 1) {
       switch (fieldpos) {
-      case 0: {
-        linfo.name = word;
-        break;
-      }
-      case 1: {
-        common::net::HostAndPortAndSlot hs;
-        if (common::ConvertFromString(word, &hs)) {
-          linfo.host = hs;
+        case 0: {
+          linfo.name = word;
+          break;
         }
-        break;
-      }
-      case 2: {
-        std::vector<std::string> flags;
-        const size_t len = common::Tokenize(word, ",", &flags);
-        for (size_t i = 0; i < len; ++i) {
-          const std::string flag = flags[i];
-          if (common::StartsWithASCII(flag, "master", true)) {
-            linfo.type = MASTER;
-          } else if (common::StartsWithASCII(flag, "slave", true)) {
-            linfo.type = SLAVE;
-          } else if (common::StartsWithASCII(flag, "myself", true)) {
-            lself = true;
-          } else if (common::StartsWithASCII(flag, "fail", true)) {
-          } else {
-            DNOTREACHED() << "flag: " << flag;
+        case 1: {
+          common::net::HostAndPortAndSlot hs;
+          if (common::ConvertFromString(word, &hs)) {
+            linfo.host = hs;
           }
+          break;
         }
-        break;
-      }
-      case 3: { // dep
-        break;
-      }
-      case 4: { //
-        break;
-      }
-      case 5: { //
-        break;
-      }
-      case 6: { //
-        break;
-      }
-      case 7: { // connected/disconnected
-        if (word == "connected") {
-          linfo.state = SUP;
-        } else if (word == "disconnected") {
-          linfo.state = SDOWN;
-        } else {
-          NOTREACHED();
+        case 2: {
+          std::vector<std::string> flags;
+          const size_t len = common::Tokenize(word, ",", &flags);
+          for (size_t i = 0; i < len; ++i) {
+            const std::string flag = flags[i];
+            if (common::StartsWithASCII(flag, "master", true)) {
+              linfo.type = MASTER;
+            } else if (common::StartsWithASCII(flag, "slave", true)) {
+              linfo.type = SLAVE;
+            } else if (common::StartsWithASCII(flag, "myself", true)) {
+              lself = true;
+            } else if (common::StartsWithASCII(flag, "fail", true)) {
+            } else {
+              DNOTREACHED() << "flag: " << flag;
+            }
+          }
+          break;
         }
-        break;
-      }
-      case 8: { // slots
-        break;
-      }
-      default:
-        break;
+        case 3: {  // dep
+          break;
+        }
+        case 4: {  //
+          break;
+        }
+        case 5: {  //
+          break;
+        }
+        case 6: {  //
+          break;
+        }
+        case 7: {  // connected/disconnected
+          if (word == "connected") {
+            linfo.state = SUP;
+          } else if (word == "disconnected") {
+            linfo.state = SDOWN;
+          } else {
+            NOTREACHED();
+          }
+          break;
+        }
+        case 8: {  // slots
+          break;
+        }
+        default:
+          break;
       }
       word.clear();
       ++fieldpos;
@@ -127,12 +125,11 @@ common::Error MakeServerCommonInfoFromLine(const std::string &line,
   return common::Error();
 }
 
-} // namespace
+}  // namespace
 
-common::Error
-MakeDiscoveryClusterInfo(const common::net::HostAndPort &parentHost,
-                         const std::string &text,
-                         std::vector<ServerDiscoveryClusterInfoSPtr> *infos) {
+common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHost,
+                                       const std::string& text,
+                                       std::vector<ServerDiscoveryClusterInfoSPtr>* infos) {
   if (text.empty() || !infos) {
     return common::make_error_inval();
     ;
@@ -150,7 +147,7 @@ MakeDiscoveryClusterInfo(const common::net::HostAndPort &parentHost,
     if (lerr) {
       continue;
     }
-    if (inf.host.IsLocalHost()) { // for direct connection
+    if (inf.host.IsLocalHost()) {  // for direct connection
       inf.host.SetHost(parentHost.GetHost());
     }
 
@@ -162,6 +159,6 @@ MakeDiscoveryClusterInfo(const common::net::HostAndPort &parentHost,
   return common::Error();
 }
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

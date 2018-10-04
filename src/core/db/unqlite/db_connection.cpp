@@ -86,95 +86,169 @@ std::string unqlite_strerror(int unqlite_error) {
   }
 }
 
-int unqlite_data_callback(const void *pData, unsigned int nDatalen, void *str) {
-  std::string *out = static_cast<std::string *>(str);
-  out->assign(reinterpret_cast<const char *>(pData), nDatalen);
+int unqlite_data_callback(const void* pData, unsigned int nDatalen, void* str) {
+  std::string* out = static_cast<std::string*>(str);
+  out->assign(reinterpret_cast<const char*>(pData), nDatalen);
   return UNQLITE_OK;
 }
 
-} // namespace
+}  // namespace
 
 namespace fastonosql {
 namespace core {
 namespace unqlite {
 namespace {
-const ConstantCommandsArray g_commands = {
-    CommandHolder(DB_HELP_COMMAND, "[command]", "Return how to use command",
-                  UNDEFINED_SINCE, DB_HELP_COMMAND " " DB_GET_KEY_COMMAND, 0, 1,
-                  CommandInfo::Native, &CommandsApi::Help),
-    CommandHolder(DB_INFO_COMMAND, "[section]",
-                  "These command return database information.", UNDEFINED_SINCE,
-                  DB_INFO_COMMAND " STATS", 0, 1, CommandInfo::Native,
-                  &CommandsApi::Info),
-    CommandHolder(DB_GET_CONFIG_COMMAND, "<parameter>",
-                  "Get the value of a configuration parameter", UNDEFINED_SINCE,
-                  DB_GET_CONFIG_COMMAND " databases", 1, 0, CommandInfo::Native,
-                  &CommandsApi::ConfigGet),
-    CommandHolder(DB_SCAN_COMMAND, "<cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate the keys space", UNDEFINED_SINCE,
-                  DB_SCAN_COMMAND " 0 MATCH * COUNT 10", 1, 4,
-                  CommandInfo::Native, &CommandsApi::Scan),
-    CommandHolder(DB_JSONDUMP_COMMAND,
-                  "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
-                  "Dump DB into json file by path.", UNDEFINED_SINCE,
-                  DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10", 3,
-                  4, CommandInfo::Native, &CommandsApi::JsonDump),
-    CommandHolder(DB_KEYS_COMMAND, "<key_start> <key_end> <limit>",
-                  "Find all keys matching the given limits.", UNDEFINED_SINCE,
-                  DB_KEYS_COMMAND " a z 10", 3, 0, CommandInfo::Native,
-                  &CommandsApi::Keys),
-    CommandHolder(DB_DBKCOUNT_COMMAND, "-",
-                  "Return the number of keys in the "
-                  "selected database",
-                  UNDEFINED_SINCE, DB_DBKCOUNT_COMMAND, 0, 0,
-                  CommandInfo::Native, &CommandsApi::DBkcount),
-    CommandHolder(DB_FLUSHDB_COMMAND, "-",
-                  "Remove all keys from the current database", UNDEFINED_SINCE,
-                  DB_FLUSHDB_COMMAND, 0, 1, CommandInfo::Native,
-                  &CommandsApi::FlushDB),
-    CommandHolder(DB_SELECTDB_COMMAND, "<name>",
-                  "Change the selected database for the "
-                  "current connection",
-                  UNDEFINED_SINCE, DB_SELECTDB_COMMAND " 0", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Select),
-    CommandHolder(DB_SET_KEY_COMMAND, "<key> <value>",
-                  "Set the value of a key.", UNDEFINED_SINCE,
-                  DB_SET_KEY_COMMAND " key value", 2, 0, CommandInfo::Native,
-                  &CommandsApi::Set),
-    CommandHolder(DB_GET_KEY_COMMAND, "<key>", "Get the value of a key.",
-                  UNDEFINED_SINCE, DB_GET_KEY_COMMAND " key", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Get),
-    CommandHolder(DB_RENAME_KEY_COMMAND, "<key> <newkey>", "Rename a key",
-                  UNDEFINED_SINCE, DB_RENAME_KEY_COMMAND " old_name new_name",
-                  2, 0, CommandInfo::Native, &CommandsApi::Rename),
-    CommandHolder(DB_DELETE_KEY_COMMAND, "<key> [key ...]", "Delete key.",
-                  UNDEFINED_SINCE, DB_DELETE_KEY_COMMAND " key", 1,
-                  INFINITE_COMMAND_ARGS, CommandInfo::Native,
-                  &CommandsApi::Delete),
-    CommandHolder(DB_QUIT_COMMAND, "-", "Close the connection", UNDEFINED_SINCE,
-                  DB_QUIT_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::Quit)};
+const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
+                                                       "[command]",
+                                                       "Return how to use command",
+                                                       UNDEFINED_SINCE,
+                                                       DB_HELP_COMMAND " " DB_GET_KEY_COMMAND,
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Help),
+                                         CommandHolder(DB_INFO_COMMAND,
+                                                       "[section]",
+                                                       "These command return database information.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_INFO_COMMAND " STATS",
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Info),
+                                         CommandHolder(DB_GET_CONFIG_COMMAND,
+                                                       "<parameter>",
+                                                       "Get the value of a configuration parameter",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_CONFIG_COMMAND " databases",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::ConfigGet),
+                                         CommandHolder(DB_SCAN_COMMAND,
+                                                       "<cursor> [MATCH pattern] [COUNT count]",
+                                                       "Incrementally iterate the keys space",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SCAN_COMMAND " 0 MATCH * COUNT 10",
+                                                       1,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Scan),
+                                         CommandHolder(DB_JSONDUMP_COMMAND,
+                                                       "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
+                                                       "Dump DB into json file by path.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10",
+                                                       3,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::JsonDump),
+                                         CommandHolder(DB_KEYS_COMMAND,
+                                                       "<key_start> <key_end> <limit>",
+                                                       "Find all keys matching the given limits.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_KEYS_COMMAND " a z 10",
+                                                       3,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Keys),
+                                         CommandHolder(DB_DBKCOUNT_COMMAND,
+                                                       "-",
+                                                       "Return the number of keys in the "
+                                                       "selected database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DBKCOUNT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::DBkcount),
+                                         CommandHolder(DB_FLUSHDB_COMMAND,
+                                                       "-",
+                                                       "Remove all keys from the current database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_FLUSHDB_COMMAND,
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::FlushDB),
+                                         CommandHolder(DB_SELECTDB_COMMAND,
+                                                       "<name>",
+                                                       "Change the selected database for the "
+                                                       "current connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SELECTDB_COMMAND " 0",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Select),
+                                         CommandHolder(DB_SET_KEY_COMMAND,
+                                                       "<key> <value>",
+                                                       "Set the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SET_KEY_COMMAND " key value",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Set),
+                                         CommandHolder(DB_GET_KEY_COMMAND,
+                                                       "<key>",
+                                                       "Get the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_KEY_COMMAND " key",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Get),
+                                         CommandHolder(DB_RENAME_KEY_COMMAND,
+                                                       "<key> <newkey>",
+                                                       "Rename a key",
+                                                       UNDEFINED_SINCE,
+                                                       DB_RENAME_KEY_COMMAND " old_name new_name",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Rename),
+                                         CommandHolder(DB_DELETE_KEY_COMMAND,
+                                                       "<key> [key ...]",
+                                                       "Delete key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DELETE_KEY_COMMAND " key",
+                                                       1,
+                                                       INFINITE_COMMAND_ARGS,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Delete),
+                                         CommandHolder(DB_QUIT_COMMAND,
+                                                       "-",
+                                                       "Close the connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_QUIT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Quit)};
 }
-} // namespace unqlite
+}  // namespace unqlite
 
-template <> const char *ConnectionTraits<UNQLITE>::GetBasedOn() {
+template <>
+const char* ConnectionTraits<UNQLITE>::GetBasedOn() {
   return "unqlite";
 }
 
-template <> const char *ConnectionTraits<UNQLITE>::GetVersionApi() {
+template <>
+const char* ConnectionTraits<UNQLITE>::GetVersionApi() {
   return UNQLITE_VERSION;
 }
 
 template <>
-const ConstantCommandsArray &ConnectionCommandsTraits<UNQLITE>::GetCommands() {
-  return unqlite::g_commands;
+const ConstantCommandsArray& ConnectionCommandsTraits<UNQLITE>::GetCommands() {
+  return unqlite::kCommands;
 }
 namespace internal {
 template <>
-common::Error
-ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Connect(
-    const unqlite::Config &config, unqlite::NativeConnection **hout) {
-  unqlite::NativeConnection *context = NULL;
+common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Connect(
+    const unqlite::Config& config,
+    unqlite::NativeConnection** hout) {
+  unqlite::NativeConnection* context = NULL;
   common::Error err = unqlite::CreateConnection(config, &context);
   if (err) {
     return err;
@@ -184,16 +258,15 @@ ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Connect(
   return common::Error();
 }
 template <>
-common::Error
-ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::
-    Disconnect(unqlite::NativeConnection **handle) {
+common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Disconnect(
+    unqlite::NativeConnection** handle) {
   unqlite_close(*handle);
   *handle = NULL;
   return common::Error();
 }
 template <>
-bool ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::
-    IsConnected(unqlite::NativeConnection *handle) {
+bool ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::IsConnected(
+    unqlite::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -201,31 +274,28 @@ bool ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::
   return true;
 }
 
-} // namespace internal
+}  // namespace internal
 namespace unqlite {
 
-common::Error CreateConnection(const Config &config,
-                               NativeConnection **context) {
+common::Error CreateConnection(const Config& config, NativeConnection** context) {
   if (!context) {
     return common::make_error_inval();
   }
 
   DCHECK(*context == NULL);
-  struct unqlite *lcontext = NULL;
+  struct unqlite* lcontext = NULL;
   std::string db_path = config.db_path;
   std::string folder = common::file_system::get_dir_path(db_path);
   bool is_dir_exist = common::file_system::is_directory_exist(folder);
   if (!is_dir_exist) {
-    return common::make_error(common::MemSPrintf(
-        "Invalid input path: (%s), please create folder.", folder));
+    return common::make_error(common::MemSPrintf("Invalid input path: (%s), please create folder.", folder));
   }
 
-  const char *db_path_ptr = db_path.c_str();
+  const char* db_path_ptr = db_path.c_str();
   int env_flags = config.env_flags;
   int st = unqlite_open(&lcontext, db_path_ptr, env_flags);
   if (st != UNQLITE_OK) {
-    std::string buff =
-        common::MemSPrintf("Fail open database: %s!", unqlite_strerror(st));
+    std::string buff = common::MemSPrintf("Fail open database: %s!", unqlite_strerror(st));
     return common::make_error(buff);
   }
 
@@ -233,8 +303,8 @@ common::Error CreateConnection(const Config &config,
   return common::Error();
 }
 
-common::Error TestConnection(const Config &config) {
-  NativeConnection *ldb = nullptr;
+common::Error TestConnection(const Config& config) {
+  NativeConnection* ldb = nullptr;
   common::Error err = CreateConnection(config, &ldb);
   if (err) {
     return err;
@@ -244,11 +314,10 @@ common::Error TestConnection(const Config &config) {
   return common::Error();
 }
 
-DBConnection::DBConnection(CDBConnectionClient *client)
+DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::Info(const std::string &args,
-                                 ServerInfo::Stats *statsout) {
+common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
   UNUSED(args);
   if (!statsout) {
     DNOTREACHED();
@@ -264,8 +333,7 @@ common::Error DBConnection::Info(const std::string &args,
   auto conf = GetConfig();
   linfo.db_path = conf->db_path;
   off_t sz;
-  common::ErrnoError errn =
-      common::file_system::get_file_size_by_path(linfo.db_path, &sz);
+  common::ErrnoError errn = common::file_system::get_file_size_by_path(linfo.db_path, &sz);
   if (!errn) {
     linfo.db_size = sz;
   }
@@ -273,40 +341,34 @@ common::Error DBConnection::Info(const std::string &args,
   return common::Error();
 }
 
-common::Error DBConnection::SetInner(const key_t &key, const value_t &value) {
+common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   const readable_string_t key_slice = key.GetData();
   const readable_string_t value_str = value.GetData();
   return CheckResultCommand(
       DB_SET_KEY_COMMAND,
-      unqlite_kv_store(connection_.handle_, key_slice.data(), key_slice.size(),
-                       value_str.c_str(), value_str.size()));
+      unqlite_kv_store(connection_.handle_, key_slice.data(), key_slice.size(), value_str.c_str(), value_str.size()));
 }
 
-common::Error DBConnection::DelInner(const key_t &key) {
+common::Error DBConnection::DelInner(const key_t& key) {
   const readable_string_t key_slice = key.GetData();
   return CheckResultCommand(DB_DELETE_KEY_COMMAND,
-                            unqlite_kv_delete(connection_.handle_,
-                                              key_slice.data(),
-                                              key_slice.size()));
+                            unqlite_kv_delete(connection_.handle_, key_slice.data(), key_slice.size()));
 }
 
-common::Error DBConnection::GetInner(const key_t &key, std::string *ret_val) {
+common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
   const readable_string_t key_slice = key.GetData();
-  return CheckResultCommand(
-      DB_GET_KEY_COMMAND,
-      unqlite_kv_fetch_callback(connection_.handle_, key_slice.data(),
-                                key_slice.size(), unqlite_data_callback,
-                                ret_val));
+  return CheckResultCommand(DB_GET_KEY_COMMAND,
+                            unqlite_kv_fetch_callback(connection_.handle_, key_slice.data(), key_slice.size(),
+                                                      unqlite_data_callback, ret_val));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const std::string &pattern,
+                                     const std::string& pattern,
                                      keys_limit_t count_keys,
-                                     std::vector<std::string> *keys_out,
-                                     cursor_t *cursor_out) {
-  unqlite_kv_cursor *pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(
-      DB_SCAN_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+                                     std::vector<std::string>* keys_out,
+                                     cursor_t* cursor_out) {
+  unqlite_kv_cursor* pCur; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_SCAN_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
   if (err) {
     return err;
   }
@@ -344,13 +406,12 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(
-    const std::string &key_start, const std::string &key_end,
-    keys_limit_t limit,
-    std::vector<std::string> *ret) { /* Allocate a new cursor instance */
-  unqlite_kv_cursor *pCur;           /* Cursor handle */
-  common::Error err = CheckResultCommand(
-      DB_KEYS_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+common::Error DBConnection::KeysImpl(const std::string& key_start,
+                                     const std::string& key_end,
+                                     keys_limit_t limit,
+                                     std::vector<std::string>* ret) { /* Allocate a new cursor instance */
+  unqlite_kv_cursor* pCur;                                            /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_KEYS_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
   if (err) {
     return err;
   }
@@ -374,11 +435,10 @@ common::Error DBConnection::KeysImpl(
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t *size) {
+common::Error DBConnection::DBkcountImpl(size_t* size) {
   /* Allocate a new cursor instance */
-  unqlite_kv_cursor *pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(
-      DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+  unqlite_kv_cursor* pCur; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
   if (err) {
     return err;
   }
@@ -400,9 +460,8 @@ common::Error DBConnection::DBkcountImpl(size_t *size) {
 }
 
 common::Error DBConnection::FlushDBImpl() {
-  unqlite_kv_cursor *pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(
-      DB_FLUSHDB_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+  unqlite_kv_cursor* pCur; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_FLUSHDB_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
   if (err) {
     return err;
   }
@@ -426,8 +485,7 @@ common::Error DBConnection::FlushDBImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::SelectImpl(const std::string &name,
-                                       IDataBaseInfo **info) {
+common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
   if (name != GetCurrentDBName()) {
     return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
   }
@@ -439,8 +497,7 @@ common::Error DBConnection::SelectImpl(const std::string &name,
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue &key,
-                                    NDbKValue *added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
   NValue value = key.GetValue();
@@ -454,7 +511,7 @@ common::Error DBConnection::SetImpl(const NDbKValue &key,
   return common::Error();
 }
 
-common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
+common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -467,7 +524,7 @@ common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey &key, const key_t &new_key) {
+common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -488,7 +545,7 @@ common::Error DBConnection::RenameImpl(const NKey &key, const key_t &new_key) {
   return common::Error();
 }
 
-common::Error DBConnection::DeleteImpl(const NKeys &keys, NKeys *deleted_keys) {
+common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     key_t key_str = key.GetKey();
@@ -512,15 +569,13 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error
-DBConnection::ConfigGetDatabasesImpl(std::vector<std::string> *dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
   std::vector<std::string> ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }
 
-common::Error DBConnection::CheckResultCommand(const std::string &cmd,
-                                               int err) {
+common::Error DBConnection::CheckResultCommand(const std::string& cmd, int err) {
   if (err != UNQLITE_OK) {
     return GenerateError(cmd, unqlite_strerror(err));
   }
@@ -528,6 +583,6 @@ common::Error DBConnection::CheckResultCommand(const std::string &cmd,
   return common::Error();
 }
 
-} // namespace unqlite
-} // namespace core
-} // namespace fastonosql
+}  // namespace unqlite
+}  // namespace core
+}  // namespace fastonosql

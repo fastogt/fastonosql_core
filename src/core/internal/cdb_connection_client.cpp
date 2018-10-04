@@ -23,5 +23,5 @@ namespace core {
 
 CDBConnectionClient::~CDBConnectionClient() {}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

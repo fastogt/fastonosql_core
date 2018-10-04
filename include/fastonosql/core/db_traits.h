@@ -18,15 +18,15 @@
 
 #pragma once
 
-#include <common/value.h> // for Value, Value::Type
+#include <common/value.h>  // for Value, Value::Type
 
-#include <fastonosql/core/connection_types.h> // for connectionTypes
+#include <fastonosql/core/connection_types.h>  // for connectionTypes
 
 namespace fastonosql {
 namespace core {
 
 struct Field {
-  Field(const std::string &name, common::Value::Type type);
+  Field(const std::string& name, common::Value::Type type);
 
   bool IsIntegral() const;
   std::string name;
@@ -34,7 +34,8 @@ struct Field {
 };
 
 typedef std::pair<std::string, std::vector<Field>> info_field_t;
-template <connectionTypes ct> struct DBTraits {
+template <connectionTypes ct>
+struct DBTraits {
   static std::vector<common::Value::Type> GetSupportedValueTypes();
   static std::vector<info_field_t> GetInfoFields();
 };
@@ -42,5 +43,5 @@ template <connectionTypes ct> struct DBTraits {
 std::vector<common::Value::Type> GetSupportedValueTypes(connectionTypes type);
 std::vector<info_field_t> GetInfoFieldsFromType(connectionTypes type);
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

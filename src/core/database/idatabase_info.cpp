@@ -18,35 +18,50 @@
 
 #include <fastonosql/core/database/idatabase_info.h>
 
-#include <algorithm> // for remove_if
+#include <algorithm>  // for remove_if
 
 namespace fastonosql {
 namespace core {
 
-IDataBaseInfo::IDataBaseInfo(const std::string &name, bool isDefault,
-                             size_t dbkcount, const keys_container_t &keys)
+IDataBaseInfo::IDataBaseInfo(const std::string& name, bool isDefault, size_t dbkcount, const keys_container_t& keys)
     : name_(name), is_default_(isDefault), db_kcount_(dbkcount), keys_(keys) {}
 
 IDataBaseInfo::~IDataBaseInfo() {}
 
-std::string IDataBaseInfo::GetName() const { return name_; }
+std::string IDataBaseInfo::GetName() const {
+  return name_;
+}
 
-size_t IDataBaseInfo::GetDBKeysCount() const { return db_kcount_; }
+size_t IDataBaseInfo::GetDBKeysCount() const {
+  return db_kcount_;
+}
 
-void IDataBaseInfo::SetDBKeysCount(size_t size) { db_kcount_ = size; }
+void IDataBaseInfo::SetDBKeysCount(size_t size) {
+  db_kcount_ = size;
+}
 
-size_t IDataBaseInfo::LoadedKeysCount() const { return keys_.size(); }
+size_t IDataBaseInfo::LoadedKeysCount() const {
+  return keys_.size();
+}
 
-bool IDataBaseInfo::IsDefault() const { return is_default_; }
+bool IDataBaseInfo::IsDefault() const {
+  return is_default_;
+}
 
-void IDataBaseInfo::SetIsDefault(bool is_def) { is_default_ = is_def; }
+void IDataBaseInfo::SetIsDefault(bool is_def) {
+  is_default_ = is_def;
+}
 
-void IDataBaseInfo::SetKeys(const keys_container_t &keys) { keys_ = keys; }
+void IDataBaseInfo::SetKeys(const keys_container_t& keys) {
+  keys_ = keys;
+}
 
-void IDataBaseInfo::ClearKeys() { keys_.clear(); }
+void IDataBaseInfo::ClearKeys() {
+  keys_.clear();
+}
 
-bool IDataBaseInfo::RenameKey(const NKey &okey, const key_t &new_name) {
-  for (auto &kv : keys_) {
+bool IDataBaseInfo::RenameKey(const NKey& okey, const key_t& new_name) {
+  for (auto& kv : keys_) {
     NKey cur_key = kv.GetKey();
     if (cur_key.GetKey() == okey.GetKey()) {
       NKey okv = kv.GetKey();
@@ -59,9 +74,9 @@ bool IDataBaseInfo::RenameKey(const NKey &okey, const key_t &new_name) {
   return false;
 }
 
-bool IDataBaseInfo::InsertKey(const NDbKValue &key) {
+bool IDataBaseInfo::InsertKey(const NDbKValue& key) {
   const NKey in_key = key.GetKey();
-  for (auto &kv : keys_) {
+  for (auto& kv : keys_) {
     NKey cur_key = kv.GetKey();
     if (cur_key.GetKey() == in_key.GetKey()) {
       kv.SetValue(key.GetValue());
@@ -74,8 +89,8 @@ bool IDataBaseInfo::InsertKey(const NDbKValue &key) {
   return true;
 }
 
-bool IDataBaseInfo::UpdateKeyTTL(const NKey &key, ttl_t ttl) {
-  for (auto &kv : keys_) {
+bool IDataBaseInfo::UpdateKeyTTL(const NKey& key, ttl_t ttl) {
+  for (auto& kv : keys_) {
     NKey cur_key = kv.GetKey();
     if (cur_key.GetKey() == key.GetKey()) {
       NKey okv = kv.GetKey();
@@ -92,7 +107,7 @@ bool IDataBaseInfo::UpdateKeyTTL(const NKey &key, ttl_t ttl) {
   return false;
 }
 
-bool IDataBaseInfo::RemoveKey(const NKey &key) {
+bool IDataBaseInfo::RemoveKey(const NKey& key) {
   auto it = std::remove_if(keys_.begin(), keys_.end(), [key](NDbKValue kv) {
     const NKey in_key = kv.GetKey();
     return in_key.GetKey() == key.GetKey();
@@ -106,7 +121,9 @@ bool IDataBaseInfo::RemoveKey(const NKey &key) {
   return true;
 }
 
-IDataBaseInfo::keys_container_t IDataBaseInfo::GetKeys() const { return keys_; }
+IDataBaseInfo::keys_container_t IDataBaseInfo::GetKeys() const {
+  return keys_;
+}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

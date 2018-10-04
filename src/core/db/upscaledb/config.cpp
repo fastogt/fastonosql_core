@@ -23,8 +23,8 @@ extern "C" {
 }
 
 #include <common/convert2string.h>
-#include <common/file_system/types.h> // for prepare_path
-#include <common/sprintf.h>           // for MemSPrintf
+#include <common/file_system/types.h>  // for prepare_path
+#include <common/sprintf.h>            // for MemSPrintf
 
 #include <fastonosql/core/logger.h>
 
@@ -34,7 +34,7 @@ namespace upscaledb {
 
 namespace {
 
-Config ParseOptions(int argc, char **argv) {
+Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
     const bool lastarg = i == argc - 1;
@@ -52,10 +52,10 @@ Config ParseOptions(int argc, char **argv) {
       }
     } else {
       if (argv[i][0] == '-') {
-        const std::string buff =
-            common::MemSPrintf("Unrecognized option or bad number of args "
-                               "for: '%s'",
-                               argv[i]);
+        const std::string buff = common::MemSPrintf(
+            "Unrecognized option or bad number of args "
+            "for: '%s'",
+            argv[i]);
         LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
         break;
       } else {
@@ -67,19 +67,20 @@ Config ParseOptions(int argc, char **argv) {
   return cfg;
 }
 
-} // namespace
+}  // namespace
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path("~/test.upscaledb")),
-      create_if_missing(false), dbnum(default_db_num) {}
+      create_if_missing(false),
+      dbnum(default_db_num) {}
 
-} // namespace upscaledb
-} // namespace core
-} // namespace fastonosql
+}  // namespace upscaledb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(const fastonosql::core::upscaledb::Config &conf) {
+std::string ConvertToString(const fastonosql::core::upscaledb::Config& conf) {
   auto argv = conf.Args();
 
   if (conf.create_if_missing) {
@@ -94,14 +95,13 @@ std::string ConvertToString(const fastonosql::core::upscaledb::Config &conf) {
   return fastonosql::core::ConvertToStringConfigArgs(argv);
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::upscaledb::Config *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::upscaledb::Config* out) {
   if (!out || from.empty()) {
     return false;
   }
 
   int argc = 0;
-  sds *argv = sdssplitargslong(from.c_str(), &argc);
+  sds* argv = sdssplitargslong(from.c_str(), &argc);
   if (argv) {
     *out = fastonosql::core::upscaledb::ParseOptions(argc, argv);
     sdsfreesplitres(argv, argc);
@@ -111,4 +111,4 @@ bool ConvertFromString(const std::string &from,
   return false;
 }
 
-} // namespace common
+}  // namespace common

@@ -18,19 +18,19 @@
 
 #include <fastonosql/core/db/lmdb/db_connection.h>
 
-#include <errno.h>  // for EACCES
-#include <lmdb.h>   // for mdb_txn_abort, MDB_val
-#include <stdlib.h> // for NULL, free, calloc
-#include <string>   // for string
-#include <time.h>   // for time_t
+#include <errno.h>   // for EACCES
+#include <lmdb.h>    // for mdb_txn_abort, MDB_val
+#include <stdlib.h>  // for NULL, free, calloc
+#include <time.h>    // for time_t
+#include <string>    // for string
 
 #include <common/convert2string.h>
 #include <common/file_system/string_path_utils.h>
-#include <common/utils.h> // for c_strornull
-#include <common/value.h> // for StringValue (ptr only)
+#include <common/utils.h>  // for c_strornull
+#include <common/value.h>  // for StringValue (ptr only)
 
 #include <fastonosql/core/db/lmdb/command_translator.h>
-#include <fastonosql/core/db/lmdb/config.h> // for Config
+#include <fastonosql/core/db/lmdb/config.h>  // for Config
 #include <fastonosql/core/db/lmdb/database_info.h>
 #include <fastonosql/core/db/lmdb/internal/commands_api.h>
 
@@ -40,98 +40,191 @@ namespace fastonosql {
 namespace core {
 namespace lmdb {
 namespace {
-const ConstantCommandsArray g_commands = {
-    CommandHolder(DB_HELP_COMMAND, "[command]", "Return how to use command",
-                  UNDEFINED_SINCE, DB_HELP_COMMAND " " DB_GET_KEY_COMMAND, 0, 1,
-                  CommandInfo::Native, &CommandsApi::Help),
-    CommandHolder(DB_INFO_COMMAND, "[section]",
-                  "These command return database information.", UNDEFINED_SINCE,
-                  DB_INFO_COMMAND " STATS", 0, 1, CommandInfo::Native,
-                  &CommandsApi::Info),
-    CommandHolder(DB_GET_CONFIG_COMMAND, "<parameter>",
-                  "Get the value of a configuration parameter", UNDEFINED_SINCE,
-                  DB_GET_CONFIG_COMMAND " databases", 1, 0, CommandInfo::Native,
-                  &CommandsApi::ConfigGet),
-    CommandHolder(DB_CREATEDB_COMMAND, "<name>", "Create database",
-                  UNDEFINED_SINCE, DB_CREATEDB_COMMAND " test", 1, 0,
-                  CommandInfo::Native, &CommandsApi::CreateDatabase),
-    CommandHolder(DB_REMOVEDB_COMMAND, "<name>", "Remove database",
-                  UNDEFINED_SINCE, DB_REMOVEDB_COMMAND " test", 1, 0,
-                  CommandInfo::Native, &CommandsApi::RemoveDatabase),
-    CommandHolder(DB_SCAN_COMMAND, "<cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate the keys space", UNDEFINED_SINCE,
-                  DB_SCAN_COMMAND " 0 MATCH * COUNT 10", 1, 4,
-                  CommandInfo::Native, &CommandsApi::Scan),
-    CommandHolder(DB_JSONDUMP_COMMAND,
-                  "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
-                  "Dump DB into json file by path.", UNDEFINED_SINCE,
-                  DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10", 3,
-                  4, CommandInfo::Native, &CommandsApi::JsonDump),
-    CommandHolder(DB_KEYS_COMMAND, "<key_start> <key_end> <limit>",
-                  "Find all keys matching the given limits.", UNDEFINED_SINCE,
-                  DB_KEYS_COMMAND " a z 10", 3, 0, CommandInfo::Native,
-                  &CommandsApi::Keys),
-    CommandHolder(DB_DBKCOUNT_COMMAND, "-",
-                  "Return the number of keys in the "
-                  "selected database",
-                  UNDEFINED_SINCE, DB_DBKCOUNT_COMMAND, 0, 0,
-                  CommandInfo::Native, &CommandsApi::DBkcount),
-    CommandHolder(DB_FLUSHDB_COMMAND, "-",
-                  "Remove all keys from the current database", UNDEFINED_SINCE,
-                  DB_FLUSHDB_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::FlushDB),
-    CommandHolder(LMDB_DROPDB_COMMAND, "-", "Drop database", UNDEFINED_SINCE,
-                  LMDB_DROPDB_COMMAND, 0, 1, CommandInfo::Native,
-                  &CommandsApi::DropDatabase),
-    CommandHolder(DB_SELECTDB_COMMAND, "<name>",
-                  "Change the selected database for the "
-                  "current connection",
-                  UNDEFINED_SINCE, DB_SELECTDB_COMMAND " 0", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Select),
-    CommandHolder(DB_SET_KEY_COMMAND, "<key> <value>",
-                  "Set the value of a key.", UNDEFINED_SINCE,
-                  DB_SET_KEY_COMMAND " key value", 2, 0, CommandInfo::Native,
-                  &CommandsApi::Set),
-    CommandHolder(DB_GET_KEY_COMMAND, "<key>", "Get the value of a key.",
-                  UNDEFINED_SINCE, DB_GET_KEY_COMMAND " key", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Get),
-    CommandHolder(DB_RENAME_KEY_COMMAND, "<key> <newkey>", "Rename a key",
-                  UNDEFINED_SINCE, DB_RENAME_KEY_COMMAND " old_name new_name",
-                  2, 0, CommandInfo::Native, &CommandsApi::Rename),
-    CommandHolder(DB_DELETE_KEY_COMMAND, "<key> [key ...]", "Delete key.",
-                  UNDEFINED_SINCE, DB_DELETE_KEY_COMMAND " key", 1,
-                  INFINITE_COMMAND_ARGS, CommandInfo::Native,
-                  &CommandsApi::Delete),
-    CommandHolder(DB_QUIT_COMMAND, "-", "Close the connection", UNDEFINED_SINCE,
-                  DB_QUIT_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::Quit)};
+const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
+                                                       "[command]",
+                                                       "Return how to use command",
+                                                       UNDEFINED_SINCE,
+                                                       DB_HELP_COMMAND " " DB_GET_KEY_COMMAND,
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Help),
+                                         CommandHolder(DB_INFO_COMMAND,
+                                                       "[section]",
+                                                       "These command return database information.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_INFO_COMMAND " STATS",
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Info),
+                                         CommandHolder(DB_GET_CONFIG_COMMAND,
+                                                       "<parameter>",
+                                                       "Get the value of a configuration parameter",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_CONFIG_COMMAND " databases",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::ConfigGet),
+                                         CommandHolder(DB_CREATEDB_COMMAND,
+                                                       "<name>",
+                                                       "Create database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_CREATEDB_COMMAND " test",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::CreateDatabase),
+                                         CommandHolder(DB_REMOVEDB_COMMAND,
+                                                       "<name>",
+                                                       "Remove database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_REMOVEDB_COMMAND " test",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::RemoveDatabase),
+                                         CommandHolder(DB_SCAN_COMMAND,
+                                                       "<cursor> [MATCH pattern] [COUNT count]",
+                                                       "Incrementally iterate the keys space",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SCAN_COMMAND " 0 MATCH * COUNT 10",
+                                                       1,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Scan),
+                                         CommandHolder(DB_JSONDUMP_COMMAND,
+                                                       "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
+                                                       "Dump DB into json file by path.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10",
+                                                       3,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::JsonDump),
+                                         CommandHolder(DB_KEYS_COMMAND,
+                                                       "<key_start> <key_end> <limit>",
+                                                       "Find all keys matching the given limits.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_KEYS_COMMAND " a z 10",
+                                                       3,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Keys),
+                                         CommandHolder(DB_DBKCOUNT_COMMAND,
+                                                       "-",
+                                                       "Return the number of keys in the "
+                                                       "selected database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DBKCOUNT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::DBkcount),
+                                         CommandHolder(DB_FLUSHDB_COMMAND,
+                                                       "-",
+                                                       "Remove all keys from the current database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_FLUSHDB_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::FlushDB),
+                                         CommandHolder(LMDB_DROPDB_COMMAND,
+                                                       "-",
+                                                       "Drop database",
+                                                       UNDEFINED_SINCE,
+                                                       LMDB_DROPDB_COMMAND,
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::DropDatabase),
+                                         CommandHolder(DB_SELECTDB_COMMAND,
+                                                       "<name>",
+                                                       "Change the selected database for the "
+                                                       "current connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SELECTDB_COMMAND " 0",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Select),
+                                         CommandHolder(DB_SET_KEY_COMMAND,
+                                                       "<key> <value>",
+                                                       "Set the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SET_KEY_COMMAND " key value",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Set),
+                                         CommandHolder(DB_GET_KEY_COMMAND,
+                                                       "<key>",
+                                                       "Get the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_KEY_COMMAND " key",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Get),
+                                         CommandHolder(DB_RENAME_KEY_COMMAND,
+                                                       "<key> <newkey>",
+                                                       "Rename a key",
+                                                       UNDEFINED_SINCE,
+                                                       DB_RENAME_KEY_COMMAND " old_name new_name",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Rename),
+                                         CommandHolder(DB_DELETE_KEY_COMMAND,
+                                                       "<key> [key ...]",
+                                                       "Delete key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DELETE_KEY_COMMAND " key",
+                                                       1,
+                                                       INFINITE_COMMAND_ARGS,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Delete),
+                                         CommandHolder(DB_QUIT_COMMAND,
+                                                       "-",
+                                                       "Close the connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_QUIT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Quit)};
 }
-} // namespace lmdb
-template <> const char *ConnectionTraits<LMDB>::GetBasedOn() { return "lmdb"; }
-
-template <> const char *ConnectionTraits<LMDB>::GetVersionApi() {
-  return STRINGIZE(MDB_VERSION_MAJOR) "." STRINGIZE(
-      MDB_VERSION_MINOR) "." STRINGIZE(MDB_VERSION_PATCH);
+}  // namespace lmdb
+template <>
+const char* ConnectionTraits<LMDB>::GetBasedOn() {
+  return "lmdb";
 }
 
 template <>
-const ConstantCommandsArray &ConnectionCommandsTraits<LMDB>::GetCommands() {
-  return lmdb::g_commands;
+const char* ConnectionTraits<LMDB>::GetVersionApi() {
+  return STRINGIZE(MDB_VERSION_MAJOR) "." STRINGIZE(MDB_VERSION_MINOR) "." STRINGIZE(MDB_VERSION_PATCH);
+}
+
+template <>
+const ConstantCommandsArray& ConnectionCommandsTraits<LMDB>::GetCommands() {
+  return lmdb::kCommands;
 }
 
 namespace {
-MDB_val ConvertToLMDBSlice(const char *key, size_t len) {
+MDB_val ConvertToLMDBSlice(const char* key, size_t len) {
   MDB_val mkey;
   mkey.mv_size = len;
-  mkey.mv_data = const_cast<command_buffer_char_t *>(key);
+  mkey.mv_data = const_cast<command_buffer_char_t*>(key);
   return mkey;
 }
-} // namespace
+}  // namespace
 namespace lmdb {
 struct lmdb {
-  MDB_env *env;
+  MDB_env* env;
   MDB_dbi dbi;
-  char *db_name;
+  char* db_name;
 };
 
 namespace {
@@ -140,14 +233,13 @@ unsigned int lmdb_db_flag_from_env_flags(int env_flags) {
   return (env_flags & MDB_RDONLY) ? MDB_RDONLY : 0;
 }
 
-int lmdb_create_db(lmdb *context, const char *db_name, int env_flags) {
+int lmdb_create_db(lmdb* context, const char* db_name, int env_flags) {
   if (!context || !db_name) {
     return EINVAL;
   }
 
-  MDB_txn *txn = NULL;
-  int rc = mdb_txn_begin(context->env, NULL,
-                         lmdb_db_flag_from_env_flags(env_flags), &txn);
+  MDB_txn* txn = NULL;
+  int rc = mdb_txn_begin(context->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn);
   if (rc != LMDB_OK) {
     return rc;
   }
@@ -165,14 +257,14 @@ int lmdb_create_db(lmdb *context, const char *db_name, int env_flags) {
   return LMDB_OK;
 }
 
-int lmdb_remove_db(lmdb *context, const char *db_name, int env_flags) {
+int lmdb_remove_db(lmdb* context, const char* db_name, int env_flags) {
   if (!context || !db_name) {
     return EINVAL;
   }
 
   const unsigned int flg = lmdb_db_flag_from_env_flags(env_flags);
   MDB_dbi ldbi = 0;
-  MDB_txn *txn = NULL;
+  MDB_txn* txn = NULL;
   int rc = mdb_txn_begin(context->env, NULL, flg, &txn);
   if (rc != LMDB_OK) {
     return rc;
@@ -193,20 +285,18 @@ int lmdb_remove_db(lmdb *context, const char *db_name, int env_flags) {
   return mdb_txn_commit(txn);
 }
 
-int lmdb_select(lmdb *context, const char *db_name, int env_flags) {
-  if (!context || !db_name) { // only for named dbs
+int lmdb_select(lmdb* context, const char* db_name, int env_flags) {
+  if (!context || !db_name) {  // only for named dbs
     return EINVAL;
   }
 
-  if (context->db_name &&
-      strcmp(db_name, context->db_name) == 0) { // lazy select
+  if (context->db_name && strcmp(db_name, context->db_name) == 0) {  // lazy select
     return LMDB_OK;
   }
 
   // open db
-  MDB_txn *txn = NULL;
-  int rc = mdb_txn_begin(context->env, NULL,
-                         lmdb_db_flag_from_env_flags(env_flags), &txn);
+  MDB_txn* txn = NULL;
+  int rc = mdb_txn_begin(context->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn);
   if (rc != LMDB_OK) {
     return rc;
   }
@@ -236,9 +326,8 @@ int lmdb_select(lmdb *context, const char *db_name, int env_flags) {
   return LMDB_OK;
 }
 
-int lmdb_open(lmdb **context, const char *db_path, int env_flags,
-              MDB_dbi max_dbs) {
-  lmdb *lcontext = reinterpret_cast<lmdb *>(calloc(1, sizeof(lmdb)));
+int lmdb_open(lmdb** context, const char* db_path, int env_flags, MDB_dbi max_dbs) {
+  lmdb* lcontext = reinterpret_cast<lmdb*>(calloc(1, sizeof(lmdb)));
   int rc = mdb_env_create(&lcontext->env);
   if (rc != LMDB_OK) {
     free(lcontext);
@@ -261,12 +350,12 @@ int lmdb_open(lmdb **context, const char *db_path, int env_flags,
   return rc;
 }
 
-void lmdb_close(lmdb **context) {
+void lmdb_close(lmdb** context) {
   if (!context) {
     return;
   }
 
-  lmdb *lcontext = *context;
+  lmdb* lcontext = *context;
   if (!lcontext) {
     return;
   }
@@ -281,14 +370,13 @@ void lmdb_close(lmdb **context) {
   *context = NULL;
 }
 
-} // namespace
-} // namespace lmdb
+}  // namespace
+}  // namespace lmdb
 namespace internal {
 template <>
-common::Error
-ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Connect(
-    const lmdb::Config &config, lmdb::NativeConnection **hout) {
-  lmdb::NativeConnection *context = nullptr;
+common::Error ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Connect(const lmdb::Config& config,
+                                                                                       lmdb::NativeConnection** hout) {
+  lmdb::NativeConnection* context = nullptr;
   common::Error err = lmdb::CreateConnection(config, &context);
   if (err) {
     return err;
@@ -299,17 +387,15 @@ ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Connect(
 }
 
 template <>
-common::Error
-ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Disconnect(
-    lmdb::NativeConnection **handle) {
+common::Error ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Disconnect(
+    lmdb::NativeConnection** handle) {
   lmdb::lmdb_close(handle);
   *handle = nullptr;
   return common::Error();
 }
 
 template <>
-bool ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::
-    IsConnected(lmdb::NativeConnection *handle) {
+bool ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::IsConnected(lmdb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -317,19 +403,17 @@ bool ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::
   return true;
 }
 
-} // namespace internal
+}  // namespace internal
 
 namespace lmdb {
 
-common::Error CreateConnection(const Config &config,
-                               NativeConnection **context) {
-  if (!context || config.db_name.empty() ||
-      config.db_path.empty()) { // only named dbs
+common::Error CreateConnection(const Config& config, NativeConnection** context) {
+  if (!context || config.db_name.empty() || config.db_path.empty()) {  // only named dbs
     return common::make_error_inval();
   }
 
   DCHECK(*context == NULL);
-  struct lmdb *lcontext = NULL;
+  struct lmdb* lcontext = NULL;
   std::string db_path = config.db_path;
   std::string folder = common::file_system::get_dir_path(db_path);
   bool is_dir_exist = common::file_system::is_directory_exist(folder);
@@ -344,41 +428,38 @@ common::Error CreateConnection(const Config &config,
   bool is_single_file = config.IsSingleFileDB();
   common::tribool is_dir = common::file_system::is_directory(db_path);
   if (is_dir == common::SUCCESS) {
-    if (is_single_file) { // if dir but want single file
-      return common::make_error(common::MemSPrintf(
-          "Invalid input path: (%s), please remove folder.", db_path));
+    if (is_single_file) {  // if dir but want single file
+      return common::make_error(common::MemSPrintf("Invalid input path: (%s), please remove folder.", db_path));
     }
-  } else if (is_dir == common::FAIL) { // if file
-    if (!is_single_file) {             // if file but want dir
+  } else if (is_dir == common::FAIL) {  // if file
+    if (!is_single_file) {              // if file but want dir
       return common::make_error(
           common::MemSPrintf("Invalid input path: (%s), There is already a "
                              "file as the folder name you specified, "
                              "specify a different name.",
                              db_path));
     }
-  } else {                 // if nothing created
-    if (!is_single_file) { // if file but want dir
-      return common::make_error(common::MemSPrintf(
-          "Invalid input path: (%s), please create folder.", db_path));
+  } else {                  // if nothing created
+    if (!is_single_file) {  // if file but want dir
+      return common::make_error(common::MemSPrintf("Invalid input path: (%s), please create folder.", db_path));
     }
   }
 
-  const char *db_path_ptr = db_path.c_str();
+  const char* db_path_ptr = db_path.c_str();
   int env_flags = config.env_flags;
   unsigned int max_dbs = config.max_dbs;
   int st = lmdb_open(&lcontext, db_path_ptr, env_flags, max_dbs);
   if (st != LMDB_OK) {
-    std::string buff =
-        common::MemSPrintf("Fail open database: %s", mdb_strerror(st));
+    std::string buff = common::MemSPrintf("Fail open database: %s", mdb_strerror(st));
     return common::make_error(buff);
   }
 
   *context = lcontext;
   return common::Error();
-} // namespace lmdb
+}  // namespace lmdb
 
-common::Error TestConnection(const Config &config) {
-  NativeConnection *ldb = nullptr;
+common::Error TestConnection(const Config& config) {
+  NativeConnection* ldb = nullptr;
   common::Error err = CreateConnection(config, &ldb);
   if (err) {
     return err;
@@ -388,22 +469,20 @@ common::Error TestConnection(const Config &config) {
   return common::Error();
 }
 
-DBConnection::DBConnection(CDBConnectionClient *client)
+DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
 std::string DBConnection::GetCurrentDBName() const {
-  if (IsConnected()) { // if connected
+  if (IsConnected()) {  // if connected
     auto conf = GetConfig();
-    return connection_.handle_->db_name ? connection_.handle_->db_name
-                                        : conf->db_name;
+    return connection_.handle_->db_name ? connection_.handle_->db_name : conf->db_name;
   }
 
   DNOTREACHED() << "GetCurrentDBName failed!";
   return base_class::GetCurrentDBName();
 }
 
-common::Error DBConnection::Info(const std::string &args,
-                                 ServerInfo::Stats *statsout) {
+common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
   UNUSED(args);
   if (!statsout) {
     DNOTREACHED();
@@ -429,19 +508,16 @@ common::Error DBConnection::DropDatabase() {
     return err;
   }
 
-  MDB_txn *txn = NULL;
+  MDB_txn* txn = NULL;
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
   err = CheckResultCommand(LMDB_DROPDB_COMMAND,
-                           mdb_txn_begin(connection_.handle_->env, NULL,
-                                         lmdb_db_flag_from_env_flags(env_flags),
-                                         &txn));
+                           mdb_txn_begin(connection_.handle_->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(LMDB_DROPDB_COMMAND,
-                           mdb_drop(txn, connection_.handle_->dbi, 1));
+  err = CheckResultCommand(LMDB_DROPDB_COMMAND, mdb_drop(txn, connection_.handle_->dbi, 1));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -450,27 +526,23 @@ common::Error DBConnection::DropDatabase() {
   return CheckResultCommand(LMDB_DROPDB_COMMAND, mdb_txn_commit(txn));
 }
 
-common::Error DBConnection::SetInner(const key_t &key, const value_t &value) {
+common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   const readable_string_t key_str = key.GetData();
   const readable_string_t value_str = value.GetData();
   MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
   MDB_val mval;
   mval.mv_size = value_str.size();
-  mval.mv_data = const_cast<char *>(value_str.data());
+  mval.mv_data = const_cast<char*>(value_str.data());
 
-  MDB_txn *txn = NULL;
+  MDB_txn* txn = NULL;
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
   common::Error err = CheckResultCommand(
-      DB_SET_KEY_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL,
-                    lmdb_db_flag_from_env_flags(env_flags), &txn));
+      DB_SET_KEY_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn));
   if (err) {
     return err;
   }
-  err = CheckResultCommand(
-      DB_SET_KEY_COMMAND,
-      mdb_put(txn, connection_.handle_->dbi, &key_slice, &mval, 0));
+  err = CheckResultCommand(DB_SET_KEY_COMMAND, mdb_put(txn, connection_.handle_->dbi, &key_slice, &mval, 0));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -479,50 +551,43 @@ common::Error DBConnection::SetInner(const key_t &key, const value_t &value) {
   return CheckResultCommand(DB_SET_KEY_COMMAND, mdb_txn_commit(txn));
 }
 
-common::Error DBConnection::GetInner(const key_t &key, std::string *ret_val) {
+common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
   const readable_string_t key_str = key.GetData();
   MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
   MDB_val mval;
 
-  MDB_txn *txn = NULL;
-  common::Error err = CheckResultCommand(
-      DB_GET_KEY_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
+  MDB_txn* txn = NULL;
+  common::Error err =
+      CheckResultCommand(DB_GET_KEY_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_GET_KEY_COMMAND,
-      mdb_get(txn, connection_.handle_->dbi, &key_slice, &mval));
+  err = CheckResultCommand(DB_GET_KEY_COMMAND, mdb_get(txn, connection_.handle_->dbi, &key_slice, &mval));
   mdb_txn_abort(txn);
   if (err) {
     return err;
   }
 
-  *ret_val =
-      std::string(reinterpret_cast<const char *>(mval.mv_data), mval.mv_size);
+  *ret_val = std::string(reinterpret_cast<const char*>(mval.mv_data), mval.mv_size);
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t &key) {
+common::Error DBConnection::DelInner(const key_t& key) {
   const readable_string_t key_str = key.GetData();
   MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
 
-  MDB_txn *txn = NULL;
+  MDB_txn* txn = NULL;
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  common::Error err = CheckResultCommand(
-      DB_DELETE_KEY_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL,
-                    lmdb_db_flag_from_env_flags(env_flags), &txn));
+  common::Error err =
+      CheckResultCommand(DB_DELETE_KEY_COMMAND,
+                         mdb_txn_begin(connection_.handle_->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_DELETE_KEY_COMMAND,
-      mdb_del(txn, connection_.handle_->dbi, &key_slice, NULL));
+  err = CheckResultCommand(DB_DELETE_KEY_COMMAND, mdb_del(txn, connection_.handle_->dbi, &key_slice, NULL));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -532,21 +597,19 @@ common::Error DBConnection::DelInner(const key_t &key) {
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const std::string &pattern,
+                                     const std::string& pattern,
                                      keys_limit_t count_keys,
-                                     std::vector<std::string> *keys_out,
-                                     cursor_t *cursor_out) {
-  MDB_cursor *cursor = NULL;
-  MDB_txn *txn = NULL;
-  common::Error err = CheckResultCommand(
-      DB_SCAN_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
+                                     std::vector<std::string>* keys_out,
+                                     cursor_t* cursor_out) {
+  MDB_cursor* cursor = NULL;
+  MDB_txn* txn = NULL;
+  common::Error err =
+      CheckResultCommand(DB_SCAN_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_SCAN_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
+  err = CheckResultCommand(DB_SCAN_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -559,8 +622,7 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   std::vector<std::string> lkeys_out;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
     if (lkeys_out.size() < count_keys) {
-      std::string skey(reinterpret_cast<const char *>(key.mv_data),
-                       key.mv_size);
+      std::string skey(reinterpret_cast<const char*>(key.mv_data), key.mv_size);
       if (common::MatchPattern(skey, pattern)) {
         if (offset_pos == 0) {
           lkeys_out.push_back(skey);
@@ -581,21 +643,19 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const std::string &key_start,
-                                     const std::string &key_end,
+common::Error DBConnection::KeysImpl(const std::string& key_start,
+                                     const std::string& key_end,
                                      keys_limit_t limit,
-                                     std::vector<std::string> *ret) {
-  MDB_cursor *cursor = NULL;
-  MDB_txn *txn = NULL;
-  common::Error err = CheckResultCommand(
-      DB_KEYS_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
+                                     std::vector<std::string>* ret) {
+  MDB_cursor* cursor = NULL;
+  MDB_txn* txn = NULL;
+  common::Error err =
+      CheckResultCommand(DB_KEYS_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_KEYS_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
+  err = CheckResultCommand(DB_KEYS_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -603,9 +663,8 @@ common::Error DBConnection::KeysImpl(const std::string &key_start,
 
   MDB_val key;
   MDB_val data;
-  while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK) &&
-         limit > ret->size()) {
-    std::string skey(reinterpret_cast<const char *>(key.mv_data), key.mv_size);
+  while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK) && limit > ret->size()) {
+    std::string skey(reinterpret_cast<const char*>(key.mv_data), key.mv_size);
     if (key_start < skey && key_end > skey) {
       ret->push_back(skey);
     }
@@ -616,19 +675,16 @@ common::Error DBConnection::KeysImpl(const std::string &key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t *size) {
-  MDB_cursor *cursor = NULL;
-  MDB_txn *txn = NULL;
-  common::Error err = CheckResultCommand(
-      DB_DBKCOUNT_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
+common::Error DBConnection::DBkcountImpl(size_t* size) {
+  MDB_cursor* cursor = NULL;
+  MDB_txn* txn = NULL;
+  common::Error err =
+      CheckResultCommand(DB_DBKCOUNT_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_DBKCOUNT_COMMAND,
-      mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
+  err = CheckResultCommand(DB_DBKCOUNT_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -647,14 +703,11 @@ common::Error DBConnection::DBkcountImpl(size_t *size) {
   return common::Error();
 }
 
-common::Error DBConnection::CreateDBImpl(const std::string &name,
-                                         IDataBaseInfo **info) {
+common::Error DBConnection::CreateDBImpl(const std::string& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char *db_name = name.c_str();
-  common::Error err = CheckResultCommand(
-      DB_CREATEDB_COMMAND,
-      lmdb_create_db(connection_.handle_, db_name, env_flags));
+  const char* db_name = name.c_str();
+  common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, lmdb_create_db(connection_.handle_, db_name, env_flags));
   if (err) {
     return err;
   }
@@ -663,14 +716,11 @@ common::Error DBConnection::CreateDBImpl(const std::string &name,
   return common::Error();
 }
 
-common::Error DBConnection::RemoveDBImpl(const std::string &name,
-                                         IDataBaseInfo **info) {
+common::Error DBConnection::RemoveDBImpl(const std::string& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char *db_name = name.c_str();
-  common::Error err = CheckResultCommand(
-      DB_REMOVEDB_COMMAND,
-      lmdb_remove_db(connection_.handle_, db_name, env_flags));
+  const char* db_name = name.c_str();
+  common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, lmdb_remove_db(connection_.handle_, db_name, env_flags));
   if (err) {
     return err;
   }
@@ -680,21 +730,17 @@ common::Error DBConnection::RemoveDBImpl(const std::string &name,
 }
 
 common::Error DBConnection::FlushDBImpl() {
-  MDB_cursor *cursor = NULL;
-  MDB_txn *txn = NULL;
+  MDB_cursor* cursor = NULL;
+  MDB_txn* txn = NULL;
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
   common::Error err = CheckResultCommand(
-      DB_FLUSHDB_COMMAND,
-      mdb_txn_begin(connection_.handle_->env, NULL,
-                    lmdb_db_flag_from_env_flags(env_flags), &txn));
+      DB_FLUSHDB_COMMAND, mdb_txn_begin(connection_.handle_->env, NULL, lmdb_db_flag_from_env_flags(env_flags), &txn));
   if (err) {
     return err;
   }
 
-  err = CheckResultCommand(
-      DB_FLUSHDB_COMMAND,
-      mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
+  err = CheckResultCommand(DB_FLUSHDB_COMMAND, mdb_cursor_open(txn, connection_.handle_->dbi, &cursor));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -705,8 +751,7 @@ common::Error DBConnection::FlushDBImpl() {
   size_t sz = 0;
   while (mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK) {
     sz++;
-    err = CheckResultCommand(
-        DB_FLUSHDB_COMMAND, mdb_del(txn, connection_.handle_->dbi, &key, NULL));
+    err = CheckResultCommand(DB_FLUSHDB_COMMAND, mdb_del(txn, connection_.handle_->dbi, &key, NULL));
     if (err) {
       mdb_cursor_close(cursor);
       mdb_txn_abort(txn);
@@ -723,13 +768,11 @@ common::Error DBConnection::FlushDBImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::SelectImpl(const std::string &name,
-                                       IDataBaseInfo **info) {
+common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  common::Error err = CheckResultCommand(
-      DB_SELECTDB_COMMAND,
-      lmdb_select(connection_.handle_, name.c_str(), env_flags));
+  common::Error err =
+      CheckResultCommand(DB_SELECTDB_COMMAND, lmdb_select(connection_.handle_, name.c_str(), env_flags));
   if (err) {
     return err;
   }
@@ -742,8 +785,7 @@ common::Error DBConnection::SelectImpl(const std::string &name,
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue &key,
-                                    NDbKValue *added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
   NValue value = key.GetValue();
@@ -757,7 +799,7 @@ common::Error DBConnection::SetImpl(const NDbKValue &key,
   return common::Error();
 }
 
-common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
+common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -770,7 +812,7 @@ common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::DeleteImpl(const NKeys &keys, NKeys *deleted_keys) {
+common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     key_t key_str = key.GetKey();
@@ -785,7 +827,7 @@ common::Error DBConnection::DeleteImpl(const NKeys &keys, NKeys *deleted_keys) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey &key, const key_t &new_key) {
+common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -815,38 +857,33 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error
-DBConnection::ConfigGetDatabasesImpl(std::vector<std::string> *dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
   MDB_dbi ldbi = 0;
   {
-    MDB_txn *txn = NULL;
-    common::Error err = CheckResultCommand(
-        "CONFIG GET DATABASES",
-        mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
+    MDB_txn* txn = NULL;
+    common::Error err =
+        CheckResultCommand("CONFIG GET DATABASES", mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn));
     if (err) {
       return err;
     }
 
-    err = CheckResultCommand("CONFIG GET DATABASES",
-                             mdb_dbi_open(txn, NULL, 0, &ldbi));
+    err = CheckResultCommand("CONFIG GET DATABASES", mdb_dbi_open(txn, NULL, 0, &ldbi));
     mdb_txn_abort(txn);
     if (err) {
       return err;
     }
   }
 
-  MDB_cursor *cursor = NULL;
-  MDB_txn *txn_dbs = NULL;
-  common::Error err = CheckResultCommand(
-      "CONFIG GET DATABASES",
-      mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn_dbs));
+  MDB_cursor* cursor = NULL;
+  MDB_txn* txn_dbs = NULL;
+  common::Error err =
+      CheckResultCommand("CONFIG GET DATABASES", mdb_txn_begin(connection_.handle_->env, NULL, MDB_RDONLY, &txn_dbs));
   if (err) {
     mdb_dbi_close(connection_.handle_->env, ldbi);
     return err;
   }
 
-  err = CheckResultCommand("CONFIG GET DATABASES",
-                           mdb_cursor_open(txn_dbs, ldbi, &cursor));
+  err = CheckResultCommand("CONFIG GET DATABASES", mdb_cursor_open(txn_dbs, ldbi, &cursor));
   if (err) {
     mdb_txn_abort(txn_dbs);
     mdb_dbi_close(connection_.handle_->env, ldbi);
@@ -856,7 +893,7 @@ DBConnection::ConfigGetDatabasesImpl(std::vector<std::string> *dbs) {
   MDB_val key;
   MDB_val data;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
-    std::string skey(reinterpret_cast<const char *>(key.mv_data), key.mv_size);
+    std::string skey(reinterpret_cast<const char*>(key.mv_data), key.mv_size);
     // std::string sdata(reinterpret_cast<const char*>(data.mv_data),
     // data.mv_size);
     dbs->push_back(skey);
@@ -868,8 +905,7 @@ DBConnection::ConfigGetDatabasesImpl(std::vector<std::string> *dbs) {
   return common::Error();
 }
 
-common::Error DBConnection::CheckResultCommand(const std::string &cmd,
-                                               int err) {
+common::Error DBConnection::CheckResultCommand(const std::string& cmd, int err) {
   if (err != LMDB_OK) {
     return GenerateError(cmd, mdb_strerror(err));
   }
@@ -877,6 +913,6 @@ common::Error DBConnection::CheckResultCommand(const std::string &cmd,
   return common::Error();
 }
 
-} // namespace lmdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace lmdb
+}  // namespace core
+}  // namespace fastonosql

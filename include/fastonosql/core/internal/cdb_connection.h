@@ -23,20 +23,20 @@
 
 #include <fastonosql/core/connection_commands_traits.h>
 #include <fastonosql/core/internal/cdb_connection_client.h>
-#include <fastonosql/core/internal/command_handler.h> // for CommandHandler, etc
-#include <fastonosql/core/internal/db_connection.h>   // for DBConnection
+#include <fastonosql/core/internal/command_handler.h>  // for CommandHandler, etc
+#include <fastonosql/core/internal/db_connection.h>    // for DBConnection
 
 #include <fastonosql/core/database/idatabase_info.h>
 
 namespace fastonosql {
 namespace core {
 namespace detail {
-readable_string_t StableForJson(const ReadableString &data);
-} // namespace detail
+readable_string_t StableForJson(const ReadableString& data);
+}  // namespace detail
 namespace internal {
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string &pattern,
-                                keys_limit_t count_keys); // for SCAN
+command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
+                                keys_limit_t count_keys);  // for SCAN
 
 // for all commands:
 // 1) test input
@@ -46,107 +46,103 @@ command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string &pattern,
 // methods naming
 // voi CreateDB() => void OnCreatedDB()
 
-template <typename NConnection, typename Config,
-          connectionTypes connection_type>
+template <typename NConnection, typename Config, connectionTypes connection_type>
 class CDBConnection : public DBConnection<NConnection, Config, connection_type>,
                       public CommandHandler,
                       public ConnectionCommandsTraits<connection_type> {
-public:
+ public:
   typedef DBConnection<NConnection, Config, connection_type> db_base_class;
   typedef ConnectionCommandsTraits<connection_type> connection_traits_class;
 
-  CDBConnection(CDBConnectionClient *client, ICommandTranslator *translator)
+  CDBConnection(CDBConnectionClient* client, ICommandTranslator* translator)
       : db_base_class(), CommandHandler(translator), client_(client) {}
   virtual ~CDBConnection() {}
 
-  virtual std::string GetCurrentDBName() const; //
+  virtual std::string GetCurrentDBName() const;  //
   common::Error Help(commands_args_t argv,
-                     std::string *answer) WARN_UNUSED_RESULT; //
+                     std::string* answer) WARN_UNUSED_RESULT;  //
 
-  common::Error Scan(cursor_t cursor_in, const std::string &pattern,
+  common::Error Scan(cursor_t cursor_in,
+                     const std::string& pattern,
                      keys_limit_t count_keys,
-                     std::vector<std::string> *keys_out,
-                     cursor_t *cursor_out) WARN_UNUSED_RESULT; // nvi
-  common::Error Keys(const std::string &key_start, const std::string &key_end,
+                     std::vector<std::string>* keys_out,
+                     cursor_t* cursor_out) WARN_UNUSED_RESULT;  // nvi
+  common::Error Keys(const std::string& key_start,
+                     const std::string& key_end,
                      keys_limit_t limit,
-                     std::vector<std::string> *ret) WARN_UNUSED_RESULT; // nvi
-  common::Error DBkcount(size_t *size) WARN_UNUSED_RESULT;              // nvi
-  common::Error FlushDB() WARN_UNUSED_RESULT;                           // nvi
-  common::Error Select(const std::string &name,
-                       IDataBaseInfo **info) WARN_UNUSED_RESULT;      // nvi
-  common::Error CreateDB(const std::string &name) WARN_UNUSED_RESULT; // nvi
-  common::Error RemoveDB(const std::string &name) WARN_UNUSED_RESULT; // nvi
-  common::Error
-  ConfigGetDatabases(std::vector<std::string> *dbs) WARN_UNUSED_RESULT; // nvi
-  common::Error Delete(const NKeys &keys,
-                       NKeys *deleted_keys) WARN_UNUSED_RESULT; // nvi
-  common::Error Set(const NDbKValue &key,
-                    NDbKValue *added_key) WARN_UNUSED_RESULT; // nvi
-  common::Error Get(const NKey &key,
-                    NDbKValue *loaded_key) WARN_UNUSED_RESULT; // nvi
-  common::Error Rename(const NKey &key,
-                       const key_t &new_key) WARN_UNUSED_RESULT;        // nvi
-  common::Error SetTTL(const NKey &key, ttl_t ttl) WARN_UNUSED_RESULT;  // nvi
-  common::Error GetTTL(const NKey &key, ttl_t *ttl) WARN_UNUSED_RESULT; // nvi
-  common::Error Quit() WARN_UNUSED_RESULT;                              // nvi
-  common::Error
-  JsonDump(cursor_t cursor_in, const std::string &pattern, keys_limit_t limit,
-           const common::file_system::ascii_file_string_path &path,
-           cursor_t *cursor_out) WARN_UNUSED_RESULT; // nvi
+                     std::vector<std::string>* ret) WARN_UNUSED_RESULT;  // nvi
+  common::Error DBkcount(size_t* size) WARN_UNUSED_RESULT;               // nvi
+  common::Error FlushDB() WARN_UNUSED_RESULT;                            // nvi
+  common::Error Select(const std::string& name,
+                       IDataBaseInfo** info) WARN_UNUSED_RESULT;                       // nvi
+  common::Error CreateDB(const std::string& name) WARN_UNUSED_RESULT;                  // nvi
+  common::Error RemoveDB(const std::string& name) WARN_UNUSED_RESULT;                  // nvi
+  common::Error ConfigGetDatabases(std::vector<std::string>* dbs) WARN_UNUSED_RESULT;  // nvi
+  common::Error Delete(const NKeys& keys,
+                       NKeys* deleted_keys) WARN_UNUSED_RESULT;  // nvi
+  common::Error Set(const NDbKValue& key,
+                    NDbKValue* added_key) WARN_UNUSED_RESULT;  // nvi
+  common::Error Get(const NKey& key,
+                    NDbKValue* loaded_key) WARN_UNUSED_RESULT;  // nvi
+  common::Error Rename(const NKey& key,
+                       const key_t& new_key) WARN_UNUSED_RESULT;         // nvi
+  common::Error SetTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;   // nvi
+  common::Error GetTTL(const NKey& key, ttl_t* ttl) WARN_UNUSED_RESULT;  // nvi
+  common::Error Quit() WARN_UNUSED_RESULT;                               // nvi
+  common::Error JsonDump(cursor_t cursor_in,
+                         const std::string& pattern,
+                         keys_limit_t limit,
+                         const common::file_system::ascii_file_string_path& path,
+                         cursor_t* cursor_out) WARN_UNUSED_RESULT;  // nvi
 
-protected:
-  common::Error GenerateError(const std::string &cmd,
-                              const std::string &descr) WARN_UNUSED_RESULT {
-    const std::string buff =
-        common::MemSPrintf("%s function error: %s", cmd, descr);
+ protected:
+  common::Error GenerateError(const std::string& cmd, const std::string& descr) WARN_UNUSED_RESULT {
+    const std::string buff = common::MemSPrintf("%s function error: %s", cmd, descr);
     return common::make_error(buff);
   }
-  CDBConnectionClient *client_;
+  CDBConnectionClient* client_;
 
-private:
-  virtual common::Error ScanImpl(cursor_t cursor_in, const std::string &pattern,
+ private:
+  virtual common::Error ScanImpl(cursor_t cursor_in,
+                                 const std::string& pattern,
                                  keys_limit_t count_keys,
-                                 std::vector<std::string> *keys_out,
-                                 cursor_t *cursor_out) = 0;
-  virtual common::Error KeysImpl(const std::string &key_start,
-                                 const std::string &key_end, keys_limit_t limit,
-                                 std::vector<std::string> *ret) = 0;
-  virtual common::Error DBkcountImpl(size_t *size) = 0;
+                                 std::vector<std::string>* keys_out,
+                                 cursor_t* cursor_out) = 0;
+  virtual common::Error KeysImpl(const std::string& key_start,
+                                 const std::string& key_end,
+                                 keys_limit_t limit,
+                                 std::vector<std::string>* ret) = 0;
+  virtual common::Error DBkcountImpl(size_t* size) = 0;
   virtual common::Error FlushDBImpl() = 0;
 
-  virtual common::Error SelectImpl(const std::string &name,
-                                   IDataBaseInfo **info) = 0;
-  virtual common::Error CreateDBImpl(const std::string &name,
-                                     IDataBaseInfo **info); // optional
-  virtual common::Error RemoveDBImpl(const std::string &name,
-                                     IDataBaseInfo **info); // optional
+  virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) = 0;
+  virtual common::Error CreateDBImpl(const std::string& name,
+                                     IDataBaseInfo** info);  // optional
+  virtual common::Error RemoveDBImpl(const std::string& name,
+                                     IDataBaseInfo** info);  // optional
 
-  virtual common::Error
-  ConfigGetDatabasesImpl(std::vector<std::string> *dbs) = 0;
-  virtual common::Error DeleteImpl(const NKeys &keys, NKeys *deleted_keys) = 0;
-  virtual common::Error SetImpl(const NDbKValue &key, NDbKValue *added_key) = 0;
-  virtual common::Error GetImpl(const NKey &key, NDbKValue *loaded_key) = 0;
-  virtual common::Error RenameImpl(const NKey &key, const key_t &new_key) = 0;
-  virtual common::Error SetTTLImpl(const NKey &key, ttl_t ttl);  // optional
-  virtual common::Error GetTTLImpl(const NKey &key, ttl_t *ttl); // optional
+  virtual common::Error ConfigGetDatabasesImpl(std::vector<std::string>* dbs) = 0;
+  virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) = 0;
+  virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) = 0;
+  virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) = 0;
+  virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) = 0;
+  virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl);   // optional
+  virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl);  // optional
   virtual common::Error QuitImpl() = 0;
-  virtual common::Error
-  JsonDumpImpl(cursor_t cursor_in, const std::string &pattern,
-               keys_limit_t limit,
-               const common::file_system::ascii_file_string_path &path,
-               cursor_t *cursor_out); // optional;
+  virtual common::Error JsonDumpImpl(cursor_t cursor_in,
+                                     const std::string& pattern,
+                                     keys_limit_t limit,
+                                     const common::file_system::ascii_file_string_path& path,
+                                     cursor_t* cursor_out);  // optional;
 };
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-std::string
-CDBConnection<NConnection, Config, ContType>::GetCurrentDBName() const {
+std::string CDBConnection<NConnection, Config, ContType>::GetCurrentDBName() const {
   return "default";
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv,
-                                                   std::string *answer) {
+common::Error CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv, std::string* answer) {
   size_t argc = argv.size();
   if (!answer) {
     DNOTREACHED();
@@ -154,13 +150,11 @@ CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv,
   }
 
   if (argc == 0) {
-    *answer = common::MemSPrintf(
-        PROJECT_NAME_TITLE " based on %s %s \n"
-                           "Type: \"help <command>\" for help on <command>\n"
-                           "\"help " ALL_COMMANDS
-                           "\" show all supported commands",
-        connection_traits_class::GetBasedOn(),
-        connection_traits_class::GetVersionApi());
+    *answer = common::MemSPrintf(PROJECT_NAME_TITLE
+                                 " based on %s %s \n"
+                                 "Type: \"help <command>\" for help on <command>\n"
+                                 "\"help " ALL_COMMANDS "\" show all supported commands",
+                                 connection_traits_class::GetBasedOn(), connection_traits_class::GetVersionApi());
 
     return common::Error();
   }
@@ -177,35 +171,35 @@ CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv,
     return common::Error();
   }
 
-  const CommandHolder *cmd = nullptr;
+  const CommandHolder* cmd = nullptr;
   size_t off = 0;
   common::Error err = tran->FindCommand(argv, &cmd, &off);
   if (err) {
     return err;
   }
 
-  *answer = common::MemSPrintf("name: %s\n"
-                               "summary: %s\n"
-                               "params: %s\n"
-                               "since: %s\n"
-                               "example: %s",
-                               cmd->name, cmd->summary, cmd->params,
-                               ConvertVersionNumberToReadableString(cmd->since),
-                               cmd->example);
+  *answer = common::MemSPrintf(
+      "name: %s\n"
+      "summary: %s\n"
+      "params: %s\n"
+      "since: %s\n"
+      "example: %s",
+      cmd->name, cmd->summary, cmd->params, ConvertVersionNumberToReadableString(cmd->since), cmd->example);
   return common::Error();
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::Scan(
-    cursor_t cursor_in, const std::string &pattern, keys_limit_t count_keys,
-    std::vector<std::string> *keys_out, cursor_t *cursor_out) {
+common::Error CDBConnection<NConnection, Config, ContType>::Scan(cursor_t cursor_in,
+                                                                 const std::string& pattern,
+                                                                 keys_limit_t count_keys,
+                                                                 std::vector<std::string>* keys_out,
+                                                                 cursor_t* cursor_out) {
   if (!keys_out || !cursor_out) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -219,16 +213,16 @@ common::Error CDBConnection<NConnection, Config, ContType>::Scan(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::Keys(
-    const std::string &key_start, const std::string &key_end,
-    keys_limit_t limit, std::vector<std::string> *ret) {
+common::Error CDBConnection<NConnection, Config, ContType>::Keys(const std::string& key_start,
+                                                                 const std::string& key_end,
+                                                                 keys_limit_t limit,
+                                                                 std::vector<std::string>* ret) {
   if (!ret) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -242,15 +236,13 @@ common::Error CDBConnection<NConnection, Config, ContType>::Keys(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::DBkcount(size_t *size) {
+common::Error CDBConnection<NConnection, Config, ContType>::DBkcount(size_t* size) {
   if (!size) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -265,8 +257,7 @@ CDBConnection<NConnection, Config, ContType>::DBkcount(size_t *size) {
 
 template <typename NConnection, typename Config, connectionTypes ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::FlushDB() {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -284,8 +275,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::FlushDB() {
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::CreateDB(
-    const std::string &name) {
+common::Error CDBConnection<NConnection, Config, ContType>::CreateDB(const std::string& name) {
   if (name.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -296,13 +286,12 @@ common::Error CDBConnection<NConnection, Config, ContType>::CreateDB(
     return common::make_error("Sorry we can't create selected database.");
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  IDataBaseInfo *linfo = nullptr;
+  IDataBaseInfo* linfo = nullptr;
   err = CreateDBImpl(name, &linfo);
   if (err) {
     return err;
@@ -317,8 +306,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::CreateDB(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::RemoveDB(
-    const std::string &name) {
+common::Error CDBConnection<NConnection, Config, ContType>::RemoveDB(const std::string& name) {
   if (name.empty()) {
     DNOTREACHED() << "Invalid database name.";
     return common::make_error_inval();
@@ -330,13 +318,12 @@ common::Error CDBConnection<NConnection, Config, ContType>::RemoveDB(
     return common::make_error(error_str);
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  IDataBaseInfo *linfo = nullptr;
+  IDataBaseInfo* linfo = nullptr;
   err = RemoveDBImpl(name, &linfo);
   if (err) {
     return err;
@@ -351,10 +338,8 @@ common::Error CDBConnection<NConnection, Config, ContType>::RemoveDB(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::ConfigGetDatabases(
-    std::vector<std::string> *dbs) {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+common::Error CDBConnection<NConnection, Config, ContType>::ConfigGetDatabases(std::vector<std::string>* dbs) {
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -370,16 +355,13 @@ common::Error CDBConnection<NConnection, Config, ContType>::ConfigGetDatabases(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Select(const std::string &name,
-                                                     IDataBaseInfo **info) {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+common::Error CDBConnection<NConnection, Config, ContType>::Select(const std::string& name, IDataBaseInfo** info) {
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  IDataBaseInfo *linfo = nullptr;
+  IDataBaseInfo* linfo = nullptr;
   err = SelectImpl(name, &linfo);
   if (err) {
     return err;
@@ -399,16 +381,13 @@ CDBConnection<NConnection, Config, ContType>::Select(const std::string &name,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Delete(const NKeys &keys,
-                                                     NKeys *deleted_keys) {
+common::Error CDBConnection<NConnection, Config, ContType>::Delete(const NKeys& keys, NKeys* deleted_keys) {
   if (!deleted_keys) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -426,16 +405,13 @@ CDBConnection<NConnection, Config, ContType>::Delete(const NKeys &keys,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Set(const NDbKValue &key,
-                                                  NDbKValue *added_key) {
+common::Error CDBConnection<NConnection, Config, ContType>::Set(const NDbKValue& key, NDbKValue* added_key) {
   if (!added_key) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -453,16 +429,13 @@ CDBConnection<NConnection, Config, ContType>::Set(const NDbKValue &key,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Get(const NKey &key,
-                                                  NDbKValue *loaded_key) {
+common::Error CDBConnection<NConnection, Config, ContType>::Get(const NKey& key, NDbKValue* loaded_key) {
   if (!loaded_key) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -480,11 +453,8 @@ CDBConnection<NConnection, Config, ContType>::Get(const NKey &key,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::Rename(const NKey &key,
-                                                     const key_t &new_key) {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+common::Error CDBConnection<NConnection, Config, ContType>::Rename(const NKey& key, const key_t& new_key) {
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -502,11 +472,8 @@ CDBConnection<NConnection, Config, ContType>::Rename(const NKey &key,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::SetTTL(const NKey &key,
-                                                     ttl_t ttl) {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+common::Error CDBConnection<NConnection, Config, ContType>::SetTTL(const NKey& key, ttl_t ttl) {
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -524,16 +491,13 @@ CDBConnection<NConnection, Config, ContType>::SetTTL(const NKey &key,
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::GetTTL(const NKey &key,
-                                                     ttl_t *ttl) {
+common::Error CDBConnection<NConnection, Config, ContType>::GetTTL(const NKey& key, ttl_t* ttl) {
   if (!ttl) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -552,8 +516,7 @@ CDBConnection<NConnection, Config, ContType>::GetTTL(const NKey &key,
 
 template <typename NConnection, typename Config, connectionTypes ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::Quit() {
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -572,9 +535,11 @@ common::Error CDBConnection<NConnection, Config, ContType>::Quit() {
 
 template <typename NConnection, typename Config, connectionTypes ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
-    cursor_t cursor_in, const std::string &pattern, keys_limit_t limit,
-    const common::file_system::ascii_file_string_path &path,
-    cursor_t *cursor_out) {
+    cursor_t cursor_in,
+    const std::string& pattern,
+    keys_limit_t limit,
+    const common::file_system::ascii_file_string_path& path,
+    cursor_t* cursor_out) {
   if (!cursor_out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -582,14 +547,12 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
 
   std::string dir = path.GetDirectory();
   if (!common::file_system::is_directory_exist(dir)) {
-    const std::string error_msg = common::MemSPrintf(
-        "Please create directory: %s for " DB_JSONDUMP_COMMAND " command.",
-        dir);
+    const std::string error_msg =
+        common::MemSPrintf("Please create directory: %s for " DB_JSONDUMP_COMMAND " command.", dir);
     return common::make_error(error_msg);
   }
 
-  common::Error err =
-      CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
@@ -603,60 +566,52 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::SetTTLImpl(const NKey &key,
-                                                         ttl_t ttl) {
+common::Error CDBConnection<NConnection, Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
   UNUSED(key);
   UNUSED(ttl);
+  const std::string error_msg = common::MemSPrintf(
+      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
+}
+
+template <typename NConnection, typename Config, connectionTypes ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetTTLImpl(const NKey& key, ttl_t* ttl) {
+  UNUSED(key);
+  UNUSED(ttl);
+  const std::string error_msg = common::MemSPrintf(
+      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
+}
+
+template <typename NConnection, typename Config, connectionTypes ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::RemoveDBImpl(const std::string& name,
+                                                                         IDataBaseInfo** info) {
+  UNUSED(name);
+  UNUSED(info);
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " for %s not supported TTL commands.",
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_REMOVEDB_COMMAND " commands.",
                          connection_traits_class::GetDBName());
   return common::make_error(error_msg);
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error
-CDBConnection<NConnection, Config, ContType>::GetTTLImpl(const NKey &key,
-                                                         ttl_t *ttl) {
-  UNUSED(key);
-  UNUSED(ttl);
+common::Error CDBConnection<NConnection, Config, ContType>::CreateDBImpl(const std::string& name,
+                                                                         IDataBaseInfo** info) {
+  UNUSED(name);
+  UNUSED(info);
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " for %s not supported TTL commands.",
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_CREATEDB_COMMAND " commands.",
                          connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::RemoveDBImpl(
-    const std::string &name, IDataBaseInfo **info) {
-  UNUSED(name);
-  UNUSED(info);
-  const std::string error_msg = common::MemSPrintf(
-      "Sorry, but now " PROJECT_NAME_TITLE
-      " for %s not supported " DB_REMOVEDB_COMMAND " commands.",
-      connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, connectionTypes ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::CreateDBImpl(
-    const std::string &name, IDataBaseInfo **info) {
-  UNUSED(name);
-  UNUSED(info);
-  const std::string error_msg = common::MemSPrintf(
-      "Sorry, but now " PROJECT_NAME_TITLE
-      " for %s not supported " DB_CREATEDB_COMMAND " commands.",
-      connection_traits_class::GetDBName());
   return common::make_error(error_msg);
 }
 
 template <typename NConnection, typename Config, connectionTypes ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
-    cursor_t cursor_in, const std::string &pattern, keys_limit_t limit,
-    const common::file_system::ascii_file_string_path &path,
-    cursor_t *cursor_out) {
+    cursor_t cursor_in,
+    const std::string& pattern,
+    keys_limit_t limit,
+    const common::file_system::ascii_file_string_path& path,
+    cursor_t* cursor_out) {
   common::file_system::ANSIFile fl;
   common::ErrnoError errn = fl.Open(path, "wb");
   if (errn) {
@@ -666,8 +621,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
   bool is_wrote = fl.Write("[{\n");
   if (!is_wrote) {
     fl.Close();
-    return common::make_error(common::MemSPrintf(
-        "Failed to write start of json file: %s.", path.GetPath()));
+    return common::make_error(common::MemSPrintf("Failed to write start of json file: %s.", path.GetPath()));
   }
 
   std::vector<std::string> keys;
@@ -698,22 +652,20 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
 
     if (!is_wrote) {
       fl.Close();
-      return common::make_error(common::MemSPrintf(
-          "Failed to write entry of json file: %s.", path.GetPath()));
+      return common::make_error(common::MemSPrintf("Failed to write entry of json file: %s.", path.GetPath()));
     }
   }
 
   is_wrote = fl.Write("}]\n");
   if (!is_wrote) {
     fl.Close();
-    return common::make_error(common::MemSPrintf(
-        "Failed to write end of json file: %s.", path.GetPath()));
+    return common::make_error(common::MemSPrintf("Failed to write end of json file: %s.", path.GetPath()));
   }
 
   fl.Close();
   return common::Error();
 }
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

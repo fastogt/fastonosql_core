@@ -24,14 +24,10 @@ namespace fastonosql {
 namespace core {
 namespace pika {
 
-Config::Config()
-    : base_class(
-          common::net::HostAndPort::CreateLocalHost(DEFAULT_PIKA_SERVER_PORT)) {
-}
+Config::Config() : base_class(common::net::HostAndPort::CreateLocalHost(DEFAULT_PIKA_SERVER_PORT)) {}
 
-RConfig::RConfig(const Config &config, const SSHInfo &sinfo)
-    : Config(config), ssh_info(sinfo) {}
+RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
 
-} // namespace pika
-} // namespace core
-} // namespace fastonosql
+}  // namespace pika
+}  // namespace core
+}  // namespace fastonosql

@@ -72,4 +72,4 @@ enum WebIDBTransactionMode {
   kWebIDBTransactionModeReadWrite,
   kWebIDBTransactionModeVersionChange,
 };
-} // namespace blink
+}  // namespace blink

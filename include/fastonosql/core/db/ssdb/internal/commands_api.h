@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/commands_api.h> // for ApiTraits
+#include <fastonosql/core/internal/commands_api.h>  // for ApiTraits
 
 namespace fastonosql {
 namespace core {
@@ -26,93 +26,51 @@ namespace ssdb {
 
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error ScanSSDB(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out);
+  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error ScanSSDB(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
-  static common::Error Auth(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Setx(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Incr(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Rscan(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error MultiGet(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out);
-  static common::Error MultiSet(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out);
-  static common::Error MultiDel(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out);
-  static common::Error Hget(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Hgetall(internal::CommandHandler *handler,
-                               commands_args_t argv, FastoObject *out);
-  static common::Error Hset(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Hdel(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Hincr(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Hsize(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Hclear(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Hkeys(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Hscan(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Hrscan(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error MultiHget(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out);
-  static common::Error MultiHset(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out);
-  static common::Error Zget(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Zset(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Zdel(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Zincr(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Zsize(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Zclear(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Zrank(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Zrrank(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Zrange(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Zrrange(internal::CommandHandler *handler,
-                               commands_args_t argv, FastoObject *out);
-  static common::Error Zkeys(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Zscan(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Zrscan(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error MultiZget(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out);
-  static common::Error MultiZset(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out);
-  static common::Error MultiZdel(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out);
-  static common::Error Qpush(internal::CommandHandler *handler,
-                             commands_args_t argv, FastoObject *out);
-  static common::Error Qpop(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Qslice(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Qclear(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error DBsize(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
+  static common::Error Auth(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Setx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Incr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Rscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hgetall(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hincr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hsize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hclear(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hkeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hrscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiHget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiHset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zincr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zsize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zclear(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zrank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zrrank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zrrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zkeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Zrscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiZget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiZset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error MultiZdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Qpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Qpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Qslice(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Qclear(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error DBsize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
-} // namespace ssdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace ssdb
+}  // namespace core
+}  // namespace fastonosql

@@ -19,5 +19,5 @@
 #include <fastonosql/core/internal/connection.h>
 
 namespace fastonosql {
-namespace core {} // namespace core
-} // namespace fastonosql
+namespace core {}  // namespace core
+}  // namespace fastonosql

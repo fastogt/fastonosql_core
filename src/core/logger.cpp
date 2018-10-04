@@ -21,7 +21,7 @@
 #include <common/logger.h>
 
 namespace {
-fastonosql::core::LogWatcher *g_watcher = nullptr;
+fastonosql::core::LogWatcher* kWatcher = nullptr;
 }
 
 namespace fastonosql {
@@ -29,22 +29,20 @@ namespace core {
 
 Logger::Logger() {}
 
-void Logger::print(const char *mess, common::logging::LOG_LEVEL level,
-                   bool notify) {
+void Logger::print(const char* mess, common::logging::LOG_LEVEL level, bool notify) {
   print(std::string(mess), level, notify);
 }
 
-void Logger::print(const std::string &mess, common::logging::LOG_LEVEL level,
-                   bool notify) {
+void Logger::print(const std::string& mess, common::logging::LOG_LEVEL level, bool notify) {
   RUNTIME_LOG(level) << mess;
-  if (g_watcher) {
-    g_watcher(level, mess, notify);
+  if (kWatcher) {
+    kWatcher(level, mess, notify);
   }
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
-void SET_LOG_WATCHER(fastonosql::core::LogWatcher *watcher) {
-  g_watcher = watcher;
+void SET_LOG_WATCHER(fastonosql::core::LogWatcher* watcher) {
+  kWatcher = watcher;
 }

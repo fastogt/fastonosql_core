@@ -22,12 +22,13 @@ namespace fastonosql {
 namespace core {
 namespace redis_compatible {
 
-DataBaseInfo::DataBaseInfo(const std::string &name, bool isDefault, size_t size,
-                           const keys_container_t &keys)
+DataBaseInfo::DataBaseInfo(const std::string& name, bool isDefault, size_t size, const keys_container_t& keys)
     : IDataBaseInfo(name, isDefault, size, keys) {}
 
-DataBaseInfo *DataBaseInfo::Clone() const { return new DataBaseInfo(*this); }
+DataBaseInfo* DataBaseInfo::Clone() const {
+  return new DataBaseInfo(*this);
+}
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

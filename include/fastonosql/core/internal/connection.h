@@ -18,24 +18,26 @@
 
 #pragma once
 
-#include <common/error.h> // for Error
+#include <common/error.h>  // for Error
 
 namespace fastonosql {
 namespace core {
 namespace internal {
 
-template <typename H, typename C> struct ConnectionAllocatorTraits {
+template <typename H, typename C>
+struct ConnectionAllocatorTraits {
   typedef H handle_t;
   typedef C config_t;
 
-  static common::Error Connect(const config_t &config,
-                               handle_t **hout);      // allocate handle
-  static common::Error Disconnect(handle_t **handle); // deallocate handle
-  static bool IsConnected(handle_t *handle);
+  static common::Error Connect(const config_t& config,
+                               handle_t** hout);       // allocate handle
+  static common::Error Disconnect(handle_t** handle);  // deallocate handle
+  static bool IsConnected(handle_t* handle);
 };
 
-template <typename ConnectionAllocatorTraits> class Connection {
-public:
+template <typename ConnectionAllocatorTraits>
+class Connection {
+ public:
   typedef ConnectionAllocatorTraits traits_t;
   typedef typename common::Optional<typename traits_t::config_t> config_t;
   typedef typename traits_t::handle_t handle_t;
@@ -50,7 +52,7 @@ public:
 
   bool IsConnected() const { return traits_t::IsConnected(handle_); }
 
-  common::Error Connect(const config_t &config) WARN_UNUSED_RESULT {
+  common::Error Connect(const config_t& config) WARN_UNUSED_RESULT {
     if (!config) {
       return common::make_error_inval();
     }
@@ -59,7 +61,7 @@ public:
       return common::Error();
     }
 
-    handle_t *handle = nullptr;
+    handle_t* handle = nullptr;
     common::Error err = traits_t::Connect(*config, &handle);
     if (err) {
       return err;
@@ -86,9 +88,9 @@ public:
   }
 
   config_t config_;
-  handle_t *handle_;
+  handle_t* handle_;
 };
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

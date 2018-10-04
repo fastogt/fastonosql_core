@@ -26,8 +26,8 @@ namespace core {
 
 template <connectionTypes conection_type>
 struct ConnectionCommandsTraits : public ConnectionTraits<conection_type> {
-  static const ConstantCommandsArray &GetCommands();
+  static const ConstantCommandsArray& GetCommands();
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

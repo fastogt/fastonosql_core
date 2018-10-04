@@ -19,5 +19,5 @@
 #include <fastonosql/core/connection_commands_traits.h>
 
 namespace fastonosql {
-namespace core {} // namespace core
-} // namespace fastonosql
+namespace core {}  // namespace core
+}  // namespace fastonosql

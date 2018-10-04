@@ -23,63 +23,53 @@
 namespace fastonosql {
 namespace core {
 
-ICommandTranslatorBase::ICommandTranslatorBase(
-    const std::vector<CommandHolder> &commands)
+ICommandTranslatorBase::ICommandTranslatorBase(const std::vector<CommandHolder>& commands)
     : ICommandTranslator(commands) {}
 
 ICommandTranslatorBase::~ICommandTranslatorBase() {}
 
-common::Error ICommandTranslatorBase::ChangeKeyTTLCommandImpl(
-    const NKey &key, ttl_t ttl, command_buffer_t *cmdstring) const {
+common::Error ICommandTranslatorBase::ChangeKeyTTLCommandImpl(const NKey& key,
+                                                              ttl_t ttl,
+                                                              command_buffer_t* cmdstring) const {
   UNUSED(key);
   UNUSED(ttl);
   UNUSED(cmdstring);
 
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " not supported change ttl command for %s.",
-                         GetDBName());
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " not supported change ttl command for %s.", GetDBName());
   return common::make_error(error_msg);
 }
 
-common::Error ICommandTranslatorBase::LoadKeyTTLCommandImpl(
-    const NKey &key, command_buffer_t *cmdstring) const {
+common::Error ICommandTranslatorBase::LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   UNUSED(key);
   UNUSED(cmdstring);
 
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " not supported get ttl command for %s.",
-                         GetDBName());
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " not supported get ttl command for %s.", GetDBName());
   return common::make_error(error_msg);
 }
 
-common::Error
-ICommandTranslatorBase::PublishCommandImpl(const NDbPSChannel &channel,
-                                           const std::string &message,
-                                           command_buffer_t *cmdstring) const {
+common::Error ICommandTranslatorBase::PublishCommandImpl(const NDbPSChannel& channel,
+                                                         const std::string& message,
+                                                         command_buffer_t* cmdstring) const {
   UNUSED(channel);
   UNUSED(message);
   UNUSED(cmdstring);
 
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " not supported publish command for %s.",
-                         GetDBName());
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " not supported publish command for %s.", GetDBName());
   return common::make_error(error_msg);
 }
 
-common::Error ICommandTranslatorBase::SubscribeCommandImpl(
-    const NDbPSChannel &channel, command_buffer_t *cmdstring) const {
+common::Error ICommandTranslatorBase::SubscribeCommandImpl(const NDbPSChannel& channel,
+                                                           command_buffer_t* cmdstring) const {
   UNUSED(channel);
   UNUSED(cmdstring);
 
   const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE
-                         " not supported subscribe command for %s.",
-                         GetDBName());
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " not supported subscribe command for %s.", GetDBName());
   return common::make_error(error_msg);
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

@@ -26,25 +26,17 @@ namespace memcached {
 
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Version(internal::CommandHandler *handler,
-                               commands_args_t argv, FastoObject *out);
+  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Version(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
-  static common::Error Add(internal::CommandHandler *handler,
-                           commands_args_t argv, FastoObject *out);
-  static common::Error Replace(internal::CommandHandler *handler,
-                               commands_args_t argv, FastoObject *out);
-  static common::Error Append(internal::CommandHandler *handler,
-                              commands_args_t argv, FastoObject *out);
-  static common::Error Prepend(internal::CommandHandler *handler,
-                               commands_args_t argv, FastoObject *out);
-  static common::Error Incr(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
-  static common::Error Decr(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
+  static common::Error Add(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Replace(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Prepend(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Incr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Decr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql

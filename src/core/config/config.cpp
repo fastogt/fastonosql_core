@@ -31,8 +31,7 @@ const char BaseConfig::default_delimiter[] = "\n";
 
 BaseConfig::BaseConfig() : delimiter(default_delimiter) {}
 
-LocalConfig::LocalConfig(const std::string &db_path)
-    : BaseConfig(), db_path(db_path) {}
+LocalConfig::LocalConfig(const std::string& db_path) : BaseConfig(), db_path(db_path) {}
 
 config_args_t LocalConfig::Args() const {
   config_args_t argv;
@@ -50,8 +49,7 @@ config_args_t LocalConfig::Args() const {
   return argv;
 }
 
-RemoteConfig::RemoteConfig(const common::net::HostAndPort &host)
-    : BaseConfig(), host(host) {}
+RemoteConfig::RemoteConfig(const common::net::HostAndPort& host) : BaseConfig(), host(host) {}
 
 config_args_t RemoteConfig::Args() const {
   config_args_t argv;
@@ -71,7 +69,7 @@ config_args_t RemoteConfig::Args() const {
   return argv;
 }
 
-std::string ConvertToStringConfigArgs(const config_args_t &args) {
+std::string ConvertToStringConfigArgs(const config_args_t& args) {
   std::string result;
   for (size_t i = 0; i < args.size(); ++i) {
     std::string curr = args[i];
@@ -88,5 +86,5 @@ std::string ConvertToStringConfigArgs(const config_args_t &args) {
   return result;
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

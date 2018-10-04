@@ -25,31 +25,33 @@
 
 #include <common/macros.h>
 
-#include <fastonosql/core/db/leveldb/comparators/indexed_db/indexed_db_leveldb_coding.h>
+#include "core/db/leveldb/comparators/indexed_db/indexed_db_leveldb_coding.h"
 
 namespace fastonosql {
 namespace core {
 namespace leveldb {
 namespace comparator {
 
-int IndexedDB::Compare(const ::leveldb::Slice &a,
-                       const ::leveldb::Slice &b) const {
+int IndexedDB::Compare(const ::leveldb::Slice& a, const ::leveldb::Slice& b) const {
   common::StringPiece sa(a.data(), a.size());
   common::StringPiece sb(b.data(), b.size());
   return indexed_db::Compare(sa, sb, false /*index_keys*/);
 }
 
-const char *IndexedDB::Name() const { return "idb_cmp1"; }
+const char* IndexedDB::Name() const {
+  return "idb_cmp1";
+}
 
-void IndexedDB::FindShortestSeparator(std::string *start,
-                                      const ::leveldb::Slice &limit) const {
+void IndexedDB::FindShortestSeparator(std::string* start, const ::leveldb::Slice& limit) const {
   UNUSED(start);
   UNUSED(limit);
 }
 
-void IndexedDB::FindShortSuccessor(std::string *key) const { UNUSED(key); }
+void IndexedDB::FindShortSuccessor(std::string* key) const {
+  UNUSED(key);
+}
 
-} // namespace comparator
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace comparator
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql

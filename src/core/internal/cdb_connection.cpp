@@ -24,7 +24,7 @@ namespace fastonosql {
 namespace core {
 
 namespace detail {
-readable_string_t StableForJson(const ReadableString &data) {
+readable_string_t StableForJson(const ReadableString& data) {
   readable_string_t data_raw = data.GetData();
   if (data_raw.empty()) {
     DNOTREACHED();
@@ -42,18 +42,17 @@ readable_string_t StableForJson(const ReadableString &data) {
 
   return "\"" + data_raw + "\"";
 }
-} // namespace detail
+}  // namespace detail
 
 namespace internal {
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string &pattern,
-                                keys_limit_t count_keys) {
+command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
   command_buffer_writer_t wr;
-  wr << "SCAN " << common::ConvertToString(cursor_in) << " MATCH " << pattern
-     << " COUNT " << common::ConvertToString(count_keys);
+  wr << "SCAN " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
+     << common::ConvertToString(count_keys);
   return wr.str();
 }
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

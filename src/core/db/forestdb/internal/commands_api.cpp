@@ -24,23 +24,20 @@ namespace fastonosql {
 namespace core {
 namespace forestdb {
 
-common::Error CommandsApi::Info(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out) {
-  DBConnection *mdb = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* mdb = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err =
-      mdb->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = mdb->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
   if (err) {
     return err;
   }
 
-  common::StringValue *val =
-      common::Value::CreateStringValue(ServerInfo(statsout).ToString());
-  FastoObject *child = new FastoObject(out, val, mdb->GetDelimiter());
+  common::StringValue* val = common::Value::CreateStringValue(ServerInfo(statsout).ToString());
+  FastoObject* child = new FastoObject(out, val, mdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql

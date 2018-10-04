@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/db_key.h> // for NDbKValue, NKey, NKeys, ttl_t
+#include <fastonosql/core/db_key.h>  // for NDbKValue, NKey, NKeys, ttl_t
 
 namespace fastonosql {
 namespace core {
@@ -26,24 +26,24 @@ namespace core {
 class IDataBaseInfo;
 
 class CDBConnectionClient {
-public:
-  virtual void OnCreatedDB(IDataBaseInfo *info) = 0;
-  virtual void OnRemovedDB(IDataBaseInfo *info) = 0;
+ public:
+  virtual void OnCreatedDB(IDataBaseInfo* info) = 0;
+  virtual void OnRemovedDB(IDataBaseInfo* info) = 0;
 
   virtual void OnFlushedCurrentDB() = 0;
-  virtual void OnChangedCurrentDB(IDataBaseInfo *info) = 0;
+  virtual void OnChangedCurrentDB(IDataBaseInfo* info) = 0;
 
-  virtual void OnRemovedKeys(const NKeys &keys) = 0;
-  virtual void OnAddedKey(const NDbKValue &key) = 0;
-  virtual void OnLoadedKey(const NDbKValue &key) = 0;
-  virtual void OnRenamedKey(const NKey &key, const key_t &new_key) = 0;
-  virtual void OnChangedKeyTTL(const NKey &key, ttl_t ttl) = 0;
-  virtual void OnLoadedKeyTTL(const NKey &key, ttl_t ttl) = 0;
+  virtual void OnRemovedKeys(const NKeys& keys) = 0;
+  virtual void OnAddedKey(const NDbKValue& key) = 0;
+  virtual void OnLoadedKey(const NDbKValue& key) = 0;
+  virtual void OnRenamedKey(const NKey& key, const key_t& new_key) = 0;
+  virtual void OnChangedKeyTTL(const NKey& key, ttl_t ttl) = 0;
+  virtual void OnLoadedKeyTTL(const NKey& key, ttl_t ttl) = 0;
 
   virtual void OnQuited() = 0;
 
   virtual ~CDBConnectionClient();
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

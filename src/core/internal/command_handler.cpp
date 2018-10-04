@@ -22,24 +22,22 @@ extern "C" {
 #include "sds/sds_fasto.h"
 }
 
-#include <fastonosql/core/command_holder.h> // for CommandHolder
+#include <fastonosql/core/command_holder.h>  // for CommandHolder
 
 namespace fastonosql {
 namespace core {
 namespace internal {
 
-CommandHandler::CommandHandler(ICommandTranslator *translator)
-    : translator_(translator) {}
+CommandHandler::CommandHandler(ICommandTranslator* translator) : translator_(translator) {}
 
-common::Error CommandHandler::Execute(const command_buffer_t &command,
-                                      FastoObject *out) {
+common::Error CommandHandler::Execute(const command_buffer_t& command, FastoObject* out) {
   command_buffer_t stabled_command = StableCommand(command);
   if (stabled_command.empty()) {
     return common::make_error_inval();
   }
 
   int argc;
-  sds *argv = sdssplitargslong(stabled_command.data(), &argc);
+  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
   if (!argv) {
     return common::make_error_inval();
   }
@@ -54,8 +52,8 @@ common::Error CommandHandler::Execute(const command_buffer_t &command,
   return err;
 }
 
-common::Error CommandHandler::Execute(commands_args_t argv, FastoObject *out) {
-  const CommandHolder *cmd = nullptr;
+common::Error CommandHandler::Execute(commands_args_t argv, FastoObject* out) {
+  const CommandHolder* cmd = nullptr;
   size_t off = 0;
   common::Error err = translator_->TestCommandLineArgs(argv, &cmd, &off);
   if (err) {
@@ -69,6 +67,6 @@ common::Error CommandHandler::Execute(commands_args_t argv, FastoObject *out) {
   return cmd->func_(this, stabled, out);
 }
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

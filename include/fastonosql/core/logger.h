@@ -19,33 +19,30 @@
 #pragma once
 
 #include <common/logger.h>
-#include <common/patterns/singleton_pattern.h> // for LazySingleton
+#include <common/patterns/singleton_pattern.h>  // for LazySingleton
 
 namespace fastonosql {
 namespace core {
 
-typedef void LogWatcher(common::logging::LOG_LEVEL level,
-                        const std::string &message, bool notify);
+typedef void LogWatcher(common::logging::LOG_LEVEL level, const std::string& message, bool notify);
 
 class Logger : public common::patterns::LazySingleton<Logger> {
   friend class common::patterns::LazySingleton<Logger>;
 
-public:
-  void print(const char *mess, common::logging::LOG_LEVEL level, bool notify);
-  void print(const std::string &mess, common::logging::LOG_LEVEL level,
-             bool notify);
+ public:
+  void print(const char* mess, common::logging::LOG_LEVEL level, bool notify);
+  void print(const std::string& mess, common::logging::LOG_LEVEL level, bool notify);
 
-private:
+ private:
   Logger();
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
-void SET_LOG_WATCHER(fastonosql::core::LogWatcher *watcher);
+void SET_LOG_WATCHER(fastonosql::core::LogWatcher* watcher);
 
 template <typename T>
-inline void LOG_CORE_MSG(T mess, common::logging::LOG_LEVEL level,
-                         bool notify) {
+inline void LOG_CORE_MSG(T mess, common::logging::LOG_LEVEL level, bool notify) {
   return fastonosql::core::Logger::GetInstance().print(mess, level, notify);
 }

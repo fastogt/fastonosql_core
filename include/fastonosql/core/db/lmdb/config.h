@@ -40,12 +40,11 @@ struct Config : public LocalConfig {
   unsigned int max_dbs;
 };
 
-} // namespace lmdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace lmdb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::lmdb::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::lmdb::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::lmdb::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::lmdb::Config* out);
+}  // namespace common

@@ -27,7 +27,7 @@
 namespace fastonosql {
 namespace core {
 namespace {
-const char *string_types[] = {"TYPE_NULL",
+const char* string_types[] = {"TYPE_NULL",
                               "TYPE_BOOLEAN",
                               "TYPE_INTEGER",
                               "TYPE_UINTEGER",
@@ -42,22 +42,21 @@ const char *string_types[] = {"TYPE_NULL",
                               "TYPE_SET",
                               "TYPE_ZSET",
                               "TYPE_HASH"};
-static_assert(arraysize(string_types) ==
-                  static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
+static_assert(arraysize(string_types) == static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
               "string_types Has Wrong Size");
-} // namespace
+}  // namespace
 
 StreamValue::StreamValue() : Value(TYPE_STREAM), streams_() {}
 
 StreamValue::~StreamValue() {}
 
-StreamValue *StreamValue::DeepCopy() const {
-  StreamValue *str = new StreamValue();
+StreamValue* StreamValue::DeepCopy() const {
+  StreamValue* str = new StreamValue();
   str->SetStreams(streams_);
   return str;
 }
 
-bool StreamValue::Equals(const Value *other) const {
+bool StreamValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
   }
@@ -66,16 +65,19 @@ bool StreamValue::Equals(const Value *other) const {
   return GetAsString(&lhs) && other->GetAsString(&rhs) && lhs == rhs;
 }
 
-StreamValue::streams_t StreamValue::GetStreams() const { return streams_; }
+StreamValue::streams_t StreamValue::GetStreams() const {
+  return streams_;
+}
 
-void StreamValue::SetStreams(const streams_t &streams) { streams_ = streams; }
+void StreamValue::SetStreams(const streams_t& streams) {
+  streams_ = streams;
+}
 
-JsonValue::JsonValue(const std::string &json_value)
-    : Value(TYPE_JSON), value_(json_value) {}
+JsonValue::JsonValue(const std::string& json_value) : Value(TYPE_JSON), value_(json_value) {}
 
 JsonValue::~JsonValue() {}
 
-bool JsonValue::GetAsString(std::string *out_value) const {
+bool JsonValue::GetAsString(std::string* out_value) const {
   if (out_value) {
     *out_value = value_;
   }
@@ -83,9 +85,11 @@ bool JsonValue::GetAsString(std::string *out_value) const {
   return true;
 }
 
-JsonValue *JsonValue::DeepCopy() const { return new JsonValue(value_); }
+JsonValue* JsonValue::DeepCopy() const {
+  return new JsonValue(value_);
+}
 
-bool JsonValue::Equals(const Value *other) const {
+bool JsonValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
   }
@@ -94,12 +98,12 @@ bool JsonValue::Equals(const Value *other) const {
   return GetAsString(&lhs) && other->GetAsString(&rhs) && lhs == rhs;
 }
 
-bool JsonValue::IsValidJson(const std::string &json) {
+bool JsonValue::IsValidJson(const std::string& json) {
   if (json.empty()) {
     return false;
   }
 
-  json_object *obj = json_tokener_parse(json.c_str());
+  json_object* obj = json_tokener_parse(json.c_str());
   if (!obj) {
     return false;
   }
@@ -112,9 +116,11 @@ GraphValue::GraphValue() : Value(TYPE_GRAPH) {}
 
 GraphValue::~GraphValue() {}
 
-GraphValue *GraphValue::DeepCopy() const { return new GraphValue; }
+GraphValue* GraphValue::DeepCopy() const {
+  return new GraphValue;
+}
 
-bool GraphValue::Equals(const Value *other) const {
+bool GraphValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
   }
@@ -126,9 +132,11 @@ BloomValue::BloomValue() : Value(TYPE_BLOOM) {}
 
 BloomValue::~BloomValue() {}
 
-BloomValue *BloomValue::DeepCopy() const { return new BloomValue; }
+BloomValue* BloomValue::DeepCopy() const {
+  return new BloomValue;
+}
 
-bool BloomValue::Equals(const Value *other) const {
+bool BloomValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
   }
@@ -136,21 +144,21 @@ bool BloomValue::Equals(const Value *other) const {
   return true;
 }
 
-SearchValue *SearchValue::CreateSearchIndex() {
+SearchValue* SearchValue::CreateSearchIndex() {
   return new SearchValue(TYPE_FT_INDEX);
 }
 
-SearchValue *SearchValue::CreateSearchDocument() {
+SearchValue* SearchValue::CreateSearchDocument() {
   return new SearchValue(TYPE_FT_TERM);
 }
 
 SearchValue::~SearchValue() {}
 
-SearchValue *SearchValue::DeepCopy() const {
+SearchValue* SearchValue::DeepCopy() const {
   return new SearchValue(GetType());
 }
 
-bool SearchValue::Equals(const Value *other) const {
+bool SearchValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
   }
@@ -160,79 +168,79 @@ bool SearchValue::Equals(const Value *other) const {
 
 SearchValue::SearchValue(common::Value::Type type) : Value(type) {}
 
-common::Value *CreateEmptyValueFromType(common::Value::Type value_type) {
+common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
   const uint8_t cvalue_type = value_type;
   switch (cvalue_type) {
-  case common::Value::TYPE_NULL: {
-    return common::Value::CreateNullValue();
-  }
-  case common::Value::TYPE_BOOLEAN: {
-    return common::Value::CreateBooleanValue(false);
-  }
-  case common::Value::TYPE_INTEGER: {
-    return common::Value::CreateIntegerValue(0);
-  }
-  case common::Value::TYPE_UINTEGER: {
-    return common::Value::CreateUIntegerValue(0);
-  }
-  case common::Value::TYPE_LONG_INTEGER: {
-    return common::Value::CreateLongIntegerValue(0);
-  }
-  case common::Value::TYPE_ULONG_INTEGER: {
-    return common::Value::CreateULongIntegerValue(0);
-  }
-  case common::Value::TYPE_LONG_LONG_INTEGER: {
-    return common::Value::CreateLongLongIntegerValue(0);
-  }
-  case common::Value::TYPE_ULONG_LONG_INTEGER: {
-    return common::Value::CreateULongLongIntegerValue(0);
-  }
-  case common::Value::TYPE_DOUBLE: {
-    return common::Value::CreateDoubleValue(0);
-  }
-  case common::Value::TYPE_STRING: {
-    return common::Value::CreateStringValue(std::string());
-  }
-  case common::Value::TYPE_ARRAY: {
-    return common::Value::CreateArrayValue();
-  }
-  case common::Value::TYPE_BYTE_ARRAY: {
-    return common::Value::CreateByteArrayValue(common::byte_array_t());
-  }
-  case common::Value::TYPE_SET: {
-    return common::Value::CreateSetValue();
-  }
-  case common::Value::TYPE_ZSET: {
-    return common::Value::CreateZSetValue();
-  }
-  case common::Value::TYPE_HASH: {
-    return common::Value::CreateHashValue();
-  }
-  // extended
-  case StreamValue::TYPE_STREAM: {
-    return new StreamValue;
-  }
-  case JsonValue::TYPE_JSON: {
-    return new JsonValue(std::string());
-  }
-  case GraphValue::TYPE_GRAPH: {
-    return new GraphValue;
-  }
-  case BloomValue::TYPE_BLOOM: {
-    return new BloomValue;
-  }
-  case SearchValue::TYPE_FT_INDEX: {
-    return SearchValue::CreateSearchIndex();
-  }
-  case SearchValue::TYPE_FT_TERM: {
-    return SearchValue::CreateSearchDocument();
-  }
+    case common::Value::TYPE_NULL: {
+      return common::Value::CreateNullValue();
+    }
+    case common::Value::TYPE_BOOLEAN: {
+      return common::Value::CreateBooleanValue(false);
+    }
+    case common::Value::TYPE_INTEGER: {
+      return common::Value::CreateIntegerValue(0);
+    }
+    case common::Value::TYPE_UINTEGER: {
+      return common::Value::CreateUIntegerValue(0);
+    }
+    case common::Value::TYPE_LONG_INTEGER: {
+      return common::Value::CreateLongIntegerValue(0);
+    }
+    case common::Value::TYPE_ULONG_INTEGER: {
+      return common::Value::CreateULongIntegerValue(0);
+    }
+    case common::Value::TYPE_LONG_LONG_INTEGER: {
+      return common::Value::CreateLongLongIntegerValue(0);
+    }
+    case common::Value::TYPE_ULONG_LONG_INTEGER: {
+      return common::Value::CreateULongLongIntegerValue(0);
+    }
+    case common::Value::TYPE_DOUBLE: {
+      return common::Value::CreateDoubleValue(0);
+    }
+    case common::Value::TYPE_STRING: {
+      return common::Value::CreateStringValue(std::string());
+    }
+    case common::Value::TYPE_ARRAY: {
+      return common::Value::CreateArrayValue();
+    }
+    case common::Value::TYPE_BYTE_ARRAY: {
+      return common::Value::CreateByteArrayValue(common::byte_array_t());
+    }
+    case common::Value::TYPE_SET: {
+      return common::Value::CreateSetValue();
+    }
+    case common::Value::TYPE_ZSET: {
+      return common::Value::CreateZSetValue();
+    }
+    case common::Value::TYPE_HASH: {
+      return common::Value::CreateHashValue();
+    }
+    // extended
+    case StreamValue::TYPE_STREAM: {
+      return new StreamValue;
+    }
+    case JsonValue::TYPE_JSON: {
+      return new JsonValue(std::string());
+    }
+    case GraphValue::TYPE_GRAPH: {
+      return new GraphValue;
+    }
+    case BloomValue::TYPE_BLOOM: {
+      return new BloomValue;
+    }
+    case SearchValue::TYPE_FT_INDEX: {
+      return SearchValue::CreateSearchIndex();
+    }
+    case SearchValue::TYPE_FT_TERM: {
+      return SearchValue::CreateSearchDocument();
+    }
   }
 
   return nullptr;
 }
 
-const char *GetTypeName(common::Value::Type value_type) {
+const char* GetTypeName(common::Value::Type value_type) {
   if (value_type <= common::Value::TYPE_HASH) {
     return string_types[value_type];
   } else if (value_type == StreamValue::TYPE_STREAM) {
@@ -253,7 +261,7 @@ const char *GetTypeName(common::Value::Type value_type) {
   return "UNKNOWN";
 }
 
-std::string ConvertValue(common::Value *value, const std::string &delimiter) {
+std::string ConvertValue(common::Value* value, const std::string& delimiter) {
   if (!value) {
     return std::string();
   }
@@ -262,66 +270,56 @@ std::string ConvertValue(common::Value *value, const std::string &delimiter) {
   if (t == common::Value::TYPE_NULL) {
     return "(nil)";
   } else if (t == common::Value::TYPE_BOOLEAN) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_UINTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_LONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_ULONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_LONG_LONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_ULONG_LONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_DOUBLE) {
-    return ConvertValue(static_cast<common::FundamentalValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
 
   } else if (t == common::Value::TYPE_STRING) {
-    return ConvertValue(static_cast<common::StringValue *>(value), delimiter);
+    return ConvertValue(static_cast<common::StringValue*>(value), delimiter);
 
   } else if (t == common::Value::TYPE_ARRAY) {
-    return ConvertValue(static_cast<common::ArrayValue *>(value), delimiter);
+    return ConvertValue(static_cast<common::ArrayValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_BYTE_ARRAY) {
-    return ConvertValue(static_cast<common::ByteArrayValue *>(value),
-                        delimiter);
+    return ConvertValue(static_cast<common::ByteArrayValue*>(value), delimiter);
 
   } else if (t == common::Value::TYPE_SET) {
-    return ConvertValue(static_cast<common::SetValue *>(value), delimiter);
+    return ConvertValue(static_cast<common::SetValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_ZSET) {
-    return ConvertValue(static_cast<common::ZSetValue *>(value), delimiter);
+    return ConvertValue(static_cast<common::ZSetValue*>(value), delimiter);
   } else if (t == common::Value::TYPE_HASH) {
-    return ConvertValue(static_cast<common::HashValue *>(value), delimiter);
+    return ConvertValue(static_cast<common::HashValue*>(value), delimiter);
   } else if (t == StreamValue::TYPE_STREAM) {
-    return ConvertValue(static_cast<StreamValue *>(value), delimiter);
+    return ConvertValue(static_cast<StreamValue*>(value), delimiter);
     // extended
   } else if (t == JsonValue::TYPE_JSON) {
-    return ConvertValue(static_cast<JsonValue *>(value), delimiter);
+    return ConvertValue(static_cast<JsonValue*>(value), delimiter);
   } else if (t == GraphValue::TYPE_GRAPH) {
-    return ConvertValue(static_cast<GraphValue *>(value), delimiter);
+    return ConvertValue(static_cast<GraphValue*>(value), delimiter);
   } else if (t == BloomValue::TYPE_BLOOM) {
-    return ConvertValue(static_cast<BloomValue *>(value), delimiter);
+    return ConvertValue(static_cast<BloomValue*>(value), delimiter);
   } else if (t == SearchValue::TYPE_FT_INDEX) {
-    return ConvertValue(static_cast<SearchValue *>(value), delimiter);
+    return ConvertValue(static_cast<SearchValue*>(value), delimiter);
   } else if (t == SearchValue::TYPE_FT_TERM) {
-    return ConvertValue(static_cast<SearchValue *>(value), delimiter);
+    return ConvertValue(static_cast<SearchValue*>(value), delimiter);
   }
 
   DNOTREACHED();
   return std::string();
 }
 
-std::string ConvertValue(common::ArrayValue *array,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::ArrayValue* array, const std::string& delimiter) {
   if (!array) {
     return std::string();
   }
@@ -329,7 +327,7 @@ std::string ConvertValue(common::ArrayValue *array,
   std::string result;
   auto lastIt = std::prev(array->end());
   for (auto it = array->begin(); it != array->end(); ++it) {
-    common::Value *cur_val = *it;
+    common::Value* cur_val = *it;
     std::string val_str = ConvertValue(cur_val, delimiter);
     if (val_str.empty()) {
       continue;
@@ -344,7 +342,7 @@ std::string ConvertValue(common::ArrayValue *array,
   return result;
 }
 
-std::string ConvertValue(common::SetValue *set, const std::string &delimiter) {
+std::string ConvertValue(common::SetValue* set, const std::string& delimiter) {
   if (!set) {
     return std::string();
   }
@@ -366,8 +364,7 @@ std::string ConvertValue(common::SetValue *set, const std::string &delimiter) {
   return result;
 }
 
-std::string ConvertValue(common::ZSetValue *zset,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter) {
   if (!zset) {
     return std::string();
   }
@@ -390,8 +387,7 @@ std::string ConvertValue(common::ZSetValue *zset,
   return result;
 }
 
-std::string ConvertValue(common::HashValue *hash,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::HashValue* hash, const std::string& delimiter) {
   if (!hash) {
     return std::string();
   }
@@ -413,8 +409,7 @@ std::string ConvertValue(common::HashValue *hash,
   return result;
 }
 
-std::string ConvertValue(common::FundamentalValue *value,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::FundamentalValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     return std::string();
@@ -473,8 +468,7 @@ std::string ConvertValue(common::FundamentalValue *value,
   return std::string();
 }
 
-std::string ConvertValue(common::StringValue *value,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::StringValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     return std::string();
@@ -488,8 +482,7 @@ std::string ConvertValue(common::StringValue *value,
   return res;
 }
 
-std::string ConvertValue(common::ByteArrayValue *value,
-                         const std::string &delimiter) {
+std::string ConvertValue(common::ByteArrayValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     return std::string();
@@ -503,7 +496,7 @@ std::string ConvertValue(common::ByteArrayValue *value,
   return common::ConvertToString(res);
 }
 
-std::string ConvertValue(StreamValue *value, const std::string &delimiter) {
+std::string ConvertValue(StreamValue* value, const std::string& delimiter) {
   if (!value) {
     return std::string();
   }
@@ -525,7 +518,7 @@ std::string ConvertValue(StreamValue *value, const std::string &delimiter) {
   return wr.str();
 }
 
-std::string ConvertValue(JsonValue *value, const std::string &delimiter) {
+std::string ConvertValue(JsonValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     return std::string();
@@ -539,23 +532,23 @@ std::string ConvertValue(JsonValue *value, const std::string &delimiter) {
   return res;
 }
 
-std::string ConvertValue(GraphValue *value, const std::string &delimiter) {
+std::string ConvertValue(GraphValue* value, const std::string& delimiter) {
   UNUSED(value);
   UNUSED(delimiter);
   return std::string();
 }
 
-std::string ConvertValue(BloomValue *value, const std::string &delimiter) {
+std::string ConvertValue(BloomValue* value, const std::string& delimiter) {
   UNUSED(value);
   UNUSED(delimiter);
   return std::string();
 }
 
-std::string ConvertValue(SearchValue *value, const std::string &delimiter) {
+std::string ConvertValue(SearchValue* value, const std::string& delimiter) {
   UNUSED(value);
   UNUSED(delimiter);
   return std::string();
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

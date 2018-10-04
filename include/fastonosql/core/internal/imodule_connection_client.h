@@ -24,11 +24,11 @@ namespace fastonosql {
 namespace core {
 
 class IModuleConnectionClient {
-public:
-  virtual void OnLoadedModule(const ModuleInfo &module) = 0;
-  virtual void OnUnLoadedModule(const ModuleInfo &module) = 0;
+ public:
+  virtual void OnLoadedModule(const ModuleInfo& module) = 0;
+  virtual void OnUnLoadedModule(const ModuleInfo& module) = 0;
   virtual ~IModuleConnectionClient();
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

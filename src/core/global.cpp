@@ -25,17 +25,17 @@ namespace core {
 
 FastoObject::IFastoObjectObserver::~IFastoObjectObserver() {}
 
-FastoObject::FastoObject(FastoObject *parent, common::Value *val,
-                         const std::string &delimiter)
-    : observer_(nullptr), value_(val), parent_(parent), childrens_(),
-      delimiter_(delimiter) {
+FastoObject::FastoObject(FastoObject* parent, common::Value* val, const std::string& delimiter)
+    : observer_(nullptr), value_(val), parent_(parent), childrens_(), delimiter_(delimiter) {
   DCHECK(value_);
   if (parent_) {
     observer_ = parent_->observer_;
   }
 }
 
-FastoObject::~FastoObject() { Clear(); }
+FastoObject::~FastoObject() {
+  Clear();
+}
 
 common::Value::Type FastoObject::GetType() const {
   if (!value_) {
@@ -49,15 +49,15 @@ std::string FastoObject::ToString() const {
   return ConvertValue(value_.get(), GetDelimiter());
 }
 
-FastoObject *FastoObject::CreateRoot(const command_buffer_t &text,
-                                     IFastoObjectObserver *observer) {
-  FastoObject *root = new FastoObject(
-      nullptr, common::Value::CreateStringValue(text), std::string());
+FastoObject* FastoObject::CreateRoot(const command_buffer_t& text, IFastoObjectObserver* observer) {
+  FastoObject* root = new FastoObject(nullptr, common::Value::CreateStringValue(text), std::string());
   root->observer_ = observer;
   return root;
 }
 
-FastoObject::childs_t FastoObject::GetChildrens() const { return childrens_; }
+FastoObject::childs_t FastoObject::GetChildrens() const {
+  return childrens_;
+}
 
 void FastoObject::AddChildren(child_t child) {
   if (!child) {
@@ -71,13 +71,21 @@ void FastoObject::AddChildren(child_t child) {
   }
 }
 
-FastoObject *FastoObject::GetParent() const { return parent_; }
+FastoObject* FastoObject::GetParent() const {
+  return parent_;
+}
 
-void FastoObject::Clear() { childrens_.clear(); }
+void FastoObject::Clear() {
+  childrens_.clear();
+}
 
-std::string FastoObject::GetDelimiter() const { return delimiter_; }
+std::string FastoObject::GetDelimiter() const {
+  return delimiter_;
+}
 
-FastoObject::value_t FastoObject::GetValue() const { return value_; }
+FastoObject::value_t FastoObject::GetValue() const {
+  return value_;
+}
 
 void FastoObject::SetValue(value_t val) {
   value_ = val;
@@ -86,16 +94,18 @@ void FastoObject::SetValue(value_t val) {
   }
 }
 
-FastoObjectCommand::FastoObjectCommand(FastoObject *parent,
-                                       common::StringValue *cmd,
+FastoObjectCommand::FastoObjectCommand(FastoObject* parent,
+                                       common::StringValue* cmd,
                                        CmdLoggingType ct,
-                                       const std::string &delimiter,
+                                       const std::string& delimiter,
                                        core::connectionTypes type)
     : FastoObject(parent, cmd, delimiter), type_(type), ct_(ct) {}
 
 FastoObjectCommand::~FastoObjectCommand() {}
 
-std::string FastoObjectCommand::ToString() const { return std::string(); }
+std::string FastoObjectCommand::ToString() const {
+  return std::string();
+}
 
 core::connectionTypes FastoObjectCommand::GetConnectionType() const {
   return type_;
@@ -110,14 +120,16 @@ command_buffer_t FastoObjectCommand::GetInputCommand() const {
   return command_buffer_t();
 }
 
-CmdLoggingType FastoObjectCommand::GetCommandLoggingType() const { return ct_; }
+CmdLoggingType FastoObjectCommand::GetCommandLoggingType() const {
+  return ct_;
+}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::FastoObject *obj) {
+std::string ConvertToString(fastonosql::core::FastoObject* obj) {
   if (!obj) {
     return std::string();
   }
@@ -136,4 +148,4 @@ std::string ConvertToString(fastonosql::core::FastoObject *obj) {
 
   return result;
 }
-} // namespace common
+}  // namespace common

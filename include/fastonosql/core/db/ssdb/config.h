@@ -30,12 +30,11 @@ struct Config : public RemoteConfig {
   std::string auth;
 };
 
-} // namespace ssdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace ssdb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::ssdb::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::ssdb::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::ssdb::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::ssdb::Config* out);
+}  // namespace common

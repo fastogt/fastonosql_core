@@ -18,15 +18,15 @@
 
 #pragma once
 
-#include <common/types.h> // for ClonableBase
+#include <common/types.h>  // for ClonableBase
 
-#include <fastonosql/core/db_key.h> // for NDbKValue
+#include <fastonosql/core/db_key.h>  // for NDbKValue
 
 namespace fastonosql {
 namespace core {
 
 class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
-public:
+ public:
   typedef std::vector<NDbKValue> keys_container_t;
   std::string GetName() const;
   size_t GetDBKeysCount() const;
@@ -39,22 +39,20 @@ public:
   virtual ~IDataBaseInfo();
 
   keys_container_t GetKeys() const;
-  void SetKeys(const keys_container_t &keys);
+  void SetKeys(const keys_container_t& keys);
   void ClearKeys();
 
-  bool RenameKey(const NKey &okey, const key_t &new_name) WARN_UNUSED_RESULT;
-  bool InsertKey(const NDbKValue &key)
-      WARN_UNUSED_RESULT; // true if inserted, false if updated
-  bool UpdateKeyTTL(const NKey &key, ttl_t ttl) WARN_UNUSED_RESULT;
-  bool RemoveKey(const NKey &key) WARN_UNUSED_RESULT;
+  bool RenameKey(const NKey& okey, const key_t& new_name) WARN_UNUSED_RESULT;
+  bool InsertKey(const NDbKValue& key) WARN_UNUSED_RESULT;  // true if inserted, false if updated
+  bool UpdateKeyTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;
+  bool RemoveKey(const NKey& key) WARN_UNUSED_RESULT;
 
-  virtual IDataBaseInfo *Clone() const override = 0;
+  virtual IDataBaseInfo* Clone() const override = 0;
 
-protected:
-  IDataBaseInfo(const std::string &name, bool isDefault, size_t dbkcount,
-                const keys_container_t &keys);
+ protected:
+  IDataBaseInfo(const std::string& name, bool isDefault, size_t dbkcount, const keys_container_t& keys);
 
-private:
+ private:
   const std::string name_;
   bool is_default_;
   size_t db_kcount_;
@@ -63,5 +61,5 @@ private:
 
 typedef std::shared_ptr<IDataBaseInfo> IDataBaseInfoSPtr;
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

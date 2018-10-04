@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <string> // for string
+#include <string>  // for string
 
 namespace fastonosql {
 namespace core {
@@ -29,5 +29,5 @@ struct ModuleInfo {
   uint32_t version;
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

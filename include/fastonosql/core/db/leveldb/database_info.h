@@ -25,12 +25,14 @@ namespace core {
 namespace leveldb {
 
 class DataBaseInfo : public IDataBaseInfo {
-public:
-  DataBaseInfo(const std::string &name, bool isDefault, size_t dbkcount,
-               const keys_container_t &keys = keys_container_t());
-  virtual DataBaseInfo *Clone() const override;
+ public:
+  DataBaseInfo(const std::string& name,
+               bool isDefault,
+               size_t dbkcount,
+               const keys_container_t& keys = keys_container_t());
+  virtual DataBaseInfo* Clone() const override;
 };
 
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql

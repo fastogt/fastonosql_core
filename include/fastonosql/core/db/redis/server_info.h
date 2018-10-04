@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/server/iserver_info.h> // for IStateField, IServerInfo
+#include <fastonosql/core/server/iserver_info.h>  // for IStateField, IServerInfo
 
 #define REDIS_SERVER_LABEL "# Server"
 #define REDIS_CLIENTS_LABEL "# Clients"
@@ -49,8 +49,7 @@
 
 // Clients
 #define REDIS_CLIENTS_CONNECTED_CLIENTS_LABEL "connected_clients"
-#define REDIS_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL                         \
-  "client_longest_output_list"
+#define REDIS_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL "client_longest_output_list"
 #define REDIS_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL "client_biggest_input_buf"
 #define REDIS_CLIENTS_BLOCKED_CLIENTS_LABEL "blocked_clients"
 
@@ -66,30 +65,22 @@
 
 // Persistence
 #define REDIS_PERSISTENCE_LOADING_LABEL "loading"
-#define REDIS_PERSISTENCE_RDB_CHANGES_SINCE_LAST_SAVE_LABEL                    \
-  "rdb_changes_since_last_save"
+#define REDIS_PERSISTENCE_RDB_CHANGES_SINCE_LAST_SAVE_LABEL "rdb_changes_since_last_save"
 #define REDIS_PERSISTENCE_RDB_DGSAVE_IN_PROGRESS_LABEL "rdb_bgsave_in_progress"
 #define REDIS_PERSISTENCE_RDB_LAST_SAVE_TIME_LABEL "rdb_last_save_time"
 #define REDIS_PERSISTENCE_RDB_LAST_DGSAVE_STATUS_LABEL "rdb_last_bgsave_status"
-#define REDIS_PERSISTENCE_RDB_LAST_DGSAVE_TIME_SEC_LABEL                       \
-  "rdb_last_bgsave_time_sec"
-#define REDIS_PERSISTENCE_RDB_CURRENT_DGSAVE_TIME_SEC_LABEL                    \
-  "rdb_current_bgsave_time_sec"
+#define REDIS_PERSISTENCE_RDB_LAST_DGSAVE_TIME_SEC_LABEL "rdb_last_bgsave_time_sec"
+#define REDIS_PERSISTENCE_RDB_CURRENT_DGSAVE_TIME_SEC_LABEL "rdb_current_bgsave_time_sec"
 #define REDIS_PERSISTENCE_AOF_ENABLED_LABEL "aof_enabled"
-#define REDIS_PERSISTENCE_AOF_REWRITE_IN_PROGRESS_LABEL                        \
-  "aof_rewrite_in_progress"
+#define REDIS_PERSISTENCE_AOF_REWRITE_IN_PROGRESS_LABEL "aof_rewrite_in_progress"
 #define REDIS_PERSISTENCE_AOF_REWRITE_SHEDULED_LABEL "aof_rewrite_scheduled"
-#define REDIS_PERSISTENCE_AOF_LAST_REWRITE_TIME_SEC_LABEL                      \
-  "aof_last_rewrite_time_sec"
-#define REDIS_PERSISTENCE_AOF_CURRENT_REWRITE_TIME_SEC_LABEL                   \
-  "aof_current_rewrite_time_sec"
-#define REDIS_PERSISTENCE_AOF_LAST_DGREWRITE_STATUS_LABEL                      \
-  "aof_last_bgrewrite_status"
+#define REDIS_PERSISTENCE_AOF_LAST_REWRITE_TIME_SEC_LABEL "aof_last_rewrite_time_sec"
+#define REDIS_PERSISTENCE_AOF_CURRENT_REWRITE_TIME_SEC_LABEL "aof_current_rewrite_time_sec"
+#define REDIS_PERSISTENCE_AOF_LAST_DGREWRITE_STATUS_LABEL "aof_last_bgrewrite_status"
 #define REDIS_PERSISTENCE_AOF_LAST_WRITE_STATUS_LABEL "aof_last_write_status"
 
 // Stats
-#define REDIS_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL                           \
-  "total_connections_received"
+#define REDIS_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL "total_connections_received"
 #define REDIS_STATS_TOTAL_COMMANDS_PROCESSED_LABEL "total_commands_processed"
 #define REDIS_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL "instantaneous_ops_per_sec"
 #define REDIS_STATS_REJECTED_CONNECTIONS_LABEL "rejected_connections"
@@ -110,8 +101,7 @@
 #define REDIS_REPLICATION_MASTER_REPL_OFFSET_LABEL "master_repl_offset"
 #define REDIS_REPLICATION_BACKLOG_ACTIVE_LABEL "repl_backlog_active"
 #define REDIS_REPLICATION_BACKLOG_SIZE_LABEL "repl_backlog_size"
-#define REDIS_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL                      \
-  "repl_backlog_first_byte_offset"
+#define REDIS_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL "repl_backlog_first_byte_offset"
 #define REDIS_REPLICATION_BACKLOG_HISTEN_LABEL "repl_backlog_histlen"
 
 // CPU
@@ -125,11 +115,11 @@ namespace core {
 namespace redis {
 
 class ServerInfo : public IServerInfo {
-public:
+ public:
   struct Server : IStateField {
     Server();
-    explicit Server(const std::string &server_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Server(const std::string& server_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string redis_version_;
     std::string redis_git_sha1_;
@@ -151,8 +141,8 @@ public:
 
   struct Clients : IStateField {
     Clients();
-    explicit Clients(const std::string &client_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Clients(const std::string& client_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t connected_clients_;
     uint32_t client_longest_output_list_;
@@ -162,8 +152,8 @@ public:
 
   struct Memory : IStateField {
     Memory();
-    explicit Memory(const std::string &memory_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Memory(const std::string& memory_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t used_memory_;
     std::string used_memory_human_;
@@ -177,8 +167,8 @@ public:
 
   struct Persistence : IStateField {
     Persistence();
-    explicit Persistence(const std::string &persistence_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Persistence(const std::string& persistence_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t loading_;
     uint32_t rdb_changes_since_last_save_;
@@ -198,8 +188,8 @@ public:
 
   struct Stats : IStateField {
     Stats();
-    explicit Stats(const std::string &stats_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Stats(const std::string& stats_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t total_connections_received_;
     uint32_t total_commands_processed_;
@@ -219,8 +209,8 @@ public:
 
   struct Replication : IStateField {
     Replication();
-    explicit Replication(const std::string &replication_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Replication(const std::string& replication_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string role_;
     uint32_t connected_slaves_;
@@ -233,8 +223,8 @@ public:
 
   struct Cpu : IStateField {
     Cpu();
-    explicit Cpu(const std::string &cpu_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Cpu(const std::string& cpu_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     float used_cpu_sys_;
     float used_cpu_user_;
@@ -243,24 +233,28 @@ public:
   } cpu_;
 
   struct Keyspace : IStateField {
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    common::Value* GetValueByIndex(unsigned char index) const override;
   } keySp_;
 
   ServerInfo();
-  ServerInfo(const Server &serv, const Clients &clients, const Memory &memory,
-             const Persistence &pers, const Stats &stats,
-             const Replication &repl, const Cpu &cpu, const Keyspace &key);
+  ServerInfo(const Server& serv,
+             const Clients& clients,
+             const Memory& memory,
+             const Persistence& pers,
+             const Stats& stats,
+             const Replication& repl,
+             const Cpu& cpu,
+             const Keyspace& key);
 
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const override;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   virtual std::string ToString() const override;
   virtual uint32_t GetVersion() const override;
 };
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value);
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
-ServerInfo *MakeRedisServerInfo(const std::string &content);
+ServerInfo* MakeRedisServerInfo(const std::string& content);
 
-} // namespace redis
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis
+}  // namespace core
+}  // namespace fastonosql

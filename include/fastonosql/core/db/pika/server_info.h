@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/server/iserver_info.h> // for IStateField, IServerInfo
+#include <fastonosql/core/server/iserver_info.h>  // for IStateField, IServerInfo
 
 #define PIKA_SERVER_LABEL "# Server"
 #define PIKA_DATA_LABEL "# Data"
@@ -164,11 +164,11 @@ namespace core {
 namespace pika {
 
 class ServerInfo : public IServerInfo {
-public:
+ public:
   struct Server : IStateField {
     Server();
-    explicit Server(const std::string &server_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Server(const std::string& server_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string pika_version_;
     std::string pika_git_sha_;
@@ -187,8 +187,8 @@ public:
 
   struct Data : IStateField {
     Data();
-    explicit Data(const std::string &data_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Data(const std::string& data_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t db_size_;
     std::string db_size_human_;
@@ -201,8 +201,8 @@ public:
 
   struct Log : IStateField {
     Log();
-    explicit Log(const std::string &client_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Log(const std::string& client_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t log_size_;
     std::string log_size_human_;
@@ -214,22 +214,22 @@ public:
 
   struct Clients : IStateField {
     Clients();
-    explicit Clients(const std::string &client_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Clients(const std::string& client_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t connected_clients_;
   } clients_;
 
   struct Hub : IStateField {
     Hub();
-    explicit Hub(const std::string &hub_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Hub(const std::string& hub_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
   } hub_;
 
   struct Stats : IStateField {
     Stats();
-    explicit Stats(const std::string &stats_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Stats(const std::string& stats_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t total_connections_received_;
     uint32_t instantaneous_ops_per_sec_;
@@ -245,8 +245,8 @@ public:
 
   struct Cpu : IStateField {
     Cpu();
-    explicit Cpu(const std::string &cpu_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Cpu(const std::string& cpu_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     float used_cpu_sys_;
     float used_cpu_user_;
@@ -256,8 +256,8 @@ public:
 
   struct Replication : IStateField {
     Replication();
-    explicit Replication(const std::string &replication_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Replication(const std::string& replication_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string role_;
     uint32_t connected_slaves_;
@@ -265,8 +265,8 @@ public:
 
   struct KeySpace : IStateField {
     KeySpace();
-    explicit KeySpace(const std::string &ks_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit KeySpace(const std::string& ks_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     uint32_t kv_;
     uint32_t hash_;
@@ -277,26 +277,31 @@ public:
 
   struct DoubleMaster : IStateField {
     DoubleMaster();
-    explicit DoubleMaster(const std::string &dm_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit DoubleMaster(const std::string& dm_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
   } double_master_;
 
   ServerInfo();
-  ServerInfo(const Server &serv, const Data &data, const Log &log,
-             const Clients &clients, struct Hub &hub, const Stats &stats,
-             const Cpu &cpu, const Replication &repl, const KeySpace &key_space,
-             const DoubleMaster &double_master);
+  ServerInfo(const Server& serv,
+             const Data& data,
+             const Log& log,
+             const Clients& clients,
+             struct Hub& hub,
+             const Stats& stats,
+             const Cpu& cpu,
+             const Replication& repl,
+             const KeySpace& key_space,
+             const DoubleMaster& double_master);
 
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const override;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   virtual std::string ToString() const override;
   virtual uint32_t GetVersion() const override;
 };
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value);
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
-ServerInfo *MakePikaServerInfo(const std::string &content);
+ServerInfo* MakePikaServerInfo(const std::string& content);
 
-} // namespace pika
-} // namespace core
-} // namespace fastonosql
+}  // namespace pika
+}  // namespace core
+}  // namespace fastonosql

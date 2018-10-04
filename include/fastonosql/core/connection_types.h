@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <string> // for string
+#include <string>  // for string
 #include <vector>
 
 #define ALL_COMMANDS "*"
@@ -43,7 +43,7 @@ enum connectionTypes {
   UPSCALEDB = 7,
   FORESTDB = 8,
   PIKA = 9
-}; // supported types
+};  // supported types
 
 enum ServerTypes { MASTER = 0, SLAVE };
 enum ServerState { SUP = 0, SDOWN };
@@ -61,32 +61,28 @@ bool IsLocalType(connectionTypes type);
 bool IsCanSSHConnection(connectionTypes type);
 bool IsCanCreateDatabase(connectionTypes type);
 bool IsCanRemoveDatabase(connectionTypes type);
-const char *ConnectionTypeToString(connectionTypes t);
+const char* ConnectionTypeToString(connectionTypes t);
 
-template <connectionTypes conection_type> struct ConnectionTraits {
-  static const char *GetDBName() {
-    return ConnectionTypeToString(conection_type);
-  }
-  static const char *GetBasedOn();
-  static const char *GetVersionApi();
+template <connectionTypes conection_type>
+struct ConnectionTraits {
+  static const char* GetDBName() { return ConnectionTypeToString(conection_type); }
+  static const char* GetBasedOn();
+  static const char* GetVersionApi();
 };
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 std::string ConvertToString(fastonosql::core::connectionTypes t);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::connectionTypes *out);
+bool ConvertFromString(const std::string& from, fastonosql::core::connectionTypes* out);
 
 std::string ConvertToString(fastonosql::core::ServerTypes st);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::ServerTypes *out);
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerTypes* out);
 
 std::string ConvertToString(fastonosql::core::ServerState st);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::ServerState *out);
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerState* out);
 
 std::string ConvertToString(fastonosql::core::ServerMode md);
 std::string ConvertToString(fastonosql::core::ConnectionMode t);
-} // namespace common
+}  // namespace common

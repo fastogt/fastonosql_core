@@ -18,13 +18,13 @@
 
 #pragma once
 
-#include <common/value.h> // for ArrayValue (ptr only), etc
+#include <common/value.h>  // for ArrayValue (ptr only), etc
 
 namespace fastonosql {
 namespace core {
 
 class StreamValue : public common::Value {
-public:
+ public:
   struct Entry {
     std::string name;
     std::string value;
@@ -36,110 +36,99 @@ public:
   };
   typedef std::vector<Stream> streams_t;
 
-  static const common::Value::Type TYPE_STREAM =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 1);
+  static const common::Value::Type TYPE_STREAM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 1);
   explicit StreamValue();
   virtual ~StreamValue();
 
-  virtual StreamValue *DeepCopy() const override;
-  virtual bool Equals(const Value *other) const override;
+  virtual StreamValue* DeepCopy() const override;
+  virtual bool Equals(const Value* other) const override;
 
   streams_t GetStreams() const;
-  void SetStreams(const streams_t &streams);
+  void SetStreams(const streams_t& streams);
 
-private:
+ private:
   streams_t streams_;
   DISALLOW_COPY_AND_ASSIGN(StreamValue);
 };
 
-class JsonValue : public common::Value { // simple json class value, only save
-                                         // string without validation
-public:
-  static const common::Value::Type TYPE_JSON =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 2);
-  explicit JsonValue(const std::string &json_value);
+class JsonValue : public common::Value {  // simple json class value, only save
+                                          // string without validation
+ public:
+  static const common::Value::Type TYPE_JSON = static_cast<common::Value::Type>(common::Value::USER_TYPES + 2);
+  explicit JsonValue(const std::string& json_value);
   virtual ~JsonValue();
 
-  virtual bool
-  GetAsString(std::string *out_value) const override WARN_UNUSED_RESULT;
-  virtual JsonValue *DeepCopy() const override;
-  virtual bool Equals(const Value *other) const override;
+  virtual bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
+  virtual JsonValue* DeepCopy() const override;
+  virtual bool Equals(const Value* other) const override;
 
-  static bool IsValidJson(const std::string &json);
+  static bool IsValidJson(const std::string& json);
 
-private:
+ private:
   std::string value_;
   DISALLOW_COPY_AND_ASSIGN(JsonValue);
 };
 
 class GraphValue : public common::Value {
-public:
-  static const common::Value::Type TYPE_GRAPH =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 3);
+ public:
+  static const common::Value::Type TYPE_GRAPH = static_cast<common::Value::Type>(common::Value::USER_TYPES + 3);
   GraphValue();
   virtual ~GraphValue();
 
-  virtual GraphValue *DeepCopy() const override;
-  virtual bool Equals(const Value *other) const override;
+  virtual GraphValue* DeepCopy() const override;
+  virtual bool Equals(const Value* other) const override;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(GraphValue);
 };
 
 class BloomValue : public common::Value {
-public:
-  static const common::Value::Type TYPE_BLOOM =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 4);
+ public:
+  static const common::Value::Type TYPE_BLOOM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 4);
   BloomValue();
   virtual ~BloomValue();
 
-  virtual BloomValue *DeepCopy() const override;
-  virtual bool Equals(const Value *other) const override;
+  virtual BloomValue* DeepCopy() const override;
+  virtual bool Equals(const Value* other) const override;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(BloomValue);
 };
 
 class SearchValue : public common::Value {
-public:
-  static const common::Value::Type TYPE_FT_INDEX =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 5);
-  static const common::Value::Type TYPE_FT_TERM =
-      static_cast<common::Value::Type>(common::Value::USER_TYPES + 6);
+ public:
+  static const common::Value::Type TYPE_FT_INDEX = static_cast<common::Value::Type>(common::Value::USER_TYPES + 5);
+  static const common::Value::Type TYPE_FT_TERM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 6);
   virtual ~SearchValue();
 
-  static SearchValue *CreateSearchIndex();
-  static SearchValue *CreateSearchDocument();
+  static SearchValue* CreateSearchIndex();
+  static SearchValue* CreateSearchDocument();
 
-  virtual SearchValue *DeepCopy() const override;
-  virtual bool Equals(const Value *other) const override;
+  virtual SearchValue* DeepCopy() const override;
+  virtual bool Equals(const Value* other) const override;
 
-private:
+ private:
   SearchValue(common::Value::Type type);
 
   DISALLOW_COPY_AND_ASSIGN(SearchValue);
 };
 
-common::Value *CreateEmptyValueFromType(common::Value::Type value_type);
-const char *GetTypeName(common::Value::Type value_type);
+common::Value* CreateEmptyValueFromType(common::Value::Type value_type);
+const char* GetTypeName(common::Value::Type value_type);
 
-std::string ConvertValue(common::Value *value, const std::string &delimiter);
-std::string ConvertValue(common::ArrayValue *array,
-                         const std::string &delimiter);
-std::string ConvertValue(common::SetValue *set, const std::string &delimiter);
-std::string ConvertValue(common::ZSetValue *zset, const std::string &delimiter);
-std::string ConvertValue(common::HashValue *hash, const std::string &delimiter);
-std::string ConvertValue(common::FundamentalValue *value,
-                         const std::string &delimiter);
-std::string ConvertValue(common::StringValue *value,
-                         const std::string &delimiter);
-std::string ConvertValue(common::ByteArrayValue *value,
-                         const std::string &delimiter);
-std::string ConvertValue(StreamValue *value, const std::string &delimiter);
+std::string ConvertValue(common::Value* value, const std::string& delimiter);
+std::string ConvertValue(common::ArrayValue* array, const std::string& delimiter);
+std::string ConvertValue(common::SetValue* set, const std::string& delimiter);
+std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter);
+std::string ConvertValue(common::HashValue* hash, const std::string& delimiter);
+std::string ConvertValue(common::FundamentalValue* value, const std::string& delimiter);
+std::string ConvertValue(common::StringValue* value, const std::string& delimiter);
+std::string ConvertValue(common::ByteArrayValue* value, const std::string& delimiter);
+std::string ConvertValue(StreamValue* value, const std::string& delimiter);
 // extended
-std::string ConvertValue(JsonValue *value, const std::string &delimiter);
-std::string ConvertValue(GraphValue *value, const std::string &delimiter);
-std::string ConvertValue(BloomValue *value, const std::string &delimiter);
-std::string ConvertValue(SearchValue *value, const std::string &delimiter);
-} // namespace core
-} // namespace fastonosql
+std::string ConvertValue(JsonValue* value, const std::string& delimiter);
+std::string ConvertValue(GraphValue* value, const std::string& delimiter);
+std::string ConvertValue(BloomValue* value, const std::string& delimiter);
+std::string ConvertValue(SearchValue* value, const std::string& delimiter);
+}  // namespace core
+}  // namespace fastonosql

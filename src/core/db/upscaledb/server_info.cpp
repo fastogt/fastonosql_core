@@ -27,26 +27,25 @@ namespace fastonosql {
 namespace core {
 namespace {
 
-const std::vector<Field> g_upscaledb_common_fields = {
-    Field(UPSCALEDB_FILE_NAME_LABEL, common::Value::TYPE_STRING)};
+const std::vector<Field> kUpscaledbCommonFields = {Field(UPSCALEDB_FILE_NAME_LABEL, common::Value::TYPE_STRING)};
 
-} // namespace
+}  // namespace
 
 template <>
 std::vector<common::Value::Type> DBTraits<UPSCALEDB>::GetSupportedValueTypes() {
-  return {common::Value::TYPE_BOOLEAN,  common::Value::TYPE_INTEGER,
-          common::Value::TYPE_UINTEGER, common::Value::TYPE_DOUBLE,
-          common::Value::TYPE_STRING,   JsonValue::TYPE_JSON};
+  return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
+          common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <> std::vector<info_field_t> DBTraits<UPSCALEDB>::GetInfoFields() {
-  return {std::make_pair(UPSCALEDB_STATS_LABEL, g_upscaledb_common_fields)};
+template <>
+std::vector<info_field_t> DBTraits<UPSCALEDB>::GetInfoFields() {
+  return {std::make_pair(UPSCALEDB_STATS_LABEL, kUpscaledbCommonFields)};
 }
 namespace upscaledb {
 
 ServerInfo::Stats::Stats() : db_path() {}
 
-ServerInfo::Stats::Stats(const std::string &common_text) {
+ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
@@ -62,12 +61,12 @@ ServerInfo::Stats::Stats(const std::string &common_text) {
   }
 }
 
-common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
+common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
-  case 0:
-    return new common::StringValue(db_path);
-  default:
-    break;
+    case 0:
+      return new common::StringValue(db_path);
+    default:
+      break;
   }
 
   NOTREACHED();
@@ -76,38 +75,35 @@ common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
 
 ServerInfo::ServerInfo() : IServerInfo(UPSCALEDB) {}
 
-ServerInfo::ServerInfo(const Stats &stats)
-    : IServerInfo(UPSCALEDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(UPSCALEDB), stats_(stats) {}
 
-common::Value *ServerInfo::GetValueByIndexes(unsigned char property,
-                                             unsigned char field) const {
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
-  case 0:
-    return stats_.GetValueByIndex(field);
-  default:
-    break;
+    case 0:
+      return stats_.GetValueByIndex(field);
+    default:
+      break;
   }
 
   NOTREACHED();
   return nullptr;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo::Stats &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
   return out << UPSCALEDB_FILE_NAME_LABEL ":" << value.db_path << MARKER;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
   return out << value.ToString();
 }
 
-ServerInfo *MakeUpscaleDBServerInfo(const std::string &content) {
+ServerInfo* MakeUpscaleDBServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;
   }
 
-  ServerInfo *result = new ServerInfo;
-  static const std::vector<info_field_t> fields =
-      DBTraits<UPSCALEDB>::GetInfoFields();
+  ServerInfo* result = new ServerInfo;
+  static const std::vector<info_field_t> fields = DBTraits<UPSCALEDB>::GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 
@@ -129,8 +125,10 @@ std::string ServerInfo::ToString() const {
   return str.str();
 }
 
-uint32_t ServerInfo::GetVersion() const { return 0; }
+uint32_t ServerInfo::GetVersion() const {
+  return 0;
+}
 
-} // namespace upscaledb
-} // namespace core
-} // namespace fastonosql
+}  // namespace upscaledb
+}  // namespace core
+}  // namespace fastonosql

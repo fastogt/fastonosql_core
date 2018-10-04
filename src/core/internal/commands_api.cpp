@@ -20,6 +20,6 @@
 
 namespace fastonosql {
 namespace core {
-namespace internal {} // namespace internal
-} // namespace core
-} // namespace fastonosql
+namespace internal {}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

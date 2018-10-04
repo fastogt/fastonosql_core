@@ -25,28 +25,24 @@ namespace core {
 namespace forestdb {
 
 class CommandTranslator : public ICommandTranslatorBase {
-public:
-  explicit CommandTranslator(const std::vector<CommandHolder> &commands);
+ public:
+  explicit CommandTranslator(const std::vector<CommandHolder>& commands);
 
-private:
-  virtual common::Error
-  CreateKeyCommandImpl(const NDbKValue &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
-                     command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  DeleteKeyCommandImpl(const NKey &key,
-                       command_buffer_t *cmdstring) const override;
-  virtual common::Error
-  RenameKeyCommandImpl(const NKey &key, const key_t &new_name,
-                       command_buffer_t *cmdstring) const override;
+ private:
+  virtual common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error LoadKeyCommandImpl(const NKey& key,
+                                           common::Value::Type type,
+                                           command_buffer_t* cmdstring) const override;
+  virtual common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  virtual common::Error RenameKeyCommandImpl(const NKey& key,
+                                             const key_t& new_name,
+                                             command_buffer_t* cmdstring) const override;
 
-  virtual bool IsLoadKeyCommandImpl(const CommandInfo &cmd) const override;
+  virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
 
-  virtual const char *GetDBName() const override;
+  virtual const char* GetDBName() const override;
 };
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql

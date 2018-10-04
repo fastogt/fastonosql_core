@@ -19,7 +19,7 @@
 #include <fastonosql/core/db_key.h>
 
 #include <common/convert2string.h>
-#include <common/string_util.h> // for JoinString, Tokenize
+#include <common/string_util.h>  // for JoinString, Tokenize
 
 #include <fastonosql/core/value.h>
 
@@ -30,17 +30,27 @@ NKey::NKey() : key_(), ttl_(NO_TTL) {}
 
 NKey::NKey(key_t key, ttl_t ttl_sec) : key_(key), ttl_(ttl_sec) {}
 
-key_t NKey::GetKey() const { return key_; }
+key_t NKey::GetKey() const {
+  return key_;
+}
 
-void NKey::SetKey(key_t key) { key_ = key; }
+void NKey::SetKey(key_t key) {
+  key_ = key;
+}
 
-ttl_t NKey::GetTTL() const { return ttl_; }
+ttl_t NKey::GetTTL() const {
+  return ttl_;
+}
 
-void NKey::SetTTL(ttl_t ttl) { ttl_ = ttl; }
+void NKey::SetTTL(ttl_t ttl) {
+  ttl_ = ttl;
+}
 
-bool NKey::EqualsKey(const NKey &key) const { return key_ == key.key_; }
+bool NKey::EqualsKey(const NKey& key) const {
+  return key_ == key.key_;
+}
 
-bool NKey::Equals(const NKey &other) const {
+bool NKey::Equals(const NKey& other) const {
   if (key_ != other.key_) {
     return false;
   }
@@ -50,20 +60,23 @@ bool NKey::Equals(const NKey &other) const {
 
 NValue::NValue() : base_class() {}
 
-NValue::NValue(const base_class &other) : base_class(other) {}
+NValue::NValue(const base_class& other) : base_class(other) {}
 
-value_t NValue::GetValue(const std::string &delimiter) const {
+value_t NValue::GetValue(const std::string& delimiter) const {
   return ConvertValue(get(), delimiter);
 }
 
 NDbKValue::NDbKValue() : key_(), value_() {}
 
-NDbKValue::NDbKValue(const NKey &key, NValue value)
-    : key_(key), value_(value) {}
+NDbKValue::NDbKValue(const NKey& key, NValue value) : key_(key), value_(value) {}
 
-NKey NDbKValue::GetKey() const { return key_; }
+NKey NDbKValue::GetKey() const {
+  return key_;
+}
 
-NValue NDbKValue::GetValue() const { return value_; }
+NValue NDbKValue::GetValue() const {
+  return value_;
+}
 
 common::Value::Type NDbKValue::GetType() const {
   if (!value_) {
@@ -73,13 +86,19 @@ common::Value::Type NDbKValue::GetType() const {
   return value_->GetType();
 }
 
-void NDbKValue::SetKey(const NKey &key) { key_ = key; }
+void NDbKValue::SetKey(const NKey& key) {
+  key_ = key;
+}
 
-void NDbKValue::SetValue(NValue value) { value_ = value; }
+void NDbKValue::SetValue(NValue value) {
+  value_ = value;
+}
 
-bool NDbKValue::EqualsKey(const NKey &key) const { return key_.EqualsKey(key); }
+bool NDbKValue::EqualsKey(const NKey& key) const {
+  return key_.EqualsKey(key);
+}
 
-bool NDbKValue::Equals(const NDbKValue &other) const {
+bool NDbKValue::Equals(const NDbKValue& other) const {
   if (!key_.Equals(other.key_)) {
     return false;
   }
@@ -91,5 +110,5 @@ bool NDbKValue::Equals(const NDbKValue &other) const {
   return value_->Equals(other.value_.get());
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

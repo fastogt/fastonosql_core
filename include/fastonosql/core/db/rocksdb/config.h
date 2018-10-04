@@ -25,7 +25,7 @@ namespace core {
 namespace rocksdb {
 
 enum ComparatorType { COMP_BYTEWISE, COMP_REVERSE_BYTEWISE };
-extern const std::vector<const char *> g_comparator_types;
+extern const std::vector<const char*> g_comparator_types;
 
 enum CompressionType {
   kNoCompression = 0x0,
@@ -37,7 +37,7 @@ enum CompressionType {
   kXpressCompression = 0x6,
   kZSTD = 0x7
 };
-extern const std::vector<const char *> g_compression_types;
+extern const std::vector<const char*> g_compression_types;
 
 struct Config : public LocalConfig {
   Config();
@@ -47,20 +47,17 @@ struct Config : public LocalConfig {
   CompressionType compression;
 };
 
-} // namespace rocksdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace rocksdb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::rocksdb::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::Config *out);
+std::string ConvertToString(const fastonosql::core::rocksdb::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::Config* out);
 
 std::string ConvertToString(fastonosql::core::rocksdb::ComparatorType comp);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::ComparatorType *out);
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::ComparatorType* out);
 
 std::string ConvertToString(fastonosql::core::rocksdb::CompressionType comp);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::rocksdb::CompressionType *out);
-} // namespace common
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::CompressionType* out);
+}  // namespace common

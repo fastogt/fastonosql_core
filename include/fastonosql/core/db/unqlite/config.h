@@ -38,12 +38,11 @@ struct Config : public LocalConfig {
   int env_flags;
 };
 
-} // namespace unqlite
-} // namespace core
-} // namespace fastonosql
+}  // namespace unqlite
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::unqlite::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::unqlite::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::unqlite::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::unqlite::Config* out);
+}  // namespace common

@@ -29,30 +29,26 @@ namespace fastonosql {
 namespace core {
 namespace upscaledb {
 
-CommandTranslator::CommandTranslator(const std::vector<CommandHolder> &commands)
-    : ICommandTranslatorBase(commands) {}
+CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : ICommandTranslatorBase(commands) {}
 
-const char *CommandTranslator::GetDBName() const {
+const char* CommandTranslator::GetDBName() const {
   return ConnectionTraits<UPSCALEDB>::GetDBName();
 }
 
-common::Error
-CommandTranslator::CreateKeyCommandImpl(const NDbKValue &key,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
   NValue value = key.GetValue();
   value_t value_str = value.GetValue();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " "
-     << value_str.GetForCommandLine();
+  wr << UPSCALEDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
 
-common::Error
-CommandTranslator::LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
-                                      command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
+                                                    common::Value::Type type,
+                                                    command_buffer_t* cmdstring) const {
   UNUSED(type);
 
   key_t key_str = key.GetKey();
@@ -62,9 +58,7 @@ CommandTranslator::LoadKeyCommandImpl(const NKey &key, common::Value::Type type,
   return common::Error();
 }
 
-common::Error
-CommandTranslator::DeleteKeyCommandImpl(const NKey &key,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << UPSCALEDB_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
@@ -72,21 +66,20 @@ CommandTranslator::DeleteKeyCommandImpl(const NKey &key,
   return common::Error();
 }
 
-common::Error
-CommandTranslator::RenameKeyCommandImpl(const NKey &key, const key_t &new_name,
-                                        command_buffer_t *cmdstring) const {
+common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
+                                                      const key_t& new_name,
+                                                      command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " "
-     << new_name.GetForCommandLine();
+  wr << UPSCALEDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
 
-bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo &cmd) const {
+bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
   return cmd.IsEqualName(UPSCALEDB_GET_COMMAND);
 }
 
-} // namespace upscaledb
-} // namespace core
-} // namespace fastonosql
+}  // namespace upscaledb
+}  // namespace core
+}  // namespace fastonosql

@@ -24,26 +24,22 @@ namespace fastonosql {
 namespace core {
 namespace rocksdb {
 
-common::Error CommandsApi::Info(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out) {
-  DBConnection *rocks = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* rocks = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err =
-      rocks->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = rocks->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
   if (err) {
     return err;
   }
 
-  common::StringValue *val =
-      common::Value::CreateStringValue(ServerInfo(statsout).ToString());
-  FastoObject *child = new FastoObject(out, val, rocks->GetDelimiter());
+  common::StringValue* val = common::Value::CreateStringValue(ServerInfo(statsout).ToString());
+  FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-common::Error CommandsApi::Mget(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out) {
-  DBConnection *rocks = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Mget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* rocks = static_cast<DBConnection*>(handler);
   std::vector<std::string> keysget;
   for (size_t i = 0; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
@@ -55,30 +51,29 @@ common::Error CommandsApi::Mget(internal::CommandHandler *handler,
     return err;
   }
 
-  common::ArrayValue *ar = common::Value::CreateArrayValue();
+  common::ArrayValue* ar = common::Value::CreateArrayValue();
   for (size_t i = 0; i < keysout.size(); ++i) {
-    common::StringValue *val = common::Value::CreateStringValue(keysout[i]);
+    common::StringValue* val = common::Value::CreateStringValue(keysout[i]);
     ar->Append(val);
   }
-  FastoObject *child = new FastoObject(out, ar, rocks->GetDelimiter());
+  FastoObject* child = new FastoObject(out, ar, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-common::Error CommandsApi::Merge(internal::CommandHandler *handler,
-                                 commands_args_t argv, FastoObject *out) {
-  DBConnection *rocks = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Merge(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* rocks = static_cast<DBConnection*>(handler);
   common::Error err = rocks->Merge(argv[0], argv[1]);
   if (err) {
     return err;
   }
 
-  common::StringValue *val = common::Value::CreateStringValue("OK");
-  FastoObject *child = new FastoObject(out, val, rocks->GetDelimiter());
+  common::StringValue* val = common::Value::CreateStringValue("OK");
+  FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-} // namespace rocksdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace rocksdb
+}  // namespace core
+}  // namespace fastonosql

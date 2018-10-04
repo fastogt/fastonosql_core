@@ -28,24 +28,23 @@ class FastoObject;
 namespace internal {
 
 class CommandHandler {
-public:
-  explicit CommandHandler(ICommandTranslator *translator); // take ownerships
-  common::Error Execute(const command_buffer_t &command,
-                        FastoObject *out) WARN_UNUSED_RESULT;
-  common::Error Execute(commands_args_t argv,
-                        FastoObject *out) WARN_UNUSED_RESULT;
+ public:
+  explicit CommandHandler(ICommandTranslator* translator);  // take ownerships
+  common::Error Execute(const command_buffer_t& command, FastoObject* out) WARN_UNUSED_RESULT;
+  common::Error Execute(commands_args_t argv, FastoObject* out) WARN_UNUSED_RESULT;
 
   translator_t GetTranslator() const { return translator_; }
 
-protected:
-  template <typename T> std::shared_ptr<T> GetSpecificTranslator() const {
+ protected:
+  template <typename T>
+  std::shared_ptr<T> GetSpecificTranslator() const {
     return std::static_pointer_cast<T>(translator_);
   }
 
-private:
+ private:
   translator_t translator_;
 };
 
-} // namespace internal
-} // namespace core
-} // namespace fastonosql
+}  // namespace internal
+}  // namespace core
+}  // namespace fastonosql

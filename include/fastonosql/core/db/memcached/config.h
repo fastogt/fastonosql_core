@@ -31,12 +31,11 @@ struct Config : public RemoteConfig {
   std::string password;
 };
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::memcached::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::memcached::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::memcached::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::memcached::Config* out);
+}  // namespace common

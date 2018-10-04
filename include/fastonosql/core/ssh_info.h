@@ -18,15 +18,14 @@
 
 #pragma once
 
-#include <common/net/types.h> // for operator==, HostAndPort
+#include <common/net/types.h>  // for operator==, HostAndPort
 
 namespace fastonosql {
 namespace core {
 
 struct PublicPrivate {
   PublicPrivate();
-  PublicPrivate(const std::string &public_key, const std::string &private_key,
-                bool use_public_key);
+  PublicPrivate(const std::string& public_key, const std::string& private_key, bool use_public_key);
   bool IsValid() const;
 
   std::string public_key;
@@ -34,30 +33,28 @@ struct PublicPrivate {
   bool use_public_key;
 };
 
-inline bool operator==(const PublicPrivate &r, const PublicPrivate &l) {
-  return r.public_key == l.public_key && r.private_key == l.private_key &&
-         r.use_public_key == l.use_public_key;
+inline bool operator==(const PublicPrivate& r, const PublicPrivate& l) {
+  return r.public_key == l.public_key && r.private_key == l.private_key && r.use_public_key == l.use_public_key;
 }
 
-inline bool operator!=(const PublicPrivate &r, const PublicPrivate &l) {
+inline bool operator!=(const PublicPrivate& r, const PublicPrivate& l) {
   return !(r == l);
 }
 
 struct SSHInfo {
-  enum SupportedAuthenticationMethods {
-    UNKNOWN = 0,
-    PUBLICKEY = 1,
-    ASK_PASSWORD = 2,
-    PASSWORD = 3
-  };
+  enum SupportedAuthenticationMethods { UNKNOWN = 0, PUBLICKEY = 1, ASK_PASSWORD = 2, PASSWORD = 3 };
 
   SSHInfo();
-  SSHInfo(const common::net::HostAndPort &host, const std::string &user_name,
-          const std::string &password, const std::string &public_key,
-          const std::string &private_key, bool use_public_key,
-          const std::string &passphrase, SupportedAuthenticationMethods method);
+  SSHInfo(const common::net::HostAndPort& host,
+          const std::string& user_name,
+          const std::string& password,
+          const std::string& public_key,
+          const std::string& private_key,
+          bool use_public_key,
+          const std::string& passphrase,
+          SupportedAuthenticationMethods method);
 
-  explicit SSHInfo(const std::string &text);
+  explicit SSHInfo(const std::string& text);
 
   std::string ToString() const;
 
@@ -71,32 +68,31 @@ struct SSHInfo {
   SupportedAuthenticationMethods current_method;
 
   std::string GetRuntimePassword() const;
-  void SetPassword(const std::string &password);
+  void SetPassword(const std::string& password);
 
-  bool Equals(const SSHInfo &other) const;
+  bool Equals(const SSHInfo& other) const;
 
-private:
+ private:
   std::string GetPassword() const;
 
   std::string password_;
   std::string runtime_password_;
 };
 
-inline bool operator==(const SSHInfo &r, const SSHInfo &l) {
+inline bool operator==(const SSHInfo& r, const SSHInfo& l) {
   return r.Equals(l);
 }
 
-inline bool operator!=(const SSHInfo &r, const SSHInfo &l) { return !(r == l); }
+inline bool operator!=(const SSHInfo& r, const SSHInfo& l) {
+  return !(r == l);
+}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(
-    fastonosql::core::SSHInfo::SupportedAuthenticationMethods method);
-bool ConvertFromString(
-    const std::string &from,
-    fastonosql::core::SSHInfo::SupportedAuthenticationMethods *out);
+std::string ConvertToString(fastonosql::core::SSHInfo::SupportedAuthenticationMethods method);
+bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo::SupportedAuthenticationMethods* out);
 
-} // namespace common
+}  // namespace common

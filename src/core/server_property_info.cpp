@@ -21,7 +21,7 @@
 namespace fastonosql {
 namespace core {
 
-ServerPropertiesInfo MakeServerProperty(const common::ArrayValue *array) {
+ServerPropertiesInfo MakeServerProperty(const common::ArrayValue* array) {
   if (!array) {
     DNOTREACHED();
     return ServerPropertiesInfo();
@@ -38,5 +38,5 @@ ServerPropertiesInfo MakeServerProperty(const common::ArrayValue *array) {
   return {properties};
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

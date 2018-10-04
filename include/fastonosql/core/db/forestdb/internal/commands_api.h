@@ -26,10 +26,9 @@ namespace forestdb {
 
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler *handler,
-                            commands_args_t argv, FastoObject *out);
+  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql

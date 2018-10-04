@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <common/value.h> // for ArrayValue
+#include <common/value.h>  // for ArrayValue
 
 namespace fastonosql {
 namespace core {
@@ -29,7 +29,7 @@ struct ServerPropertiesInfo {
   std::vector<property_t> properties;
 };
 
-ServerPropertiesInfo MakeServerProperty(const common::ArrayValue *array);
+ServerPropertiesInfo MakeServerProperty(const common::ArrayValue* array);
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

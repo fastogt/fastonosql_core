@@ -29,30 +29,29 @@ namespace core {
 namespace lmdb {
 
 class ServerInfo : public IServerInfo {
-public:
+ public:
   // Compactions\nLevel  Files Size(MB) Time(sec) Read(MB)
   // Write(MB)\n
   struct Stats : IStateField {
     Stats();
-    explicit Stats(const std::string &common_text);
-    common::Value *GetValueByIndex(unsigned char index) const override;
+    explicit Stats(const std::string& common_text);
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
     std::string db_path;
   } stats_;
 
   ServerInfo();
-  explicit ServerInfo(const Stats &stats);
+  explicit ServerInfo(const Stats& stats);
 
-  virtual common::Value *GetValueByIndexes(unsigned char property,
-                                           unsigned char field) const override;
+  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   virtual std::string ToString() const override;
   virtual uint32_t GetVersion() const override;
 };
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value);
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
-ServerInfo *MakeLmdbServerInfo(const std::string &content);
+ServerInfo* MakeLmdbServerInfo(const std::string& content);
 
-} // namespace lmdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace lmdb
+}  // namespace core
+}  // namespace fastonosql

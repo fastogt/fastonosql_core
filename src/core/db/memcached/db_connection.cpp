@@ -18,24 +18,24 @@
 
 #include <fastonosql/core/db/memcached/db_connection.h>
 
-#include <string.h> // for strcasecmp
+#include <string.h>  // for strcasecmp
 
-#include <memory> // for __shared_ptr
-#include <string> // for string, operator<, etc
+#include <memory>  // for __shared_ptr
+#include <string>  // for string, operator<, etc
 
 #include <string.h>
 
 #include <libmemcached/memcached.h>
 #include <libmemcached/util.h>
 
-#include <common/convert2string.h> // for ConvertFromString
-#include <common/net/types.h>      // for HostAndPort
-#include <common/sprintf.h>        // for MemSPrintf
-#include <common/utils.h>          // for c_strornull
-#include <common/value.h>          // for Value::ErrorsType::E_ERROR, etc
+#include <common/convert2string.h>  // for ConvertFromString
+#include <common/net/types.h>       // for HostAndPort
+#include <common/sprintf.h>         // for MemSPrintf
+#include <common/utils.h>           // for c_strornull
+#include <common/value.h>           // for Value::ErrorsType::E_ERROR, etc
 
 #include <fastonosql/core/db/memcached/command_translator.h>
-#include <fastonosql/core/db/memcached/config.h> // for Config
+#include <fastonosql/core/db/memcached/config.h>  // for Config
 #include <fastonosql/core/db/memcached/database_info.h>
 #include <fastonosql/core/db/memcached/internal/commands_api.h>
 
@@ -70,22 +70,22 @@ struct hacked_memcached_instance_st {
     uint32_t timeouts;
     size_t _bytes_read;
   } io_wait_count;
-  uint8_t major_version; // Default definition of UINT8_MAX means that it has
-                         // not been set.
-  uint8_t micro_version; // ditto, and note that this is the third, not second
-                         // version bit
-  uint8_t minor_version; // ditto
+  uint8_t major_version;  // Default definition of UINT8_MAX means that it has
+                          // not been set.
+  uint8_t micro_version;  // ditto, and note that this is the third, not second
+                          // version bit
+  uint8_t minor_version;  // ditto
   memcached_connection_t type;
-  char *read_ptr;
+  char* read_ptr;
   size_t read_buffer_length;
   size_t read_data_length;
   size_t write_buffer_offset;
-  struct addrinfo *address_info;
-  struct addrinfo *address_info_next;
+  struct addrinfo* address_info;
+  struct addrinfo* address_info_next;
   time_t next_retry;
-  struct memcached_st *root;
+  struct memcached_st* root;
   uint64_t limit_maxbytes;
-  struct memcached_error_t *error_messages;
+  struct memcached_error_t* error_messages;
   char read_buffer[MEMCACHED_MAX_BUFFER];
   char write_buffer[MEMCACHED_MAX_BUFFER];
   char _hostname[MEMCACHED_NI_MAXHOST];
@@ -94,16 +94,18 @@ struct hacked_memcached_instance_st {
 namespace {
 
 struct KeysHolder {
-  KeysHolder(const std::string &key_start, const std::string &key_end,
-             fastonosql::core::keys_limit_t limit, std::vector<std::string> *r)
+  KeysHolder(const std::string& key_start,
+             const std::string& key_end,
+             fastonosql::core::keys_limit_t limit,
+             std::vector<std::string>* r)
       : key_start(key_start), key_end(key_end), limit(limit), r(r) {}
 
   const std::string key_start;
   const std::string key_end;
   const fastonosql::core::keys_limit_t limit;
-  std::vector<std::string> *r;
+  std::vector<std::string>* r;
 
-  memcached_return_t AddKey(const char *key, size_t key_length, time_t exp) {
+  memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
     if (r->size() < limit) {
       std::string received_key(key, key_length);
@@ -119,20 +121,20 @@ struct KeysHolder {
   }
 };
 
-memcached_return_t memcached_dump_keys_callback(const memcached_st *ptr,
-                                                const char *key,
-                                                size_t key_length, time_t exp,
-                                                void *context) {
+memcached_return_t memcached_dump_keys_callback(const memcached_st* ptr,
+                                                const char* key,
+                                                size_t key_length,
+                                                time_t exp,
+                                                void* context) {
   UNUSED(ptr);
 
-  KeysHolder *holder = static_cast<KeysHolder *>(context);
+  KeysHolder* holder = static_cast<KeysHolder*>(context);
   return holder->AddKey(key, key_length, exp);
 }
 
 struct ScanHolder {
-  ScanHolder(uint64_t cursor_in, const std::string &pattern, uint64_t limit)
-      : cursor_in(cursor_in), pattern(pattern), limit(limit), r(),
-        cursor_out(0), offset_pos(cursor_in) {}
+  ScanHolder(uint64_t cursor_in, const std::string& pattern, uint64_t limit)
+      : cursor_in(cursor_in), pattern(pattern), limit(limit), r(), cursor_out(0), offset_pos(cursor_in) {}
 
   const uint64_t cursor_in;
   const std::string pattern;
@@ -141,7 +143,7 @@ struct ScanHolder {
   uint64_t cursor_out;
   uint64_t offset_pos;
 
-  memcached_return_t AddKey(const char *key, size_t key_length, time_t exp) {
+  memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
     if (r.size() < limit) {
       std::string received_key(key, key_length);
@@ -161,20 +163,20 @@ struct ScanHolder {
   }
 };
 
-memcached_return_t memcached_dump_scan_callback(const memcached_st *ptr,
-                                                const char *key,
-                                                size_t key_length, time_t exp,
-                                                void *context) {
+memcached_return_t memcached_dump_scan_callback(const memcached_st* ptr,
+                                                const char* key,
+                                                size_t key_length,
+                                                time_t exp,
+                                                void* context) {
   UNUSED(ptr);
 
-  ScanHolder *holder = static_cast<ScanHolder *>(context);
+  ScanHolder* holder = static_cast<ScanHolder*>(context);
   return holder->AddKey(key, key_length, exp);
 }
 
 struct TTLHolder {
-  TTLHolder(fastonosql::core::key_t key, time_t *exp)
-      : looked_key(key), exp_out(exp) {}
-  memcached_return_t CheckKey(const char *key, size_t key_length, time_t exp) {
+  TTLHolder(fastonosql::core::key_t key, time_t* exp) : looked_key(key), exp_out(exp) {}
+  memcached_return_t CheckKey(const char* key, size_t key_length, time_t exp) {
     fastonosql::core::key_t received_key(std::string(key, key_length));
     if (received_key == looked_key) {
       *exp_out = exp;
@@ -185,158 +187,277 @@ struct TTLHolder {
   }
 
   const fastonosql::core::key_t looked_key;
-  time_t *exp_out;
+  time_t* exp_out;
 };
 
-memcached_return_t memcached_dump_ttl_callback(const memcached_st *ptr,
-                                               const char *key,
-                                               size_t key_length, time_t exp,
-                                               void *context) {
+memcached_return_t memcached_dump_ttl_callback(const memcached_st* ptr,
+                                               const char* key,
+                                               size_t key_length,
+                                               time_t exp,
+                                               void* context) {
   UNUSED(ptr);
 
-  TTLHolder *holder = static_cast<TTLHolder *>(context);
+  TTLHolder* holder = static_cast<TTLHolder*>(context);
   return holder->CheckKey(key, key_length, exp);
 }
 
-} // namespace
+}  // namespace
 
 namespace fastonosql {
 namespace core {
 namespace memcached {
 namespace {
-const ConstantCommandsArray g_commands = {
-    CommandHolder(DB_HELP_COMMAND, "[command]", "Return how to use command",
-                  UNDEFINED_SINCE, DB_HELP_COMMAND " " DB_GET_KEY_COMMAND, 0, 1,
-                  CommandInfo::Native, &CommandsApi::Help),
-    CommandHolder(DB_INFO_COMMAND, "[section]",
-                  "These command return database information.", UNDEFINED_SINCE,
-                  DB_INFO_COMMAND " STATS", 0, 1, CommandInfo::Native,
-                  &CommandsApi::Info),
-    CommandHolder(DB_GET_CONFIG_COMMAND, "<parameter>",
-                  "Get the value of a configuration parameter", UNDEFINED_SINCE,
-                  DB_GET_CONFIG_COMMAND " databases", 1, 0, CommandInfo::Native,
-                  &CommandsApi::ConfigGet),
-    CommandHolder(DB_VERSION_COMMAND, "-",
-                  "Return the Memcached server version.", UNDEFINED_SINCE,
-                  DB_VERSION_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::Version),
-    CommandHolder("INCR", "<key> <value>",
-                  "Increment value associated with key in "
-                  "Memcached, item must "
-                  "exist, increment "
-                  "command will not create it.\n"
-                  "The limit of increment is the 64 bit mark.",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 2, 0,
-                  CommandInfo::Native, &CommandsApi::Incr),
-    CommandHolder("DECR", "<key> <value>",
-                  "Decrement value associated with key "
-                  "in Memcached, item must "
-                  "exist, decrement "
-                  "command will not create it.",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 2, 0,
-                  CommandInfo::Native, &CommandsApi::Decr),
-    CommandHolder("PREPEND", "<key> <flags> <exptime> <bytes>",
-                  "Add value to an existing key before "
-                  "existing data.\n"
-                  "Prepend does not take <flags> or "
-                  "<exptime> parameters but "
-                  "you must provide them!",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 4, 0,
-                  CommandInfo::Native, &CommandsApi::Prepend),
-    CommandHolder("APPEND", "<key> <flags> <exptime> <value>",
-                  "Add value to an existing key after "
-                  "existing data.\n"
-                  "Append does not take <flags> or "
-                  "<exptime> parameters but "
-                  "you must provide them!",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 4, 0,
-                  CommandInfo::Native, &CommandsApi::Append),
-    CommandHolder("REPLACE", "<key> <flags> <exptime> <value>",
-                  "Store key/value pair in Memcached, "
-                  "but only if the server "
-                  "already hold data for this key.",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 4, 0,
-                  CommandInfo::Native, &CommandsApi::Replace),
-    CommandHolder("ADD", "<key> <flags> <exptime> <value>",
-                  "Store key/value pair in Memcached, "
-                  "but only if the server "
-                  "doesn't already hold "
-                  "data for this key.",
-                  UNDEFINED_SINCE, UNDEFINED_EXAMPLE_STR, 4, 0,
-                  CommandInfo::Native, &CommandsApi::Add),
-    CommandHolder(DB_SCAN_COMMAND, "<cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate the keys space", UNDEFINED_SINCE,
-                  DB_SCAN_COMMAND " 0 MATCH * COUNT 10", 1, 4,
-                  CommandInfo::Native, &CommandsApi::Scan),
-    CommandHolder(DB_JSONDUMP_COMMAND,
-                  "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
-                  "Dump DB into json file by path.", UNDEFINED_SINCE,
-                  DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10", 3,
-                  4, CommandInfo::Native, &CommandsApi::JsonDump),
-    CommandHolder(DB_KEYS_COMMAND, "<key_start> <key_end> <limit>",
-                  "Find all keys matching the given limits.", UNDEFINED_SINCE,
-                  DB_KEYS_COMMAND " a z 10", 3, 0, CommandInfo::Native,
-                  &CommandsApi::Keys),
-    CommandHolder(DB_DBKCOUNT_COMMAND, "-",
-                  "Return the number of keys in the "
-                  "selected database",
-                  UNDEFINED_SINCE, DB_DBKCOUNT_COMMAND, 0, 0,
-                  CommandInfo::Native, &CommandsApi::DBkcount),
-    CommandHolder(DB_FLUSHDB_COMMAND, "-",
-                  "Remove all keys from the current database", UNDEFINED_SINCE,
-                  DB_FLUSHDB_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::FlushDB),
-    CommandHolder(DB_SELECTDB_COMMAND, "<name>",
-                  "Change the selected database for the "
-                  "current connection",
-                  UNDEFINED_SINCE, DB_SELECTDB_COMMAND " 0", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Select),
-    CommandHolder(DB_SET_KEY_COMMAND, "<key> <value>",
-                  "Set the value of a key.", UNDEFINED_SINCE,
-                  DB_SET_KEY_COMMAND " key value", 2, 0, CommandInfo::Native,
-                  &CommandsApi::Set),
-    CommandHolder(DB_GET_KEY_COMMAND, "<key>", "Get the value of a key.",
-                  UNDEFINED_SINCE, DB_GET_KEY_COMMAND " key", 1, 0,
-                  CommandInfo::Native, &CommandsApi::Get),
-    CommandHolder(DB_RENAME_KEY_COMMAND, "<key> <newkey>", "Rename a key",
-                  UNDEFINED_SINCE, DB_RENAME_KEY_COMMAND " old_name new_name",
-                  2, 0, CommandInfo::Native, &CommandsApi::Rename),
-    CommandHolder(DB_DELETE_KEY_COMMAND, "<key> [key ...]", "Delete key.",
-                  UNDEFINED_SINCE, DB_DELETE_KEY_COMMAND " key", 1,
-                  INFINITE_COMMAND_ARGS, CommandInfo::Native,
-                  &CommandsApi::Delete),
-    CommandHolder(DB_SET_TTL_COMMAND, "<key> <exptime>",
-                  "Set a key's time to live in seconds", UNDEFINED_SINCE,
-                  DB_SET_TTL_COMMAND " key 10", 2, 0, CommandInfo::Native,
-                  &CommandsApi::SetTTL),
-    CommandHolder(DB_GET_TTL_COMMAND, "<key>", "Get the time to live for a key",
-                  UNDEFINED_SINCE, DB_GET_TTL_COMMAND " key", 1, 0,
-                  CommandInfo::Native, &CommandsApi::GetTTL),
-    CommandHolder(DB_QUIT_COMMAND, "-", "Close the connection", UNDEFINED_SINCE,
-                  DB_QUIT_COMMAND, 0, 0, CommandInfo::Native,
-                  &CommandsApi::Quit)};
+const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
+                                                       "[command]",
+                                                       "Return how to use command",
+                                                       UNDEFINED_SINCE,
+                                                       DB_HELP_COMMAND " " DB_GET_KEY_COMMAND,
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Help),
+                                         CommandHolder(DB_INFO_COMMAND,
+                                                       "[section]",
+                                                       "These command return database information.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_INFO_COMMAND " STATS",
+                                                       0,
+                                                       1,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Info),
+                                         CommandHolder(DB_GET_CONFIG_COMMAND,
+                                                       "<parameter>",
+                                                       "Get the value of a configuration parameter",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_CONFIG_COMMAND " databases",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::ConfigGet),
+                                         CommandHolder(DB_VERSION_COMMAND,
+                                                       "-",
+                                                       "Return the Memcached server version.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_VERSION_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Version),
+                                         CommandHolder("INCR",
+                                                       "<key> <value>",
+                                                       "Increment value associated with key in "
+                                                       "Memcached, item must "
+                                                       "exist, increment "
+                                                       "command will not create it.\n"
+                                                       "The limit of increment is the 64 bit mark.",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Incr),
+                                         CommandHolder("DECR",
+                                                       "<key> <value>",
+                                                       "Decrement value associated with key "
+                                                       "in Memcached, item must "
+                                                       "exist, decrement "
+                                                       "command will not create it.",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Decr),
+                                         CommandHolder("PREPEND",
+                                                       "<key> <flags> <exptime> <bytes>",
+                                                       "Add value to an existing key before "
+                                                       "existing data.\n"
+                                                       "Prepend does not take <flags> or "
+                                                       "<exptime> parameters but "
+                                                       "you must provide them!",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       4,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Prepend),
+                                         CommandHolder("APPEND",
+                                                       "<key> <flags> <exptime> <value>",
+                                                       "Add value to an existing key after "
+                                                       "existing data.\n"
+                                                       "Append does not take <flags> or "
+                                                       "<exptime> parameters but "
+                                                       "you must provide them!",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       4,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Append),
+                                         CommandHolder("REPLACE",
+                                                       "<key> <flags> <exptime> <value>",
+                                                       "Store key/value pair in Memcached, "
+                                                       "but only if the server "
+                                                       "already hold data for this key.",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       4,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Replace),
+                                         CommandHolder("ADD",
+                                                       "<key> <flags> <exptime> <value>",
+                                                       "Store key/value pair in Memcached, "
+                                                       "but only if the server "
+                                                       "doesn't already hold "
+                                                       "data for this key.",
+                                                       UNDEFINED_SINCE,
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       4,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Add),
+                                         CommandHolder(DB_SCAN_COMMAND,
+                                                       "<cursor> [MATCH pattern] [COUNT count]",
+                                                       "Incrementally iterate the keys space",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SCAN_COMMAND " 0 MATCH * COUNT 10",
+                                                       1,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Scan),
+                                         CommandHolder(DB_JSONDUMP_COMMAND,
+                                                       "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
+                                                       "Dump DB into json file by path.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_JSONDUMP_COMMAND " 0 PATH ~/dump.json MATCH * COUNT 10",
+                                                       3,
+                                                       4,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::JsonDump),
+                                         CommandHolder(DB_KEYS_COMMAND,
+                                                       "<key_start> <key_end> <limit>",
+                                                       "Find all keys matching the given limits.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_KEYS_COMMAND " a z 10",
+                                                       3,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Keys),
+                                         CommandHolder(DB_DBKCOUNT_COMMAND,
+                                                       "-",
+                                                       "Return the number of keys in the "
+                                                       "selected database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DBKCOUNT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::DBkcount),
+                                         CommandHolder(DB_FLUSHDB_COMMAND,
+                                                       "-",
+                                                       "Remove all keys from the current database",
+                                                       UNDEFINED_SINCE,
+                                                       DB_FLUSHDB_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::FlushDB),
+                                         CommandHolder(DB_SELECTDB_COMMAND,
+                                                       "<name>",
+                                                       "Change the selected database for the "
+                                                       "current connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SELECTDB_COMMAND " 0",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Select),
+                                         CommandHolder(DB_SET_KEY_COMMAND,
+                                                       "<key> <value>",
+                                                       "Set the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SET_KEY_COMMAND " key value",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Set),
+                                         CommandHolder(DB_GET_KEY_COMMAND,
+                                                       "<key>",
+                                                       "Get the value of a key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_KEY_COMMAND " key",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Get),
+                                         CommandHolder(DB_RENAME_KEY_COMMAND,
+                                                       "<key> <newkey>",
+                                                       "Rename a key",
+                                                       UNDEFINED_SINCE,
+                                                       DB_RENAME_KEY_COMMAND " old_name new_name",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Rename),
+                                         CommandHolder(DB_DELETE_KEY_COMMAND,
+                                                       "<key> [key ...]",
+                                                       "Delete key.",
+                                                       UNDEFINED_SINCE,
+                                                       DB_DELETE_KEY_COMMAND " key",
+                                                       1,
+                                                       INFINITE_COMMAND_ARGS,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Delete),
+                                         CommandHolder(DB_SET_TTL_COMMAND,
+                                                       "<key> <exptime>",
+                                                       "Set a key's time to live in seconds",
+                                                       UNDEFINED_SINCE,
+                                                       DB_SET_TTL_COMMAND " key 10",
+                                                       2,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::SetTTL),
+                                         CommandHolder(DB_GET_TTL_COMMAND,
+                                                       "<key>",
+                                                       "Get the time to live for a key",
+                                                       UNDEFINED_SINCE,
+                                                       DB_GET_TTL_COMMAND " key",
+                                                       1,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::GetTTL),
+                                         CommandHolder(DB_QUIT_COMMAND,
+                                                       "-",
+                                                       "Close the connection",
+                                                       UNDEFINED_SINCE,
+                                                       DB_QUIT_COMMAND,
+                                                       0,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Quit)};
 }
-} // namespace memcached
-template <> const char *ConnectionTraits<MEMCACHED>::GetBasedOn() {
+}  // namespace memcached
+template <>
+const char* ConnectionTraits<MEMCACHED>::GetBasedOn() {
   return "libmemcached";
 }
 
-template <> const char *ConnectionTraits<MEMCACHED>::GetVersionApi() {
+template <>
+const char* ConnectionTraits<MEMCACHED>::GetVersionApi() {
   return memcached_lib_version();
 }
 
 template <>
-const ConstantCommandsArray &
-ConnectionCommandsTraits<MEMCACHED>::GetCommands() {
-  return memcached::g_commands;
+const ConstantCommandsArray& ConnectionCommandsTraits<MEMCACHED>::GetCommands() {
+  return memcached::kCommands;
 }
 namespace internal {
 template <>
-common::Error
-ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
-    Connect(const memcached::Config &config,
-            memcached::NativeConnection **hout) {
-  memcached::NativeConnection *context = nullptr;
+common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::Connect(
+    const memcached::Config& config,
+    memcached::NativeConnection** hout) {
+  memcached::NativeConnection* context = nullptr;
   common::Error err = memcached::CreateConnection(config, &context);
   if (err) {
     return err;
@@ -347,10 +468,9 @@ ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
 }
 
 template <>
-common::Error
-ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
-    Disconnect(memcached::NativeConnection **handle) {
-  memcached::NativeConnection *lhandle = *handle;
+common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::Disconnect(
+    memcached::NativeConnection** handle) {
+  memcached::NativeConnection* lhandle = *handle;
   if (lhandle) {
     memcached_free(lhandle);
   }
@@ -359,14 +479,13 @@ ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
 }
 
 template <>
-bool ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
-    IsConnected(memcached::NativeConnection *handle) {
+bool ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::IsConnected(
+    memcached::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
 
-  hacked_memcached_instance_st *servers =
-      reinterpret_cast<hacked_memcached_instance_st *>(handle->servers);
+  hacked_memcached_instance_st* servers = reinterpret_cast<hacked_memcached_instance_st*>(handle->servers);
   if (!servers) {
     return false;
   }
@@ -374,87 +493,79 @@ bool ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::
   return servers->state == MEMCACHED_SERVER_STATE_CONNECTED;
 }
 
-} // namespace internal
+}  // namespace internal
 namespace memcached {
 
-common::Error CreateConnection(const Config &config,
-                               NativeConnection **context) {
+common::Error CreateConnection(const Config& config, NativeConnection** context) {
   if (!context) {
     return common::make_error_inval();
   }
 
   DCHECK(*context == nullptr);
-  memcached_st *memc = ::memcached(NULL, 0);
+  memcached_st* memc = ::memcached(NULL, 0);
   if (!memc) {
     return common::make_error("Init error");
   }
 
   memcached_return rc;
   if (!config.user.empty() && !config.password.empty()) {
-    const char *user = config.user.c_str();
-    const char *passwd = config.password.c_str();
+    const char* user = config.user.c_str();
+    const char* passwd = config.password.c_str();
     rc = memcached_set_sasl_auth_data(memc, user, passwd);
     if (rc != MEMCACHED_SUCCESS) {
       memcached_free(memc);
-      return common::make_error(common::MemSPrintf(
-          "Couldn't setup SASL auth: %s", memcached_strerror(memc, rc)));
+      return common::make_error(common::MemSPrintf("Couldn't setup SASL auth: %s", memcached_strerror(memc, rc)));
     }
   }
 
   std::string host_str = config.host.GetHost();
-  const char *host = host_str.empty() ? NULL : host_str.c_str();
+  const char* host = host_str.empty() ? NULL : host_str.c_str();
   uint16_t hostport = config.host.GetPort();
 
   rc = memcached_server_add(memc, host, hostport);
 
   if (rc != MEMCACHED_SUCCESS) {
     memcached_free(memc);
-    return common::make_error(common::MemSPrintf("Couldn't add server: %s",
-                                                 memcached_strerror(memc, rc)));
+    return common::make_error(common::MemSPrintf("Couldn't add server: %s", memcached_strerror(memc, rc)));
   }
 
   memcached_return_t error = memcached_version(memc);
   if (error != MEMCACHED_SUCCESS) {
     memcached_free(memc);
-    return common::make_error(common::MemSPrintf(
-        "Connect to server error: %s", memcached_strerror(memc, error)));
+    return common::make_error(common::MemSPrintf("Connect to server error: %s", memcached_strerror(memc, error)));
   }
 
   *context = memc;
   return common::Error();
 }
 
-common::Error TestConnection(const Config &config) {
+common::Error TestConnection(const Config& config) {
   std::string host_str = config.host.GetHost();
-  const char *host = host_str.empty() ? NULL : host_str.c_str();
+  const char* host = host_str.empty() ? NULL : host_str.c_str();
   uint16_t hostport = config.host.GetPort();
 
   memcached_return rc;
   if (!config.user.empty() && !config.password.empty()) {
-    const char *user = config.user.c_str();
-    const char *passwd = config.password.c_str();
+    const char* user = config.user.c_str();
+    const char* passwd = config.password.c_str();
     libmemcached_util_ping2(host, hostport, user, passwd, &rc);
     if (rc != MEMCACHED_SUCCESS) {
-      return common::make_error(common::MemSPrintf(
-          "Couldn't ping server: %s", memcached_strerror(NULL, rc)));
+      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(NULL, rc)));
     }
   } else {
     libmemcached_util_ping(host, hostport, &rc);
     if (rc != MEMCACHED_SUCCESS) {
-      return common::make_error(common::MemSPrintf(
-          "Couldn't ping server: %s", memcached_strerror(NULL, rc)));
+      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(NULL, rc)));
     }
   }
 
   return common::Error();
 }
 
-DBConnection::DBConnection(CDBConnectionClient *client)
-    : base_class(client, new CommandTranslator(base_class::GetCommands())),
-      current_info_() {}
+DBConnection::DBConnection(CDBConnectionClient* client)
+    : base_class(client, new CommandTranslator(base_class::GetCommands())), current_info_() {}
 
-common::Error DBConnection::Info(const std::string &args,
-                                 ServerInfo::Stats *statsout) {
+common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -465,10 +576,9 @@ common::Error DBConnection::Info(const std::string &args,
     return err;
   }
 
-  const char *stabled_args = args.empty() ? NULL : args.c_str();
+  const char* stabled_args = args.empty() ? NULL : args.c_str();
   memcached_return_t error;
-  memcached_stat_st *st = memcached_stat(
-      connection_.handle_, const_cast<char *>(stabled_args), &error);
+  memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args), &error);
   err = CheckResultCommand(DB_INFO_COMMAND, error);
   if (err) {
     return err;
@@ -504,9 +614,10 @@ common::Error DBConnection::Info(const std::string &args,
   return common::Error();
 }
 
-common::Error DBConnection::AddIfNotExist(const NKey &key,
-                                          const std::string &value,
-                                          time_t expiration, uint32_t flags) {
+common::Error DBConnection::AddIfNotExist(const NKey& key,
+                                          const std::string& value,
+                                          time_t expiration,
+                                          uint32_t flags) {
   if (value.empty()) {
     return common::make_error_inval();
   }
@@ -518,23 +629,20 @@ common::Error DBConnection::AddIfNotExist(const NKey &key,
 
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  err = CheckResultCommand(
-      "ADD", memcached_add(connection_.handle_, key_slice_ptr, key_slice.size(),
-                           value.c_str(), value.length(), expiration, flags));
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  err = CheckResultCommand("ADD", memcached_add(connection_.handle_, key_slice_ptr, key_slice.size(), value.c_str(),
+                                                value.length(), expiration, flags));
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(
-        NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
+    client_->OnAddedKey(NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
   }
   return common::Error();
 }
 
-common::Error DBConnection::Replace(const NKey &key, const std::string &value,
-                                    time_t expiration, uint32_t flags) {
+common::Error DBConnection::Replace(const NKey& key, const std::string& value, time_t expiration, uint32_t flags) {
   if (value.empty()) {
     return common::make_error_inval();
   }
@@ -546,24 +654,20 @@ common::Error DBConnection::Replace(const NKey &key, const std::string &value,
 
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  err = CheckResultCommand(
-      "REPLACE",
-      memcached_replace(connection_.handle_, key_slice_ptr, key_slice.size(),
-                        value.c_str(), value.length(), expiration, flags));
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  err = CheckResultCommand("REPLACE", memcached_replace(connection_.handle_, key_slice_ptr, key_slice.size(),
+                                                        value.c_str(), value.length(), expiration, flags));
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnLoadedKey(
-        NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
+    client_->OnLoadedKey(NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
   }
   return common::Error();
 }
 
-common::Error DBConnection::Append(const NKey &key, const std::string &value,
-                                   time_t expiration, uint32_t flags) {
+common::Error DBConnection::Append(const NKey& key, const std::string& value, time_t expiration, uint32_t flags) {
   if (value.empty()) {
     return common::make_error_inval();
   }
@@ -575,24 +679,20 @@ common::Error DBConnection::Append(const NKey &key, const std::string &value,
 
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  err = CheckResultCommand("APPEND",
-                           memcached_append(connection_.handle_, key_slice_ptr,
-                                            key_slice.size(), value.c_str(),
-                                            value.length(), expiration, flags));
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  err = CheckResultCommand("APPEND", memcached_append(connection_.handle_, key_slice_ptr, key_slice.size(),
+                                                      value.c_str(), value.length(), expiration, flags));
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(
-        NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
+    client_->OnAddedKey(NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
   }
   return common::Error();
 }
 
-common::Error DBConnection::Prepend(const NKey &key, const std::string &value,
-                                    time_t expiration, uint32_t flags) {
+common::Error DBConnection::Prepend(const NKey& key, const std::string& value, time_t expiration, uint32_t flags) {
   if (value.empty()) {
     return common::make_error_inval();
   }
@@ -604,24 +704,20 @@ common::Error DBConnection::Prepend(const NKey &key, const std::string &value,
 
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  err = CheckResultCommand(
-      "PREPEND",
-      memcached_prepend(connection_.handle_, key_slice_ptr, key_slice.size(),
-                        value.c_str(), value.length(), expiration, flags));
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  err = CheckResultCommand("PREPEND", memcached_prepend(connection_.handle_, key_slice_ptr, key_slice.size(),
+                                                        value.c_str(), value.length(), expiration, flags));
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(
-        NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
+    client_->OnAddedKey(NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
   }
   return common::Error();
 }
 
-common::Error DBConnection::Incr(const NKey &key, uint32_t value,
-                                 uint64_t *result) {
+common::Error DBConnection::Incr(const NKey& key, uint32_t value, uint64_t* result) {
   if (!result) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -635,10 +731,9 @@ common::Error DBConnection::Incr(const NKey &key, uint32_t value,
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
   uint64_t local_value = 0;
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
   err = CheckResultCommand(
-      "INCR", memcached_increment(connection_.handle_, key_slice_ptr,
-                                  key_slice.size(), value, &local_value));
+      "INCR", memcached_increment(connection_.handle_, key_slice_ptr, key_slice.size(), value, &local_value));
   if (err) {
     return err;
   }
@@ -651,8 +746,7 @@ common::Error DBConnection::Incr(const NKey &key, uint32_t value,
   return common::Error();
 }
 
-common::Error DBConnection::Decr(const NKey &key, uint32_t value,
-                                 uint64_t *result) {
+common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* result) {
   if (!result) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -666,10 +760,9 @@ common::Error DBConnection::Decr(const NKey &key, uint32_t value,
   const key_t key_str = key.GetKey();
   const readable_string_t key_slice = key_str.GetData();
   uint64_t local_value = 0;
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
   err = CheckResultCommand(
-      "DECR", memcached_decrement(connection_.handle_, key_slice_ptr,
-                                  key_slice.size(), value, &local_value));
+      "DECR", memcached_decrement(connection_.handle_, key_slice_ptr, key_slice.size(), value, &local_value));
   if (err) {
     return err;
   }
@@ -682,26 +775,22 @@ common::Error DBConnection::Decr(const NKey &key, uint32_t value,
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t &key, time_t expiration) {
+common::Error DBConnection::DelInner(const key_t& key, time_t expiration) {
   const readable_string_t key_slice = key.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
   return CheckResultCommand(DB_DELETE_KEY_COMMAND,
-                            memcached_delete(connection_.handle_, key_slice_ptr,
-                                             key_slice.size(), expiration));
+                            memcached_delete(connection_.handle_, key_slice_ptr, key_slice.size(), expiration));
 }
 
-common::Error DBConnection::SetInner(const key_t &key, const value_t &value,
-                                     time_t expiration, uint32_t flags) {
+common::Error DBConnection::SetInner(const key_t& key, const value_t& value, time_t expiration, uint32_t flags) {
   const readable_string_t key_slice = key.GetData();
   const readable_string_t value_str = value.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  return CheckResultCommand(DB_SET_KEY_COMMAND,
-                            memcached_set(connection_.handle_, key_slice_ptr,
-                                          key_slice.size(), value_str.data(),
-                                          value_str.size(), expiration, flags));
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  return CheckResultCommand(DB_SET_KEY_COMMAND, memcached_set(connection_.handle_, key_slice_ptr, key_slice.size(),
+                                                              value_str.data(), value_str.size(), expiration, flags));
 }
 
-common::Error DBConnection::GetInner(const key_t &key, std::string *ret_val) {
+common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
   if (!ret_val) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -712,9 +801,8 @@ common::Error DBConnection::GetInner(const key_t &key, std::string *ret_val) {
   size_t value_length = 0;
 
   const readable_string_t key_slice = key.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  char *value = memcached_get(connection_.handle_, key_slice_ptr,
-                              key_slice.size(), &value_length, &flags, &error);
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  char* value = memcached_get(connection_.handle_, key_slice_ptr, key_slice.size(), &value_length, &flags, &error);
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, error);
   if (err) {
     return err;
@@ -732,21 +820,18 @@ common::Error DBConnection::ExpireInner(key_t key, ttl_t expiration) {
   size_t value_length = 0;
 
   const readable_string_t key_slice = key.GetData();
-  const char *key_slice_ptr = reinterpret_cast<const char *>(key_slice.data());
-  char *value = memcached_get(connection_.handle_, key_slice_ptr,
-                              key_slice.size(), &value_length, &flags, &error);
+  const char* key_slice_ptr = reinterpret_cast<const char*>(key_slice.data());
+  char* value = memcached_get(connection_.handle_, key_slice_ptr, key_slice.size(), &value_length, &flags, &error);
   common::Error err = CheckResultCommand(DB_SET_TTL_COMMAND, error);
   if (err) {
     return err;
   }
 
-  return CheckResultCommand(DB_SET_TTL_COMMAND,
-                            memcached_set(connection_.handle_, key_slice_ptr,
-                                          key_slice.size(), value, value_length,
-                                          expiration, flags));
+  return CheckResultCommand(DB_SET_TTL_COMMAND, memcached_set(connection_.handle_, key_slice_ptr, key_slice.size(),
+                                                              value, value_length, expiration, flags));
 }
 
-common::Error DBConnection::TTL(key_t key, ttl_t *expiration) {
+common::Error DBConnection::TTL(key_t key, ttl_t* expiration) {
   common::Error err = TestIsAuthenticated();
   if (err) {
     return err;
@@ -756,9 +841,7 @@ common::Error DBConnection::TTL(key_t key, ttl_t *expiration) {
   TTLHolder hld(key, &exp);
   memcached_dump_fn func[1] = {0};
   func[0] = memcached_dump_ttl_callback;
-  err = CheckResultCommand(
-      DB_GET_TTL_COMMAND,
-      memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  err = CheckResultCommand(DB_GET_TTL_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
@@ -787,16 +870,15 @@ common::Error DBConnection::VersionServer() {
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const std::string &pattern,
+                                     const std::string& pattern,
                                      keys_limit_t count_keys,
-                                     std::vector<std::string> *keys_out,
-                                     cursor_t *cursor_out) {
+                                     std::vector<std::string>* keys_out,
+                                     cursor_t* cursor_out) {
   ScanHolder hld(cursor_in, pattern, count_keys);
   memcached_dump_fn func[1] = {0};
   func[0] = memcached_dump_scan_callback;
-  common::Error err = CheckResultCommand(
-      DB_SCAN_COMMAND,
-      memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  common::Error err =
+      CheckResultCommand(DB_SCAN_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
@@ -806,26 +888,23 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const std::string &key_start,
-                                     const std::string &key_end,
+common::Error DBConnection::KeysImpl(const std::string& key_start,
+                                     const std::string& key_end,
                                      keys_limit_t limit,
-                                     std::vector<std::string> *ret) {
+                                     std::vector<std::string>* ret) {
   KeysHolder hld(key_start, key_end, limit, ret);
   memcached_dump_fn func[1] = {0};
   func[0] = memcached_dump_keys_callback;
-  return CheckResultCommand(
-      DB_KEYS_COMMAND,
-      memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  return CheckResultCommand(DB_KEYS_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
 }
 
-common::Error DBConnection::DBkcountImpl(size_t *size) {
+common::Error DBConnection::DBkcountImpl(size_t* size) {
   std::vector<std::string> ret;
   KeysHolder hld("a", "z", NO_KEYS_LIMIT, &ret);
   memcached_dump_fn func[1] = {0};
   func[0] = memcached_dump_keys_callback;
-  common::Error err = CheckResultCommand(
-      DB_DBKCOUNT_COMMAND,
-      memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  common::Error err =
+      CheckResultCommand(DB_DBKCOUNT_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
@@ -835,12 +914,10 @@ common::Error DBConnection::DBkcountImpl(size_t *size) {
 }
 
 common::Error DBConnection::FlushDBImpl() {
-  return CheckResultCommand(DB_FLUSHDB_COMMAND,
-                            memcached_flush(connection_.handle_, 0));
+  return CheckResultCommand(DB_FLUSHDB_COMMAND, memcached_flush(connection_.handle_, 0));
 }
 
-common::Error DBConnection::SelectImpl(const std::string &name,
-                                       IDataBaseInfo **info) {
+common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
   if (name != GetCurrentDBName()) {
     return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
   }
@@ -852,7 +929,7 @@ common::Error DBConnection::SelectImpl(const std::string &name,
   return common::Error();
 }
 
-common::Error DBConnection::DeleteImpl(const NKeys &keys, NKeys *deleted_keys) {
+common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     key_t key_str = key.GetKey();
@@ -867,7 +944,7 @@ common::Error DBConnection::DeleteImpl(const NKeys &keys, NKeys *deleted_keys) {
   return common::Error();
 }
 
-common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
+common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -880,8 +957,7 @@ common::Error DBConnection::GetImpl(const NKey &key, NDbKValue *loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue &key,
-                                    NDbKValue *added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
   NValue value = key.GetValue();
@@ -895,7 +971,7 @@ common::Error DBConnection::SetImpl(const NDbKValue &key,
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey &key, const key_t &new_key) {
+common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
@@ -916,11 +992,11 @@ common::Error DBConnection::RenameImpl(const NKey &key, const key_t &new_key) {
   return common::Error();
 }
 
-common::Error DBConnection::SetTTLImpl(const NKey &key, ttl_t ttl) {
+common::Error DBConnection::SetTTLImpl(const NKey& key, ttl_t ttl) {
   return ExpireInner(key.GetKey(), ttl);
 }
 
-common::Error DBConnection::GetTTLImpl(const NKey &key, ttl_t *ttl) {
+common::Error DBConnection::GetTTLImpl(const NKey& key, ttl_t* ttl) {
   return TTL(key.GetKey(), ttl);
 }
 
@@ -933,15 +1009,13 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error
-DBConnection::ConfigGetDatabasesImpl(std::vector<std::string> *dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
   std::vector<std::string> ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }
 
-common::Error DBConnection::CheckResultCommand(const std::string &cmd,
-                                               int err) {
+common::Error DBConnection::CheckResultCommand(const std::string& cmd, int err) {
   memcached_return_t mem_err = static_cast<memcached_return_t>(err);
   if (mem_err != MEMCACHED_SUCCESS) {
     return GenerateError(cmd, memcached_strerror(connection_.handle_, mem_err));
@@ -950,6 +1024,6 @@ common::Error DBConnection::CheckResultCommand(const std::string &cmd,
   return common::Error();
 }
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql

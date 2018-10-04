@@ -23,12 +23,15 @@ namespace core {
 
 NDbPSChannel::NDbPSChannel() {}
 
-NDbPSChannel::NDbPSChannel(const std::string &name, size_t nos)
-    : name_(name), number_of_subscribers_(nos) {}
+NDbPSChannel::NDbPSChannel(const std::string& name, size_t nos) : name_(name), number_of_subscribers_(nos) {}
 
-std::string NDbPSChannel::GetName() const { return name_; }
+std::string NDbPSChannel::GetName() const {
+  return name_;
+}
 
-void NDbPSChannel::SetName(const std::string &name) { name_ = name; }
+void NDbPSChannel::SetName(const std::string& name) {
+  name_ = name;
+}
 
 size_t NDbPSChannel::GetNumberOfSubscribers() const {
   return number_of_subscribers_;
@@ -38,5 +41,5 @@ void NDbPSChannel::SetNumberOfSubscribers(size_t nos) {
   number_of_subscribers_ = nos;
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

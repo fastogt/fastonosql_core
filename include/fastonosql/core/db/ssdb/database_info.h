@@ -25,12 +25,11 @@ namespace core {
 namespace ssdb {
 
 class DataBaseInfo : public IDataBaseInfo {
-public:
-  DataBaseInfo(const std::string &name, bool isDefault, size_t size,
-               const keys_container_t &keys = keys_container_t());
-  virtual DataBaseInfo *Clone() const override;
+ public:
+  DataBaseInfo(const std::string& name, bool isDefault, size_t size, const keys_container_t& keys = keys_container_t());
+  virtual DataBaseInfo* Clone() const override;
 };
 
-} // namespace ssdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace ssdb
+}  // namespace core
+}  // namespace fastonosql

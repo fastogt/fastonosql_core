@@ -18,29 +18,27 @@
 
 #include <fastonosql/core/db/unqlite/internal/commands_api.h>
 
-#include <fastonosql/core/db/unqlite/db_connection.h> // for DBConnection
+#include <fastonosql/core/db/unqlite/db_connection.h>  // for DBConnection
 
 namespace fastonosql {
 namespace core {
 namespace unqlite {
 
-common::Error CommandsApi::Info(internal::CommandHandler *handler,
-                                commands_args_t argv, FastoObject *out) {
-  DBConnection *unq = static_cast<DBConnection *>(handler);
+common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* unq = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err =
-      unq->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = unq->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
   if (err) {
     return err;
   }
 
   ServerInfo uinf(statsout);
-  common::StringValue *val = common::Value::CreateStringValue(uinf.ToString());
-  FastoObject *child = new FastoObject(out, val, unq->GetDelimiter());
+  common::StringValue* val = common::Value::CreateStringValue(uinf.ToString());
+  FastoObject* child = new FastoObject(out, val, unq->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }
 
-} // namespace unqlite
-} // namespace core
-} // namespace fastonosql
+}  // namespace unqlite
+}  // namespace core
+}  // namespace fastonosql

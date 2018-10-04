@@ -19,19 +19,27 @@
 #include <fastonosql/core/command_info.h>
 
 #include <common/convert2string.h>
-#include <common/string_util.h> // for FullEqualsASCII
+#include <common/string_util.h>  // for FullEqualsASCII
 
 namespace fastonosql {
 namespace core {
 
-CommandInfo::CommandInfo(const std::string &name, const std::string &params,
-                         const std::string &summary, uint32_t since,
-                         const std::string &example,
+CommandInfo::CommandInfo(const std::string& name,
+                         const std::string& params,
+                         const std::string& summary,
+                         uint32_t since,
+                         const std::string& example,
                          uint8_t required_arguments_count,
-                         uint8_t optional_arguments_count, Type type)
-    : name(name), params(params), summary(summary), since(since),
-      example(example), required_arguments_count(required_arguments_count),
-      optional_arguments_count(optional_arguments_count), type(type) {}
+                         uint8_t optional_arguments_count,
+                         Type type)
+    : name(name),
+      params(params),
+      summary(summary),
+      since(since),
+      example(example),
+      required_arguments_count(required_arguments_count),
+      optional_arguments_count(optional_arguments_count),
+      type(type) {}
 
 uint16_t CommandInfo::GetMaxArgumentsCount() const {
   return required_arguments_count + optional_arguments_count;
@@ -41,7 +49,7 @@ uint8_t CommandInfo::GetMinArgumentsCount() const {
   return required_arguments_count;
 }
 
-bool CommandInfo::IsEqualName(const std::string &cmd_name) const {
+bool CommandInfo::IsEqualName(const std::string& cmd_name) const {
   return common::FullEqualsASCII(cmd_name, name, false);
 }
 
@@ -53,5 +61,5 @@ std::string ConvertVersionNumberToReadableString(uint32_t version) {
   return UNDEFINED_SINCE_STR;
 }
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

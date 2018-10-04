@@ -22,10 +22,10 @@ extern "C" {
 #include "sds/sds_fasto.h"
 }
 
-#include <common/file_system/types.h> // for prepare_path
-#include <common/sprintf.h>           // for MemSPrintf
+#include <common/file_system/types.h>  // for prepare_path
+#include <common/sprintf.h>            // for MemSPrintf
 
-#include "leveldb/options.h" // for Options
+#include "leveldb/options.h"  // for Options
 
 #include <fastonosql/core/logger.h>
 
@@ -36,14 +36,13 @@ namespace fastonosql {
 namespace core {
 namespace leveldb {
 
-const std::vector<const char *> g_comparator_types = {"BYTEWISE", "INDEXED_DB"};
+const std::vector<const char*> g_comparator_types = {"BYTEWISE", "INDEXED_DB"};
 
-const std::vector<const char *> g_compression_types = {"NO_COMPRESSION",
-                                                       "SNAPPY"};
+const std::vector<const char*> g_compression_types = {"NO_COMPRESSION", "SNAPPY"};
 
 namespace {
 
-Config ParseOptions(int argc, char **argv) {
+Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
     bool lastarg = i == argc - 1;
@@ -54,24 +53,22 @@ Config ParseOptions(int argc, char **argv) {
       cfg.db_path = argv[++i];
     } else if (!strcmp(argv[i], "-c")) {
       cfg.create_if_missing = true;
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPARATOR_FIELD)) &&
-               !lastarg) {
+    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPARATOR_FIELD)) && !lastarg) {
       ComparatorType lcomparator;
       if (common::ConvertFromString(argv[++i], &lcomparator)) {
         cfg.comparator = lcomparator;
       }
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPRESSION_FIELD)) &&
-               !lastarg) {
+    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPRESSION_FIELD)) && !lastarg) {
       CompressionType lcompression;
       if (common::ConvertFromString(argv[++i], &lcompression)) {
         cfg.compression = lcompression;
       }
     } else {
       if (argv[i][0] == '-') {
-        std::string buff =
-            common::MemSPrintf("Unrecognized option or bad number of args "
-                               "for: '%s'",
-                               argv[i]);
+        std::string buff = common::MemSPrintf(
+            "Unrecognized option or bad number of args "
+            "for: '%s'",
+            argv[i]);
         LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
         break;
       } else {
@@ -83,20 +80,21 @@ Config ParseOptions(int argc, char **argv) {
   return cfg;
 }
 
-} // namespace
+}  // namespace
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path("~/test.leveldb")),
-      create_if_missing(true), comparator(COMP_BYTEWISE),
+      create_if_missing(true),
+      comparator(COMP_BYTEWISE),
       compression(kSnappyCompression) {}
 
-} // namespace leveldb
-} // namespace core
-} // namespace fastonosql
+}  // namespace leveldb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
 
-std::string ConvertToString(const fastonosql::core::leveldb::Config &conf) {
+std::string ConvertToString(const fastonosql::core::leveldb::Config& conf) {
   fastonosql::core::config_args_t argv = conf.Args();
 
   if (conf.create_if_missing) {
@@ -111,14 +109,13 @@ std::string ConvertToString(const fastonosql::core::leveldb::Config &conf) {
   return fastonosql::core::ConvertToStringConfigArgs(argv);
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::leveldb::Config *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::Config* out) {
   if (!out) {
     return false;
   }
 
   int argc = 0;
-  sds *argv = sdssplitargslong(from.c_str(), &argc);
+  sds* argv = sdssplitargslong(from.c_str(), &argc);
   if (argv) {
     *out = fastonosql::core::leveldb::ParseOptions(argc, argv);
     sdsfreesplitres(argv, argc);
@@ -132,14 +129,12 @@ std::string ConvertToString(fastonosql::core::leveldb::ComparatorType comp) {
   return fastonosql::core::leveldb::g_comparator_types[comp];
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::leveldb::ComparatorType *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::ComparatorType* out) {
   if (!out || from.empty()) {
     return false;
   }
 
-  for (size_t i = 0; i < fastonosql::core::leveldb::g_comparator_types.size();
-       ++i) {
+  for (size_t i = 0; i < fastonosql::core::leveldb::g_comparator_types.size(); ++i) {
     if (from == fastonosql::core::leveldb::g_comparator_types[i]) {
       *out = static_cast<fastonosql::core::leveldb::ComparatorType>(i);
       return true;
@@ -154,14 +149,12 @@ std::string ConvertToString(fastonosql::core::leveldb::CompressionType comp) {
   return fastonosql::core::leveldb::g_compression_types[comp];
 }
 
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::leveldb::CompressionType *out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::CompressionType* out) {
   if (!out || from.empty()) {
     return false;
   }
 
-  for (size_t i = 0; i < fastonosql::core::leveldb::g_compression_types.size();
-       ++i) {
+  for (size_t i = 0; i < fastonosql::core::leveldb::g_compression_types.size(); ++i) {
     if (from == fastonosql::core::leveldb::g_compression_types[i]) {
       *out = static_cast<fastonosql::core::leveldb::CompressionType>(i);
       return true;
@@ -172,4 +165,4 @@ bool ConvertFromString(const std::string &from,
   return false;
 }
 
-} // namespace common
+}  // namespace common

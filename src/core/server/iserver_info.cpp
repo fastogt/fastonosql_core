@@ -21,27 +21,30 @@
 namespace fastonosql {
 namespace core {
 
-ServerCommonInfo::ServerCommonInfo()
-    : name(), type(MASTER), state(SUP), cstate(SCONNECTED), host() {}
+ServerCommonInfo::ServerCommonInfo() : name(), type(MASTER), state(SUP), cstate(SCONNECTED), host() {}
 
-ServerCommonInfo::ServerCommonInfo(const std::string &name, ServerTypes type,
+ServerCommonInfo::ServerCommonInfo(const std::string& name,
+                                   ServerTypes type,
                                    ServerState state,
                                    ServerConnectionState cstate)
     : name(name), type(type), state(state), cstate(cstate) {}
 
-ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(connectionTypes ctype,
-                                                 const ServerCommonInfo &info)
+ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(connectionTypes ctype, const ServerCommonInfo& info)
     : ctype_(ctype), info_(info) {}
 
 connectionTypes ServerDiscoveryInfoBase::GetConnectionType() const {
   return ctype_;
 }
 
-ServerCommonInfo ServerDiscoveryInfoBase::GetInfo() const { return info_; }
+ServerCommonInfo ServerDiscoveryInfoBase::GetInfo() const {
+  return info_;
+}
 
-std::string ServerDiscoveryInfoBase::GetName() const { return info_.name; }
+std::string ServerDiscoveryInfoBase::GetName() const {
+  return info_.name;
+}
 
-void ServerDiscoveryInfoBase::SetName(const std::string &name) {
+void ServerDiscoveryInfoBase::SetName(const std::string& name) {
   info_.name = name;
 }
 
@@ -49,42 +52,43 @@ common::net::HostAndPortAndSlot ServerDiscoveryInfoBase::GetHost() const {
   return info_.host;
 }
 
-void ServerDiscoveryInfoBase::SetHost(
-    const common::net::HostAndPortAndSlot &host) {
+void ServerDiscoveryInfoBase::SetHost(const common::net::HostAndPortAndSlot& host) {
   info_.host = host;
 }
 
 ServerDiscoveryInfoBase::~ServerDiscoveryInfoBase() {}
 
-ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(
-    connectionTypes ctype, const ServerCommonInfo &info)
+ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(connectionTypes ctype, const ServerCommonInfo& info)
     : ServerDiscoveryInfoBase(ctype, info) {}
 
 ServerDiscoverySentinelInfo::~ServerDiscoverySentinelInfo() {}
 
-ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(
-    connectionTypes ctype, const ServerCommonInfo &info, bool self)
+ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(connectionTypes ctype, const ServerCommonInfo& info, bool self)
     : ServerDiscoveryInfoBase(ctype, info), self_(self) {}
 
 ServerDiscoveryClusterInfo::~ServerDiscoveryClusterInfo() {}
 
-bool ServerDiscoveryClusterInfo::Self() const { return self_; }
+bool ServerDiscoveryClusterInfo::Self() const {
+  return self_;
+}
 
 IStateField::~IStateField() {}
 
 IServerInfo::~IServerInfo() {}
 
-connectionTypes IServerInfo::GetType() const { return type_; }
+connectionTypes IServerInfo::GetType() const {
+  return type_;
+}
 
 IServerInfo::IServerInfo(connectionTypes type) : type_(type) {}
 
 ServerInfoSnapShoot::ServerInfoSnapShoot() : msec(0), info() {}
 
-ServerInfoSnapShoot::ServerInfoSnapShoot(common::time64_t msec,
-                                         IServerInfoSPtr info)
-    : msec(msec), info(info) {}
+ServerInfoSnapShoot::ServerInfoSnapShoot(common::time64_t msec, IServerInfoSPtr info) : msec(msec), info(info) {}
 
-bool ServerInfoSnapShoot::IsValid() const { return msec > 0 && info; }
+bool ServerInfoSnapShoot::IsValid() const {
+  return msec > 0 && info;
+}
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

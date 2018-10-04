@@ -31,12 +31,11 @@ struct Config : public LocalConfig {
   std::string db_name;
 };
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::forestdb::Config &conf);
-bool ConvertFromString(const std::string &from,
-                       fastonosql::core::forestdb::Config *out);
-} // namespace common
+std::string ConvertToString(const fastonosql::core::forestdb::Config& conf);
+bool ConvertFromString(const std::string& from, fastonosql::core::forestdb::Config* out);
+}  // namespace common

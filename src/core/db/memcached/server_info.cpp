@@ -29,7 +29,7 @@ namespace fastonosql {
 namespace core {
 
 namespace {
-const std::vector<Field> g_memcached_common_fields = {
+const std::vector<Field> kMemcachedCommonFields = {
     Field(MEMCACHED_COMMON_PID_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_UPTIME_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_TIME_LABEL, common::Value::TYPE_UINTEGER),
@@ -40,12 +40,9 @@ const std::vector<Field> g_memcached_common_fields = {
     Field(MEMCACHED_COMMON_CURR_ITEMS_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_TOTAL_ITEMS_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_BYTES_LABEL, common::Value::TYPE_UINTEGER),
-    Field(MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL,
-          common::Value::TYPE_UINTEGER),
-    Field(MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL,
-          common::Value::TYPE_UINTEGER),
-    Field(MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL,
-          common::Value::TYPE_UINTEGER),
+    Field(MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_CMD_GET_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_CMD_SET_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_GET_HITS_LABEL, common::Value::TYPE_UINTEGER),
@@ -55,24 +52,24 @@ const std::vector<Field> g_memcached_common_fields = {
     Field(MEMCACHED_COMMON_BYTES_WRITTEN_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_THREADS_LABEL, common::Value::TYPE_UINTEGER)};
-} // namespace
+}  // namespace
 
 template <>
 std::vector<common::Value::Type> DBTraits<MEMCACHED>::GetSupportedValueTypes() {
-  return {common::Value::TYPE_BOOLEAN,  common::Value::TYPE_INTEGER,
-          common::Value::TYPE_UINTEGER, common::Value::TYPE_DOUBLE,
-          common::Value::TYPE_STRING,   JsonValue::TYPE_JSON};
+  return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
+          common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <> std::vector<info_field_t> DBTraits<MEMCACHED>::GetInfoFields() {
-  return {std::make_pair(MEMCACHED_COMMON_LABEL, g_memcached_common_fields)};
+template <>
+std::vector<info_field_t> DBTraits<MEMCACHED>::GetInfoFields() {
+  return {std::make_pair(MEMCACHED_COMMON_LABEL, kMemcachedCommonFields)};
 }
 
 namespace memcached {
 
 ServerInfo::Stats::Stats() {}
 
-ServerInfo::Stats::Stats(const std::string &common_text) {
+ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
@@ -193,54 +190,54 @@ ServerInfo::Stats::Stats(const std::string &common_text) {
   }
 }
 
-common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
+common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
-  case 0:
-    return new common::FundamentalValue(pid);
-  case 1:
-    return new common::FundamentalValue(uptime);
-  case 2:
-    return new common::FundamentalValue(time);
-  case 3:
-    return new common::StringValue(version);
-  case 4:
-    return new common::FundamentalValue(pointer_size);
-  case 5:
-    return new common::FundamentalValue(rusage_user);
-  case 6:
-    return new common::FundamentalValue(rusage_system);
-  case 7:
-    return new common::FundamentalValue(curr_items);
-  case 8:
-    return new common::FundamentalValue(total_items);
-  case 9:
-    return new common::FundamentalValue(bytes);
-  case 10:
-    return new common::FundamentalValue(curr_connections);
-  case 11:
-    return new common::FundamentalValue(total_connections);
-  case 12:
-    return new common::FundamentalValue(connection_structures);
-  case 13:
-    return new common::FundamentalValue(cmd_get);
-  case 14:
-    return new common::FundamentalValue(cmd_set);
-  case 15:
-    return new common::FundamentalValue(get_hits);
-  case 16:
-    return new common::FundamentalValue(get_misses);
-  case 17:
-    return new common::FundamentalValue(evictions);
-  case 18:
-    return new common::FundamentalValue(bytes_read);
-  case 19:
-    return new common::FundamentalValue(bytes_written);
-  case 20:
-    return new common::FundamentalValue(limit_maxbytes);
-  case 21:
-    return new common::FundamentalValue(threads);
-  default:
-    break;
+    case 0:
+      return new common::FundamentalValue(pid);
+    case 1:
+      return new common::FundamentalValue(uptime);
+    case 2:
+      return new common::FundamentalValue(time);
+    case 3:
+      return new common::StringValue(version);
+    case 4:
+      return new common::FundamentalValue(pointer_size);
+    case 5:
+      return new common::FundamentalValue(rusage_user);
+    case 6:
+      return new common::FundamentalValue(rusage_system);
+    case 7:
+      return new common::FundamentalValue(curr_items);
+    case 8:
+      return new common::FundamentalValue(total_items);
+    case 9:
+      return new common::FundamentalValue(bytes);
+    case 10:
+      return new common::FundamentalValue(curr_connections);
+    case 11:
+      return new common::FundamentalValue(total_connections);
+    case 12:
+      return new common::FundamentalValue(connection_structures);
+    case 13:
+      return new common::FundamentalValue(cmd_get);
+    case 14:
+      return new common::FundamentalValue(cmd_set);
+    case 15:
+      return new common::FundamentalValue(get_hits);
+    case 16:
+      return new common::FundamentalValue(get_misses);
+    case 17:
+      return new common::FundamentalValue(evictions);
+    case 18:
+      return new common::FundamentalValue(bytes_read);
+    case 19:
+      return new common::FundamentalValue(bytes_written);
+    case 20:
+      return new common::FundamentalValue(limit_maxbytes);
+    case 21:
+      return new common::FundamentalValue(threads);
+    default:
+      break;
   }
 
   NOTREACHED();
@@ -249,70 +246,55 @@ common::Value *ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
 
 ServerInfo::ServerInfo() : IServerInfo(MEMCACHED) {}
 
-ServerInfo::ServerInfo(const Stats &common)
-    : IServerInfo(MEMCACHED), stats_(common) {}
+ServerInfo::ServerInfo(const Stats& common) : IServerInfo(MEMCACHED), stats_(common) {}
 
-common::Value *ServerInfo::GetValueByIndexes(unsigned char property,
-                                             unsigned char field) const {
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
-  case 0:
-    return stats_.GetValueByIndex(field);
-  default:
-    break;
+    case 0:
+      return stats_.GetValueByIndex(field);
+    default:
+      break;
   }
 
   NOTREACHED();
   return nullptr;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo::Stats &value) {
-  return out << MEMCACHED_COMMON_PID_LABEL ":" << value.pid << MARKER
-             << MEMCACHED_COMMON_UPTIME_LABEL ":" << value.uptime << MARKER
-             << MEMCACHED_COMMON_TIME_LABEL ":" << value.time << MARKER
-             << MEMCACHED_COMMON_VERSION_LABEL ":" << value.version << MARKER
-             << MEMCACHED_COMMON_POINTER_SIZE_LABEL ":" << value.pointer_size
-             << MARKER << MEMCACHED_COMMON_RUSAGE_USER_LABEL ":"
-             << value.rusage_user << MARKER
-             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL ":" << value.rusage_system
-             << MARKER << MEMCACHED_COMMON_CURR_ITEMS_LABEL ":"
-             << value.curr_items << MARKER
-             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL ":" << value.total_items
-             << MARKER << MEMCACHED_COMMON_BYTES_LABEL ":" << value.bytes
-             << MARKER << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL ":"
-             << value.curr_connections << MARKER
-             << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL ":"
-             << value.total_connections << MARKER
-             << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL ":"
-             << value.connection_structures << MARKER
-             << MEMCACHED_COMMON_CMD_GET_LABEL ":" << value.cmd_get << MARKER
-             << MEMCACHED_COMMON_CMD_SET_LABEL ":" << value.cmd_set << MARKER
-             << MEMCACHED_COMMON_GET_HITS_LABEL ":" << value.get_hits << MARKER
-             << MEMCACHED_COMMON_GET_MISSES_LABEL ":" << value.get_misses
-             << MARKER << MEMCACHED_COMMON_EVICTIONS_LABEL ":"
-             << value.evictions << MARKER
-             << MEMCACHED_COMMON_BYTES_READ_LABEL ":" << value.bytes_read
-             << MARKER << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL ":"
-             << value.bytes_written << MARKER
-             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL ":"
-             << value.limit_maxbytes << MARKER
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << MEMCACHED_COMMON_PID_LABEL ":" << value.pid << MARKER << MEMCACHED_COMMON_UPTIME_LABEL ":"
+             << value.uptime << MARKER << MEMCACHED_COMMON_TIME_LABEL ":" << value.time << MARKER
+             << MEMCACHED_COMMON_VERSION_LABEL ":" << value.version << MARKER << MEMCACHED_COMMON_POINTER_SIZE_LABEL ":"
+             << value.pointer_size << MARKER << MEMCACHED_COMMON_RUSAGE_USER_LABEL ":" << value.rusage_user << MARKER
+             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL ":" << value.rusage_system << MARKER
+             << MEMCACHED_COMMON_CURR_ITEMS_LABEL ":" << value.curr_items << MARKER
+             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL ":" << value.total_items << MARKER
+             << MEMCACHED_COMMON_BYTES_LABEL ":" << value.bytes << MARKER << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL ":"
+             << value.curr_connections << MARKER << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL ":"
+             << value.total_connections << MARKER << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL ":"
+             << value.connection_structures << MARKER << MEMCACHED_COMMON_CMD_GET_LABEL ":" << value.cmd_get << MARKER
+             << MEMCACHED_COMMON_CMD_SET_LABEL ":" << value.cmd_set << MARKER << MEMCACHED_COMMON_GET_HITS_LABEL ":"
+             << value.get_hits << MARKER << MEMCACHED_COMMON_GET_MISSES_LABEL ":" << value.get_misses << MARKER
+             << MEMCACHED_COMMON_EVICTIONS_LABEL ":" << value.evictions << MARKER
+             << MEMCACHED_COMMON_BYTES_READ_LABEL ":" << value.bytes_read << MARKER
+             << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL ":" << value.bytes_written << MARKER
+             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL ":" << value.limit_maxbytes << MARKER
              << MEMCACHED_COMMON_THREADS_LABEL ":" << value.threads << MARKER;
 }
 
-std::ostream &operator<<(std::ostream &out, const ServerInfo &value) {
+std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
   return out << value.ToString();
 }
 
-ServerInfo *MakeMemcachedServerInfo(const std::string &content) {
+ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;
   }
 
-  ServerInfo *result = new ServerInfo;
+  ServerInfo* result = new ServerInfo;
   size_t j = 0;
   std::string word;
   size_t pos = 0;
-  static const std::vector<info_field_t> fields =
-      DBTraits<MEMCACHED>::GetInfoFields();
+  static const std::vector<info_field_t> fields = DBTraits<MEMCACHED>::GetInfoFields();
   for (size_t i = 0; i < content.size(); ++i) {
     char ch = content[i];
     word += ch;
@@ -326,11 +308,11 @@ ServerInfo *MakeMemcachedServerInfo(const std::string &content) {
       if (pos != std::string::npos) {
         std::string part = content.substr(i + 1, pos - i - 1);
         switch (j) {
-        case 0:
-          result->stats_ = ServerInfo::Stats(part);
-          break;
-        default:
-          break;
+          case 0:
+            result->stats_ = ServerInfo::Stats(part);
+            break;
+          default:
+            break;
         }
         i = pos - 1;
         ++j;
@@ -352,6 +334,6 @@ uint32_t ServerInfo::GetVersion() const {
   return common::ConvertVersionNumberFromString(stats_.version);
 }
 
-} // namespace memcached
-} // namespace core
-} // namespace fastonosql
+}  // namespace memcached
+}  // namespace core
+}  // namespace fastonosql

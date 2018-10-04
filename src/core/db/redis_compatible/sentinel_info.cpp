@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/db/redis_compatible/sentinel_info.h>
 
-#include <hiredis/hiredis.h> // for redisReply
+#include <hiredis/hiredis.h>  // for redisReply
 
 #include <common/convert2string.h>
 #include <common/string_util.h>
@@ -34,11 +34,9 @@ namespace fastonosql {
 namespace core {
 namespace redis_compatible {
 
-DiscoverySentinelInfo::DiscoverySentinelInfo(const ServerCommonInfo &args)
-    : ServerDiscoverySentinelInfo(REDIS, args) {}
+DiscoverySentinelInfo::DiscoverySentinelInfo(const ServerCommonInfo& args) : ServerDiscoverySentinelInfo(REDIS, args) {}
 
-common::Error MakeServerCommonInfo(struct redisReply *repl_info,
-                                   ServerCommonInfo *info) {
+common::Error MakeServerCommonInfo(struct redisReply* repl_info, ServerCommonInfo* info) {
   if (!repl_info || !info) {
     return common::make_error_inval();
   }
@@ -79,6 +77,6 @@ common::Error MakeServerCommonInfo(struct redisReply *repl_info,
   return common::Error();
 }
 
-} // namespace redis_compatible
-} // namespace core
-} // namespace fastonosql
+}  // namespace redis_compatible
+}  // namespace core
+}  // namespace fastonosql

@@ -39,7 +39,7 @@ struct BaseConfig {
 
 // -f -d
 struct LocalConfig : public BaseConfig {
-  explicit LocalConfig(const std::string &db_path);
+  explicit LocalConfig(const std::string& db_path);
 
   config_args_t Args() const;
 
@@ -48,14 +48,14 @@ struct LocalConfig : public BaseConfig {
 
 // -h -p -d
 struct RemoteConfig : public BaseConfig {
-  explicit RemoteConfig(const common::net::HostAndPort &host);
+  explicit RemoteConfig(const common::net::HostAndPort& host);
 
   config_args_t Args() const;
 
   common::net::HostAndPort host;
 };
 
-std::string ConvertToStringConfigArgs(const config_args_t &args);
+std::string ConvertToStringConfigArgs(const config_args_t& args);
 
-} // namespace core
-} // namespace fastonosql
+}  // namespace core
+}  // namespace fastonosql

@@ -25,12 +25,14 @@ namespace core {
 namespace forestdb {
 
 class DataBaseInfo : public IDataBaseInfo {
-public:
-  DataBaseInfo(const std::string &name, bool is_default, size_t size,
-               const keys_container_t &keys = keys_container_t());
-  virtual DataBaseInfo *Clone() const override;
+ public:
+  DataBaseInfo(const std::string& name,
+               bool is_default,
+               size_t size,
+               const keys_container_t& keys = keys_container_t());
+  virtual DataBaseInfo* Clone() const override;
 };
 
-} // namespace forestdb
-} // namespace core
-} // namespace fastonosql
+}  // namespace forestdb
+}  // namespace core
+}  // namespace fastonosql
