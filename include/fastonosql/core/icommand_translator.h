@@ -52,6 +52,9 @@
 
 #define DB_VERSION_COMMAND "VERSION"
 
+#define END_COMMAND_CHAR '\n'
+#define END_COMMAND_STR "\n"
+
 namespace fastonosql {
 namespace core {
 

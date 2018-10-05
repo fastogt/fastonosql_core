@@ -34,7 +34,7 @@ common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buf
   }
 
   std::vector<command_buffer_t> commands;
-  size_t commands_count = common::Tokenize(cmd, {'\n'}, &commands);
+  size_t commands_count = common::Tokenize(cmd, {END_COMMAND_CHAR}, &commands);
   if (!commands_count) {
     return common::make_error("Invaid command line.");
   }
