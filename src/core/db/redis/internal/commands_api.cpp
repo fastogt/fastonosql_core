@@ -16,12 +16,12 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/redis/internal/commands_api.h>
+#include "core/db/redis/internal/commands_api.h"
 
 #include <common/string_util.h>
 
 #include <fastonosql/core/db/redis/db_connection.h>
-#include <fastonosql/core/db/redis/internal/modules.h>
+#include "core/db/redis/internal/modules.h"
 
 #include <fastonosql/core/value.h>
 

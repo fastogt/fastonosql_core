@@ -25,7 +25,7 @@
 
 #include <fastonosql/core/db/rocksdb/command_translator.h>
 #include <fastonosql/core/db/rocksdb/database_info.h>
-#include <fastonosql/core/db/rocksdb/internal/commands_api.h>
+#include "core/db/rocksdb/internal/commands_api.h"
 
 #define ROCKSDB_HEADER_STATS                               \
   "\n** Compaction Stats [default] **\n"                   \

@@ -19,8 +19,8 @@
 #include <fastonosql/core/db/redis_compatible/command_translator.h>
 
 #include <fastonosql/core/connection_types.h>
-#include <fastonosql/core/db/redis/internal/modules.h>
 #include <fastonosql/core/value.h>
+#include "core/db/redis/internal/modules.h"
 
 #define REDIS_SET_KEY_COMMAND DB_SET_KEY_COMMAND
 #define REDIS_SET_KEY_ARRAY_COMMAND "LPUSH"

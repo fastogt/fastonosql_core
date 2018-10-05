@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/commands_api.h>  // for ApiTraits
+#include "core/internal/commands_api.h"  // for ApiTraits
 
 namespace fastonosql {
 namespace core {
-namespace upscaledb {
+namespace forestdb {
 
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
-}  // namespace upscaledb
+}  // namespace forestdb
 }  // namespace core
 }  // namespace fastonosql

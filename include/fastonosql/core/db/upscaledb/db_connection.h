@@ -20,7 +20,7 @@
 
 #include <ups/types.h>
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/upscaledb/config.h>
 #include <fastonosql/core/db/upscaledb/server_info.h>  // for ServerInfo
@@ -35,9 +35,9 @@ typedef upscaledb NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, UPSCALEDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, UPSCALEDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, UPSCALEDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, UPSCALEDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   virtual common::Error Connect(const config_t& config) override WARN_UNUSED_RESULT;

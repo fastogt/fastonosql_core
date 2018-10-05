@@ -21,8 +21,8 @@
 #include <hiredis/hiredis.h>
 
 #include <fastonosql/core/constant_commands_array.h>
-#include <fastonosql/core/db/pika/internal/commands_api.h>
 #include <fastonosql/core/db/pika/server_info.h>
+#include "core/db/pika/internal/commands_api.h"
 
 #define DBSIZE "INFO KEYSPACE"
 

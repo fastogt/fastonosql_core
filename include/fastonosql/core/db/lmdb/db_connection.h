@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/lmdb/config.h>
 #include <fastonosql/core/db/lmdb/server_info.h>  // for ServerInfo
@@ -33,9 +33,9 @@ typedef lmdb NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, LMDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, LMDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, LMDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, LMDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   virtual std::string GetCurrentDBName() const override;

@@ -16,19 +16,12 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <fastonosql/core/internal/commands_api.h>
+#include <fastonosql/core/cdb_connection_client.h>
 
 namespace fastonosql {
 namespace core {
-namespace leveldb {
 
-class DBConnection;
-struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-};
+CDBConnectionClient::~CDBConnectionClient() {}
 
-}  // namespace leveldb
 }  // namespace core
 }  // namespace fastonosql

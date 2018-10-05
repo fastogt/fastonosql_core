@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/leveldb/config.h>
 #include <fastonosql/core/db/leveldb/server_info.h>
@@ -37,9 +37,9 @@ typedef ::leveldb::DB NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, LEVELDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, LEVELDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, LEVELDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, LEVELDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;

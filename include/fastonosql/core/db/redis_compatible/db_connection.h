@@ -20,7 +20,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/server/iserver_info.h>
 
@@ -66,10 +66,10 @@ common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, re
 common::Error AuthContext(NativeConnection* context, const std::string& auth_str);
 
 template <typename Config, ConnectionTypes connection_type>
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, connection_type> {
+class DBConnection : public CDBConnection<NativeConnection, Config, connection_type> {
  public:
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;
-  typedef core::internal::CDBConnection<NativeConnection, Config, connection_type> base_class;
+  typedef CDBConnection<NativeConnection, Config, connection_type> base_class;
   typedef typename base_class::config_t config_t;
 
   enum { invalid_db_num = -1 };

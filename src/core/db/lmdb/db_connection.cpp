@@ -32,7 +32,7 @@
 #include <fastonosql/core/db/lmdb/command_translator.h>
 #include <fastonosql/core/db/lmdb/config.h>  // for Config
 #include <fastonosql/core/db/lmdb/database_info.h>
-#include <fastonosql/core/db/lmdb/internal/commands_api.h>
+#include "core/db/lmdb/internal/commands_api.h"
 
 #define LMDB_OK 0
 

@@ -16,12 +16,21 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/internal/imodule_connection_client.h>
+#pragma once
+
+#include "core/internal/commands_api.h"  // for ApiTraits
 
 namespace fastonosql {
 namespace core {
+namespace rocksdb {
 
-IModuleConnectionClient::~IModuleConnectionClient() {}
+class DBConnection;
+struct CommandsApi : public internal::ApiTraits<DBConnection> {
+  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Mget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Merge(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+};
 
+}  // namespace rocksdb
 }  // namespace core
 }  // namespace fastonosql

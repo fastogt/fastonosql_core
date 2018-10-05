@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/memcached/config.h>
 #include <fastonosql/core/db/memcached/server_info.h>
@@ -34,9 +34,9 @@ typedef memcached_st NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, MEMCACHED> {
+class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, MEMCACHED> base_class;
+  typedef CDBConnection<NativeConnection, Config, MEMCACHED> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;

@@ -25,7 +25,7 @@
 
 #include <fastonosql/core/db/upscaledb/command_translator.h>
 #include <fastonosql/core/db/upscaledb/database_info.h>
-#include <fastonosql/core/db/upscaledb/internal/commands_api.h>
+#include "core/db/upscaledb/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/cdb_connection.h>
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/rocksdb/config.h>
 #include <fastonosql/core/db/rocksdb/server_info.h>
@@ -37,9 +37,9 @@ typedef rocksdb_handle NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, ROCKSDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, ROCKSDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, ROCKSDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, ROCKSDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   virtual std::string GetCurrentDBName() const override;

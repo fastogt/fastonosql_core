@@ -20,7 +20,7 @@
 
 #include <libforestdb/fdb_errors.h>
 
-#include <fastonosql/core/internal/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/forestdb/config.h>
 #include <fastonosql/core/db/forestdb/server_info.h>  // for ServerInfo
@@ -36,9 +36,9 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
 common::Error TestConnection(const Config& config);
 
 // path is file
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, FORESTDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, FORESTDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, FORESTDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, FORESTDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   virtual std::string GetCurrentDBName() const override;

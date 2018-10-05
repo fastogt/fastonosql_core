@@ -27,7 +27,7 @@
 #include <fastonosql/core/db/leveldb/command_translator.h>
 #include <fastonosql/core/db/leveldb/comparators/indexed_db.h>
 #include <fastonosql/core/db/leveldb/database_info.h>
-#include <fastonosql/core/db/leveldb/internal/commands_api.h>
+#include "core/db/leveldb/internal/commands_api.h"
 
 #define LEVELDB_HEADER_STATS                             \
   "                               Compactions\n"         \

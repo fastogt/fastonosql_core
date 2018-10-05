@@ -16,22 +16,12 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <fastonosql/core/internal/commands_api.h>
-
-#define LMDB_DROPDB_COMMAND "DROPDB"
+#include <fastonosql/core/imodule_connection_client.h>
 
 namespace fastonosql {
 namespace core {
-namespace lmdb {
 
-class DBConnection;
-struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error DropDatabase(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-};
+IModuleConnectionClient::~IModuleConnectionClient() {}
 
-}  // namespace lmdb
 }  // namespace core
 }  // namespace fastonosql

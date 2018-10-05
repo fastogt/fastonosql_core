@@ -24,27 +24,28 @@
 
 #include <common/convert2string.h>
 
+namespace {
+const char* kValueTypes[] = {"TYPE_NULL",
+                             "TYPE_BOOLEAN",
+                             "TYPE_INTEGER",
+                             "TYPE_UINTEGER",
+                             "TYPE_LONG_INTEGER",
+                             "TYPE_ULONG_INTEGER",
+                             "TYPE_LONG_LONG_INTEGER",
+                             "TYPE_ULONG_LONG_INTEGER",
+                             "TYPE_DOUBLE",
+                             "TYPE_STRING",
+                             "TYPE_ARRAY",
+                             "TYPE_BYTE_ARRAY",
+                             "TYPE_SET",
+                             "TYPE_ZSET",
+                             "TYPE_HASH"};
+static_assert(arraysize(kValueTypes) == static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
+              "kValueTypes Has Wrong Size");
+}  // namespace
+
 namespace fastonosql {
 namespace core {
-namespace {
-const char* string_types[] = {"TYPE_NULL",
-                              "TYPE_BOOLEAN",
-                              "TYPE_INTEGER",
-                              "TYPE_UINTEGER",
-                              "TYPE_LONG_INTEGER",
-                              "TYPE_ULONG_INTEGER",
-                              "TYPE_LONG_LONG_INTEGER",
-                              "TYPE_ULONG_LONG_INTEGER",
-                              "TYPE_DOUBLE",
-                              "TYPE_STRING",
-                              "TYPE_ARRAY",
-                              "TYPE_BYTE_ARRAY",
-                              "TYPE_SET",
-                              "TYPE_ZSET",
-                              "TYPE_HASH"};
-static_assert(arraysize(string_types) == static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
-              "string_types Has Wrong Size");
-}  // namespace
 
 StreamValue::StreamValue() : Value(TYPE_STREAM), streams_() {}
 
@@ -242,7 +243,7 @@ common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
 
 const char* GetTypeName(common::Value::Type value_type) {
   if (value_type <= common::Value::TYPE_HASH) {
-    return string_types[value_type];
+    return kValueTypes[value_type];
   } else if (value_type == StreamValue::TYPE_STREAM) {
     return "TYPE_STREAM";
   } else if (value_type == JsonValue::TYPE_JSON) {

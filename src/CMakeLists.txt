@@ -6,23 +6,18 @@ IF (DEVELOPER_ENABLE_COVERALLS)
 ENDIF(DEVELOPER_ENABLE_COVERALLS)
 
 SET(INTERNAL_HEADERS
-  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/cdb_connection_client.h
-  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/cdb_connection.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/command_handler.h
-  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/commands_api.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/connection.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/db_connection.h
-  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/internal/imodule_connection_client.h
 )
 
 SET(INTERNAL_SOURCES
-  ${CMAKE_SOURCE_DIR}/src/core/internal/cdb_connection_client.cpp
-  ${CMAKE_SOURCE_DIR}/src/core/internal/cdb_connection.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/internal/commands_api.h
+
   ${CMAKE_SOURCE_DIR}/src/core/internal/command_handler.cpp
   ${CMAKE_SOURCE_DIR}/src/core/internal/commands_api.cpp
   ${CMAKE_SOURCE_DIR}/src/core/internal/connection.cpp
   ${CMAKE_SOURCE_DIR}/src/core/internal/db_connection.cpp
-  ${CMAKE_SOURCE_DIR}/src/core/internal/imodule_connection_client.cpp
 )
 
 SET(CONFIG_HEADERS
@@ -85,14 +80,13 @@ ENDIF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA)
 #redis
 IF(BUILD_WITH_REDIS)
   SET(HEADERS_CORE_DB_REDIS
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/internal/modules.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/db_connection.h
   )
   SET(SOURCES_CORE_DB_REDIS
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/modules.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/config.cpp
@@ -105,13 +99,12 @@ ENDIF(BUILD_WITH_REDIS)
 IF(BUILD_WITH_PIKA)
   #core pika
   SET(HEADERS_CORE_DB_PIKA
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/pika/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/pika/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/pika/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/pika/db_connection.h
   )
   SET(SOURCES_CORE_DB_PIKA
+    ${CMAKE_SOURCE_DIR}/src/core/db/pika/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/pika/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/pika/config.cpp
@@ -134,8 +127,6 @@ IF(BUILD_WITH_MEMCACHED)
 
   #core
   SET(HEADERS_CORE_DB_MEMCACHED
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/memcached/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/memcached/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/memcached/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/memcached/server_info.h
@@ -143,6 +134,7 @@ IF(BUILD_WITH_MEMCACHED)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/memcached/database_info.h
   )
   SET(SOURCES_CORE_DB_MEMCACHED
+    ${CMAKE_SOURCE_DIR}/src/core/db/memcached/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/memcached/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/memcached/config.cpp
@@ -165,8 +157,6 @@ IF(BUILD_WITH_SSDB)
 
   #core
   SET(HEADERS_CORE_DB_SSDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/ssdb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/ssdb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/ssdb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/ssdb/server_info.h
@@ -174,6 +164,7 @@ IF(BUILD_WITH_SSDB)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/ssdb/database_info.h
   )
   SET(SOURCES_CORE_DB_SSDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/ssdb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/ssdb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/ssdb/config.cpp
@@ -192,8 +183,6 @@ IF(BUILD_WITH_LEVELDB)
 
   #core
   SET(HEADERS_CORE_DB_LEVELDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/leveldb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/leveldb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/leveldb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/leveldb/server_info.h
@@ -202,6 +191,7 @@ IF(BUILD_WITH_LEVELDB)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/leveldb/comparators/indexed_db.h
   )
   SET(SOURCES_CORE_DB_LEVELDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/leveldb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/leveldb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/leveldb/config.cpp
@@ -231,8 +221,6 @@ IF(BUILD_WITH_ROCKSDB)
 
   #core
   SET(HEADERS_CORE_DB_ROCKSDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/rocksdb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/rocksdb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/rocksdb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/rocksdb/server_info.h
@@ -240,6 +228,7 @@ IF(BUILD_WITH_ROCKSDB)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/rocksdb/database_info.h
   )
   SET(SOURCES_CORE_DB_ROCKSDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/rocksdb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/rocksdb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/rocksdb/config.cpp
@@ -279,8 +268,6 @@ IF(BUILD_WITH_UNQLITE)
 
   #core
   SET(HEADERS_CORE_DB_UNQLITE
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/unqlite/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/unqlite/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/unqlite/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/unqlite/server_info.h
@@ -288,6 +275,7 @@ IF(BUILD_WITH_UNQLITE)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/unqlite/database_info.h
   )
   SET(SOURCES_CORE_DB_UNQLITE
+    ${CMAKE_SOURCE_DIR}/src/core/db/unqlite/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/unqlite/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/unqlite/config.cpp
@@ -308,14 +296,13 @@ IF(BUILD_WITH_LMDB)
 
   #core
   SET(HEADERS_CORE_DB_LMDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/db_connection.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/lmdb/database_info.h)
   SET(SOURCES_CORE_DB_LMDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/lmdb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/lmdb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/lmdb/config.cpp
@@ -342,8 +329,6 @@ IF(BUILD_WITH_UPSCALEDB)
 
   #core
   SET(HEADERS_CORE_DB_UPSCALEDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/server_info.h
@@ -351,6 +336,7 @@ IF(BUILD_WITH_UPSCALEDB)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/database_info.h
   )
   SET(SOURCES_CORE_DB_UPSCALEDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/config.cpp
@@ -375,14 +361,13 @@ IF(BUILD_WITH_FORESTDB)
 
   #core
   SET(HEADERS_CORE_DB_FORESTDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/internal/commands_api.h
-
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/db_connection.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/database_info.h)
   SET(SOURCES_CORE_DB_FORESTDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/internal/commands_api.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/config.cpp
@@ -405,6 +390,9 @@ SET(SOURCES_SDS
 )
 
 SET(CORE_HEADERS
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/cdb_connection_client.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/cdb_connection.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/imodule_connection_client.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/command_holder.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/command_info.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/connection_commands_traits.h
@@ -442,6 +430,9 @@ SET(CORE_HEADERS
 )
 
 SET(CORE_SOURCES
+  ${CMAKE_SOURCE_DIR}/src/core/cdb_connection_client.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/cdb_connection.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/imodule_connection_client.cpp
   ${CMAKE_SOURCE_DIR}/src/core/command_holder.cpp
   ${CMAKE_SOURCE_DIR}/src/core/command_info.cpp
   ${CMAKE_SOURCE_DIR}/src/core/connection_commands_traits.cpp

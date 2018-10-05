@@ -20,11 +20,11 @@
 
 #include <hiredis/hiredis.h>
 
-#include <fastonosql/core/internal/imodule_connection_client.h>
+#include <fastonosql/core/imodule_connection_client.h>
 
-#include <fastonosql/core/db/redis/internal/commands_api.h>
-#include <fastonosql/core/db/redis/internal/modules.h>
 #include <fastonosql/core/value.h>
+#include "core/db/redis/internal/commands_api.h"
+#include "core/db/redis/internal/modules.h"
 
 namespace fastonosql {
 namespace core {

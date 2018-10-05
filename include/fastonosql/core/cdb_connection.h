@@ -21,8 +21,8 @@
 #include <common/file_system/file.h>
 #include <common/file_system/string_path_utils.h>
 
+#include <fastonosql/core/cdb_connection_client.h>
 #include <fastonosql/core/connection_commands_traits.h>
-#include <fastonosql/core/internal/cdb_connection_client.h>
 #include <fastonosql/core/internal/command_handler.h>  // for CommandHandler, etc
 #include <fastonosql/core/internal/db_connection.h>    // for DBConnection
 
@@ -33,7 +33,6 @@ namespace core {
 namespace detail {
 readable_string_t StableForJson(const ReadableString& data);
 }  // namespace detail
-namespace internal {
 
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
                                 keys_limit_t count_keys);  // for SCAN
@@ -47,11 +46,11 @@ command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
 // voi CreateDB() => void OnCreatedDB()
 
 template <typename NConnection, typename Config, ConnectionTypes connection_type>
-class CDBConnection : public DBConnection<NConnection, Config, connection_type>,
-                      public CommandHandler,
+class CDBConnection : public internal::DBConnection<NConnection, Config, connection_type>,
+                      public internal::CommandHandler,
                       public ConnectionCommandsTraits<connection_type> {
  public:
-  typedef DBConnection<NConnection, Config, connection_type> db_base_class;
+  typedef internal::DBConnection<NConnection, Config, connection_type> db_base_class;
   typedef ConnectionCommandsTraits<connection_type> connection_traits_class;
 
   CDBConnection(CDBConnectionClient* client, ICommandTranslator* translator)
@@ -666,6 +665,5 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
   return common::Error();
 }
 
-}  // namespace internal
 }  // namespace core
 }  // namespace fastonosql

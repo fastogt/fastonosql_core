@@ -23,7 +23,7 @@
 
 #include <fastonosql/core/global.h>
 
-#include <fastonosql/core/internal/cdb_connection.h>
+#include <fastonosql/core/cdb_connection.h>
 
 namespace fastonosql {
 namespace core {

@@ -26,7 +26,7 @@
 
 #include <fastonosql/core/db/forestdb/command_translator.h>
 #include <fastonosql/core/db/forestdb/database_info.h>
-#include <fastonosql/core/db/forestdb/internal/commands_api.h>
+#include "core/db/forestdb/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {

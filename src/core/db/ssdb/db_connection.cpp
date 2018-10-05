@@ -24,7 +24,7 @@
 
 #include <fastonosql/core/db/ssdb/command_translator.h>
 #include <fastonosql/core/db/ssdb/database_info.h>
-#include <fastonosql/core/db/ssdb/internal/commands_api.h>
+#include "core/db/ssdb/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {

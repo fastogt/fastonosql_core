@@ -27,7 +27,7 @@ extern "C" {
 
 #include <fastonosql/core/db/unqlite/command_translator.h>
 #include <fastonosql/core/db/unqlite/database_info.h>
-#include <fastonosql/core/db/unqlite/internal/commands_api.h>
+#include "core/db/unqlite/internal/commands_api.h"
 
 namespace {
 

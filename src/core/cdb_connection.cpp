@@ -16,7 +16,7 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/internal/cdb_connection.h>
+#include <fastonosql/core/cdb_connection.h>
 
 #include <common/convert2string.h>
 
@@ -44,15 +44,12 @@ readable_string_t StableForJson(const ReadableString& data) {
 }
 }  // namespace detail
 
-namespace internal {
-
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
   command_buffer_writer_t wr;
-  wr << "SCAN " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
+  wr << DB_SCAN_COMMAND " " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
      << common::ConvertToString(count_keys);
   return wr.str();
 }
 
-}  // namespace internal
 }  // namespace core
 }  // namespace fastonosql

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/internal/cdb_connection.h>
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/ssdb/config.h>
 #include <fastonosql/core/db/ssdb/server_info.h>
@@ -37,9 +37,9 @@ typedef ::ssdb::Client NativeConnection;
 common::Error CreateConnection(const Config& config, NativeConnection** context);
 common::Error TestConnection(const Config& config);
 
-class DBConnection : public core::internal::CDBConnection<NativeConnection, Config, SSDB> {
+class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
  public:
-  typedef core::internal::CDBConnection<NativeConnection, Config, SSDB> base_class;
+  typedef CDBConnection<NativeConnection, Config, SSDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   virtual bool IsAuthenticated() const override;
