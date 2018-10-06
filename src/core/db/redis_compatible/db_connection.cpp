@@ -600,15 +600,13 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
   }
 
   NDbKValue rarr(key, arr);
-  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  command_buffer_t lpush_cmd;
-  err = tran->CreateKeyCommand(rarr, &lpush_cmd);
-  if (err) {
-    return err;
-  }
+  key_t key_str = key.GetKey();
+  value_t value_str = arr.GetValue();
+  command_buffer_writer_t wr;
+  wr << "LPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
 
   redisReply* reply = NULL;
-  err = ExecRedisCommand(base_class::connection_.handle_, lpush_cmd, &reply);
+  err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
   if (err) {
     return err;
   }
@@ -624,6 +622,74 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
 
   NOTREACHED();
   return common::Error();
+}
+
+template <typename Config, ConnectionTypes ContType>
+common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr, long long* list_len) {
+  if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  NDbKValue rarr(key, arr);
+  key_t key_str = key.GetKey();
+  value_t value_str = arr.GetValue();
+  command_buffer_writer_t wr;
+  wr << "RPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
+
+  redisReply* reply = NULL;
+  err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type == REDIS_REPLY_INTEGER) {
+    if (base_class::client_) {
+      base_class::client_->OnAddedKey(rarr);
+    }
+    *list_len = reply->integer;
+    freeReplyObject(reply);
+    return common::Error();
+  }
+
+  NOTREACHED();
+  return common::Error();
+}
+
+template <typename Config, ConnectionTypes ContType>
+common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue arr, long long* list_len) {
+  if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  ttl_t ttl;
+  common::Error err = base_class::GetTTL(key, &ttl);
+  if (err) {
+    return err;
+  }
+
+  NKeys keys;
+  err = base_class::Delete({key}, &keys);
+  if (err) {
+    return err;
+  }
+
+  err = Lpush(key, arr, list_len);
+  if (err) {
+    return err;
+  }
+
+  if (ttl == NO_TTL) {
+    return common::Error();
+  }
+
+  return base_class::SetTTL(key, ttl);
 }
 
 template <typename Config, ConnectionTypes ContType>

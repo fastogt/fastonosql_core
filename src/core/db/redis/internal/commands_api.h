@@ -218,6 +218,7 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error SetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   static common::Error Lpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error LfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Lrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   static common::Error Sadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

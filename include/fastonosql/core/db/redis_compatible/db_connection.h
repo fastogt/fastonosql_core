@@ -97,6 +97,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
                           FastoObject* out) WARN_UNUSED_RESULT;  // interrupt
 
   common::Error Lpush(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
+  common::Error Rpush(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
+  common::Error LfastoSet(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
   common::Error Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) WARN_UNUSED_RESULT;

@@ -2319,6 +2319,15 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelSet),
 #endif
     // extended
+    CommandHolder("LFASTOSET",
+                  "<key> <value> [value ...]",
+                  "Create list with one or multiple values",
+                  PROJECT_VERSION_GENERATE(1, 0, 0),
+                  UNDEFINED_EXAMPLE_STR,
+                  2,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Extended,
+                  &CommandsApi::LfastoSet),
     CommandHolder("LATENCY",
                   "<arg> <arg>  [options ...]",
                   UNDEFINED_SUMMARY,

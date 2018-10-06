@@ -68,6 +68,27 @@ common::Error CommandsApi::Lpush(internal::CommandHandler* handler, commands_arg
   return common::Error();
 }
 
+common::Error CommandsApi::LfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  key_t key_str(argv[0]);
+  NKey key(key_str);
+  common::ArrayValue* arr = common::Value::CreateArrayValue();
+  for (size_t i = 1; i < argv.size(); ++i) {
+    arr->AppendString(argv[i]);
+  }
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  long long list_len = 0;
+  common::Error err = redis->LfastoSet(key, NValue(arr), &list_len);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
 common::Error CommandsApi::Lrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   key_t key_str(argv[0]);
   NKey key(key_str);
