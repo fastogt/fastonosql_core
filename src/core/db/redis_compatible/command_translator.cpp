@@ -330,7 +330,6 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   common::Value::Type type = key.GetType();
 
   if (type == common::Value::TYPE_ARRAY) {
-    wr << REDIS_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine() << END_COMMAND_CHAR;
     wr << REDIS_SET_KEY_ARRAY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
   } else if (type == common::Value::TYPE_SET) {
     wr << REDIS_SET_KEY_SET_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
