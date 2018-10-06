@@ -599,7 +599,6 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
     return err;
   }
 
-  NDbKValue rarr(key, arr);
   key_t key_str = key.GetKey();
   value_t value_str = arr.GetValue();
   command_buffer_writer_t wr;
@@ -611,8 +610,17 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
     return err;
   }
 
+  NDbKValue rarr;
+  rarr.SetKey(key);
+
   if (reply->type == REDIS_REPLY_INTEGER) {
     if (base_class::client_) {
+      common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+      if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
+        rarr.SetValue(arr);
+      } else {
+        rarr.SetValue(NValue(common::Value::CreateArrayValue()));
+      }
       base_class::client_->OnAddedKey(rarr);
     }
     *list_len = reply->integer;
@@ -636,7 +644,6 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
     return err;
   }
 
-  NDbKValue rarr(key, arr);
   key_t key_str = key.GetKey();
   value_t value_str = arr.GetValue();
   command_buffer_writer_t wr;
@@ -648,8 +655,17 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
     return err;
   }
 
+  NDbKValue rarr;
+  rarr.SetKey(key);
+
   if (reply->type == REDIS_REPLY_INTEGER) {
     if (base_class::client_) {
+      common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+      if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
+        rarr.SetValue(arr);
+      } else {
+        rarr.SetValue(NValue(common::Value::CreateArrayValue()));
+      }
       base_class::client_->OnAddedKey(rarr);
     }
     *list_len = reply->integer;
