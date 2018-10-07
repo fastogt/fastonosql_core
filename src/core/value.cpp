@@ -57,6 +57,28 @@ StreamValue* StreamValue::DeepCopy() const {
   return str;
 }
 
+bool StreamValue::GetAsString(std::string* out_value) const {
+  if (out_value) {
+    std::ostringstream wr;
+    StreamValue::streams_t streams = GetStreams();
+    for (size_t i = 0; i < streams.size(); ++i) {
+      StreamValue::Stream cur_str = streams[i];
+      if (i != 0) {
+        wr << " ";
+      }
+
+      wr << streams[i].sid;
+      for (size_t j = 0; j < cur_str.entries.size(); ++j) {
+        wr << " " << cur_str.entries[j].name << " " << cur_str.entries[j].value;
+      }
+    }
+
+    *out_value = wr.str();
+  }
+
+  return true;
+}
+
 bool StreamValue::Equals(const Value* other) const {
   if (other->GetType() != GetType()) {
     return false;
@@ -498,25 +520,17 @@ std::string ConvertValue(common::ByteArrayValue* value, const std::string& delim
 }
 
 std::string ConvertValue(StreamValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
   if (!value) {
     return std::string();
   }
 
-  std::ostringstream wr;
-  StreamValue::streams_t streams = value->GetStreams();
-  for (size_t i = 0; i < streams.size(); ++i) {
-    StreamValue::Stream cur_str = streams[i];
-    if (i != 0) {
-      wr << delimiter;
-    }
-
-    wr << streams[i].sid;
-    for (size_t j = 0; j < cur_str.entries.size(); ++j) {
-      wr << " " << cur_str.entries[i].name << " " << cur_str.entries[i].value;
-    }
+  std::string res;
+  if (!value->GetAsString(&res)) {
+    return std::string();
   }
 
-  return wr.str();
+  return res;
 }
 
 std::string ConvertValue(JsonValue* value, const std::string& delimiter) {

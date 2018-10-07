@@ -107,7 +107,8 @@ bool NDbKValue::Equals(const NDbKValue& other) const {
     return !other.value_;
   }
 
-  return value_->Equals(other.value_.get());
+  common::Value* other_raw = other.value_.get();
+  return value_->Equals(other_raw);
 }
 
 }  // namespace core
