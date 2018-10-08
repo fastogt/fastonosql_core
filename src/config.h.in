@@ -39,13 +39,13 @@
 #define FASTONOSQL_CORE_VERSION_HUMAN "@PROJECT_VERSION_HUMAN@"
 
 // compiled modules
-#cmakedefine BUILD_WITH_REDIS
-#cmakedefine BUILD_WITH_PIKA
-#cmakedefine BUILD_WITH_MEMCACHED
-#cmakedefine BUILD_WITH_SSDB
-#cmakedefine BUILD_WITH_LEVELDB
-#cmakedefine BUILD_WITH_ROCKSDB
-#cmakedefine BUILD_WITH_UNQLITE
-#cmakedefine BUILD_WITH_LMDB
-#cmakedefine BUILD_WITH_UPSCALEDB
-#cmakedefine BUILD_WITH_FORESTDB
+#cmakedefine HAVE_REDIS
+#cmakedefine HAVE_PIKA
+#cmakedefine HAVE_MEMCACHED
+#cmakedefine HAVE_SSDB
+#cmakedefine HAVE_LEVELDB
+#cmakedefine HAVE_ROCKSDB
+#cmakedefine HAVE_UNQLITE
+#cmakedefine HAVE_LMDB
+#cmakedefine HAVE_UPSCALEDB
+#cmakedefine HAVE_FORESTDB
