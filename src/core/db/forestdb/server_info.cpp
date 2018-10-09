@@ -35,17 +35,16 @@ const std::vector<Field> kForestdbCommonFields = {
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<FORESTDB>::GetSupportedValueTypes() {
+namespace forestdb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<FORESTDB>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(FORESTDB_STATS_LABEL, kForestdbCommonFields)};
 }
-namespace forestdb {
 
 ServerInfo::Stats::Stats() : db_path(), db_size() {}
 
@@ -117,7 +116,7 @@ ServerInfo* MakeForestDBServerInfo(const std::string& content) {
   }
 
   ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = DBTraits<FORESTDB>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 

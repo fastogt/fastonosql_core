@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
+#include <fastonosql/core/db_traits.h>
+
 #define ROCKSDB_STATS_LABEL "# Stats"
 
 #define ROCKSDB_STATS_CAMPACTIONS_LEVEL_LABEL "compactions_level"
@@ -31,6 +33,9 @@
 namespace fastonosql {
 namespace core {
 namespace rocksdb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

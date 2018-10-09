@@ -114,8 +114,9 @@ const std::vector<Field> kRedisKeyspaceFields = {};
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<REDIS>::GetSupportedValueTypes() {
+namespace redis {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,
 
@@ -123,8 +124,7 @@ std::vector<common::Value::Type> DBTraits<REDIS>::GetSupportedValueTypes() {
           common::Value::TYPE_HASH,    JsonValue::TYPE_JSON,        StreamValue::TYPE_STREAM};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<REDIS>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(REDIS_SERVER_LABEL, kRedisServerFields),
           std::make_pair(REDIS_CLIENTS_LABEL, kRedisClientFields),
           std::make_pair(REDIS_MEMORY_LABEL, kRedisMemoryFields),
@@ -134,8 +134,6 @@ std::vector<info_field_t> DBTraits<REDIS>::GetInfoFields() {
           std::make_pair(REDIS_CPU_LABEL, kRedisCpuFields),
           std::make_pair(REDIS_KEYSPACE_LABEL, kRedisKeyspaceFields)};
 }
-
-namespace redis {
 
 ServerInfo::Server::Server::Server()
     : redis_version_(),
@@ -1023,7 +1021,7 @@ ServerInfo* MakeRedisServerInfo(const std::string& content) {
   size_t j = 0;
   std::string word;
   size_t pos = 0;
-  static const std::vector<core::info_field_t> fields = DBTraits<REDIS>::GetInfoFields();
+  static const std::vector<core::info_field_t> fields = GetInfoFields();
   for (size_t i = 0; i < content.size(); ++i) {
     char ch = content[i];
     word += ch;

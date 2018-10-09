@@ -35,18 +35,16 @@ const std::vector<Field> kUnqliteCommonFields = {
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<UNQLITE>::GetSupportedValueTypes() {
+namespace unqlite {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<UNQLITE>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(UNQLITE_STATS_LABEL, kUnqliteCommonFields)};
 }
-
-namespace unqlite {
 
 ServerInfo::Stats::Stats() : db_path(), db_size() {}
 
@@ -117,7 +115,7 @@ ServerInfo* MakeUnqliteServerInfo(const std::string& content) {
 
   ServerInfo* result = new ServerInfo;
 
-  static const std::vector<info_field_t> fields = DBTraits<UNQLITE>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 

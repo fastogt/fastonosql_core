@@ -37,20 +37,18 @@ const std::vector<Field> kSsdbCommonFields = {Field(SSDB_COMMON_VERSION_LABEL, c
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<SSDB>::GetSupportedValueTypes() {
+namespace ssdb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  common::Value::TYPE_ARRAY,
           common::Value::TYPE_SET,     common::Value::TYPE_ZSET,    common::Value::TYPE_HASH,
           JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<SSDB>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(SSDB_COMMON_LABEL, kSsdbCommonFields)};
 }
-
-namespace ssdb {
 
 ServerInfo::Stats::Stats() {}
 
@@ -140,7 +138,7 @@ ServerInfo* MakeSsdbServerInfo(const std::string& content) {
   }
 
   ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = DBTraits<SSDB>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 

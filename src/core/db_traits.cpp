@@ -18,6 +18,37 @@
 
 #include <fastonosql/core/db_traits.h>
 
+#ifdef BUILD_WITH_REDIS
+#include <fastonosql/core/db/redis/server_info.h>
+#endif
+#ifdef BUILD_WITH_MEMCACHED
+#include <fastonosql/core/db/memcached/server_info.h>
+#endif
+#ifdef BUILD_WITH_SSDB
+#include <fastonosql/core/db/ssdb/server_info.h>
+#endif
+#ifdef BUILD_WITH_LEVELDB
+#include <fastonosql/core/db/leveldb/server_info.h>
+#endif
+#ifdef BUILD_WITH_ROCKSDB
+#include <fastonosql/core/db/rocksdb/server_info.h>
+#endif
+#ifdef BUILD_WITH_UNQLITE
+#include <fastonosql/core/db/unqlite/server_info.h>
+#endif
+#ifdef BUILD_WITH_LMDB
+#include <fastonosql/core/db/lmdb/server_info.h>
+#endif
+#ifdef BUILD_WITH_UPSCALEDB
+#include <fastonosql/core/db/upscaledb/server_info.h>
+#endif
+#ifdef BUILD_WITH_FORESTDB
+#include <fastonosql/core/db/forestdb/server_info.h>
+#endif
+#ifdef BUILD_WITH_PIKA
+#include <fastonosql/core/db/pika/server_info.h>
+#endif
+
 namespace fastonosql {
 namespace core {
 
@@ -30,52 +61,52 @@ bool Field::IsIntegral() const {
 std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionTypes type) {
 #ifdef BUILD_WITH_REDIS
   if (type == REDIS) {
-    return DBTraits<REDIS>::GetSupportedValueTypes();
+    return redis::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_MEMCACHED
   if (type == MEMCACHED) {
-    return DBTraits<MEMCACHED>::GetSupportedValueTypes();
+    return memcached::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_SSDB
   if (type == SSDB) {
-    return DBTraits<SSDB>::GetSupportedValueTypes();
+    return ssdb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_LEVELDB
   if (type == LEVELDB) {
-    return DBTraits<LEVELDB>::GetSupportedValueTypes();
+    return leveldb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_ROCKSDB
   if (type == ROCKSDB) {
-    return DBTraits<ROCKSDB>::GetSupportedValueTypes();
+    return rocksdb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_UNQLITE
   if (type == UNQLITE) {
-    return DBTraits<UNQLITE>::GetSupportedValueTypes();
+    return unqlite::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_LMDB
   if (type == LMDB) {
-    return DBTraits<LMDB>::GetSupportedValueTypes();
+    return lmdb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_UPSCALEDB
   if (type == UPSCALEDB) {
-    return DBTraits<UPSCALEDB>::GetSupportedValueTypes();
+    return upscaledb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_FORESTDB
   if (type == FORESTDB) {
-    return DBTraits<FORESTDB>::GetSupportedValueTypes();
+    return forestdb::GetSupportedValueTypes();
   }
 #endif
 #ifdef BUILD_WITH_PIKA
   if (type == PIKA) {
-    return DBTraits<PIKA>::GetSupportedValueTypes();
+    return pika::GetSupportedValueTypes();
   }
 #endif
   NOTREACHED();
@@ -85,52 +116,52 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionTypes type) {
 std::vector<info_field_t> GetInfoFieldsFromType(ConnectionTypes type) {
 #ifdef BUILD_WITH_REDIS
   if (type == REDIS) {
-    return DBTraits<REDIS>::GetInfoFields();
+    return redis::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_MEMCACHED
   if (type == MEMCACHED) {
-    return DBTraits<MEMCACHED>::GetInfoFields();
+    return memcached::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_SSDB
   if (type == SSDB) {
-    return DBTraits<SSDB>::GetInfoFields();
+    return ssdb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_LEVELDB
   if (type == LEVELDB) {
-    return DBTraits<LEVELDB>::GetInfoFields();
+    return leveldb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_ROCKSDB
   if (type == ROCKSDB) {
-    return DBTraits<ROCKSDB>::GetInfoFields();
+    return rocksdb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_UNQLITE
   if (type == UNQLITE) {
-    return DBTraits<UNQLITE>::GetInfoFields();
+    return unqlite::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_LMDB
   if (type == LMDB) {
-    return DBTraits<LMDB>::GetInfoFields();
+    return lmdb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_UPSCALEDB
   if (type == UPSCALEDB) {
-    return DBTraits<UPSCALEDB>::GetInfoFields();
+    return upscaledb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_FORESTDB
   if (type == FORESTDB) {
-    return DBTraits<FORESTDB>::GetInfoFields();
+    return forestdb::GetInfoFields();
   }
 #endif
 #ifdef BUILD_WITH_PIKA
   if (type == PIKA) {
-    return DBTraits<PIKA>::GetInfoFields();
+    return pika::GetInfoFields();
   }
 #endif
   NOTREACHED();

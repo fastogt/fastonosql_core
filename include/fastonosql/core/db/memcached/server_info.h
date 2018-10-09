@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
+#include <fastonosql/core/db_traits.h>
+
 #define MEMCACHED_COMMON_LABEL "# Common"
 
 #define MEMCACHED_COMMON_PID_LABEL "pid"
@@ -48,6 +50,9 @@
 namespace fastonosql {
 namespace core {
 namespace memcached {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

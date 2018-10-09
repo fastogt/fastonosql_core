@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
+#include <fastonosql/core/db_traits.h>
+
 #define UPSCALEDB_STATS_LABEL "# Stats"
 
 #define UPSCALEDB_FILE_NAME_LABEL "db_path"
@@ -27,6 +29,9 @@
 namespace fastonosql {
 namespace core {
 namespace upscaledb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

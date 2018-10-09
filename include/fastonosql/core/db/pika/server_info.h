@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>  // for IStateField, IServerInfo
 
+#include <fastonosql/core/db_traits.h>
+
 #define PIKA_SERVER_LABEL "# Server"
 #define PIKA_DATA_LABEL "# Data"
 #define PIKA_LOG_LABEL "# Log"
@@ -162,6 +164,9 @@ set keys:0
 namespace fastonosql {
 namespace core {
 namespace pika {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

@@ -39,18 +39,16 @@ const std::vector<Field> kLeveldbCommonFields = {
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<LEVELDB>::GetSupportedValueTypes() {
+namespace leveldb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<LEVELDB>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(LEVELDB_STATS_LABEL, kLeveldbCommonFields)};
 }
-
-namespace leveldb {
 
 ServerInfo::Stats::Stats() : compactions_level(0), file_size_mb(0), time_sec(0), read_mb(0), write_mb(0) {}
 
@@ -146,7 +144,7 @@ ServerInfo* MakeLeveldbServerInfo(const std::string& content) {
   }
 
   ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = DBTraits<LEVELDB>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 

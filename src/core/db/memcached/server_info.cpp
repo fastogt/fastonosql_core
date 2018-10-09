@@ -54,18 +54,16 @@ const std::vector<Field> kMemcachedCommonFields = {
     Field(MEMCACHED_COMMON_THREADS_LABEL, common::Value::TYPE_UINTEGER)};
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<MEMCACHED>::GetSupportedValueTypes() {
+namespace memcached {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<MEMCACHED>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(MEMCACHED_COMMON_LABEL, kMemcachedCommonFields)};
 }
-
-namespace memcached {
 
 ServerInfo::Stats::Stats() {}
 
@@ -294,7 +292,7 @@ ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
   size_t j = 0;
   std::string word;
   size_t pos = 0;
-  static const std::vector<info_field_t> fields = DBTraits<MEMCACHED>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   for (size_t i = 0; i < content.size(); ++i) {
     char ch = content[i];
     word += ch;

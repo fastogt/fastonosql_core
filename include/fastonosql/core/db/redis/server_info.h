@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>  // for IStateField, IServerInfo
 
+#include <fastonosql/core/db_traits.h>
+
 #define REDIS_SERVER_LABEL "# Server"
 #define REDIS_CLIENTS_LABEL "# Clients"
 #define REDIS_MEMORY_LABEL "# Memory"
@@ -113,6 +115,9 @@
 namespace fastonosql {
 namespace core {
 namespace redis {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

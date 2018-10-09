@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
+#include <fastonosql/core/db_traits.h>
+
 #define FORESTDB_STATS_LABEL "# Stats"
 
 #define FORESTDB_STATS_DB_FILE_PATH_LABEL "db_path"
@@ -28,6 +30,9 @@
 namespace fastonosql {
 namespace core {
 namespace forestdb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

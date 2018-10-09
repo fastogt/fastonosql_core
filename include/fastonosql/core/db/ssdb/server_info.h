@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
+#include <fastonosql/core/db_traits.h>
+
 #define SSDB_COMMON_LABEL "# Common"
 
 #define SSDB_COMMON_VERSION_LABEL "version"
@@ -31,6 +33,9 @@
 namespace fastonosql {
 namespace core {
 namespace ssdb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
 class ServerInfo : public IServerInfo {
  public:

@@ -90,8 +90,9 @@ const std::vector<Field> kPikaDoubleMasterFields = {};
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<PIKA>::GetSupportedValueTypes() {
+namespace pika {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,
 
@@ -99,8 +100,7 @@ std::vector<common::Value::Type> DBTraits<PIKA>::GetSupportedValueTypes() {
           common::Value::TYPE_HASH,    JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<PIKA>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(PIKA_SERVER_LABEL, kPikaServerFields),
           std::make_pair(PIKA_DATA_LABEL, kPikaDataFields),
           std::make_pair(PIKA_LOG_LABEL, kPikaLogFields),
@@ -112,8 +112,6 @@ std::vector<info_field_t> DBTraits<PIKA>::GetInfoFields() {
           std::make_pair(PIKA_KEYSPACE_LABEL, kPikaKeySpaceFields),
           std::make_pair(PIKA_DOUBLE_MASTER_LABE, kPikaDoubleMasterFields)};
 }
-
-namespace pika {
 
 ServerInfo::Server::Server::Server()
     : pika_version_(),
@@ -811,7 +809,7 @@ ServerInfo* MakePikaServerInfo(const std::string& content) {
   size_t j = 0;
   std::string word;
   size_t pos = 0;
-  static const std::vector<core::info_field_t> fields = DBTraits<PIKA>::GetInfoFields();
+  static const std::vector<core::info_field_t> fields = GetInfoFields();
   for (size_t i = 0; i < content.size(); ++i) {
     char ch = content[i];
     word += ch;

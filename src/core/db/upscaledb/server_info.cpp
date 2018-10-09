@@ -31,17 +31,16 @@ const std::vector<Field> kUpscaledbCommonFields = {Field(UPSCALEDB_FILE_NAME_LAB
 
 }  // namespace
 
-template <>
-std::vector<common::Value::Type> DBTraits<UPSCALEDB>::GetSupportedValueTypes() {
+namespace upscaledb {
+
+std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
           common::Value::TYPE_DOUBLE,  common::Value::TYPE_STRING,  JsonValue::TYPE_JSON};
 }
 
-template <>
-std::vector<info_field_t> DBTraits<UPSCALEDB>::GetInfoFields() {
+std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(UPSCALEDB_STATS_LABEL, kUpscaledbCommonFields)};
 }
-namespace upscaledb {
 
 ServerInfo::Stats::Stats() : db_path() {}
 
@@ -103,7 +102,7 @@ ServerInfo* MakeUpscaleDBServerInfo(const std::string& content) {
   }
 
   ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = DBTraits<UPSCALEDB>::GetInfoFields();
+  static const std::vector<info_field_t> fields = GetInfoFields();
   std::string word;
   DCHECK_EQ(fields.size(), 1);
 
