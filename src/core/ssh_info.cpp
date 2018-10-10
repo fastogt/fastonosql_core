@@ -85,20 +85,20 @@ bool PublicPrivate::IsValid() const {
 
 SSHInfo::SSHInfo()
     : host_(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
-      user_name_(),
+      username_(),
       key_(),
       current_method_(UNKNOWN),
       password_(),
       runtime_password_() {}
 
 SSHInfo::SSHInfo(const common::net::HostAndPort& host,
-                 const std::string& user_name,
+                 const std::string& username,
                  const std::string& password,
                  const PublicPrivate& key,
                  const std::string& passphrase,
                  AuthenticationMethod method)
     : host_(host),
-      user_name_(user_name),
+      username_(username),
       passphrase_(passphrase),
       key_(key),
       current_method_(method),
@@ -109,7 +109,7 @@ SSHInfo::SSHInfo(const common::net::HostAndPort& host,
 
 SSHInfo::SSHInfo(const std::string& text)
     : host_(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
-      user_name_(),
+      username_(),
       passphrase_(),
       key_(),
       current_method_(UNKNOWN),
@@ -129,7 +129,7 @@ SSHInfo::SSHInfo(const std::string& text)
           host_ = lhost;
         }
       } else if (field == USER_FIELD) {
-        user_name_ = value;
+        username_ = value;
       } else if (field == PASSWORD_FIELD) {
         SetPassword(value);
       } else if (field == PUBKEY_FIELD) {
@@ -155,7 +155,7 @@ SSHInfo::SSHInfo(const std::string& text)
 }
 
 std::string SSHInfo::ToString() const {
-  return HOST_FIELD ":" + common::ConvertToString(host_) + MARKER USER_FIELD ":" + user_name_ +
+  return HOST_FIELD ":" + common::ConvertToString(host_) + MARKER USER_FIELD ":" + username_ +
          MARKER PASSWORD_FIELD ":" + GetPassword() + MARKER PUBKEY_FIELD ":" + key_.public_key +
          MARKER PRIVKEY_FIELD ":" + key_.private_key + MARKER USE_PUBLICKEY_FIELD ":" +
          common::ConvertToString(key_.use_public_key) + MARKER PASSPHRASE_FIELD ":" + passphrase_ +
@@ -164,11 +164,11 @@ std::string SSHInfo::ToString() const {
 
 bool SSHInfo::IsValid() const {
   if (current_method_ == PASSWORD) {
-    return host_.IsValid() && !user_name_.empty() && !password_.empty();
+    return host_.IsValid() && !username_.empty() && !password_.empty();
   } else if (current_method_ == PUBLICKEY) {
-    return host_.IsValid() && !user_name_.empty() && key_.IsValid();
+    return host_.IsValid() && !username_.empty() && key_.IsValid();
   } else if (current_method_ == ASK_PASSWORD) {
-    return host_.IsValid() && !user_name_.empty() && password_.empty();
+    return host_.IsValid() && !username_.empty() && password_.empty();
   };
 
   return false;
@@ -206,12 +206,12 @@ void SSHInfo::SetKey(const PublicPrivate& key) {
   key_ = key;
 }
 
-std::string SSHInfo::GetUserName() const {
-  return user_name_;
+std::string SSHInfo::GetUsername() const {
+  return username_;
 }
 
-void SSHInfo::SetUserName(const std::string& name) {
-  user_name_ = name;
+void SSHInfo::SetUsername(const std::string& name) {
+  username_ = name;
 }
 
 std::string SSHInfo::GetRuntimePassword() const {
@@ -229,7 +229,7 @@ void SSHInfo::SetPassword(const std::string& password) {
 
 bool SSHInfo::Equals(const SSHInfo& other) const {
   return host_ == other.host_ && GetPassword() == other.GetPassword() && passphrase_ == other.passphrase_ &&
-         user_name_ == other.user_name_ && current_method_ == other.current_method_ && key_ == other.key_;
+         username_ == other.username_ && current_method_ == other.current_method_ && key_ == other.key_;
 }
 
 std::string SSHInfo::GetPassword() const {

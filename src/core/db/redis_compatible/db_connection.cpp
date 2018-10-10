@@ -66,7 +66,7 @@ common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, Nativ
     const char* host = host_str.empty() ? NULL : host_str.c_str();
     bool is_ssl = config.is_ssl;
     uint16_t port = config.host.GetPort();
-    std::string username_str = sinfo.GetUserName();
+    std::string username_str = sinfo.GetUsername();
     const char* username = username_str.empty() ? NULL : username_str.c_str();
     std::string runtime_password = sinfo.GetRuntimePassword();
     const char* password = runtime_password.empty() ? NULL : runtime_password.c_str();

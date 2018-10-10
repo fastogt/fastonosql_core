@@ -46,7 +46,7 @@ struct SSHInfo {
 
   SSHInfo();
   SSHInfo(const common::net::HostAndPort& host,
-          const std::string& user_name,
+          const std::string& username,
           const std::string& password,
           const PublicPrivate& key,
           const std::string& passphrase,
@@ -70,8 +70,8 @@ struct SSHInfo {
   PublicPrivate GetKey() const;
   void SetKey(const PublicPrivate& key);
 
-  std::string GetUserName() const;
-  void SetUserName(const std::string& name);
+  std::string GetUsername() const;
+  void SetUsername(const std::string& name);
 
   std::string GetRuntimePassword() const;
   void SetPassword(const std::string& password);
@@ -82,7 +82,7 @@ struct SSHInfo {
   std::string GetPassword() const;
 
   common::net::HostAndPort host_;
-  std::string user_name_;
+  std::string username_;
   std::string passphrase_;
   PublicPrivate key_;
   AuthenticationMethod current_method_;
