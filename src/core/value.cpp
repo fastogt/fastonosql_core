@@ -47,6 +47,14 @@ static_assert(arraysize(kValueTypes) == static_cast<size_t>(common::Value::Type:
 namespace fastonosql {
 namespace core {
 
+bool StreamValue::Entry::Equals(const Entry& other) const {
+  return name == other.name && value == other.value;
+}
+
+bool StreamValue::Stream::Equals(const Stream& other) const {
+  return sid == other.sid && entries == other.entries;
+}
+
 StreamValue::StreamValue() : Value(TYPE_STREAM), streams_() {}
 
 StreamValue::~StreamValue() {}
@@ -84,8 +92,8 @@ bool StreamValue::Equals(const Value* other) const {
     return false;
   }
 
-  std::string lhs, rhs;
-  return GetAsString(&lhs) && other->GetAsString(&rhs) && lhs == rhs;
+  const StreamValue* other_stream = static_cast<const StreamValue*>(other);
+  return GetStreams() == other_stream->GetStreams();
 }
 
 StreamValue::streams_t StreamValue::GetStreams() const {
@@ -222,7 +230,7 @@ common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
       return common::Value::CreateDoubleValue(0);
     }
     case common::Value::TYPE_STRING: {
-      return common::Value::CreateStringValue(std::string());
+      return common::Value::CreateEmptyStringValue();
     }
     case common::Value::TYPE_ARRAY: {
       return common::Value::CreateArrayValue();
@@ -260,6 +268,7 @@ common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
     }
   }
 
+  NOTREACHED() << "Not handled type: " << value_type;
   return nullptr;
 }
 
@@ -280,7 +289,7 @@ const char* GetTypeName(common::Value::Type value_type) {
     return "TYPE_FT_TERM";
   }
 
-  DNOTREACHED();
+  NOTREACHED() << "Not handled type: " << value_type;
   return "UNKNOWN";
 }
 
@@ -289,56 +298,56 @@ std::string ConvertValue(common::Value* value, const std::string& delimiter) {
     return std::string();
   }
 
-  common::Value::Type t = value->GetType();
-  if (t == common::Value::TYPE_NULL) {
+  common::Value::Type value_type = value->GetType();
+  if (value_type == common::Value::TYPE_NULL) {
     return "(nil)";
-  } else if (t == common::Value::TYPE_BOOLEAN) {
+  } else if (value_type == common::Value::TYPE_BOOLEAN) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_UINTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_ULONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_LONG_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_ULONG_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_DOUBLE) {
+  } else if (value_type == common::Value::TYPE_DOUBLE) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
 
-  } else if (t == common::Value::TYPE_STRING) {
+  } else if (value_type == common::Value::TYPE_STRING) {
     return ConvertValue(static_cast<common::StringValue*>(value), delimiter);
 
-  } else if (t == common::Value::TYPE_ARRAY) {
+  } else if (value_type == common::Value::TYPE_ARRAY) {
     return ConvertValue(static_cast<common::ArrayValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_BYTE_ARRAY) {
+  } else if (value_type == common::Value::TYPE_BYTE_ARRAY) {
     return ConvertValue(static_cast<common::ByteArrayValue*>(value), delimiter);
 
-  } else if (t == common::Value::TYPE_SET) {
+  } else if (value_type == common::Value::TYPE_SET) {
     return ConvertValue(static_cast<common::SetValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_ZSET) {
+  } else if (value_type == common::Value::TYPE_ZSET) {
     return ConvertValue(static_cast<common::ZSetValue*>(value), delimiter);
-  } else if (t == common::Value::TYPE_HASH) {
+  } else if (value_type == common::Value::TYPE_HASH) {
     return ConvertValue(static_cast<common::HashValue*>(value), delimiter);
-  } else if (t == StreamValue::TYPE_STREAM) {
+  } else if (value_type == StreamValue::TYPE_STREAM) {
     return ConvertValue(static_cast<StreamValue*>(value), delimiter);
     // extended
-  } else if (t == JsonValue::TYPE_JSON) {
+  } else if (value_type == JsonValue::TYPE_JSON) {
     return ConvertValue(static_cast<JsonValue*>(value), delimiter);
-  } else if (t == GraphValue::TYPE_GRAPH) {
+  } else if (value_type == GraphValue::TYPE_GRAPH) {
     return ConvertValue(static_cast<GraphValue*>(value), delimiter);
-  } else if (t == BloomValue::TYPE_BLOOM) {
+  } else if (value_type == BloomValue::TYPE_BLOOM) {
     return ConvertValue(static_cast<BloomValue*>(value), delimiter);
-  } else if (t == SearchValue::TYPE_FT_INDEX) {
+  } else if (value_type == SearchValue::TYPE_FT_INDEX) {
     return ConvertValue(static_cast<SearchValue*>(value), delimiter);
-  } else if (t == SearchValue::TYPE_FT_TERM) {
+  } else if (value_type == SearchValue::TYPE_FT_TERM) {
     return ConvertValue(static_cast<SearchValue*>(value), delimiter);
   }
 
-  DNOTREACHED();
+  NOTREACHED() << "Not handled type: " << value_type;
   return std::string();
 }
 

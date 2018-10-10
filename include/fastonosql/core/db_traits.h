@@ -20,7 +20,7 @@
 
 #include <common/value.h>  // for Value, Value::Type
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionTypes
+#include <fastonosql/core/connection_types.h>  // for ConnectionType
 
 namespace fastonosql {
 namespace core {
@@ -35,8 +35,8 @@ struct Field {
 
 typedef std::pair<std::string, std::vector<Field>> info_field_t;
 
-std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionTypes type);
-std::vector<info_field_t> GetInfoFieldsFromType(ConnectionTypes type);
+std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type);
+std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type);
 
 }  // namespace core
 }  // namespace fastonosql

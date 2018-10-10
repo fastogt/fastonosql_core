@@ -23,7 +23,7 @@
 #include <common/net/types.h>  // for HostAndPortAndSlot
 #include <common/types.h>      // for time64_t
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionTypes, etc
+#include <fastonosql/core/connection_types.h>  // for ConnectionType, etc
 
 namespace common {
 class Value;
@@ -34,10 +34,10 @@ namespace core {
 
 struct ServerCommonInfo {
   ServerCommonInfo();
-  ServerCommonInfo(const std::string& name, ServerTypes type, ServerState state, ServerConnectionState cstate);
+  ServerCommonInfo(const std::string& name, ServerType type, ServerState state, ServerConnectionState cstate);
 
   std::string name;              // name
-  ServerTypes type;              // role
+  ServerType type;               // role
   ServerState state;             // state
   ServerConnectionState cstate;  // conection state
   common::net::HostAndPortAndSlot host;
@@ -45,7 +45,7 @@ struct ServerCommonInfo {
 
 class ServerDiscoveryInfoBase {
  public:
-  ConnectionTypes GetConnectionType() const;
+  ConnectionType GetConnectionType() const;
   ServerCommonInfo GetInfo() const;
 
   std::string GetName() const;
@@ -55,11 +55,11 @@ class ServerDiscoveryInfoBase {
   void SetHost(const common::net::HostAndPortAndSlot& host);
 
  protected:
-  ServerDiscoveryInfoBase(ConnectionTypes ctype, const ServerCommonInfo& info);
+  ServerDiscoveryInfoBase(ConnectionType ctype, const ServerCommonInfo& info);
   ~ServerDiscoveryInfoBase();
 
  private:
-  const ConnectionTypes ctype_;
+  const ConnectionType ctype_;
   ServerCommonInfo info_;
 };
 
@@ -68,7 +68,7 @@ class ServerDiscoverySentinelInfo : public ServerDiscoveryInfoBase {
   virtual ~ServerDiscoverySentinelInfo();
 
  protected:
-  ServerDiscoverySentinelInfo(ConnectionTypes ctype, const ServerCommonInfo& info);
+  ServerDiscoverySentinelInfo(ConnectionType ctype, const ServerCommonInfo& info);
 };
 
 typedef std::shared_ptr<ServerDiscoverySentinelInfo> ServerDiscoverySentinelInfoSPtr;
@@ -79,7 +79,7 @@ class ServerDiscoveryClusterInfo : public ServerDiscoveryInfoBase {
   virtual ~ServerDiscoveryClusterInfo();
 
  protected:
-  ServerDiscoveryClusterInfo(ConnectionTypes ctype, const ServerCommonInfo& info, bool self);
+  ServerDiscoveryClusterInfo(ConnectionType ctype, const ServerCommonInfo& info, bool self);
 
  private:
   const bool self_;
@@ -94,16 +94,16 @@ struct IStateField {
 
 class IServerInfo {
  public:
-  explicit IServerInfo(ConnectionTypes type);
+  explicit IServerInfo(ConnectionType type);
   virtual ~IServerInfo();
 
-  ConnectionTypes GetType() const;
+  ConnectionType GetType() const;
   virtual std::string ToString() const = 0;
   virtual uint32_t GetVersion() const = 0;
   virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const = 0;
 
  private:
-  const ConnectionTypes type_;
+  const ConnectionType type_;
 };
 
 typedef std::shared_ptr<IServerInfo> IServerInfoSPtr;

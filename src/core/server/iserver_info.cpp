@@ -24,15 +24,15 @@ namespace core {
 ServerCommonInfo::ServerCommonInfo() : name(), type(MASTER), state(SUP), cstate(SCONNECTED), host() {}
 
 ServerCommonInfo::ServerCommonInfo(const std::string& name,
-                                   ServerTypes type,
+                                   ServerType type,
                                    ServerState state,
                                    ServerConnectionState cstate)
     : name(name), type(type), state(state), cstate(cstate) {}
 
-ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(ConnectionTypes ctype, const ServerCommonInfo& info)
+ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(ConnectionType ctype, const ServerCommonInfo& info)
     : ctype_(ctype), info_(info) {}
 
-ConnectionTypes ServerDiscoveryInfoBase::GetConnectionType() const {
+ConnectionType ServerDiscoveryInfoBase::GetConnectionType() const {
   return ctype_;
 }
 
@@ -58,12 +58,12 @@ void ServerDiscoveryInfoBase::SetHost(const common::net::HostAndPortAndSlot& hos
 
 ServerDiscoveryInfoBase::~ServerDiscoveryInfoBase() {}
 
-ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(ConnectionTypes ctype, const ServerCommonInfo& info)
+ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(ConnectionType ctype, const ServerCommonInfo& info)
     : ServerDiscoveryInfoBase(ctype, info) {}
 
 ServerDiscoverySentinelInfo::~ServerDiscoverySentinelInfo() {}
 
-ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(ConnectionTypes ctype, const ServerCommonInfo& info, bool self)
+ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(ConnectionType ctype, const ServerCommonInfo& info, bool self)
     : ServerDiscoveryInfoBase(ctype, info), self_(self) {}
 
 ServerDiscoveryClusterInfo::~ServerDiscoveryClusterInfo() {}
@@ -76,11 +76,11 @@ IStateField::~IStateField() {}
 
 IServerInfo::~IServerInfo() {}
 
-ConnectionTypes IServerInfo::GetType() const {
+ConnectionType IServerInfo::GetType() const {
   return type_;
 }
 
-IServerInfo::IServerInfo(ConnectionTypes type) : type_(type) {}
+IServerInfo::IServerInfo(ConnectionType type) : type_(type) {}
 
 ServerInfoSnapShoot::ServerInfoSnapShoot() : msec(0), info() {}
 

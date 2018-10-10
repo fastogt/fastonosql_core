@@ -32,7 +32,7 @@ namespace core {
 typedef uint32_t keys_limit_t;
 typedef keys_limit_t cursor_t;
 
-enum ConnectionTypes {
+enum ConnectionType {
   REDIS = 0,
   MEMCACHED = 1,
   SSDB = 2,
@@ -45,25 +45,25 @@ enum ConnectionTypes {
   PIKA = 9
 };  // supported types
 
-enum ServerTypes { MASTER = 0, SLAVE };
+enum ServerType { MASTER = 0, SLAVE };
 enum ServerState { SUP = 0, SDOWN };
 enum ServerConnectionState { SCONNECTED = 0, SDISCONNECTED };
 enum ServerMode { STANDALONE = 0, SENTINEL, CLUSTER };
 
-extern const std::vector<ConnectionTypes> g_compiled_types;
+extern const std::vector<ConnectionType> g_compiled_types;
 
 enum ConnectionMode { InteractiveMode };
 
-bool IsRedisCompatible(ConnectionTypes type);
-bool IsRemoteType(ConnectionTypes type);
-bool IsSupportTTLKeys(ConnectionTypes type);
-bool IsLocalType(ConnectionTypes type);
-bool IsCanSSHConnection(ConnectionTypes type);
-bool IsCanCreateDatabase(ConnectionTypes type);
-bool IsCanRemoveDatabase(ConnectionTypes type);
-const char* ConnectionTypeToString(ConnectionTypes t);
+bool IsRedisCompatible(ConnectionType type);
+bool IsRemoteType(ConnectionType type);
+bool IsSupportTTLKeys(ConnectionType type);
+bool IsLocalType(ConnectionType type);
+bool IsCanSSHConnection(ConnectionType type);
+bool IsCanCreateDatabase(ConnectionType type);
+bool IsCanRemoveDatabase(ConnectionType type);
+const char* ConnectionTypeToString(ConnectionType t);
 
-template <ConnectionTypes conection_type>
+template <ConnectionType conection_type>
 struct ConnectionTraits {
   static const char* GetDBName() { return ConnectionTypeToString(conection_type); }
   static const char* GetBasedOn();
@@ -74,11 +74,11 @@ struct ConnectionTraits {
 }  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(fastonosql::core::ConnectionTypes t);
-bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionTypes* out);
+std::string ConvertToString(fastonosql::core::ConnectionType t);
+bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType* out);
 
-std::string ConvertToString(fastonosql::core::ServerTypes st);
-bool ConvertFromString(const std::string& from, fastonosql::core::ServerTypes* out);
+std::string ConvertToString(fastonosql::core::ServerType st);
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerType* out);
 
 std::string ConvertToString(fastonosql::core::ServerState st);
 bool ConvertFromString(const std::string& from, fastonosql::core::ServerState* out);

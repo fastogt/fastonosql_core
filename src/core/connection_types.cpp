@@ -24,7 +24,7 @@ namespace {
 const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",      "LevelDB",  "RocksDB",
                                   "UnQLite", "LMDB",      "UpscaleDB", "ForestDB", "Pika"};
 const std::string kConnnectionMode[] = {"Interactive mode"};
-const std::string kServerTypes[] = {"Master", "Slave"};
+const std::string kServerType[] = {"Master", "Slave"};
 const std::string kServerState[] = {"Up", "Down"};
 const std::string kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
 }  // namespace
@@ -32,7 +32,7 @@ const std::string kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
 namespace fastonosql {
 namespace core {
 
-const std::vector<ConnectionTypes> g_compiled_types = {
+const std::vector<ConnectionType> g_compiled_types = {
 #ifdef BUILD_WITH_REDIS
     REDIS,
 #endif
@@ -65,35 +65,35 @@ const std::vector<ConnectionTypes> g_compiled_types = {
 #endif
 };
 
-bool IsRedisCompatible(ConnectionTypes type) {
+bool IsRedisCompatible(ConnectionType type) {
   return type == REDIS || type == PIKA;
 }
 
-bool IsRemoteType(ConnectionTypes type) {
+bool IsRemoteType(ConnectionType type) {
   return type == REDIS || type == PIKA || type == MEMCACHED || type == SSDB;
 }
 
-bool IsSupportTTLKeys(ConnectionTypes type) {
+bool IsSupportTTLKeys(ConnectionType type) {
   return type == REDIS || type == PIKA || type == MEMCACHED || type == SSDB;
 }
 
-bool IsLocalType(ConnectionTypes type) {
+bool IsLocalType(ConnectionType type) {
   return type == ROCKSDB || type == LEVELDB || type == LMDB || type == UPSCALEDB || type == UNQLITE || type == FORESTDB;
 }
 
-bool IsCanSSHConnection(ConnectionTypes type) {
+bool IsCanSSHConnection(ConnectionType type) {
   return IsRedisCompatible(type);
 }
 
-bool IsCanCreateDatabase(ConnectionTypes type) {
+bool IsCanCreateDatabase(ConnectionType type) {
   return type == LMDB || type == FORESTDB || type == ROCKSDB;
 }
 
-bool IsCanRemoveDatabase(ConnectionTypes type) {
+bool IsCanRemoveDatabase(ConnectionType type) {
   return type == LMDB || type == FORESTDB || type == ROCKSDB;
 }
 
-const char* ConnectionTypeToString(ConnectionTypes t) {
+const char* ConnectionTypeToString(ConnectionType t) {
   return kConnnectionType[t];
 }
 
@@ -102,18 +102,18 @@ const char* ConnectionTypeToString(ConnectionTypes t) {
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::ConnectionTypes t) {
+std::string ConvertToString(fastonosql::core::ConnectionType t) {
   return fastonosql::core::ConnectionTypeToString(t);
 }
 
-bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionTypes* out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType* out) {
   if (!out) {
     return false;
   }
 
   for (size_t i = 0; i < SIZEOFMASS(kConnnectionType); ++i) {
     if (from == kConnnectionType[i]) {
-      *out = static_cast<fastonosql::core::ConnectionTypes>(i);
+      *out = static_cast<fastonosql::core::ConnectionType>(i);
       return true;
     }
   }
@@ -122,14 +122,14 @@ bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType
   return false;
 }
 
-bool ConvertFromString(const std::string& from, fastonosql::core::ServerTypes* out) {
+bool ConvertFromString(const std::string& from, fastonosql::core::ServerType* out) {
   if (!out) {
     return false;
   }
 
-  for (size_t i = 0; i < SIZEOFMASS(kServerTypes); ++i) {
-    if (from == kServerTypes[i]) {
-      *out = static_cast<fastonosql::core::ServerTypes>(i);
+  for (size_t i = 0; i < SIZEOFMASS(kServerType); ++i) {
+    if (from == kServerType[i]) {
+      *out = static_cast<fastonosql::core::ServerType>(i);
       return true;
     }
   }
@@ -150,8 +150,8 @@ bool ConvertFromString(const std::string& from, fastonosql::core::ServerState* o
   return false;
 }
 
-std::string ConvertToString(fastonosql::core::ServerTypes st) {
-  return kServerTypes[st];
+std::string ConvertToString(fastonosql::core::ServerType st) {
+  return kServerType[st];
 }
 
 std::string ConvertToString(fastonosql::core::ServerState st) {

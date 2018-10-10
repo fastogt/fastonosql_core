@@ -24,7 +24,7 @@
 namespace fastonosql {
 namespace core {
 
-template <ConnectionTypes conection_type>
+template <ConnectionType conection_type>
 struct ConnectionCommandsTraits : public ConnectionTraits<conection_type> {
   static const ConstantCommandsArray& GetCommands();
 };

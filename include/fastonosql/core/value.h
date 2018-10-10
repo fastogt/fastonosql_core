@@ -26,11 +26,15 @@ namespace core {
 class StreamValue : public common::Value {
  public:
   struct Entry {
+    bool Equals(const Entry& other) const;
+
     std::string name;
     std::string value;
   };
   typedef std::string stream_id;
   struct Stream {
+    bool Equals(const Stream& other) const;
+
     stream_id sid;
     std::vector<Entry> entries;
   };
@@ -51,6 +55,22 @@ class StreamValue : public common::Value {
   streams_t streams_;
   DISALLOW_COPY_AND_ASSIGN(StreamValue);
 };
+
+inline bool operator==(const StreamValue::Entry& r, const StreamValue::Entry& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const StreamValue::Entry& r, const StreamValue::Entry& l) {
+  return !(r == l);
+}
+
+inline bool operator==(const StreamValue::Stream& r, const StreamValue::Stream& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const StreamValue::Stream& r, const StreamValue::Stream& l) {
+  return !(r == l);
+}
 
 class JsonValue : public common::Value {  // simple json class value, only save
                                           // string without validation

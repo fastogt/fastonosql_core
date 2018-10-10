@@ -98,7 +98,7 @@ FastoObjectCommand::FastoObjectCommand(FastoObject* parent,
                                        common::StringValue* cmd,
                                        CmdLoggingType ct,
                                        const std::string& delimiter,
-                                       core::ConnectionTypes type)
+                                       core::ConnectionType type)
     : FastoObject(parent, cmd, delimiter), type_(type), ct_(ct) {}
 
 FastoObjectCommand::~FastoObjectCommand() {}
@@ -107,7 +107,7 @@ std::string FastoObjectCommand::ToString() const {
   return std::string();
 }
 
-core::ConnectionTypes FastoObjectCommand::GetConnectionType() const {
+core::ConnectionType FastoObjectCommand::GetConnectionType() const {
   return type_;
 }
 
