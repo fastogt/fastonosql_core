@@ -39,17 +39,12 @@ bool is_binary_data(const command_buffer_t& data);
 
 bool have_space(const std::string& data);
 
-std::string hex_string(const std::string& value);
-std::string string_from_hex(const std::string& value);
-
 bool is_json(const std::string& data);
-
-std::string unicode_string(const std::string& value);
-std::string string_from_unicode(const std::string& value);
 }  // namespace detail
 
 class ReadableString {
  public:
+  static const bool is_lower_hex = true;
   enum DataType { TEXT_DATA = 0, BINARY_DATA };
 
   ReadableString();

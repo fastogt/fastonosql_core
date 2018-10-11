@@ -24,6 +24,7 @@ namespace fastonosql {
 namespace core {
 
 namespace detail {
+
 readable_string_t StableForJson(const ReadableString& data) {
   readable_string_t data_raw = data.GetData();
   if (data_raw.empty()) {
@@ -33,7 +34,7 @@ readable_string_t StableForJson(const ReadableString& data) {
 
   ReadableString::DataType type = data.GetType();
   if (type == ReadableString::BINARY_DATA) {
-    return "\"" + detail::hex_string(data_raw) + "\"";
+    return "\"" + common::utils::xhex::encode(data_raw, ReadableString::is_lower_hex) + "\"";
   }
 
   if (detail::is_json(data_raw)) {
