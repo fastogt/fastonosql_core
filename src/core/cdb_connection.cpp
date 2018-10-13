@@ -28,20 +28,23 @@ namespace detail {
 readable_string_t StableForJson(const ReadableString& data) {
   readable_string_t data_raw = data.GetData();
   if (data_raw.empty()) {
-    DNOTREACHED();
-    return "\"" + data_raw + "\"";
+    DNOTREACHED() << "Empty data.";
+    return "\"\"";
   }
 
   ReadableString::DataType type = data.GetType();
   if (type == ReadableString::BINARY_DATA) {
-    return "\"" + common::utils::xhex::encode(data_raw, ReadableString::is_lower_hex) + "\"";
+    std::string hexed;
+    bool is_ok = common::utils::xhex::encode(data_raw, ReadableString::is_lower_hex, &hexed);
+    DCHECK(is_ok) << "Can't hexed: " << data_raw;
+    return common::MemSPrintf("\"%s\"", hexed);
   }
 
   if (detail::is_json(data_raw)) {
     return data_raw;
   }
 
-  return "\"" + data_raw + "\"";
+  return common::MemSPrintf("\"%s\"", data_raw);
 }
 }  // namespace detail
 

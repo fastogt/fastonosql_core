@@ -77,7 +77,10 @@ readable_string_t ReadableString::GetData() const {
 
 readable_string_t ReadableString::GetHumanReadable() const {
   if (type_ == BINARY_DATA) {
-    return common::utils::xhex::encode(data_, is_lower_hex);
+    std::string hexed;
+    bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
+    DCHECK(is_ok) << "Can't hexed: " << data_;
+    return hexed;
   }
 
   return data_;
@@ -86,7 +89,10 @@ readable_string_t ReadableString::GetHumanReadable() const {
 readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
   if (type_ == BINARY_DATA) {
     command_buffer_writer_t wr;
-    wr << "\"" << common::utils::xhex::encode(data_, is_lower_hex) << "\"";
+    std::string hexed;
+    bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
+    DCHECK(is_ok) << "Can't hexed: " << data_;
+    wr << "\"" << hexed << "\"";
     return wr.str();
   }
 
