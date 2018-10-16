@@ -32,11 +32,6 @@ enum CmdLoggingType { C_UNKNOWN, C_USER, C_INNER };
 class FastoObject;
 class FastoObjectCommand;
 
-template <typename T, typename... Args>
-inline common::intrusive_ptr<T> make_fasto_object(Args&&... args) {
-  return common::intrusive_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
 typedef common::intrusive_ptr<FastoObject> FastoObjectIPtr;
 typedef common::intrusive_ptr<FastoObjectCommand> FastoObjectCommandIPtr;
 

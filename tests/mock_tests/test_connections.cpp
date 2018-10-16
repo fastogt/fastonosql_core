@@ -23,9 +23,8 @@
 
 using namespace fastonosql;
 
-template <typename NConnection, typename Config, core::connectionTypes ContType>
-void CheckSetGet(
-    core::internal::CDBConnection<NConnection, Config, ContType> *db) {
+template <typename NConnection, typename Config, core::ConnectionType ContType>
+void CheckSetGet(core::CDBConnection<NConnection, Config, ContType>* db) {
   ASSERT_TRUE(db->IsConnected());
   core::NValue val(common::Value::CreateStringValue("test"));
   core::key_t key_str("test");
@@ -52,7 +51,7 @@ void CheckSetGet(
   ASSERT_TRUE(want_delete == deleted);
   deleted = core::NKeys();
   err = db->Delete(want_delete, &deleted);
-  ASSERT_TRUE(deleted.empty()); // must be
+  ASSERT_TRUE(deleted.empty());  // must be
   ASSERT_TRUE(!err);
   core::NDbKValue res3;
   err = db->Get(key, &res3);
@@ -64,8 +63,7 @@ void CheckSetGet(
 TEST(Connection, leveldb) {
   core::leveldb::DBConnection db(nullptr);
   core::leveldb::Config lcfg;
-  common::ErrnoError errn =
-      common::file_system::remove_directory(lcfg.db_path, true);
+  common::ErrnoError errn = common::file_system::remove_directory(lcfg.db_path, true);
   ASSERT_TRUE(!errn);
 
   lcfg.create_if_missing = false;
@@ -98,8 +96,7 @@ TEST(Connection, leveldb) {
 TEST(Connection, rocksdb) {
   core::rocksdb::DBConnection db(nullptr);
   core::rocksdb::Config lcfg;
-  common::ErrnoError errn =
-      common::file_system::remove_directory(lcfg.db_path, true);
+  common::ErrnoError errn = common::file_system::remove_directory(lcfg.db_path, true);
   ASSERT_TRUE(!errn);
 
   lcfg.create_if_missing = false;
@@ -165,7 +162,7 @@ TEST(Connection, lmdb) {
 TEST(Connection, unqlite) {
   core::unqlite::DBConnection db(nullptr);
   core::unqlite::Config lcfg;
-  lcfg.SetCreateIfMissingDB(true); // workaround
+  lcfg.SetCreateIfMissingDB(true);  // workaround
   common::Error err = db.Connect(lcfg);
   ASSERT_TRUE(!err);
   ASSERT_TRUE(db.IsConnected());
@@ -185,7 +182,7 @@ TEST(Connection, unqlite) {
 TEST(Connection, upscaledb) {
   core::upscaledb::DBConnection db(nullptr);
   core::upscaledb::Config lcfg;
-  lcfg.create_if_missing = true; // workaround
+  lcfg.create_if_missing = true;  // workaround
   common::Error err = db.Connect(lcfg);
   ASSERT_TRUE(!err);
   ASSERT_TRUE(db.IsConnected());

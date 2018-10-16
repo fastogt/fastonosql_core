@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <common/value.h>  // for ArrayValue (ptr only), etc
+#include <common/value.h>
 
 namespace fastonosql {
 namespace core {

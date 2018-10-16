@@ -164,7 +164,7 @@ std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
     return pika::GetInfoFields();
   }
 #endif
-  NOTREACHED();
+  NOTREACHED() << "Unknown type: " << type;
   return std::vector<info_field_t>();
 }
 

@@ -23,10 +23,10 @@
 namespace {
 const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",      "LevelDB",  "RocksDB",
                                   "UnQLite", "LMDB",      "UpscaleDB", "ForestDB", "Pika"};
-const std::string kConnnectionMode[] = {"Interactive mode"};
-const std::string kServerType[] = {"Master", "Slave"};
-const std::string kServerState[] = {"Up", "Down"};
-const std::string kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
+const char* kConnnectionMode[] = {"Interactive mode"};
+const char* kServerType[] = {"Master", "Slave"};
+const char* kServerState[] = {"Up", "Down"};
+const char* kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
 }  // namespace
 
 namespace fastonosql {
