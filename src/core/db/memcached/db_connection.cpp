@@ -231,15 +231,6 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::ConfigGet),
-                                         CommandHolder(DB_VERSION_COMMAND,
-                                                       "-",
-                                                       "Return the Memcached server version.",
-                                                       UNDEFINED_SINCE,
-                                                       DB_VERSION_COMMAND,
-                                                       0,
-                                                       0,
-                                                       CommandInfo::Native,
-                                                       &CommandsApi::Version),
                                          CommandHolder("INCR",
                                                        "<key> <value>",
                                                        "Increment value associated with key in "
@@ -854,15 +845,6 @@ common::Error DBConnection::TTL(key_t key, ttl_t* expiration) {
     *expiration = exp - cur_t;
   }
   return common::Error();
-}
-
-common::Error DBConnection::VersionServer() {
-  common::Error err = TestIsAuthenticated();
-  if (err) {
-    return err;
-  }
-
-  return CheckResultCommand("VERSION", memcached_version(connection_.handle_));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,

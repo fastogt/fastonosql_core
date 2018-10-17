@@ -27,7 +27,6 @@ namespace memcached {
 class DBConnection;
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Version(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   static common::Error Add(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Replace(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

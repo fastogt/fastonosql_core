@@ -50,7 +50,6 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
       WARN_UNUSED_RESULT;
   common::Error Incr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
   common::Error Decr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
-  common::Error VersionServer() WARN_UNUSED_RESULT;
 
   common::Error TTL(key_t key, ttl_t* expiration) WARN_UNUSED_RESULT;
 

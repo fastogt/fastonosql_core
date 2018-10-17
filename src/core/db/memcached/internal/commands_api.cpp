@@ -24,14 +24,6 @@ namespace fastonosql {
 namespace core {
 namespace memcached {
 
-common::Error CommandsApi::Version(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
-  UNUSED(out);
-
-  DBConnection* mem = static_cast<DBConnection*>(handler);
-  return mem->VersionServer();
-}
-
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* mem = static_cast<DBConnection*>(handler);
   std::string args = argv.size() == 1 ? argv[0] : std::string();

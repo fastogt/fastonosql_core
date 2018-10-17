@@ -703,7 +703,7 @@ common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue 
     return err;
   }
 
-  if (ttl == NO_TTL) {
+  if (ttl == NO_TTL || ttl == EXPIRED_TTL) {
     return common::Error();
   }
 
