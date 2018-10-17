@@ -78,7 +78,7 @@ class NValue : public common::ValueSPtr {
   template <typename U>
   explicit NValue(U* u) : base_class(u) {}
 
-  NValue(const base_class& other);
+  explicit NValue(const base_class& other);
 
   value_t GetValue(const std::string& delimiter = DEFAULT_DELIMITER) const;
 };

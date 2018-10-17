@@ -55,7 +55,7 @@ Config ParseOptions(int argc, char** argv) {
         cfg.max_dbs = max_dbs;
       }
     } else if (!strcmp(argv[i], "-e") && !lastarg) {
-      int env_flags;
+      unsigned int env_flags;
       if (common::ConvertFromString(argv[++i], &env_flags)) {
         cfg.env_flags = env_flags;
       }

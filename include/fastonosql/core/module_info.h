@@ -24,6 +24,8 @@ namespace fastonosql {
 namespace core {
 
 struct ModuleInfo {
+  ModuleInfo();
+
   std::string name;
   std::string path;
   uint32_t version;

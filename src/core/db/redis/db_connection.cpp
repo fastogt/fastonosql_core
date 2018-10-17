@@ -3201,7 +3201,7 @@ common::Error DBConnection::JsonSetImpl(const NDbKValue& key, NDbKValue* added_k
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, set_cmd, &reply);
   if (err) {
     return err;
@@ -3220,7 +3220,7 @@ common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) 
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, get_cmd, &reply);
   if (err) {
     return err;
@@ -3246,7 +3246,7 @@ common::Error DBConnection::XAddImpl(const NDbKValue& key, NDbKValue* added_key,
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, set_cmd, &reply);
   if (err) {
     return err;
@@ -3267,7 +3267,7 @@ common::Error DBConnection::XRangeImpl(const NKey& key, NDbKValue* loaded_key, f
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, get_cmd, &reply);
   if (err) {
     return err;
@@ -3331,7 +3331,7 @@ common::Error DBConnection::ModuleLoadImpl(const ModuleInfo& module) {
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, module_load_cmd, &reply);
   if (err) {
     return err;
@@ -3349,7 +3349,7 @@ common::Error DBConnection::ModuleUnLoadImpl(const ModuleInfo& module) {
     return err;
   }
 
-  redisReply* reply = NULL;
+  redisReply* reply = nullptr;
   err = redis_compatible::ExecRedisCommand(connection_.handle_, module_unload_cmd, &reply);
   if (err) {
     return err;

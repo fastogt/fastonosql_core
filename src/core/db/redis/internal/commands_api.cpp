@@ -358,7 +358,7 @@ common::Error CommandsApi::ConfigSet(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "DBSIZE"}, argv), out);
+  return red->CommonExec(ExpandCommand({"DBSIZE"}, argv), out);
 }
 
 common::Error CommandsApi::DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -675,8 +675,7 @@ common::Error CommandsApi::Object(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   pttl_t ttl;
   if (!common::ConvertFromString(argv[1], &ttl)) {
@@ -729,8 +728,7 @@ common::Error CommandsApi::PsetEx(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Pttl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   pttl_t ttl;
   common::Error err = red->PTTL(key, &ttl);
@@ -1604,8 +1602,7 @@ common::Error CommandsApi::Xlen(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Xrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   DBConnection* red = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
@@ -1629,8 +1626,7 @@ common::Error CommandsApi::Xread(internal::CommandHandler* handler, commands_arg
 }
 
 common::Error CommandsApi::Xadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   StreamValue::stream_id sid = argv[1];
   StreamValue* stream = new StreamValue;
@@ -1841,8 +1837,7 @@ common::Error CommandsApi::JsonDel(internal::CommandHandler* handler, commands_a
 }
 
 common::Error CommandsApi::JsonGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   DBConnection* red = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
@@ -1864,8 +1859,7 @@ common::Error CommandsApi::JsonMget(internal::CommandHandler* handler, commands_
 }
 
 common::Error CommandsApi::JsonSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   NValue json_val(new JsonValue(common::ConvertToString(argv[2])));
   NDbKValue kv(key, json_val);

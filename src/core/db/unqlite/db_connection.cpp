@@ -248,7 +248,7 @@ template <>
 common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Connect(
     const unqlite::Config& config,
     unqlite::NativeConnection** hout) {
-  unqlite::NativeConnection* context = NULL;
+  unqlite::NativeConnection* context = nullptr;
   common::Error err = unqlite::CreateConnection(config, &context);
   if (err) {
     return err;
@@ -261,7 +261,7 @@ template <>
 common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Disconnect(
     unqlite::NativeConnection** handle) {
   unqlite_close(*handle);
-  *handle = NULL;
+  *handle = nullptr;
   return common::Error();
 }
 template <>
@@ -282,8 +282,8 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     return common::make_error_inval();
   }
 
-  DCHECK(*context == NULL);
-  struct unqlite* lcontext = NULL;
+  DCHECK(*context == nullptr);
+  struct unqlite* lcontext = nullptr;
   std::string db_path = config.db_path;
   std::string folder = common::file_system::get_dir_path(db_path);
   bool is_dir_exist = common::file_system::is_directory_exist(folder);

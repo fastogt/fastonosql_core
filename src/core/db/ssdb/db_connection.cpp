@@ -1485,8 +1485,8 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
     return err;
   }
 
-  uint64_t offset_pos = cursor_in;
-  uint64_t lcursor_out = 0;
+  cursor_t offset_pos = cursor_in;
+  cursor_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
   for (size_t i = 0; i < ret.size(); ++i) {
     std::string key = ret[i];
@@ -1518,8 +1518,9 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
 
 common::Error DBConnection::DBkcountImpl(size_t* size) {
   std::vector<std::string> ret;
-  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND,
-                                         connection_.handle_->keys(std::string(), std::string(), UINT64_MAX, &ret));
+  common::Error err =
+      CheckResultCommand(DB_DBKCOUNT_COMMAND,
+                         connection_.handle_->keys(std::string(), std::string(), UINT64_MAX, &ret));  // may be dbsize?
   if (err) {
     return err;
   }

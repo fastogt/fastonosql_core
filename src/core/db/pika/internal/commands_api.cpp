@@ -357,7 +357,7 @@ common::Error CommandsApi::ConfigSet(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "DBSIZE"}, argv), out);
+  return red->CommonExec(ExpandCommand({"DBSIZE"}, argv), out);
 }
 
 common::Error CommandsApi::DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -674,8 +674,7 @@ common::Error CommandsApi::Object(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   pttl_t ttl;
   if (!common::ConvertFromString(argv[1], &ttl)) {
@@ -728,8 +727,7 @@ common::Error CommandsApi::PsetEx(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Pttl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   pttl_t ttl;
   common::Error err = red->PTTL(key, &ttl);

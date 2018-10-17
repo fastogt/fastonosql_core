@@ -225,10 +225,9 @@ common::Error ApiTraits<CDBConnection>::Select(CommandHandler* handler, commands
 
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
-  NValue string_val(common::Value::CreateStringValue(common::ConvertToString(argv[1])));
+  NValue string_val(common::Value::CreateStringValue(argv[1]));
   NDbKValue kv(key, string_val);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
@@ -246,8 +245,7 @@ common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, c
 
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Get(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   NDbKValue key_loaded;
@@ -269,8 +267,7 @@ common::Error ApiTraits<CDBConnection>::Delete(internal::CommandHandler* handler
                                                FastoObject* out) {
   NKeys keysdel;
   for (size_t i = 0; i < argv.size(); ++i) {
-    key_t raw_key(argv[i]);
-    NKey key(raw_key);
+    NKey key(argv[i]);
     keysdel.push_back(key);
   }
 
@@ -291,8 +288,7 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Rename(internal::CommandHandler* handler,
                                                commands_args_t argv,
                                                FastoObject* out) {
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   common::Error err = cdb->Rename(key, argv[1]);
@@ -311,8 +307,7 @@ common::Error ApiTraits<CDBConnection>::SetTTL(internal::CommandHandler* handler
                                                commands_args_t argv,
                                                FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   ttl_t ttl;
   if (!common::ConvertFromString(argv[1], &ttl)) {
@@ -335,8 +330,7 @@ common::Error ApiTraits<CDBConnection>::GetTTL(internal::CommandHandler* handler
                                                commands_args_t argv,
                                                FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  key_t raw_key(argv[0]);
-  NKey key(raw_key);
+  NKey key(argv[0]);
 
   ttl_t ttl;
   common::Error err = cdb->GetTTL(key, &ttl);
@@ -417,7 +411,7 @@ common::Error ApiTraits<CDBConnection>::JsonDump(CommandHandler* handler, comman
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateIntegerValue(cursor_out);
+  common::FundamentalValue* val = common::Value::CreateUIntegerValue(cursor_out);
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

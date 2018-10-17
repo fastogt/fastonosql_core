@@ -42,7 +42,7 @@ class StreamValue : public common::Value {
 
   static const common::Value::Type TYPE_STREAM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 1);
   explicit StreamValue();
-  virtual ~StreamValue();
+  virtual ~StreamValue() override;
 
   virtual bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
   virtual StreamValue* DeepCopy() const override;
@@ -77,7 +77,7 @@ class JsonValue : public common::Value {  // simple json class value, only save
  public:
   static const common::Value::Type TYPE_JSON = static_cast<common::Value::Type>(common::Value::USER_TYPES + 2);
   explicit JsonValue(const std::string& json_value);
-  virtual ~JsonValue();
+  virtual ~JsonValue() override;
 
   virtual bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
   virtual JsonValue* DeepCopy() const override;
@@ -94,7 +94,7 @@ class GraphValue : public common::Value {
  public:
   static const common::Value::Type TYPE_GRAPH = static_cast<common::Value::Type>(common::Value::USER_TYPES + 3);
   GraphValue();
-  virtual ~GraphValue();
+  virtual ~GraphValue() override;
 
   virtual GraphValue* DeepCopy() const override;
   virtual bool Equals(const Value* other) const override;
@@ -107,7 +107,7 @@ class BloomValue : public common::Value {
  public:
   static const common::Value::Type TYPE_BLOOM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 4);
   BloomValue();
-  virtual ~BloomValue();
+  virtual ~BloomValue() override;
 
   virtual BloomValue* DeepCopy() const override;
   virtual bool Equals(const Value* other) const override;
@@ -120,7 +120,7 @@ class SearchValue : public common::Value {
  public:
   static const common::Value::Type TYPE_FT_INDEX = static_cast<common::Value::Type>(common::Value::USER_TYPES + 5);
   static const common::Value::Type TYPE_FT_TERM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 6);
-  virtual ~SearchValue();
+  virtual ~SearchValue() override;
 
   static SearchValue* CreateSearchIndex();
   static SearchValue* CreateSearchDocument();
@@ -129,7 +129,7 @@ class SearchValue : public common::Value {
   virtual bool Equals(const Value* other) const override;
 
  private:
-  SearchValue(common::Value::Type type);
+  explicit SearchValue(common::Value::Type type);
 
   DISALLOW_COPY_AND_ASSIGN(SearchValue);
 };

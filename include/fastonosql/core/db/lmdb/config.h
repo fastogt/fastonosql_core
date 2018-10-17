@@ -35,7 +35,7 @@ struct Config : public LocalConfig {
   bool IsSingleFileDB() const;
   void SetSingleFileDB(bool single);
 
-  int env_flags;
+  unsigned int env_flags;
   std::string db_name;
   unsigned int max_dbs;
 };

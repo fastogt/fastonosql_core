@@ -94,23 +94,20 @@ struct hacked_memcached_instance_st {
 namespace {
 
 struct KeysHolder {
-  KeysHolder(const std::string& key_start,
-             const std::string& key_end,
-             fastonosql::core::keys_limit_t limit,
-             std::vector<std::string>* r)
-      : key_start(key_start), key_end(key_end), limit(limit), r(r) {}
-
   const std::string key_start;
   const std::string key_end;
   const fastonosql::core::keys_limit_t limit;
-  std::vector<std::string>* r;
+  std::vector<std::string> result;
+
+  KeysHolder(const std::string& key_start, const std::string& key_end, fastonosql::core::keys_limit_t limit)
+      : key_start(key_start), key_end(key_end), limit(limit), result() {}
 
   memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
-    if (r->size() < limit) {
+    if (result.size() < limit) {
       std::string received_key(key, key_length);
       if (key_start < received_key && key_end > received_key) {
-        r->push_back(received_key);
+        result.push_back(received_key);
         return MEMCACHED_SUCCESS;
       }
 
@@ -133,23 +130,23 @@ memcached_return_t memcached_dump_keys_callback(const memcached_st* ptr,
 }
 
 struct ScanHolder {
-  ScanHolder(uint64_t cursor_in, const std::string& pattern, uint64_t limit)
-      : cursor_in(cursor_in), pattern(pattern), limit(limit), r(), cursor_out(0), offset_pos(cursor_in) {}
+  ScanHolder(fastonosql::core::cursor_t cursor_in, const std::string& pattern, fastonosql::core::keys_limit_t limit)
+      : cursor_in(cursor_in), limit(limit), pattern(pattern), cursor_out(0), offset_pos(cursor_in), result() {}
 
-  const uint64_t cursor_in;
+  const fastonosql::core::cursor_t cursor_in;
+  const fastonosql::core::keys_limit_t limit;
   const std::string pattern;
-  const uint64_t limit;
-  std::vector<std::string> r;
-  uint64_t cursor_out;
-  uint64_t offset_pos;
+  fastonosql::core::cursor_t cursor_out;
+  fastonosql::core::cursor_t offset_pos;
+  std::vector<std::string> result;
 
   memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
-    if (r.size() < limit) {
+    if (result.size() < limit) {
       std::string received_key(key, key_length);
       if (common::MatchPattern(received_key, pattern)) {
         if (offset_pos == 0) {
-          r.push_back(received_key);
+          result.push_back(received_key);
         } else {
           offset_pos--;
         }
@@ -502,7 +499,7 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
   }
 
   DCHECK(*context == nullptr);
-  memcached_st* memc = ::memcached(NULL, 0);
+  memcached_st* memc = ::memcached(nullptr, 0);
   if (!memc) {
     return common::make_error("Init error");
   }
@@ -519,7 +516,7 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
   }
 
   std::string host_str = config.host.GetHost();
-  const char* host = host_str.empty() ? NULL : host_str.c_str();
+  const char* host = host_str.empty() ? nullptr : host_str.c_str();
   uint16_t hostport = config.host.GetPort();
 
   rc = memcached_server_add(memc, host, hostport);
@@ -541,7 +538,7 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
 
 common::Error TestConnection(const Config& config) {
   std::string host_str = config.host.GetHost();
-  const char* host = host_str.empty() ? NULL : host_str.c_str();
+  const char* host = host_str.empty() ? nullptr : host_str.c_str();
   uint16_t hostport = config.host.GetPort();
 
   memcached_return rc;
@@ -550,12 +547,12 @@ common::Error TestConnection(const Config& config) {
     const char* passwd = config.password.c_str();
     libmemcached_util_ping2(host, hostport, user, passwd, &rc);
     if (rc != MEMCACHED_SUCCESS) {
-      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(NULL, rc)));
+      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(nullptr, rc)));
     }
   } else {
     libmemcached_util_ping(host, hostport, &rc);
     if (rc != MEMCACHED_SUCCESS) {
-      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(NULL, rc)));
+      return common::make_error(common::MemSPrintf("Couldn't ping server: %s", memcached_strerror(nullptr, rc)));
     }
   }
 
@@ -576,7 +573,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
     return err;
   }
 
-  const char* stabled_args = args.empty() ? NULL : args.c_str();
+  const char* stabled_args = args.empty() ? nullptr : args.c_str();
   memcached_return_t error;
   memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args), &error);
   err = CheckResultCommand(DB_INFO_COMMAND, error);
@@ -610,7 +607,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
 
   *statsout = lstatsout;
   current_info_ = lstatsout;
-  memcached_stat_free(NULL, st);
+  memcached_stat_free(nullptr, st);
   return common::Error();
 }
 
@@ -839,14 +836,13 @@ common::Error DBConnection::TTL(key_t key, ttl_t* expiration) {
 
   time_t exp;
   TTLHolder hld(key, &exp);
-  memcached_dump_fn func[1] = {0};
-  func[0] = memcached_dump_ttl_callback;
+  memcached_dump_fn func[1] = {memcached_dump_ttl_callback};
   err = CheckResultCommand(DB_GET_TTL_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
 
-  time_t cur_t = time(NULL);
+  time_t cur_t = time(nullptr);
   time_t server_t = current_info_.time;
   if (cur_t > exp) {
     if (server_t > exp) {
@@ -875,15 +871,14 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
                                      std::vector<std::string>* keys_out,
                                      cursor_t* cursor_out) {
   ScanHolder hld(cursor_in, pattern, count_keys);
-  memcached_dump_fn func[1] = {0};
-  func[0] = memcached_dump_scan_callback;
+  memcached_dump_fn func[1] = {memcached_dump_scan_callback};
   common::Error err =
       CheckResultCommand(DB_SCAN_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
 
-  *keys_out = hld.r;
+  *keys_out = hld.result;
   *cursor_out = hld.cursor_out;
   return common::Error();
 }
@@ -892,24 +887,28 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
                                      const std::string& key_end,
                                      keys_limit_t limit,
                                      std::vector<std::string>* ret) {
-  KeysHolder hld(key_start, key_end, limit, ret);
-  memcached_dump_fn func[1] = {0};
-  func[0] = memcached_dump_keys_callback;
-  return CheckResultCommand(DB_KEYS_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  KeysHolder hld(key_start, key_end, limit);
+  memcached_dump_fn func[1] = {memcached_dump_keys_callback};
+  common::Error err =
+      CheckResultCommand(DB_KEYS_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
+  if (err) {
+    return err;
+  }
+
+  *ret = hld.result;
+  return common::Error();
 }
 
 common::Error DBConnection::DBkcountImpl(size_t* size) {
-  std::vector<std::string> ret;
-  KeysHolder hld("a", "z", NO_KEYS_LIMIT, &ret);
-  memcached_dump_fn func[1] = {0};
-  func[0] = memcached_dump_keys_callback;
+  KeysHolder hld("a", "z", NO_KEYS_LIMIT);
+  memcached_dump_fn func[1] = {memcached_dump_keys_callback};
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));
   if (err) {
     return err;
   }
 
-  *size = ret.size();
+  *size = hld.result.size();
   return common::Error();
 }
 

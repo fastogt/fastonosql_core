@@ -193,7 +193,7 @@ fdb_status forestdb_create_db(fdb* context, const char* db_name) {
 
   fdb_kvs_config kvs_config = fdb_get_default_kvs_config();
   kvs_config.create_if_missing = true;
-  fdb_kvs_handle* kvs = NULL;
+  fdb_kvs_handle* kvs = nullptr;
   fdb_status rc = fdb_kvs_open(context->handle, &kvs, db_name, &kvs_config);
   if (rc != FDB_RESULT_SUCCESS) {
     return rc;
@@ -232,7 +232,7 @@ fdb_status forestdb_select(fdb* context, const char* db_name) {
   // open db
   fdb_kvs_config kvs_config = fdb_get_default_kvs_config();
   kvs_config.create_if_missing = false;
-  fdb_kvs_handle* kvs = NULL;
+  fdb_kvs_handle* kvs = nullptr;
   fdb_status rc = fdb_kvs_open(context->handle, &kvs, db_name, &kvs_config);
   if (rc != FDB_RESULT_SUCCESS) {
     return rc;
@@ -242,9 +242,9 @@ fdb_status forestdb_select(fdb* context, const char* db_name) {
   fdb_commit_opt_t opt = FDB_COMMIT_NORMAL;
   fdb_commit(context->handle, opt);
   common::utils::freeifnotnull(context->db_name);
-  context->db_name = NULL;
+  context->db_name = nullptr;
   fdb_kvs_close(context->kvs);
-  context->kvs = NULL;
+  context->kvs = nullptr;
 
   // assigne new
   context->kvs = kvs;
@@ -287,7 +287,7 @@ void forestdb_close(fdb** context) {
   fdb_kvs_close(lcontext->kvs);
   fdb_close(lcontext->handle);
   free(lcontext);
-  *context = NULL;
+  *context = nullptr;
 }
 
 }  // namespace
@@ -350,8 +350,8 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     return common::make_error_inval();
   }
 
-  DCHECK(*context == NULL);
-  NativeConnection* lcontext = NULL;
+  DCHECK(*context == nullptr);
+  NativeConnection* lcontext = nullptr;
   fdb_config fconfig = fdb_get_default_config();
   std::string db_path = config.db_path;
   std::string folder = common::file_system::get_dir_path(db_path);
@@ -429,7 +429,7 @@ common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
 
 common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
   const readable_string_t key_slice = key.GetData();
-  void* value_out = NULL;
+  void* value_out = nullptr;
   size_t valuelen_out = 0;
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, fdb_get_kv(connection_.handle_->kvs, key_slice.data(),
                                                                         key_slice.size(), &value_out, &valuelen_out));
@@ -458,16 +458,16 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
                                      keys_limit_t count_keys,
                                      std::vector<std::string>* keys_out,
                                      cursor_t* cursor_out) {
-  fdb_iterator* it = NULL;
+  fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
 
-  common::Error err =
-      CheckResultCommand(DB_SCAN_COMMAND, fdb_iterator_init(connection_.handle_->kvs, &it, NULL, 0, NULL, 0, opt));
+  common::Error err = CheckResultCommand(DB_SCAN_COMMAND,
+                                         fdb_iterator_init(connection_.handle_->kvs, &it, nullptr, 0, nullptr, 0, opt));
   if (err) {
     return err;
   }
 
-  fdb_doc* doc = NULL;
+  fdb_doc* doc = nullptr;
   uint64_t offset_pos = cursor_in;
   uint64_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
@@ -503,7 +503,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
                                      const std::string& key_end,
                                      keys_limit_t limit,
                                      std::vector<std::string>* ret) {
-  fdb_iterator* it = NULL;
+  fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
   common::Error err =
       CheckResultCommand(DB_KEYS_COMMAND, fdb_iterator_init(connection_.handle_->kvs, &it, key_start.c_str(),
@@ -512,7 +512,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
     return err;
   }
 
-  fdb_doc* doc = NULL;
+  fdb_doc* doc = nullptr;
   do {
     fdb_status rc = fdb_iterator_get(it, &doc);
     if (rc != FDB_RESULT_SUCCESS) {
@@ -534,17 +534,17 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
 }
 
 common::Error DBConnection::DBkcountImpl(size_t* size) {
-  fdb_iterator* it = NULL;
+  fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
 
-  common::Error err =
-      CheckResultCommand(DB_DBKCOUNT_COMMAND, fdb_iterator_init(connection_.handle_->kvs, &it, NULL, 0, NULL, 0, opt));
+  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND,
+                                         fdb_iterator_init(connection_.handle_->kvs, &it, nullptr, 0, nullptr, 0, opt));
   if (err) {
     return err;
   }
 
   size_t sz = 0;
-  fdb_doc* doc = NULL;
+  fdb_doc* doc = nullptr;
   do {
     fdb_status rc = fdb_iterator_get(it, &doc);
     if (rc != FDB_RESULT_SUCCESS) {
@@ -561,16 +561,16 @@ common::Error DBConnection::DBkcountImpl(size_t* size) {
 }
 
 common::Error DBConnection::FlushDBImpl() {
-  fdb_iterator* it = NULL;
+  fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
 
-  common::Error err =
-      CheckResultCommand(DB_FLUSHDB_COMMAND, fdb_iterator_init(connection_.handle_->kvs, &it, NULL, 0, NULL, 0, opt));
+  common::Error err = CheckResultCommand(DB_FLUSHDB_COMMAND,
+                                         fdb_iterator_init(connection_.handle_->kvs, &it, nullptr, 0, nullptr, 0, opt));
   if (err) {
     return err;
   }
 
-  fdb_doc* doc = NULL;
+  fdb_doc* doc = nullptr;
   do {
     fdb_status rc = fdb_iterator_get(it, &doc);
     if (rc != FDB_RESULT_SUCCESS) {

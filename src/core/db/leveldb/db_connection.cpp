@@ -331,7 +331,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
         default:
           break;
       }
-      p2 = strtok(0, " ");
+      p2 = strtok(nullptr, " ");
     }
   }
 
@@ -375,7 +375,7 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);
   uint64_t offset_pos = cursor_in;
-  uint64_t lcursor_out = 0;
+  cursor_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     std::string key = it->key().ToString();
