@@ -1516,7 +1516,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return CheckResultCommand(DB_KEYS_COMMAND, connection_.handle_->keys(key_start, key_end, limit, ret));
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   std::vector<std::string> ret;
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND,
@@ -1553,7 +1553,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
     return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
   }
 
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   common::Error err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);

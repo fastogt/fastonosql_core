@@ -533,7 +533,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
 
@@ -543,7 +543,7 @@ common::Error DBConnection::DBkcountImpl(size_t* size) {
     return err;
   }
 
-  size_t sz = 0;
+  keys_limit_t sz = 0;
   fdb_doc* doc = nullptr;
   do {
     fdb_status rc = fdb_iterator_get(it, &doc);
@@ -622,7 +622,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
   }
 
   connection_.config_->db_name = name;
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);

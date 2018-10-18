@@ -22,6 +22,11 @@
 #include <string>
 
 #define DEFAULT_DELIMITER " "
+#define ALL_COMMANDS "*"
+#define ALL_KEYS_PATTERNS "*"
+#define ALL_PUBSUB_CHANNELS "*"
+#define NO_KEYS_LIMIT INT32_MAX
+#define OK_RESULT "OK"
 
 namespace fastonosql {
 namespace core {
@@ -31,6 +36,8 @@ typedef std::basic_string<command_buffer_char_t> command_buffer_t;
 typedef std::basic_stringstream<command_buffer_char_t> command_buffer_writer_t;
 typedef std::deque<command_buffer_t> commands_args_t;
 typedef command_buffer_t readable_string_t;
+typedef uint32_t keys_limit_t;  // UIntegerValue
+typedef keys_limit_t cursor_t;
 
 command_buffer_t StableCommand(const command_buffer_t& command);
 

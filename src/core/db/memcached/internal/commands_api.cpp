@@ -64,7 +64,7 @@ common::Error CommandsApi::Add(internal::CommandHandler* handler, commands_args_
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -89,7 +89,7 @@ common::Error CommandsApi::Replace(internal::CommandHandler* handler, commands_a
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -113,7 +113,7 @@ common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_ar
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -137,7 +137,7 @@ common::Error CommandsApi::Prepend(internal::CommandHandler* handler, commands_a
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

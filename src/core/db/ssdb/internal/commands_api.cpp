@@ -84,7 +84,7 @@ common::Error CommandsApi::Auth(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -101,7 +101,7 @@ common::Error CommandsApi::Setx(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -182,7 +182,7 @@ common::Error CommandsApi::MultiSet(internal::CommandHandler* handler, commands_
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -200,7 +200,7 @@ common::Error CommandsApi::MultiDel(internal::CommandHandler* handler, commands_
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -245,7 +245,7 @@ common::Error CommandsApi::Hset(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -258,7 +258,7 @@ common::Error CommandsApi::Hdel(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -411,7 +411,7 @@ common::Error CommandsApi::MultiHset(internal::CommandHandler* handler, commands
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -443,7 +443,7 @@ common::Error CommandsApi::Zset(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -456,7 +456,7 @@ common::Error CommandsApi::Zdel(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -728,7 +728,7 @@ common::Error CommandsApi::MultiZset(internal::CommandHandler* handler, commands
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -746,7 +746,7 @@ common::Error CommandsApi::MultiZdel(internal::CommandHandler* handler, commands
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -759,7 +759,7 @@ common::Error CommandsApi::Qpush(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

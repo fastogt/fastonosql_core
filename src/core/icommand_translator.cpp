@@ -52,6 +52,13 @@ common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buf
   return common::Error();
 }
 
+command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
+  command_buffer_writer_t wr;
+  wr << DB_SCAN_COMMAND " " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
+     << common::ConvertToString(count_keys);
+  return wr.str();
+}
+
 ICommandTranslator::ICommandTranslator(const std::vector<CommandHolder>& commands) : commands_(commands) {}
 
 ICommandTranslator::~ICommandTranslator() {}

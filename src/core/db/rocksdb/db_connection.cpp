@@ -688,7 +688,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return CheckResultCommand(DB_KEYS_COMMAND, st);
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
   size_t sz = 0;
@@ -753,7 +753,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
     return err;
   }
 
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);

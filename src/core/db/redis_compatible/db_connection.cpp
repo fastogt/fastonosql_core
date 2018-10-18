@@ -1773,7 +1773,7 @@ common::Error DBConnection<Config, ContType>::KeysImpl(const std::string& key_st
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t* size) {
+common::Error DBConnection<Config, ContType>::DBkcountImpl(keys_limit_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
   if (!reply || reply->type != REDIS_REPLY_INTEGER) {
@@ -1781,7 +1781,7 @@ common::Error DBConnection<Config, ContType>::DBkcountImpl(size_t* size) {
   }
 
   /* Grab the number of keys and free our reply */
-  *size = static_cast<size_t>(reply->integer);
+  *size = static_cast<keys_limit_t>(reply->integer);
   freeReplyObject(reply);
   return common::Error();
 }
@@ -1819,7 +1819,7 @@ common::Error DBConnection<Config, ContType>::SelectImpl(const std::string& name
 
   base_class::connection_.config_->db_num = num;
   cur_db_ = num;
-  size_t sz = 0;
+  keys_limit_t sz = 0;
   err = base_class::DBkcount(&sz);
   DCHECK(!err);
   DataBaseInfo* linfo = new DataBaseInfo(common::ConvertToString(num), true, sz);

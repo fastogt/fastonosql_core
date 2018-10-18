@@ -34,9 +34,6 @@ namespace detail {
 readable_string_t StableForJson(const ReadableString& data);
 }  // namespace detail
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
-                                keys_limit_t count_keys);  // for SCAN
-
 // for all commands:
 // 1) test input
 // 2) test connection state
@@ -70,7 +67,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                      const std::string& key_end,
                      keys_limit_t limit,
                      std::vector<std::string>* ret) WARN_UNUSED_RESULT;  // nvi
-  common::Error DBkcount(size_t* size) WARN_UNUSED_RESULT;               // nvi
+  common::Error DBkcount(keys_limit_t* size) WARN_UNUSED_RESULT;         // nvi
   common::Error FlushDB() WARN_UNUSED_RESULT;                            // nvi
   common::Error Select(const std::string& name,
                        IDataBaseInfo** info) WARN_UNUSED_RESULT;                       // nvi
@@ -111,7 +108,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                                  const std::string& key_end,
                                  keys_limit_t limit,
                                  std::vector<std::string>* ret) = 0;
-  virtual common::Error DBkcountImpl(size_t* size) = 0;
+  virtual common::Error DBkcountImpl(keys_limit_t* size) = 0;
   virtual common::Error FlushDBImpl() = 0;
 
   virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) = 0;
@@ -235,7 +232,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::Keys(const std::stri
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::DBkcount(size_t* size) {
+common::Error CDBConnection<NConnection, Config, ContType>::DBkcount(keys_limit_t* size) {
   if (!size) {
     DNOTREACHED();
     return common::make_error_inval();

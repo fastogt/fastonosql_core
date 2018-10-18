@@ -505,7 +505,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   uint64_t sz = 0;
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND, ups_db_count(connection_.handle_->db, NULL, UPS_SKIP_DUPLICATES, &sz));
@@ -561,7 +561,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
     return common::make_error(buff);
   }
 
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   common::Error err = DBkcount(&kcount);
   DCHECK(!err);
   *info = new DataBaseInfo(name, true, kcount);

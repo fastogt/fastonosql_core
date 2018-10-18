@@ -21,16 +21,8 @@
 #include <string>  // for string
 #include <vector>
 
-#define ALL_COMMANDS "*"
-#define ALL_KEYS_PATTERNS "*"
-#define ALL_PUBSUB_CHANNELS "*"
-#define NO_KEYS_LIMIT INT32_MAX
-
 namespace fastonosql {
 namespace core {
-
-typedef uint32_t keys_limit_t;
-typedef keys_limit_t cursor_t;
 
 enum ConnectionType {
   REDIS = 0,

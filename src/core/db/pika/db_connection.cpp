@@ -2249,7 +2249,7 @@ common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<Ser
 
 DBConnection::DBConnection(CDBConnectionClient* client) : base_class(client) {}
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
   if (!reply || reply->type != REDIS_REPLY_STRING) {

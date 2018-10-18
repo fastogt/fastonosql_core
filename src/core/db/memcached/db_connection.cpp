@@ -881,7 +881,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   KeysHolder hld("a", "z", NO_KEYS_LIMIT);
   memcached_dump_fn func[1] = {memcached_dump_keys_callback};
   common::Error err =
@@ -903,7 +903,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
     return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
   }
 
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   common::Error err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);

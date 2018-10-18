@@ -41,7 +41,7 @@ common::Error CommandsApi::Auth(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -632,7 +632,7 @@ common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1143,7 +1143,7 @@ common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1271,7 +1271,7 @@ common::Error CommandsApi::Hmset(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

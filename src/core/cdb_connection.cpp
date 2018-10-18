@@ -22,7 +22,6 @@
 
 namespace fastonosql {
 namespace core {
-
 namespace detail {
 
 readable_string_t StableForJson(const ReadableString& data) {
@@ -46,14 +45,7 @@ readable_string_t StableForJson(const ReadableString& data) {
 
   return common::MemSPrintf("\"%s\"", data_raw);
 }
+
 }  // namespace detail
-
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
-  command_buffer_writer_t wr;
-  wr << DB_SCAN_COMMAND " " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
-     << common::ConvertToString(count_keys);
-  return wr.str();
-}
-
 }  // namespace core
 }  // namespace fastonosql

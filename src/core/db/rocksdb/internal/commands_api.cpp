@@ -68,7 +68,7 @@ common::Error CommandsApi::Merge(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue("OK");
+  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
   FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

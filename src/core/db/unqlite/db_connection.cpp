@@ -435,7 +435,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(size_t* size) {
+common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   /* Allocate a new cursor instance */
   unqlite_kv_cursor* pCur; /* Cursor handle */
   common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
@@ -490,7 +490,7 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
     return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
   }
 
-  size_t kcount = 0;
+  keys_limit_t kcount = 0;
   common::Error err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);

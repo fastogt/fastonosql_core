@@ -148,7 +148,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
                                  const std::string& key_end,
                                  keys_limit_t limit,
                                  std::vector<std::string>* ret) override;
-  virtual common::Error DBkcountImpl(size_t* size) override;
+  virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;
   virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;

@@ -1,6 +1,7 @@
-1.1.1 /
+1.2.0 / October 18, 2018
 [Alexandr Topilski]
 - Redis 5.0 commands description
+- Stabilization
 
 1.1.0 / October 12, 2018
 [Alexandr Topilski]
