@@ -33,6 +33,7 @@ CommandHandler::CommandHandler(ICommandTranslator* translator) : translator_(tra
 common::Error CommandHandler::Execute(const command_buffer_t& command, FastoObject* out) {
   command_buffer_t stabled_command = StableCommand(command);
   if (stabled_command.empty()) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 

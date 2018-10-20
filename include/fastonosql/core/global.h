@@ -80,7 +80,7 @@ class FastoObject : public common::intrusive_ptr_base<FastoObject> {
 
 class FastoObjectCommand : public FastoObject {
  public:
-  virtual ~FastoObjectCommand();
+  virtual ~FastoObjectCommand() override;
   virtual std::string ToString() const override;
 
   core::ConnectionType GetConnectionType() const;

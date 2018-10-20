@@ -28,13 +28,14 @@ struct PublicPrivate {
   PublicPrivate(const std::string& public_key, const std::string& private_key, bool use_public_key);
   bool IsValid() const;
 
-  std::string public_key;
-  std::string private_key;
+  std::string public_key_path;
+  std::string private_key_path;
   bool use_public_key;
 };
 
 inline bool operator==(const PublicPrivate& r, const PublicPrivate& l) {
-  return r.public_key == l.public_key && r.private_key == l.private_key && r.use_public_key == l.use_public_key;
+  return r.public_key_path == l.public_key_path && r.private_key_path == l.private_key_path &&
+         r.use_public_key == l.use_public_key;
 }
 
 inline bool operator!=(const PublicPrivate& r, const PublicPrivate& l) {

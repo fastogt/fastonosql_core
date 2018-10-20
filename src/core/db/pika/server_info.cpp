@@ -21,9 +21,10 @@
 #include <common/convert2string.h>
 
 #include <fastonosql/core/db_traits.h>
+#include <fastonosql/core/macros.h>
 #include <fastonosql/core/value.h>
 
-#define PIKA_INFO_MARKER "\r\n"
+#define PIKA_INFO_MARKER MARKER_STR
 
 namespace fastonosql {
 namespace core {
@@ -702,39 +703,41 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Server& value) {
-  return out << PIKA_SERVER_VERSION_LABEL ":" << value.pika_version_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_GIT_SHA_LABEL ":" << value.pika_git_sha_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_BUILD_COMPILE_DATE_LABEL ":" << value.pika_build_compile_date_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_OS_LABEL ":" << value.os_ << PIKA_INFO_MARKER << PIKA_SERVER_ARCH_BITS_LABEL ":"
-             << value.arch_bits_ << PIKA_INFO_MARKER << PIKA_SERVER_PROCESS_ID_LABEL ":" << value.process_id_
-             << PIKA_INFO_MARKER << PIKA_SERVER_TCP_PORT_LABEL ":" << value.tcp_port_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_THREAD_NUM_LABEL ":" << value.thread_num_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_SYNC_THREAD_NUM_LABEL ":" << value.sync_thread_num_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_UPTIME_IN_SECONDS_LABEL ":" << value.uptime_in_seconds_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_UPTIME_IN_DAYS_LABEL ":" << value.uptime_in_days_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_CONFIG_FILE_LABEL ":" << value.config_file_ << PIKA_INFO_MARKER
-             << PIKA_SERVER_SERVER_ID_LABEL ":" << value.server_id_ << PIKA_INFO_MARKER;
+  return out << PIKA_SERVER_VERSION_LABEL COLON_STR << value.pika_version_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_GIT_SHA_LABEL COLON_STR << value.pika_git_sha_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_BUILD_COMPILE_DATE_LABEL COLON_STR << value.pika_build_compile_date_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_OS_LABEL COLON_STR << value.os_ << PIKA_INFO_MARKER << PIKA_SERVER_ARCH_BITS_LABEL COLON_STR
+             << value.arch_bits_ << PIKA_INFO_MARKER << PIKA_SERVER_PROCESS_ID_LABEL COLON_STR << value.process_id_
+             << PIKA_INFO_MARKER << PIKA_SERVER_TCP_PORT_LABEL COLON_STR << value.tcp_port_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_THREAD_NUM_LABEL COLON_STR << value.thread_num_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_SYNC_THREAD_NUM_LABEL COLON_STR << value.sync_thread_num_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_UPTIME_IN_SECONDS_LABEL COLON_STR << value.uptime_in_seconds_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_UPTIME_IN_DAYS_LABEL COLON_STR << value.uptime_in_days_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_CONFIG_FILE_LABEL COLON_STR << value.config_file_ << PIKA_INFO_MARKER
+             << PIKA_SERVER_SERVER_ID_LABEL COLON_STR << value.server_id_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Data& value) {
-  return out << PIKA_DATA_DB_SIZE_LABEL ":" << value.db_size_ << PIKA_INFO_MARKER << PIKA_DATA_DB_SIZE_HUMAN_LABEL ":"
-             << value.db_size_human_ << PIKA_INFO_MARKER << PIKA_DATA_COMPRESSION_LABEL ":" << value.compression_
-             << PIKA_INFO_MARKER << PIKA_DATA_USED_MEMORY_LABEL ":" << value.used_memory_ << PIKA_INFO_MARKER
-             << PIKA_DATA_USED_MEMORY_HUMAN_LABEL ":" << value.used_memory_human_ << PIKA_INFO_MARKER
-             << PIKA_DATA_DB_MEMTABLE_USAGE_LABEL ":" << value.db_memtable_usage_ << PIKA_INFO_MARKER
-             << PIKA_DATA_DB_TABLEREADER_USAGE_LABEL ":" << value.db_tablereader_usage_ << PIKA_INFO_MARKER;
+  return out << PIKA_DATA_DB_SIZE_LABEL COLON_STR << value.db_size_ << PIKA_INFO_MARKER
+             << PIKA_DATA_DB_SIZE_HUMAN_LABEL COLON_STR << value.db_size_human_ << PIKA_INFO_MARKER
+             << PIKA_DATA_COMPRESSION_LABEL COLON_STR << value.compression_ << PIKA_INFO_MARKER
+             << PIKA_DATA_USED_MEMORY_LABEL COLON_STR << value.used_memory_ << PIKA_INFO_MARKER
+             << PIKA_DATA_USED_MEMORY_HUMAN_LABEL COLON_STR << value.used_memory_human_ << PIKA_INFO_MARKER
+             << PIKA_DATA_DB_MEMTABLE_USAGE_LABEL COLON_STR << value.db_memtable_usage_ << PIKA_INFO_MARKER
+             << PIKA_DATA_DB_TABLEREADER_USAGE_LABEL COLON_STR << value.db_tablereader_usage_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Log& value) {
-  return out << PIKA_LOG_SIZE_LABEL ":" << value.log_size_ << PIKA_INFO_MARKER << PIKA_LOG_SIZE_HUMAN_LABEL ":"
-             << value.log_size_human_ << PIKA_INFO_MARKER << PIKA_LOG_SAFETY_PURGE_LABEL ":" << value.safety_purge_
-             << PIKA_INFO_MARKER << PIKA_LOG_EXPIRE_LOGS_DAYS_LABEL ":" << value.expire_logs_days_ << PIKA_INFO_MARKER
-             << PIKA_LOG_EXPIRE_LOGS_NUMS_LABEL ":" << value.expire_logs_nums_ << PIKA_INFO_MARKER
-             << PIKA_LOG_BINLOG_OFFSET_LABEL ":" << value.binlog_offset_ << PIKA_INFO_MARKER;
+  return out << PIKA_LOG_SIZE_LABEL COLON_STR << value.log_size_ << PIKA_INFO_MARKER
+             << PIKA_LOG_SIZE_HUMAN_LABEL COLON_STR << value.log_size_human_ << PIKA_INFO_MARKER
+             << PIKA_LOG_SAFETY_PURGE_LABEL COLON_STR << value.safety_purge_ << PIKA_INFO_MARKER
+             << PIKA_LOG_EXPIRE_LOGS_DAYS_LABEL COLON_STR << value.expire_logs_days_ << PIKA_INFO_MARKER
+             << PIKA_LOG_EXPIRE_LOGS_NUMS_LABEL COLON_STR << value.expire_logs_nums_ << PIKA_INFO_MARKER
+             << PIKA_LOG_BINLOG_OFFSET_LABEL COLON_STR << value.binlog_offset_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
-  return out << PIKA_CLIENTS_CONNECTED_CLIENTS_LABEL ":" << value.connected_clients_ << PIKA_INFO_MARKER;
+  return out << PIKA_CLIENTS_CONNECTED_CLIENTS_LABEL COLON_STR << value.connected_clients_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Hub& value) {
@@ -743,35 +746,37 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Hub& value) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << PIKA_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL ":" << value.total_connections_received_ << PIKA_INFO_MARKER
-             << PIKA_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL ":" << value.instantaneous_ops_per_sec_ << PIKA_INFO_MARKER
-             << PIKA_STATS_TOTAL_COMMANDS_PROCESSED_LABEL ":" << value.total_commands_processed_ << PIKA_INFO_MARKER
-             << PIKA_STATS_IS_BGSAVING_LABEL ":" << value.is_bgsaving_ << PIKA_INFO_MARKER
-             << PIKA_STATS_IS_SLOTS_RELOADING_LABEL ":" << value.is_slots_reloading_ << PIKA_INFO_MARKER
-             << PIKA_STATS_IS_SLOTS_CLEANUPING_LABEL ":" << value.is_slots_cleanuping_ << PIKA_INFO_MARKER
-             << PIKA_STATS_IS_SCANING_KEYSPACE_LABEL ":" << value.is_scaning_keyspace_ << PIKA_INFO_MARKER
-             << PIKA_STATS_IS_COMPACT_LABEL ":" << value.is_compact_ << PIKA_INFO_MARKER
-             << PIKA_STATS_COMPACT_CRON_LABEL ":" << value.compact_cron_ << PIKA_INFO_MARKER
-             << PIKA_STATS_COMPACT_INTERVAL_LABEL ":" << value.compact_interval_ << PIKA_INFO_MARKER;
+  return out << PIKA_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL COLON_STR << value.total_connections_received_
+             << PIKA_INFO_MARKER << PIKA_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL COLON_STR
+             << value.instantaneous_ops_per_sec_ << PIKA_INFO_MARKER
+             << PIKA_STATS_TOTAL_COMMANDS_PROCESSED_LABEL COLON_STR << value.total_commands_processed_
+             << PIKA_INFO_MARKER << PIKA_STATS_IS_BGSAVING_LABEL COLON_STR << value.is_bgsaving_ << PIKA_INFO_MARKER
+             << PIKA_STATS_IS_SLOTS_RELOADING_LABEL COLON_STR << value.is_slots_reloading_ << PIKA_INFO_MARKER
+             << PIKA_STATS_IS_SLOTS_CLEANUPING_LABEL COLON_STR << value.is_slots_cleanuping_ << PIKA_INFO_MARKER
+             << PIKA_STATS_IS_SCANING_KEYSPACE_LABEL COLON_STR << value.is_scaning_keyspace_ << PIKA_INFO_MARKER
+             << PIKA_STATS_IS_COMPACT_LABEL COLON_STR << value.is_compact_ << PIKA_INFO_MARKER
+             << PIKA_STATS_COMPACT_CRON_LABEL COLON_STR << value.compact_cron_ << PIKA_INFO_MARKER
+             << PIKA_STATS_COMPACT_INTERVAL_LABEL COLON_STR << value.compact_interval_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Cpu& value) {
-  return out << PIKA_CPU_USED_CPU_SYS_LABEL ":" << value.used_cpu_sys_ << PIKA_INFO_MARKER
-             << PIKA_CPU_USED_CPU_USER_LABEL ":" << value.used_cpu_user_ << PIKA_INFO_MARKER
-             << PIKA_CPU_USED_CPU_SYS_CHILDREN_LABEL ":" << value.used_cpu_sys_children_ << PIKA_INFO_MARKER
-             << PIKA_CPU_USED_CPU_USER_CHILDREN_LABEL ":" << value.used_cpu_user_children_ << PIKA_INFO_MARKER;
+  return out << PIKA_CPU_USED_CPU_SYS_LABEL COLON_STR << value.used_cpu_sys_ << PIKA_INFO_MARKER
+             << PIKA_CPU_USED_CPU_USER_LABEL COLON_STR << value.used_cpu_user_ << PIKA_INFO_MARKER
+             << PIKA_CPU_USED_CPU_SYS_CHILDREN_LABEL COLON_STR << value.used_cpu_sys_children_ << PIKA_INFO_MARKER
+             << PIKA_CPU_USED_CPU_USER_CHILDREN_LABEL COLON_STR << value.used_cpu_user_children_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Replication& value) {
-  return out << PIKA_REPLICATION_ROLE_LABEL ":" << value.role_ << PIKA_INFO_MARKER
-             << PIKA_REPLICATION_CONNECTED_SLAVES_LABEL ":" << value.connected_slaves_ << PIKA_INFO_MARKER;
+  return out << PIKA_REPLICATION_ROLE_LABEL COLON_STR << value.role_ << PIKA_INFO_MARKER
+             << PIKA_REPLICATION_CONNECTED_SLAVES_LABEL COLON_STR << value.connected_slaves_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::KeySpace& value) {
-  return out << PIKA_KEYSPACE_KV_KEYS_LABEL ":" << value.kv_ << PIKA_INFO_MARKER << PIKA_KEYSPACE_HASH_KEYS_LABEL ":"
-             << value.hash_ << PIKA_INFO_MARKER << PIKA_KEYSPACE_LIST_KEYS_LABEL ":" << value.list_ << PIKA_INFO_MARKER
-             << PIKA_KEYSPACE_ZSET_KEYS_LABEL ":" << value.zset_ << PIKA_INFO_MARKER << PIKA_KEYSPACE_SET_KEYS_LABEL ":"
-             << value.set_ << PIKA_INFO_MARKER;
+  return out << PIKA_KEYSPACE_KV_KEYS_LABEL COLON_STR << value.kv_ << PIKA_INFO_MARKER
+             << PIKA_KEYSPACE_HASH_KEYS_LABEL COLON_STR << value.hash_ << PIKA_INFO_MARKER
+             << PIKA_KEYSPACE_LIST_KEYS_LABEL COLON_STR << value.list_ << PIKA_INFO_MARKER
+             << PIKA_KEYSPACE_ZSET_KEYS_LABEL COLON_STR << value.zset_ << PIKA_INFO_MARKER
+             << PIKA_KEYSPACE_SET_KEYS_LABEL COLON_STR << value.set_ << PIKA_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::DoubleMaster& value) {

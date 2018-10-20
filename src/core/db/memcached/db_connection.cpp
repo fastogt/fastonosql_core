@@ -18,21 +18,8 @@
 
 #include <fastonosql/core/db/memcached/db_connection.h>
 
-#include <string.h>  // for strcasecmp
-
-#include <memory>  // for __shared_ptr
-#include <string>  // for string, operator<, etc
-
-#include <string.h>
-
 #include <libmemcached/memcached.h>
 #include <libmemcached/util.h>
-
-#include <common/convert2string.h>  // for ConvertFromString
-#include <common/net/types.h>       // for HostAndPort
-#include <common/sprintf.h>         // for MemSPrintf
-#include <common/utils.h>           // for c_strornull
-#include <common/value.h>           // for Value::ErrorsType::E_ERROR, etc
 
 #include <fastonosql/core/db/memcached/command_translator.h>
 #include <fastonosql/core/db/memcached/config.h>  // for Config

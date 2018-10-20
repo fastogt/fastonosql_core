@@ -35,7 +35,7 @@ struct Config : public LocalConfig {
   bool CreateIfMissingDB() const;
   void SetCreateIfMissingDB(bool ro);
 
-  int env_flags;
+  unsigned int env_flags;
 };
 
 }  // namespace unqlite

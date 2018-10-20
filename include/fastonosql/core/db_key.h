@@ -22,6 +22,7 @@
 
 #include <common/value.h>  // for Value, Value::Type, etc
 
+#include <fastonosql/core/macros.h>
 #include <fastonosql/core/types.h>
 
 #define NO_TTL -1       // key exists but has no associated expire

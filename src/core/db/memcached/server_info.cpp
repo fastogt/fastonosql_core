@@ -20,10 +20,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/db_traits.h>
-#include <fastonosql/core/value.h>
-
-#define MARKER "\r\n"
+#include <fastonosql/core/macros.h>
 
 namespace fastonosql {
 namespace core {
@@ -71,9 +68,9 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = common_text.find(MARKER, start)) != std::string::npos) {
+  while ((pos = common_text.find(MARKER_STR, start)) != std::string::npos) {
     std::string line = common_text.substr(start, pos - start);
-    size_t delem = line.find_first_of(':');
+    size_t delem = line.find_first_of(COLON_CHAR);
     std::string field = line.substr(0, delem);
     std::string value = line.substr(delem + 1);
     if (field == MEMCACHED_COMMON_PID_LABEL) {
@@ -259,24 +256,28 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << MEMCACHED_COMMON_PID_LABEL ":" << value.pid << MARKER << MEMCACHED_COMMON_UPTIME_LABEL ":"
-             << value.uptime << MARKER << MEMCACHED_COMMON_TIME_LABEL ":" << value.time << MARKER
-             << MEMCACHED_COMMON_VERSION_LABEL ":" << value.version << MARKER << MEMCACHED_COMMON_POINTER_SIZE_LABEL ":"
-             << value.pointer_size << MARKER << MEMCACHED_COMMON_RUSAGE_USER_LABEL ":" << value.rusage_user << MARKER
-             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL ":" << value.rusage_system << MARKER
-             << MEMCACHED_COMMON_CURR_ITEMS_LABEL ":" << value.curr_items << MARKER
-             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL ":" << value.total_items << MARKER
-             << MEMCACHED_COMMON_BYTES_LABEL ":" << value.bytes << MARKER << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL ":"
-             << value.curr_connections << MARKER << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL ":"
-             << value.total_connections << MARKER << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL ":"
-             << value.connection_structures << MARKER << MEMCACHED_COMMON_CMD_GET_LABEL ":" << value.cmd_get << MARKER
-             << MEMCACHED_COMMON_CMD_SET_LABEL ":" << value.cmd_set << MARKER << MEMCACHED_COMMON_GET_HITS_LABEL ":"
-             << value.get_hits << MARKER << MEMCACHED_COMMON_GET_MISSES_LABEL ":" << value.get_misses << MARKER
-             << MEMCACHED_COMMON_EVICTIONS_LABEL ":" << value.evictions << MARKER
-             << MEMCACHED_COMMON_BYTES_READ_LABEL ":" << value.bytes_read << MARKER
-             << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL ":" << value.bytes_written << MARKER
-             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL ":" << value.limit_maxbytes << MARKER
-             << MEMCACHED_COMMON_THREADS_LABEL ":" << value.threads << MARKER;
+  return out << MEMCACHED_COMMON_PID_LABEL COLON_STR << value.pid << MARKER_STR
+             << MEMCACHED_COMMON_UPTIME_LABEL COLON_STR << value.uptime << MARKER_STR
+             << MEMCACHED_COMMON_TIME_LABEL COLON_STR << value.time << MARKER_STR
+             << MEMCACHED_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR
+             << MEMCACHED_COMMON_POINTER_SIZE_LABEL COLON_STR << value.pointer_size << MARKER_STR
+             << MEMCACHED_COMMON_RUSAGE_USER_LABEL COLON_STR << value.rusage_user << MARKER_STR
+             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL COLON_STR << value.rusage_system << MARKER_STR
+             << MEMCACHED_COMMON_CURR_ITEMS_LABEL COLON_STR << value.curr_items << MARKER_STR
+             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL COLON_STR << value.total_items << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_LABEL COLON_STR << value.bytes << MARKER_STR
+             << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL COLON_STR << value.curr_connections << MARKER_STR
+             << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL COLON_STR << value.total_connections << MARKER_STR
+             << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL COLON_STR << value.connection_structures << MARKER_STR
+             << MEMCACHED_COMMON_CMD_GET_LABEL COLON_STR << value.cmd_get << MARKER_STR
+             << MEMCACHED_COMMON_CMD_SET_LABEL COLON_STR << value.cmd_set << MARKER_STR
+             << MEMCACHED_COMMON_GET_HITS_LABEL COLON_STR << value.get_hits << MARKER_STR
+             << MEMCACHED_COMMON_GET_MISSES_LABEL COLON_STR << value.get_misses << MARKER_STR
+             << MEMCACHED_COMMON_EVICTIONS_LABEL COLON_STR << value.evictions << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_READ_LABEL COLON_STR << value.bytes_read << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL COLON_STR << value.bytes_written << MARKER_STR
+             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL COLON_STR << value.limit_maxbytes << MARKER_STR
+             << MEMCACHED_COMMON_THREADS_LABEL COLON_STR << value.threads << MARKER_STR;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
@@ -324,7 +325,7 @@ ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
 
 std::string ServerInfo::ToString() const {
   std::stringstream str;
-  str << MEMCACHED_COMMON_LABEL MARKER << stats_;
+  str << MEMCACHED_COMMON_LABEL MARKER_STR << stats_;
   return str.str();
 }
 

@@ -57,7 +57,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UNQLITE> {
   virtual common::Error KeysImpl(const std::string& key_start,
                                  const std::string& key_end,
                                  keys_limit_t limit,
-                                 std::vector<std::string>* ret) override;
+                                 std::vector<std::string>* out) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;

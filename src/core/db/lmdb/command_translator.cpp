@@ -41,7 +41,7 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   NValue value = key.GetValue();
   value_t value_str = value.GetValue();
   command_buffer_writer_t wr;
-  wr << LMDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
+  wr << LMDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -53,7 +53,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LMDB_GET_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << LMDB_GET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -61,7 +61,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LMDB_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << LMDB_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -71,7 +71,7 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
                                                       command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LMDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
+  wr << LMDB_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

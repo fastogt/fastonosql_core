@@ -22,14 +22,12 @@
 #include <memory>    // for __shared_ptr
 
 #include <common/convert2string.h>  // for ConvertFromString
-#include <common/macros.h>          // for NOTREACHED
 #include <common/net/types.h>       // for HostAndPortAndSlot, etc
 #include <common/string_util.h>     // for Tokenize
 #include <common/value.h>           // for ErrorValue, etc
 
 #include <fastonosql/core/connection_types.h>  // for ConnectionType::REDIS, etc
-
-#define MARKER "\n"
+#include <fastonosql/core/macros.h>
 
 namespace fastonosql {
 namespace core {
@@ -138,7 +136,7 @@ common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHos
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = text.find(MARKER, start)) != std::string::npos) {
+  while ((pos = text.find(MARKER_STR, start)) != std::string::npos) {
     std::string line = text.substr(start, pos - start);
 
     ServerCommonInfo inf;

@@ -37,11 +37,11 @@ const char* CommandTranslator::GetDBName() const {
 
 common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   const NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const key_t key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const value_t value_str = value.GetValue();
   command_buffer_writer_t wr;
-  wr << UNQLITE_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
+  wr << UNQLITE_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -51,17 +51,17 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
                                                     command_buffer_t* cmdstring) const {
   UNUSED(type);
 
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UNQLITE_GET_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << UNQLITE_GET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
 
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UNQLITE_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << UNQLITE_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -69,9 +69,10 @@ common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_b
 common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
                                                       const key_t& new_name,
                                                       command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UNQLITE_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
+  wr << UNQLITE_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
+     << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

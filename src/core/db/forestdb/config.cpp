@@ -33,6 +33,8 @@ namespace forestdb {
 
 namespace {
 
+const char kDefaultPath[] = "~/test.forestdb";
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -64,7 +66,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 const std::string Config::default_db_name = "default";
-Config::Config() : LocalConfig(common::file_system::prepare_path("~/test.forestdb")), db_name(default_db_name) {}
+Config::Config() : LocalConfig(common::file_system::prepare_path(kDefaultPath)), db_name(default_db_name) {}
 
 }  // namespace forestdb
 }  // namespace core

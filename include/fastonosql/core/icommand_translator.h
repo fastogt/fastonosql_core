@@ -21,6 +21,10 @@
 #include <fastonosql/core/command_holder.h>
 #include <fastonosql/core/db_key.h>  // for NKey, NDbKValue, ttl_t
 #include <fastonosql/core/db_ps_channel.h>
+#include <fastonosql/core/types.h>
+
+#define END_COMMAND_CHAR END_LINE_CHAR
+#define END_COMMAND_STR END_LINE_STR
 
 #define DB_FLUSHDB_COMMAND "FLUSHDB"    // exist for all
 #define DB_SELECTDB_COMMAND "SELECT"    // exist for all
@@ -49,9 +53,6 @@
 
 #define DB_GET_CONFIG_COMMAND "CONFIG GET"
 #define DB_GET_DATABASES_COMMAND DB_GET_CONFIG_COMMAND " databases"
-
-#define END_COMMAND_CHAR '\n'
-#define END_COMMAND_STR "\n"
 
 namespace fastonosql {
 namespace core {

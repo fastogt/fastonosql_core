@@ -21,13 +21,6 @@
 #include <deque>
 #include <string>
 
-#define DEFAULT_DELIMITER " "
-#define ALL_COMMANDS "*"
-#define ALL_KEYS_PATTERNS "*"
-#define ALL_PUBSUB_CHANNELS "*"
-#define NO_KEYS_LIMIT INT32_MAX
-#define OK_RESULT "OK"
-
 namespace fastonosql {
 namespace core {
 

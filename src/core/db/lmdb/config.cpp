@@ -38,6 +38,8 @@ namespace lmdb {
 
 namespace {
 
+const char kDefaultPath[] = "~/test.lmdb";
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -81,7 +83,7 @@ Config ParseOptions(int argc, char** argv) {
 const std::string Config::default_db_name = "default";
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path("~/test.lmdb")),
+    : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       env_flags(LMDB_DEFAULT_ENV_FLAGS),
       db_name(default_db_name),
       max_dbs(default_dbs_count) {}

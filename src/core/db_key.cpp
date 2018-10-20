@@ -18,9 +18,6 @@
 
 #include <fastonosql/core/db_key.h>
 
-#include <common/convert2string.h>
-#include <common/string_util.h>  // for JoinString, Tokenize
-
 #include <fastonosql/core/value.h>
 
 namespace fastonosql {
@@ -81,6 +78,7 @@ NValue NDbKValue::GetValue() const {
 
 common::Value::Type NDbKValue::GetType() const {
   if (!value_) {
+    DNOTREACHED();
     return common::Value::TYPE_NULL;
   }
 

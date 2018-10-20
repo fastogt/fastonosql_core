@@ -18,16 +18,9 @@
 
 #include <fastonosql/core/db/lmdb/db_connection.h>
 
-#include <errno.h>   // for EACCES
-#include <lmdb.h>    // for mdb_txn_abort, MDB_val
-#include <stdlib.h>  // for nullptr, free, calloc
-#include <time.h>    // for time_t
-#include <string>    // for string
+#include <lmdb.h>  // for mdb_txn_abort, MDB_val
 
-#include <common/convert2string.h>
-#include <common/file_system/string_path_utils.h>
 #include <common/utils.h>  // for c_strornull
-#include <common/value.h>  // for StringValue (ptr only)
 
 #include <fastonosql/core/db/lmdb/command_translator.h>
 #include <fastonosql/core/db/lmdb/config.h>  // for Config

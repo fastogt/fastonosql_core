@@ -20,10 +20,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/db_traits.h>
-#include <fastonosql/core/value.h>
-
-#define MARKER "\r\n"
+#include <fastonosql/core/macros.h>
 
 namespace fastonosql {
 namespace core {
@@ -56,9 +53,9 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = common_text.find(MARKER, start)) != std::string::npos) {
+  while ((pos = common_text.find(MARKER_STR, start)) != std::string::npos) {
     std::string line = common_text.substr(start, pos - start);
-    size_t delem = line.find_first_of(':');
+    size_t delem = line.find_first_of(COLON_CHAR);
     std::string field = line.substr(0, delem);
     std::string value = line.substr(delem + 1);
     if (field == LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL) {
@@ -128,10 +125,11 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL ":" << value.compactions_level << MARKER
-             << LEVELDB_STATS_FILE_SIZE_MB_LABEL ":" << value.file_size_mb << MARKER << LEVELDB_STATS_TIME_SEC_LABEL ":"
-             << value.time_sec << MARKER << LEVELDB_STATS_READ_MB_LABEL ":" << value.read_mb << MARKER
-             << LEVELDB_STATS_WRITE_MB_LABEL ":" << value.write_mb << MARKER;
+  return out << LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL COLON_STR << value.compactions_level << MARKER_STR
+             << LEVELDB_STATS_FILE_SIZE_MB_LABEL COLON_STR << value.file_size_mb << MARKER_STR
+             << LEVELDB_STATS_TIME_SEC_LABEL COLON_STR << value.time_sec << MARKER_STR
+             << LEVELDB_STATS_READ_MB_LABEL COLON_STR << value.read_mb << MARKER_STR
+             << LEVELDB_STATS_WRITE_MB_LABEL COLON_STR << value.write_mb << MARKER_STR;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
@@ -162,7 +160,7 @@ ServerInfo* MakeLeveldbServerInfo(const std::string& content) {
 
 std::string ServerInfo::ToString() const {
   std::stringstream str;
-  str << LEVELDB_STATS_LABEL MARKER << stats_;
+  str << LEVELDB_STATS_LABEL MARKER_STR << stats_;
   return str.str();
 }
 

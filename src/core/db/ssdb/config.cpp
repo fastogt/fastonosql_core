@@ -34,6 +34,8 @@ namespace core {
 namespace ssdb {
 namespace {
 
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_SSDB_SERVER_PORT);
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -70,7 +72,7 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-Config::Config() : RemoteConfig(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSDB_SERVER_PORT)), auth() {}
+Config::Config() : RemoteConfig(kDefaultHost), auth() {}
 
 }  // namespace ssdb
 }  // namespace core

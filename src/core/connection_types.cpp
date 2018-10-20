@@ -118,7 +118,7 @@ bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType
     }
   }
 
-  NOTREACHED();
+  DNOTREACHED();
   return false;
 }
 
@@ -134,7 +134,7 @@ bool ConvertFromString(const std::string& from, fastonosql::core::ServerType* ou
     }
   }
 
-  NOTREACHED();
+  DNOTREACHED();
   return false;
 }
 
@@ -146,7 +146,7 @@ bool ConvertFromString(const std::string& from, fastonosql::core::ServerState* o
     }
   }
 
-  NOTREACHED();
+  DNOTREACHED();
   return false;
 }
 

@@ -23,8 +23,11 @@
 namespace fastonosql {
 namespace core {
 namespace redis {
+namespace {
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_REDIS_SERVER_PORT);
+}
 
-Config::Config() : base_class(common::net::HostAndPort::CreateLocalHost(DEFAULT_REDIS_SERVER_PORT)) {}
+Config::Config() : base_class(kDefaultHost) {}
 
 RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
 

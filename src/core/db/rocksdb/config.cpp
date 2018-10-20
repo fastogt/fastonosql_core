@@ -42,6 +42,8 @@ const std::vector<const char*> g_compression_types = {
 
 namespace {
 
+const char kDefaultPath[] = "~/test.rocksdb";
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -83,7 +85,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path("~/test.rocksdb")),
+    : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
       comparator(COMP_BYTEWISE),
       compression(kNoCompression) {}

@@ -20,10 +20,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/db_traits.h>
-#include <fastonosql/core/value.h>
-
-#define MARKER "\r\n"
+#include <fastonosql/core/macros.h>
 
 namespace fastonosql {
 namespace core {
@@ -55,9 +52,9 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = common_text.find(MARKER, start)) != std::string::npos) {
+  while ((pos = common_text.find(MARKER_STR, start)) != std::string::npos) {
     std::string line = common_text.substr(start, pos - start);
-    size_t delem = line.find_first_of(':');
+    size_t delem = line.find_first_of(COLON_CHAR);
     std::string field = line.substr(0, delem);
     std::string value = line.substr(delem + 1);
     if (field == SSDB_COMMON_VERSION_LABEL) {
@@ -121,10 +118,10 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << SSDB_COMMON_VERSION_LABEL ":" << value.version << MARKER << SSDB_COMMON_LINKS_LABEL ":" << value.links
-             << MARKER << SSDB_COMMON_TOTAL_CALLS_LABEL ":" << value.total_calls << MARKER
-             << SSDB_COMMON_DBSIZE_LABEL ":" << value.dbsize << MARKER << SSDB_COMMON_BINLOGS_LABEL ":" << value.binlogs
-             << MARKER;
+  return out << SSDB_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR << SSDB_COMMON_LINKS_LABEL COLON_STR
+             << value.links << MARKER_STR << SSDB_COMMON_TOTAL_CALLS_LABEL COLON_STR << value.total_calls << MARKER_STR
+             << SSDB_COMMON_DBSIZE_LABEL COLON_STR << value.dbsize << MARKER_STR << SSDB_COMMON_BINLOGS_LABEL COLON_STR
+             << value.binlogs << MARKER_STR;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
@@ -155,7 +152,7 @@ ServerInfo* MakeSsdbServerInfo(const std::string& content) {
 
 std::string ServerInfo::ToString() const {
   std::stringstream str;
-  str << SSDB_COMMON_LABEL MARKER << stats_;
+  str << SSDB_COMMON_LABEL MARKER_STR << stats_;
   return str.str();
 }
 

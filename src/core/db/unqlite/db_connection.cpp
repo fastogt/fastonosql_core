@@ -279,6 +279,7 @@ namespace unqlite {
 
 common::Error CreateConnection(const Config& config, NativeConnection** context) {
   if (!context) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -292,10 +293,10 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
   }
 
   const char* db_path_ptr = db_path.c_str();
-  int env_flags = config.env_flags;
+  unsigned int env_flags = config.env_flags;
   int st = unqlite_open(&lcontext, db_path_ptr, env_flags);
   if (st != UNQLITE_OK) {
-    std::string buff = common::MemSPrintf("Fail open database: %s!", unqlite_strerror(st));
+    std::string buff = common::MemSPrintf("Failed to open database error: %s!", unqlite_strerror(st));
     return common::make_error(buff);
   }
 
@@ -337,6 +338,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
   if (!errn) {
     linfo.db_size = sz;
   }
+
   *statsout = linfo;
   return common::Error();
 }
@@ -367,22 +369,22 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
                                      keys_limit_t count_keys,
                                      std::vector<std::string>* keys_out,
                                      cursor_t* cursor_out) {
-  unqlite_kv_cursor* pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(DB_SCAN_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+  unqlite_kv_cursor* cursor; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_SCAN_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &cursor));
   if (err) {
     return err;
   }
   /* Point to the first record */
-  unqlite_kv_cursor_first_entry(pCur);
+  unqlite_kv_cursor_first_entry(cursor);
 
   /* Iterate over the entries */
-  uint64_t offset_pos = cursor_in;
-  uint64_t lcursor_out = 0;
+  cursor_t offset_pos = cursor_in;
+  cursor_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
-  while (unqlite_kv_cursor_valid_entry(pCur)) {
+  while (unqlite_kv_cursor_valid_entry(cursor)) {
     if (lkeys_out.size() < count_keys) {
       std::string skey;
-      unqlite_kv_cursor_key_callback(pCur, unqlite_data_callback, &skey);
+      unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &skey);
       if (common::MatchPattern(skey, pattern)) {
         if (offset_pos == 0) {
           lkeys_out.push_back(skey);
@@ -396,10 +398,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
     }
 
     /* Point to the next entry */
-    unqlite_kv_cursor_next_entry(pCur);
+    unqlite_kv_cursor_next_entry(cursor);
   }
   /* Finally, Release our cursor */
-  unqlite_kv_cursor_release(connection_.handle_, pCur);
+  unqlite_kv_cursor_release(connection_.handle_, cursor);
 
   *keys_out = lkeys_out;
   *cursor_out = lcursor_out;
@@ -409,79 +411,81 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
 common::Error DBConnection::KeysImpl(const std::string& key_start,
                                      const std::string& key_end,
                                      keys_limit_t limit,
-                                     std::vector<std::string>* ret) { /* Allocate a new cursor instance */
-  unqlite_kv_cursor* pCur;                                            /* Cursor handle */
-  common::Error err = CheckResultCommand(DB_KEYS_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+                                     std::vector<std::string>* out) { /* Allocate a new cursor instance */
+  unqlite_kv_cursor* cursor;                                          /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_KEYS_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &cursor));
   if (err) {
     return err;
   }
   /* Point to the first record */
-  unqlite_kv_cursor_first_entry(pCur);
+  unqlite_kv_cursor_first_entry(cursor);
 
   /* Iterate over the entries */
-  while (unqlite_kv_cursor_valid_entry(pCur) && limit > ret->size()) {
+  std::vector<std::string> result;
+  while (unqlite_kv_cursor_valid_entry(cursor) && limit > result.size()) {
     std::string key;
-    unqlite_kv_cursor_key_callback(pCur, unqlite_data_callback, &key);
+    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &key);
     if (key_start < key && key_end > key) {
-      ret->push_back(key);
+      result.push_back(key);
     }
 
     /* Point to the next entry */
-    unqlite_kv_cursor_next_entry(pCur);
+    unqlite_kv_cursor_next_entry(cursor);
   }
   /* Finally, Release our cursor */
-  unqlite_kv_cursor_release(connection_.handle_, pCur);
+  unqlite_kv_cursor_release(connection_.handle_, cursor);
 
+  *out = result;
   return common::Error();
 }
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   /* Allocate a new cursor instance */
-  unqlite_kv_cursor* pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+  unqlite_kv_cursor* cursor; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &cursor));
   if (err) {
     return err;
   }
   /* Point to the first record */
-  unqlite_kv_cursor_first_entry(pCur);
+  unqlite_kv_cursor_first_entry(cursor);
 
-  size_t sz = 0;
+  keys_limit_t sz = 0;
   /* Iterate over the entries */
-  while (unqlite_kv_cursor_valid_entry(pCur)) {
+  while (unqlite_kv_cursor_valid_entry(cursor)) {
     sz++;
     /* Point to the next entry */
-    unqlite_kv_cursor_next_entry(pCur);
+    unqlite_kv_cursor_next_entry(cursor);
   }
   /* Finally, Release our cursor */
-  unqlite_kv_cursor_release(connection_.handle_, pCur);
+  unqlite_kv_cursor_release(connection_.handle_, cursor);
 
   *size = sz;
   return common::Error();
 }
 
 common::Error DBConnection::FlushDBImpl() {
-  unqlite_kv_cursor* pCur; /* Cursor handle */
-  common::Error err = CheckResultCommand(DB_FLUSHDB_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &pCur));
+  unqlite_kv_cursor* cursor; /* Cursor handle */
+  common::Error err = CheckResultCommand(DB_FLUSHDB_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &cursor));
   if (err) {
     return err;
   }
   /* Point to the first record */
-  unqlite_kv_cursor_first_entry(pCur);
+  unqlite_kv_cursor_first_entry(cursor);
 
   /* Iterate over the entries */
-  while (unqlite_kv_cursor_valid_entry(pCur)) {
+  while (unqlite_kv_cursor_valid_entry(cursor)) {
     std::string key;
-    unqlite_kv_cursor_key_callback(pCur, unqlite_data_callback, &key);
+    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &key);
     common::Error err = DelInner(key);
     if (err) {
       return err;
     }
     /* Point to the next entry */
-    unqlite_kv_cursor_next_entry(pCur);
+    unqlite_kv_cursor_next_entry(cursor);
   }
 
   /* Finally, Release our cursor */
-  unqlite_kv_cursor_release(connection_.handle_, pCur);
+  unqlite_kv_cursor_release(connection_.handle_, cursor);
   return common::Error();
 }
 
@@ -498,10 +502,10 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
 }
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
-  NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const NKey cur = key.GetKey();
+  const key_t key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const value_t value_str = value.GetValue();
   common::Error err = SetInner(key_str, value_str);
   if (err) {
     return err;
@@ -512,7 +516,7 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
@@ -525,7 +529,7 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
   std::string value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
@@ -537,18 +541,13 @@ common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
     return err;
   }
 
-  err = SetInner(new_key, value_str);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  return SetInner(new_key, value_str);
 }
 
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i];
-    key_t key_str = key.GetKey();
+    const NKey key = keys[i];
+    const key_t key_str = key.GetKey();
     common::Error err = DelInner(key_str);
     if (err) {
       continue;
@@ -561,12 +560,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::QuitImpl() {
-  common::Error err = Disconnect();
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  return Disconnect();
 }
 
 common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {

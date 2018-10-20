@@ -36,6 +36,8 @@ namespace core {
 namespace unqlite {
 namespace {
 
+const char kDefaultPath[] = "~/test.unqlite";
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -46,7 +48,7 @@ Config ParseOptions(int argc, char** argv) {
     } else if (!strcmp(argv[i], "-f") && !lastarg) {
       cfg.db_path = argv[++i];
     } else if (!strcmp(argv[i], "-e") && !lastarg) {
-      int env_flags;
+      unsigned int env_flags;
       if (common::ConvertFromString(argv[++i], &env_flags)) {
         cfg.env_flags = env_flags;
       }
@@ -69,8 +71,7 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-Config::Config()
-    : LocalConfig(common::file_system::prepare_path("~/test.unqlite")), env_flags(UNQLITE_DEFAULT_ENV_FLAGS) {}
+Config::Config() : LocalConfig(common::file_system::prepare_path(kDefaultPath)), env_flags(UNQLITE_DEFAULT_ENV_FLAGS) {}
 
 bool Config::ReadOnlyDB() const {
   return env_flags & UNQLITE_OPEN_READONLY;

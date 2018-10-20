@@ -25,7 +25,7 @@ extern "C" {
 #include <common/file_system/types.h>  // for prepare_path
 #include <common/sprintf.h>            // for MemSPrintf
 
-#include "leveldb/options.h"  // for Options
+#include <leveldb/options.h>  // for Options
 
 #include <fastonosql/core/logger.h>
 
@@ -41,6 +41,8 @@ const std::vector<const char*> g_comparator_types = {"BYTEWISE", "INDEXED_DB"};
 const std::vector<const char*> g_compression_types = {"NO_COMPRESSION", "SNAPPY"};
 
 namespace {
+
+const char kDefaultPath[] = "~/test.forestdb";
 
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
@@ -83,7 +85,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path("~/test.leveldb")),
+    : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
       comparator(COMP_BYTEWISE),
       compression(kSnappyCompression) {}

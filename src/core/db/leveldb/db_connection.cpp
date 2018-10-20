@@ -435,7 +435,7 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);
-  size_t sz = 0;
+  keys_limit_t sz = 0;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     sz++;
   }

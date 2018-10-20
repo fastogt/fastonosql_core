@@ -21,7 +21,6 @@
 #include <libforestdb/forestdb.h>
 
 #include <common/file_system/file_system.h>
-#include <common/file_system/string_path_utils.h>
 #include <common/utils.h>  // for c_strornull
 
 #include <fastonosql/core/db/forestdb/command_translator.h>
@@ -468,8 +467,8 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   }
 
   fdb_doc* doc = nullptr;
-  uint64_t offset_pos = cursor_in;
-  uint64_t lcursor_out = 0;
+  cursor_t offset_pos = cursor_in;
+  cursor_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
   do {
     fdb_status rc = fdb_iterator_get(it, &doc);

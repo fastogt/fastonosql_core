@@ -419,6 +419,7 @@ SET(CORE_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/ssh_info.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/types.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/value.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/macros.h
 
   ${INTERNAL_HEADERS}
   ${CONFIG_HEADERS}

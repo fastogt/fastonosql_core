@@ -24,11 +24,11 @@ namespace fastonosql {
 namespace core {
 namespace detail {
 
-readable_string_t StableForJson(const ReadableString& data) {
+bool StableForJson(const ReadableString& data, readable_string_t* out) {
   readable_string_t data_raw = data.GetData();
-  if (data_raw.empty()) {
-    DNOTREACHED() << "Empty data.";
-    return "\"\"";
+  if (data_raw.empty() || !out) {
+    DNOTREACHED();
+    return false;
   }
 
   ReadableString::DataType type = data.GetType();
@@ -36,14 +36,17 @@ readable_string_t StableForJson(const ReadableString& data) {
     std::string hexed;
     bool is_ok = common::utils::xhex::encode(data_raw, ReadableString::is_lower_hex, &hexed);
     DCHECK(is_ok) << "Can't hexed: " << data_raw;
-    return common::MemSPrintf("\"%s\"", hexed);
+    *out = common::MemSPrintf("'%s'", hexed);
+    return true;
   }
 
   if (detail::is_json(data_raw)) {
-    return data_raw;
+    *out = data_raw;
+    return true;
   }
 
-  return common::MemSPrintf("\"%s\"", data_raw);
+  *out = common::MemSPrintf("'%s'", data_raw);
+  return true;
 }
 
 }  // namespace detail

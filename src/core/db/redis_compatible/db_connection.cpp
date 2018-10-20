@@ -76,8 +76,8 @@ common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, Nativ
     int ssh_port = ssh_host.GetPort();
     SSHInfo::AuthenticationMethod ssh_method = sinfo.GetAuthMethod();
     PublicPrivate key = sinfo.GetKey();
-    const char* public_key = key.public_key.empty() ? nullptr : key.public_key.c_str();
-    const char* private_key = key.private_key.empty() ? nullptr : key.private_key.c_str();
+    const char* public_key = key.public_key_path.empty() ? nullptr : key.public_key_path.c_str();
+    const char* private_key = key.private_key_path.empty() ? nullptr : key.private_key_path.c_str();
     bool use_public_key = key.use_public_key;
     std::string passphrase_str = sinfo.GetPassPharse();
     const char* passphrase = passphrase_str.empty() ? nullptr : passphrase_str.c_str();
@@ -1683,10 +1683,10 @@ common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* paylo
       continue;
     }
 
-    if (*p == '\n' && p != buf) {
+    if (*p == END_LINE_CHAR && p != buf) {
       break;
     }
-    if (*p != '\n') {
+    if (*p != END_LINE_CHAR) {
       p++;
     }
   }

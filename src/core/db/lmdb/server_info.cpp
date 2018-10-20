@@ -20,10 +20,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/db_traits.h>
-#include <fastonosql/core/value.h>
-
-#define MARKER "\r\n"
+#include <fastonosql/core/macros.h>
 
 namespace fastonosql {
 namespace core {
@@ -50,9 +47,9 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = common_text.find(MARKER, start)) != std::string::npos) {
+  while ((pos = common_text.find(MARKER_STR, start)) != std::string::npos) {
     std::string line = common_text.substr(start, pos - start);
-    size_t delem = line.find_first_of(':');
+    size_t delem = line.find_first_of(COLON_CHAR);
     std::string field = line.substr(0, delem);
     std::string value = line.substr(delem + 1);
     if (field == LMDB_STATS_FILE_NAME_LABEL) {
@@ -91,7 +88,7 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << LMDB_STATS_FILE_NAME_LABEL ":" << value.db_path << MARKER;
+  return out << LMDB_STATS_FILE_NAME_LABEL COLON_STR << value.db_path << MARKER_STR;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
@@ -122,7 +119,7 @@ ServerInfo* MakeLmdbServerInfo(const std::string& content) {
 
 std::string ServerInfo::ToString() const {
   std::stringstream str;
-  str << LMDB_STATS_LABEL MARKER << stats_;
+  str << LMDB_STATS_LABEL MARKER_STR << stats_;
   return str.str();
 }
 

@@ -35,6 +35,8 @@ namespace memcached {
 
 namespace {
 
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_MEMCACHED_SERVER_PORT);
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -73,8 +75,7 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-Config::Config()
-    : RemoteConfig(common::net::HostAndPort::CreateLocalHost(DEFAULT_MEMCACHED_SERVER_PORT)), user(), password() {}
+Config::Config() : RemoteConfig(kDefaultHost), user(), password() {}
 
 }  // namespace memcached
 }  // namespace core

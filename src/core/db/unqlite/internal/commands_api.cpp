@@ -32,7 +32,7 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  ServerInfo uinf(statsout);
+  const ServerInfo uinf(statsout);
   common::StringValue* val = common::Value::CreateStringValue(uinf.ToString());
   FastoObject* child = new FastoObject(out, val, unq->GetDelimiter());
   out->AddChildren(child);

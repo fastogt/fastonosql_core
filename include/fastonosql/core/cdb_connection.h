@@ -31,7 +31,7 @@
 namespace fastonosql {
 namespace core {
 namespace detail {
-readable_string_t StableForJson(const ReadableString& data);
+bool StableForJson(const ReadableString& data, readable_string_t* out);
 }  // namespace detail
 
 // for all commands:
@@ -638,17 +638,19 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
 
     NValue value = loaded_key.GetValue();
     value_t value_str = value.GetValue();
-    readable_string_t stabled_key = detail::StableForJson(key_str);
-    readable_string_t stabled_value = detail::StableForJson(value_str);
-    if (i == keys.size() - 1) {
-      is_wrote = fl.WriteFormated("%s:%s\n", stabled_key, stabled_value);
-    } else {
-      is_wrote = fl.WriteFormated("%s:%s,\n", stabled_key, stabled_value);
-    }
+    readable_string_t stabled_key;
+    readable_string_t stabled_value;
+    if (detail::StableForJson(key_str, &stabled_key) && detail::StableForJson(value_str, &stabled_value)) {
+      if (i == keys.size() - 1) {
+        is_wrote = fl.WriteFormated("%s:%s\n", stabled_key, stabled_value);
+      } else {
+        is_wrote = fl.WriteFormated("%s:%s,\n", stabled_key, stabled_value);
+      }
 
-    if (!is_wrote) {
-      fl.Close();
-      return common::make_error(common::MemSPrintf("Failed to write entry of json file: %s.", path.GetPath()));
+      if (!is_wrote) {
+        fl.Close();
+        return common::make_error(common::MemSPrintf("Failed to write entry of json file: %s.", path.GetPath()));
+      }
     }
   }
 

@@ -18,6 +18,8 @@
 
 #include <fastonosql/core/icommand_translator.h>
 
+#include <inttypes.h>
+
 extern "C" {
 #include "sds/sds_fasto.h"
 }
@@ -30,12 +32,14 @@ namespace core {
 
 common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buffer_t>* cmds) {
   if (cmd.empty()) {
+    DNOTREACHED();
     return common::make_error("Empty command line.");
   }
 
   std::vector<command_buffer_t> commands;
   size_t commands_count = common::Tokenize(cmd, {END_COMMAND_CHAR}, &commands);
   if (!commands_count) {
+    DNOTREACHED();
     return common::make_error("Invaid command line.");
   }
 
@@ -53,10 +57,7 @@ common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buf
 }
 
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
-  command_buffer_writer_t wr;
-  wr << DB_SCAN_COMMAND " " << common::ConvertToString(cursor_in) << " MATCH " << pattern << " COUNT "
-     << common::ConvertToString(count_keys);
-  return wr.str();
+  return common::MemSPrintf(DB_SCAN_COMMAND " %" PRIu32 " MATCH %s COUNT " PRIu32, cursor_in, pattern, count_keys);
 }
 
 ICommandTranslator::ICommandTranslator(const std::vector<CommandHolder>& commands) : commands_(commands) {}
@@ -65,6 +66,7 @@ ICommandTranslator::~ICommandTranslator() {}
 
 common::Error ICommandTranslator::GetDatabasesCommand(command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -74,39 +76,43 @@ common::Error ICommandTranslator::GetDatabasesCommand(command_buffer_t* cmdstrin
 
 common::Error ICommandTranslator::RemoveDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
   command_buffer_writer_t wr;
-  wr << DB_REMOVEDB_COMMAND " " << name;
+  wr << DB_REMOVEDB_COMMAND SPACE_STR << name;
   *cmdstring = wr.str();
   return common::Error();
 }
 
 common::Error ICommandTranslator::CreateDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
   command_buffer_writer_t wr;
-  wr << DB_CREATEDB_COMMAND " " << name;
+  wr << DB_CREATEDB_COMMAND SPACE_STR << name;
   *cmdstring = wr.str();
   return common::Error();
 }
 
 common::Error ICommandTranslator::SelectDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
   command_buffer_writer_t wr;
-  wr << DB_SELECTDB_COMMAND " " << name;
+  wr << DB_SELECTDB_COMMAND SPACE_STR << name;
   *cmdstring = wr.str();
   return common::Error();
 }
 
 common::Error ICommandTranslator::FlushDBCommand(command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -116,6 +122,7 @@ common::Error ICommandTranslator::FlushDBCommand(command_buffer_t* cmdstring) co
 
 common::Error ICommandTranslator::DeleteKeyCommand(const NKey& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -126,6 +133,7 @@ common::Error ICommandTranslator::RenameKeyCommand(const NKey& key,
                                                    const key_t& new_name,
                                                    command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -134,6 +142,7 @@ common::Error ICommandTranslator::RenameKeyCommand(const NKey& key,
 
 common::Error ICommandTranslator::CreateKeyCommand(const NDbKValue& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -144,6 +153,7 @@ common::Error ICommandTranslator::LoadKeyCommand(const NKey& key,
                                                  common::Value::Type type,
                                                  command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -152,6 +162,7 @@ common::Error ICommandTranslator::LoadKeyCommand(const NKey& key,
 
 common::Error ICommandTranslator::ChangeKeyTTLCommand(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -160,6 +171,7 @@ common::Error ICommandTranslator::ChangeKeyTTLCommand(const NKey& key, ttl_t ttl
 
 common::Error ICommandTranslator::LoadKeyTTLCommand(const NKey& key, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -168,11 +180,13 @@ common::Error ICommandTranslator::LoadKeyTTLCommand(const NKey& key, command_buf
 
 bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t& cmd, readable_string_t* key) const {
   if (!key) {
+    DNOTREACHED();
     return false;
   }
 
   command_buffer_t stabled_command = StableCommand(cmd);
   if (stabled_command.empty()) {
+    DNOTREACHED();
     return false;
   }
 
@@ -209,6 +223,7 @@ common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
                                                  const std::string& message,
                                                  command_buffer_t* cmdstring) const {
   if (!cmdstring || message.empty()) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -217,6 +232,7 @@ common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
 
 common::Error ICommandTranslator::SubscribeCommand(const NDbPSChannel& channel, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -243,7 +259,7 @@ common::Error ICommandTranslator::UnknownSequence(commands_args_t argv) {
   for (size_t i = 0; i < argv.size(); ++i) {
     result += common::ConvertToString(argv[i]);
     if (i != argv.size() - 1) {
-      result += " ";
+      result += SPACE_STR;
     }
   }
   std::string buff = common::MemSPrintf("Unknown sequence: '%s'.", result);
@@ -261,6 +277,7 @@ std::vector<CommandInfo> ICommandTranslator::GetCommands() const {
 
 common::Error ICommandTranslator::FindCommand(const std::string& command_first_name, const CommandHolder** info) const {
   if (!info || command_first_name.empty()) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -295,6 +312,7 @@ common::Error ICommandTranslator::FindCommand(commands_args_t argv, const Comman
 
 common::Error ICommandTranslator::TestCommandArgs(const CommandHolder* cmd, commands_args_t argv) const {
   if (!cmd) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -304,6 +322,7 @@ common::Error ICommandTranslator::TestCommandArgs(const CommandHolder* cmd, comm
 common::Error ICommandTranslator::TestCommandLine(const command_buffer_t& cmd) const {
   command_buffer_t stabled_command = StableCommand(cmd);
   if (stabled_command.empty()) {
+    DNOTREACHED();
     return common::make_error_inval();
   }
 
@@ -317,6 +336,7 @@ common::Error ICommandTranslator::TestCommandLine(const command_buffer_t& cmd) c
   for (int i = 0; i < argc; ++i) {
     standart_argv.push_back(command_buffer_t(argv[i], sdslen(argv[i])));
   }
+
   const CommandHolder* cmdh = nullptr;
   size_t loff = 0;
   common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &loff);
@@ -342,6 +362,7 @@ common::Error ICommandTranslator::TestCommandLineArgs(commands_args_t argv,
   for (size_t i = loff; i < argv.size(); ++i) {
     stabled.push_back(argv[i]);
   }
+
   err = TestCommandArgs(cmd, stabled);
   if (err) {
     return err;

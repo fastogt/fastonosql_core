@@ -24,37 +24,35 @@
 
 #include <common/convert2string.h>
 
+#include <fastonosql/core/macros.h>
+
 namespace fastonosql {
 namespace core {
 
 command_buffer_t StableCommand(const command_buffer_t& command) {
   if (command.empty()) {
+    DNOTREACHED();
     return command_buffer_t();
   }
 
   std::vector<command_buffer_t> tokens;
-  size_t tok = common::Tokenize(command, " ", &tokens);
+  size_t tokens_count = common::Tokenize(command, SPACE_STR, &tokens);
   command_buffer_t stabled_command;
-  if (tok > 0) {
-    command_buffer_t part = tokens[0];
-    if (part.size() % 4 == 0 && part[0] == '\\' && (part[1] == 'x' || part[1] == 'X')) {
-      stabled_command += "\"" + part + "\"";
-    } else {
-      stabled_command += part;
-    }
-
-    for (size_t i = 1; i < tok; ++i) {
+  if (tokens_count > 0) {
+    for (size_t i = 0; i < tokens_count; ++i) {
       command_buffer_t part = tokens[i];
-      stabled_command += " ";
+      if (i != 0) {
+        stabled_command += SPACE_CHAR;
+      }
       if (part.size() % 4 == 0 && part[0] == '\\' && (part[1] == 'x' || part[1] == 'X')) {
-        stabled_command += "\"" + part + "\"";
+        stabled_command += DOUBLE_QUOTES_CHAR + part + DOUBLE_QUOTES_CHAR;
       } else {
         stabled_command += part;
       }
     }
   }
 
-  if (stabled_command[stabled_command.size() - 1] == '\r') {
+  if (stabled_command[stabled_command.size() - 1] == CARRIGE_RETURN_CHAR) {
     stabled_command.pop_back();
   }
 
@@ -92,7 +90,7 @@ readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
     std::string hexed;
     bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
     DCHECK(is_ok) << "Can't hexed: " << data_;
-    wr << "\"" << hexed << "\"";
+    wr << DOUBLE_QUOTES_CHAR << hexed << DOUBLE_QUOTES_CHAR;
     return wr.str();
   }
 
@@ -101,7 +99,7 @@ readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
   }
 
   if (detail::have_space(data_) && need_quotes) {
-    return "\"" + data_ + "\"";
+    return DOUBLE_QUOTES_CHAR + data_ + DOUBLE_QUOTES_CHAR;
   }
 
   return data_;
@@ -126,7 +124,7 @@ bool have_space(const std::string& data) {
 bool is_binary_data(const command_buffer_t& data) {
   for (size_t i = 0; i < data.size(); ++i) {
     unsigned char c = static_cast<unsigned char>(data[i]);
-    if (c < ' ' && c != '\r' && c != '\n') {  // should be hexed symbol
+    if (c < SPACE_CHAR && c != CARRIGE_RETURN_CHAR && c != END_LINE_CHAR) {  // should be hexed symbol
       return true;
     }
   }
@@ -135,10 +133,12 @@ bool is_binary_data(const command_buffer_t& data) {
 
 bool is_json(const std::string& data) {
   if (data.empty()) {
+    DNOTREACHED();
     return false;
   }
 
-  return (data[0] == '{' && data[data.size() - 1] == '}') || (data[0] == '[' && data[data.size() - 1] == ']');
+  return (data[0] == JSON_START_CHAR && data[data.size() - 1] == JSON_END_CHAR) ||
+         (data[0] == JSON_START_ARRAY_CHAR && data[data.size() - 1] == JSON_END_ARRAY_CHAR);
 }
 }  // namespace detail
 

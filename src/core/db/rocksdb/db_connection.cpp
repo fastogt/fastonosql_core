@@ -541,7 +541,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
         default:
           break;
       }
-      p2 = strtok(0, " ");
+      p2 = strtok(nullptr, SPACE_STR);
     }
   }
 
@@ -633,8 +633,8 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
                                      cursor_t* cursor_out) {
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
-  uint64_t offset_pos = cursor_in;
-  uint64_t lcursor_out = 0;
+  cursor_t offset_pos = cursor_in;
+  cursor_t lcursor_out = 0;
   std::vector<std::string> lkeys_out;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     std::string key = it->key().ToString();
@@ -684,14 +684,13 @@ common::Error DBConnection::KeysImpl(const std::string& key_start,
 
   auto st = it->status();
   delete it;
-
   return CheckResultCommand(DB_KEYS_COMMAND, st);
 }
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
-  size_t sz = 0;
+  keys_limit_t sz = 0;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     sz++;
   }
@@ -723,7 +722,6 @@ common::Error DBConnection::FlushDBImpl() {
 
   auto st = it->status();
   delete it;
-
   return CheckResultCommand(DB_FLUSHDB_COMMAND, st);
 }
 
@@ -815,21 +813,11 @@ common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
     return err;
   }
 
-  err = SetInner(new_key, value_str);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  return SetInner(new_key, value_str);
 }
 
 common::Error DBConnection::QuitImpl() {
-  common::Error err = Disconnect();
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  return Disconnect();
 }
 
 common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
