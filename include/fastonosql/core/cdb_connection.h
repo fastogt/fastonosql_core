@@ -52,7 +52,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
 
   CDBConnection(CDBConnectionClient* client, ICommandTranslator* translator)
       : db_base_class(), CommandHandler(translator), client_(client) {}
-  virtual ~CDBConnection() {}
+  virtual ~CDBConnection() override {}
 
   virtual std::string GetCurrentDBName() const;  //
   common::Error Help(commands_args_t argv,

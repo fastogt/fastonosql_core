@@ -34,6 +34,8 @@ namespace upscaledb {
 
 namespace {
 
+const char kDefaultPath[] = "~/test.upscaledb";
+
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
   for (int i = 0; i < argc; i++) {
@@ -70,9 +72,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path("~/test.upscaledb")),
-      create_if_missing(false),
-      dbnum(default_db_num) {}
+    : LocalConfig(common::file_system::prepare_path(kDefaultPath)), create_if_missing(false), dbnum(default_db_num) {}
 
 }  // namespace upscaledb
 }  // namespace core

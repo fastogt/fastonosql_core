@@ -413,7 +413,7 @@ common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
 
 common::Error DBConnection::DelInner(const key_t& key) {
   ups_key_t key_slice = ConvertToUpscaleDBSlice(key);
-  return CheckResultCommand(DB_DELETE_KEY_COMMAND, ups_db_erase(connection_.handle_->db, 0, &key_slice, 0));
+  return CheckResultCommand(DB_DELETE_KEY_COMMAND, ups_db_erase(connection_.handle_->db, NULL, &key_slice, 0));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,

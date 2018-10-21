@@ -37,6 +37,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, LMDB> {
  public:
   typedef CDBConnection<NativeConnection, Config, LMDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
+  virtual ~DBConnection() override;
 
   virtual std::string GetCurrentDBName() const override;
   common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;

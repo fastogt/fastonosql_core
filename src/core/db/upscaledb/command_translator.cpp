@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/connection_types.h>
 
+#include <fastonosql/core/macros.h>
+
 #define UPSCALEDB_SET_KEY_COMMAND DB_SET_KEY_COMMAND
 #define UPSCALEDB_GET_COMMAND DB_GET_KEY_COMMAND
 #define UPSCALEDB_DELETE_KEY_COMMAND DB_DELETE_KEY_COMMAND
@@ -41,7 +43,8 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   NValue value = key.GetValue();
   value_t value_str = value.GetValue();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
+  wr << UPSCALEDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
+     << value_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -53,7 +56,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_GET_COMMAND " " << key_str.GetForCommandLine();
+  wr << UPSCALEDB_GET_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -61,7 +64,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << UPSCALEDB_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -71,7 +74,8 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
                                                       command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << UPSCALEDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
+  wr << UPSCALEDB_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
+     << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

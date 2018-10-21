@@ -406,7 +406,7 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
   }
 
   DCHECK(*context == nullptr);
-  struct lmdb* lcontext = nullptr;
+  lmdb* lcontext = nullptr;
   std::string db_path = config.db_path;
   std::string folder = common::file_system::get_dir_path(db_path);
   bool is_dir_exist = common::file_system::is_directory_exist(folder);
@@ -464,6 +464,8 @@ common::Error TestConnection(const Config& config) {
 
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
+
+DBConnection::~DBConnection() {}
 
 std::string DBConnection::GetCurrentDBName() const {
   if (IsConnected()) {  // if connected
@@ -523,9 +525,7 @@ common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   const readable_string_t key_str = key.GetData();
   const readable_string_t value_str = value.GetData();
   MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
-  MDB_val mval;
-  mval.mv_size = value_str.size();
-  mval.mv_data = const_cast<char*>(value_str.data());
+  MDB_val val_slice = ConvertToLMDBSlice(value_str.data(), value_str.size());
 
   MDB_txn* txn = nullptr;
   auto conf = GetConfig();
@@ -536,7 +536,7 @@ common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   if (err) {
     return err;
   }
-  err = CheckResultCommand(DB_SET_KEY_COMMAND, mdb_put(txn, connection_.handle_->dbi, &key_slice, &mval, 0));
+  err = CheckResultCommand(DB_SET_KEY_COMMAND, mdb_put(txn, connection_.handle_->dbi, &key_slice, &val_slice, 0));
   if (err) {
     mdb_txn_abort(txn);
     return err;
@@ -781,10 +781,10 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
 }
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
-  NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const NKey cur = key.GetKey();
+  const key_t key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const value_t value_str = value.GetValue();
   common::Error err = SetInner(key_str, value_str);
   if (err) {
     return err;
