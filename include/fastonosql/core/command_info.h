@@ -26,24 +26,25 @@
 #define UNDEFINED_SINCE_STR "Undefined"
 #define UNDEFINED_EXAMPLE_STR "Unspecified"
 #define UNDEFINED_STR_IN_PROGRESS "Undefined in progress"
-#define INFINITE_COMMAND_ARGS UINT8_MAX
+#define INFINITE_COMMAND_ARGS UINT32_MAX
 
 namespace fastonosql {
 namespace core {
 
 struct CommandInfo {
   enum Type { Native, Extended, Internal };
+  typedef uint32_t args_size_t;
   CommandInfo(const std::string& name,
               const std::string& params,
               const std::string& summary,
               uint32_t since,
               const std::string& example,
-              uint8_t required_arguments_count,
-              uint8_t optional_arguments_count,
+              args_size_t required_arguments_count,
+              args_size_t optional_arguments_count,
               Type type);
 
-  uint16_t GetMaxArgumentsCount() const;
-  uint8_t GetMinArgumentsCount() const;
+  args_size_t GetMaxArgumentsCount() const;
+  args_size_t GetMinArgumentsCount() const;
 
   bool IsEqualName(const std::string& cmd_name) const;
 
@@ -53,8 +54,8 @@ struct CommandInfo {
   const uint32_t since;
   const std::string example;
 
-  const uint8_t required_arguments_count;
-  const uint8_t optional_arguments_count;
+  const args_size_t required_arguments_count;
+  const args_size_t optional_arguments_count;
   const Type type;
 };
 

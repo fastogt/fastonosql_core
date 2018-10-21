@@ -57,7 +57,7 @@ common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buf
 }
 
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
-  return common::MemSPrintf(DB_SCAN_COMMAND " %" PRIu32 " MATCH %s COUNT " PRIu32, cursor_in, pattern, count_keys);
+  return common::MemSPrintf(DB_SCAN_COMMAND " %" PRIu32 " MATCH %s COUNT %" PRIu32, cursor_in, pattern, count_keys);
 }
 
 ICommandTranslator::ICommandTranslator(const std::vector<CommandHolder>& commands) : commands_(commands) {}

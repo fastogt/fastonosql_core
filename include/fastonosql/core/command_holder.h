@@ -50,8 +50,8 @@ class CommandHolder : public CommandInfo {
                 const std::string& summary,
                 uint32_t since,
                 const std::string& example,
-                uint8_t required_arguments_count,
-                uint8_t optional_arguments_count,
+                args_size_t required_arguments_count,
+                args_size_t optional_arguments_count,
                 Type type,
                 function_t func,
                 test_functions_t tests = {&TestArgsInRange});
