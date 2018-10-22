@@ -42,7 +42,7 @@ const std::vector<const char*> g_compression_types = {"NO_COMPRESSION", "SNAPPY"
 
 namespace {
 
-const char kDefaultPath[] = "~/test.forestdb";
+const char kDefaultPath[] = "~/test.leveldb";
 
 Config ParseOptions(int argc, char** argv) {
   Config cfg;

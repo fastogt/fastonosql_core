@@ -33,8 +33,8 @@ namespace core {
 
 common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
   const size_t argc = argv.size();
-  const uint16_t max = cmd.GetMaxArgumentsCount();
-  const uint8_t min = cmd.GetMinArgumentsCount();
+  const CommandInfo::args_size_t max = cmd.GetMaxArgumentsCount();
+  const CommandInfo::args_size_t min = cmd.GetMinArgumentsCount();
   if (argc > max || argc < min) {
     std::string buff = common::MemSPrintf(
         "Invalid input argument for command: '%s', passed "
