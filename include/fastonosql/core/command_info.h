@@ -26,7 +26,7 @@
 #define UNDEFINED_SINCE_STR "Undefined"
 #define UNDEFINED_EXAMPLE_STR "Unspecified"
 #define UNDEFINED_STR_IN_PROGRESS "Undefined in progress"
-#define INFINITE_COMMAND_ARGS UINT32_MAX
+#define INFINITE_COMMAND_ARGS UINT16_MAX
 
 namespace fastonosql {
 namespace core {
