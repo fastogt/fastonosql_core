@@ -26,7 +26,7 @@ namespace core {
 class ICommandTranslatorBase : public ICommandTranslator {
  public:
   explicit ICommandTranslatorBase(const std::vector<CommandHolder>& commands);
-  virtual ~ICommandTranslatorBase();
+  virtual ~ICommandTranslatorBase() override;
 
   virtual const char* GetDBName() const override = 0;
 

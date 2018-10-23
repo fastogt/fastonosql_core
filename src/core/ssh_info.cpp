@@ -37,7 +37,7 @@
 #define CURMETHOD_FIELD "current_method"
 
 namespace {
-const std::string kSshMethods[] = {"0", "1", "2", "3"};
+const char* kSshMethods[] = {"0", "1", "2", "3"};
 }
 
 namespace common {
