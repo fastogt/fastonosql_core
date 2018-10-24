@@ -80,7 +80,7 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-const std::string Config::default_db_name = "default";
+const char Config::default_db_name[] = "default";
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path(kDefaultPath)),

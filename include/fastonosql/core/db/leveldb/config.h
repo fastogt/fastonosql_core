@@ -24,10 +24,10 @@ namespace fastonosql {
 namespace core {
 namespace leveldb {
 
-enum ComparatorType { COMP_BYTEWISE = 0, COMP_INDEXED_DB };
+enum ComparatorType : uint8_t { COMP_BYTEWISE = 0, COMP_INDEXED_DB };
 extern const std::vector<const char*> g_comparator_types;
 
-enum CompressionType { kNoCompression, kSnappyCompression };
+enum CompressionType : uint8_t { kNoCompression = 0, kSnappyCompression };
 extern const std::vector<const char*> g_compression_types;
 
 struct Config : public LocalConfig {

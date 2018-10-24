@@ -27,7 +27,7 @@
 namespace fastonosql {
 namespace core {
 
-enum CmdLoggingType { C_UNKNOWN, C_USER, C_INNER };
+enum CmdLoggingType : uint8_t { C_UNKNOWN = 0, C_USER, C_INNER };
 
 class FastoObject;
 class FastoObjectCommand;

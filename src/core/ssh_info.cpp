@@ -36,31 +36,60 @@
 #define PASSPHRASE_FIELD "passphrase"
 #define CURMETHOD_FIELD "current_method"
 
-namespace {
-const char* kSshMethods[] = {"0", "1", "2", "3"};
-}
-
 namespace common {
 
-std::string ConvertToString(fastonosql::core::SSHInfo::AuthenticationMethod method) {
-  return kSshMethods[method];
+std::string ConvertToString(const fastonosql::core::SSHInfo& info) {
+  return info.ToString();
 }
 
-bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo::AuthenticationMethod* out) {
-  if (!out) {
-    DNOTREACHED();
+bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo* out) {
+  if (from.empty() || !out) {
     return false;
   }
 
-  for (size_t i = 0; i < SIZEOFMASS(kSshMethods); ++i) {
-    if (from == kSshMethods[i]) {
-      *out = static_cast<fastonosql::core::SSHInfo::AuthenticationMethod>(i);
-      return true;
+  fastonosql::core::SSHInfo info;
+  fastonosql::core::PublicPrivate key;
+  size_t pos = 0;
+  size_t start = 0;
+  while ((pos = from.find(MARKER_STR, start)) != std::string::npos) {
+    std::string line = from.substr(start, pos - start);
+    size_t delem = line.find_first_of(COLON_CHAR);
+    if (delem != std::string::npos) {
+      std::string field = line.substr(0, delem);
+      std::string value = line.substr(delem + 1);
+      if (field == HOST_FIELD) {
+        common::net::HostAndPort lhost;
+        if (common::ConvertFromString(value, &lhost)) {
+          info.SetHost(lhost);
+        }
+      } else if (field == USER_FIELD) {
+        info.SetUsername(value);
+      } else if (field == PASSWORD_FIELD) {
+        info.SetPassword(value);
+      } else if (field == PUBKEY_FIELD) {
+        key.public_key_path = value;
+      } else if (field == PRIVKEY_FIELD) {
+        key.private_key_path = value;
+      } else if (field == USE_PUBLICKEY_FIELD) {
+        bool val;
+        if (common::ConvertFromString(value, &val)) {
+          key.use_public_key = val;
+        }
+      } else if (field == PASSPHRASE_FIELD) {
+        info.SetPassPharse(value);
+      } else if (field == CURMETHOD_FIELD) {
+        uint8_t lcurrent_method;
+        if (common::ConvertFromString(value, &lcurrent_method)) {
+          info.SetAuthMethod(static_cast<fastonosql::core::SSHInfo::AuthenticationMethod>(lcurrent_method));
+        }
+      }
     }
+    start = pos + sizeof(MARKER_STR) - 1;
   }
 
-  DNOTREACHED();
-  return false;
+  info.SetKey(key);
+  *out = info;
+  return true;
 }
 
 }  // namespace common
@@ -104,62 +133,6 @@ SSHInfo::SSHInfo(const common::net::HostAndPort& host,
   SetPassword(password);
 }
 
-SSHInfo::SSHInfo(const std::string& text)
-    : host_(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
-      username_(),
-      passphrase_(),
-      key_(),
-      current_method_(UNKNOWN),
-      password_(),
-      runtime_password_() {
-  size_t pos = 0;
-  size_t start = 0;
-  while ((pos = text.find(MARKER_STR, start)) != std::string::npos) {
-    std::string line = text.substr(start, pos - start);
-    size_t delem = line.find_first_of(COLON_CHAR);
-    if (delem != std::string::npos) {
-      std::string field = line.substr(0, delem);
-      std::string value = line.substr(delem + 1);
-      if (field == HOST_FIELD) {
-        common::net::HostAndPort lhost;
-        if (common::ConvertFromString(value, &lhost)) {
-          host_ = lhost;
-        }
-      } else if (field == USER_FIELD) {
-        username_ = value;
-      } else if (field == PASSWORD_FIELD) {
-        SetPassword(value);
-      } else if (field == PUBKEY_FIELD) {
-        key_.public_key_path = value;
-      } else if (field == PRIVKEY_FIELD) {
-        key_.private_key_path = value;
-      } else if (field == USE_PUBLICKEY_FIELD) {
-        bool val;
-        if (common::ConvertFromString(value, &val)) {
-          key_.use_public_key = val;
-        }
-      } else if (field == PASSPHRASE_FIELD) {
-        passphrase_ = value;
-      } else if (field == CURMETHOD_FIELD) {
-        AuthenticationMethod lcurrent_method;
-        if (common::ConvertFromString(value, &lcurrent_method)) {
-          current_method_ = lcurrent_method;
-        }
-      }
-    }
-    start = pos + sizeof(MARKER_STR) - 1;
-  }
-}
-
-std::string SSHInfo::ToString() const {
-  return HOST_FIELD COLON_STR + common::ConvertToString(host_) + MARKER_STR USER_FIELD COLON_STR + username_ +
-         MARKER_STR PASSWORD_FIELD COLON_STR + GetPassword() + MARKER_STR PUBKEY_FIELD COLON_STR +
-         key_.public_key_path + MARKER_STR PRIVKEY_FIELD COLON_STR + key_.private_key_path +
-         MARKER_STR USE_PUBLICKEY_FIELD COLON_STR + common::ConvertToString(key_.use_public_key) +
-         MARKER_STR PASSPHRASE_FIELD COLON_STR + passphrase_ + MARKER_STR CURMETHOD_FIELD COLON_STR +
-         common::ConvertToString(current_method_) + MARKER_STR;
-}
-
 bool SSHInfo::IsValid() const {
   if (current_method_ == PASSWORD) {
     return host_.IsValid() && !username_.empty() && !password_.empty();
@@ -167,9 +140,20 @@ bool SSHInfo::IsValid() const {
     return host_.IsValid() && !username_.empty() && key_.IsValid();
   } else if (current_method_ == ASK_PASSWORD) {
     return host_.IsValid() && !username_.empty() && password_.empty();
-  };
+  }
 
   return false;
+}
+
+std::string SSHInfo::ToString() const {
+  std::stringstream str;
+  str << CURMETHOD_FIELD COLON_STR << current_method_ << MARKER_STR << HOST_FIELD COLON_STR
+      << common::ConvertToString(host_) << MARKER_STR USER_FIELD COLON_STR << username_
+      << MARKER_STR PASSWORD_FIELD COLON_STR << GetPassword() << MARKER_STR PUBKEY_FIELD COLON_STR
+      << key_.public_key_path << MARKER_STR PRIVKEY_FIELD COLON_STR << key_.private_key_path
+      << MARKER_STR USE_PUBLICKEY_FIELD COLON_STR << common::ConvertToString(key_.use_public_key)
+      << MARKER_STR PASSPHRASE_FIELD COLON_STR << passphrase_ << MARKER_STR;
+  return str.str();
 }
 
 SSHInfo::AuthenticationMethod SSHInfo::GetAuthMethod() const {

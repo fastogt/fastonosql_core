@@ -32,7 +32,7 @@ namespace fastonosql {
 namespace core {
 
 struct CommandInfo {
-  enum Type { Native, Extended, Internal };
+  enum Type : uint8_t { Native = 0, Extended, Internal };
   typedef uint32_t args_size_t;
   CommandInfo(const std::string& name,
               const std::string& params,

@@ -44,8 +44,8 @@ bool is_json(const std::string& data);
 
 class ReadableString {
  public:
-  static const bool is_lower_hex = true;
-  enum DataType { TEXT_DATA = 0, BINARY_DATA };
+  enum { is_lower_hex = true };
+  enum DataType : uint8_t { TEXT_DATA = 0, BINARY_DATA };
 
   ReadableString();
   ReadableString(const readable_string_t& data);  // not explicit

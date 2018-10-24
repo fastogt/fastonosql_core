@@ -24,7 +24,7 @@
 namespace fastonosql {
 namespace core {
 
-enum ConnectionType {
+enum ConnectionType : uint8_t {
   REDIS = 0,
   MEMCACHED = 1,
   SSDB = 2,
@@ -37,14 +37,14 @@ enum ConnectionType {
   PIKA = 9
 };  // supported types
 
-enum ServerType { MASTER = 0, SLAVE };
-enum ServerState { SUP = 0, SDOWN };
-enum ServerConnectionState { SCONNECTED = 0, SDISCONNECTED };
-enum ServerMode { STANDALONE = 0, SENTINEL, CLUSTER };
+enum ServerType : uint8_t { MASTER = 0, SLAVE };
+enum ServerState : uint8_t { SUP = 0, SDOWN };
+enum ServerConnectionState : uint8_t { SCONNECTED = 0, SDISCONNECTED };
+enum ServerMode : uint8_t { STANDALONE = 0, SENTINEL, CLUSTER };
 
 extern const std::vector<ConnectionType> g_compiled_types;
 
-enum ConnectionMode { InteractiveMode };
+enum ConnectionMode : uint8_t { InteractiveMode = 0 };
 
 bool IsRedisCompatible(ConnectionType type);
 bool IsRemoteType(ConnectionType type);

@@ -25,7 +25,7 @@ namespace core {
 namespace lmdb {
 
 struct Config : public LocalConfig {
-  static const std::string default_db_name;
+  static const char default_db_name[];
   enum { default_dbs_count = 1024 };
   Config();
 

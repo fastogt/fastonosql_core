@@ -43,7 +43,7 @@ inline bool operator!=(const PublicPrivate& r, const PublicPrivate& l) {
 }
 
 struct SSHInfo {
-  enum AuthenticationMethod { UNKNOWN = 0, PUBLICKEY = 1, ASK_PASSWORD = 2, PASSWORD = 3 };
+  enum AuthenticationMethod : uint8_t { UNKNOWN = 0, PUBLICKEY = 1, ASK_PASSWORD = 2, PASSWORD = 3 };
 
   SSHInfo();
   SSHInfo(const common::net::HostAndPort& host,
@@ -53,11 +53,9 @@ struct SSHInfo {
           const std::string& passphrase,
           AuthenticationMethod method);
 
-  explicit SSHInfo(const std::string& text);
+  bool IsValid() const;
 
   std::string ToString() const;
-
-  bool IsValid() const;
 
   AuthenticationMethod GetAuthMethod() const;
   void SetAuthMethod(AuthenticationMethod auth);
@@ -105,7 +103,7 @@ inline bool operator!=(const SSHInfo& r, const SSHInfo& l) {
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::SSHInfo::AuthenticationMethod method);
-bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo::AuthenticationMethod* out);
+std::string ConvertToString(const fastonosql::core::SSHInfo& info);
+bool ConvertFromString(const std::string& from, fastonosql::core::SSHInfo* out);
 
 }  // namespace common

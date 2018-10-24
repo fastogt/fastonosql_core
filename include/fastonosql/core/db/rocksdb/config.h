@@ -24,10 +24,10 @@ namespace fastonosql {
 namespace core {
 namespace rocksdb {
 
-enum ComparatorType { COMP_BYTEWISE, COMP_REVERSE_BYTEWISE };
+enum ComparatorType : uint8_t { COMP_BYTEWISE, COMP_REVERSE_BYTEWISE };
 extern const std::vector<const char*> g_comparator_types;
 
-enum CompressionType {
+enum CompressionType : uint8_t {
   kNoCompression = 0x0,
   kSnappyCompression = 0x1,
   kZlibCompression = 0x2,
