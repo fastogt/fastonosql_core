@@ -57,9 +57,6 @@
 namespace fastonosql {
 namespace core {
 
-// GET alex\nSET alex
-// should return vector of 2 commands {{"GET","alex"}, {"SET", "alex"}}
-common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buffer_t>* cmds);
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
                                 keys_limit_t count_keys);  // for SCAN
 

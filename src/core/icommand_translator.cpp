@@ -28,32 +28,6 @@ extern "C" {
 namespace fastonosql {
 namespace core {
 
-common::Error ParseCommands(const command_buffer_t& cmd, std::vector<command_buffer_t>* cmds) {
-  if (cmd.empty()) {
-    DNOTREACHED();
-    return common::make_error("Empty command line.");
-  }
-
-  std::vector<command_buffer_t> commands;
-  size_t commands_count = common::Tokenize(cmd, {END_COMMAND_CHAR}, &commands);
-  if (!commands_count) {
-    DNOTREACHED();
-    return common::make_error("Invaid command line.");
-  }
-
-  std::vector<command_buffer_t> stable_commands;
-  for (command_buffer_t input : commands) {
-    command_buffer_t stable_input = StableCommand(input);
-    if (stable_input.empty()) {
-      continue;
-    }
-    stable_commands.push_back(stable_input);
-  }
-
-  *cmds = stable_commands;
-  return common::Error();
-}
-
 command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern, keys_limit_t count_keys) {
   command_buffer_writer_t wr;
   wr << DB_SCAN_COMMAND << " " << cursor_in << " MATCH " << pattern << " COUNT " << count_keys;

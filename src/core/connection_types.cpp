@@ -102,26 +102,6 @@ const char* ConnectionTypeToString(ConnectionType t) {
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::ConnectionType t) {
-  return fastonosql::core::ConnectionTypeToString(t);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType* out) {
-  if (!out) {
-    return false;
-  }
-
-  for (size_t i = 0; i < SIZEOFMASS(kConnnectionType); ++i) {
-    if (from == kConnnectionType[i]) {
-      *out = static_cast<fastonosql::core::ConnectionType>(i);
-      return true;
-    }
-  }
-
-  DNOTREACHED();
-  return false;
-}
-
 bool ConvertFromString(const std::string& from, fastonosql::core::ServerType* out) {
   if (!out) {
     return false;

@@ -66,9 +66,6 @@ struct ConnectionTraits {
 }  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(fastonosql::core::ConnectionType t);
-bool ConvertFromString(const std::string& from, fastonosql::core::ConnectionType* out);
-
 std::string ConvertToString(fastonosql::core::ServerType st);
 bool ConvertFromString(const std::string& from, fastonosql::core::ServerType* out);
 

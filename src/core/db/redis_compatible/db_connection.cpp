@@ -1635,7 +1635,7 @@ common::Error DBConnection<Config, ContType>::SlaveMode(FastoObject* out) {
 
   /* Now we can use hiredis to read the incoming protocol.
    */
-  while (!base_class::IsInterrupted()) {
+  while (!base_class::IsInterrupted()) {  // listen loop
     err = CliReadReply(out);
     if (err) {
       return err;

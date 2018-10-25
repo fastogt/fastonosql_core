@@ -26,14 +26,14 @@ namespace fastonosql {
 namespace core {
 namespace internal {
 
-template <typename NConnection, typename Config, ConnectionType ContType>
+template <typename NConnection, typename Config, ConnectionType connection_type>
 class DBConnection {
  public:
   typedef ConnectionAllocatorTraits<NConnection, Config> ConnectionAllocatorTrait;
   typedef Connection<ConnectionAllocatorTrait> dbconnection_t;
   typedef typename dbconnection_t::config_t config_t;
   typedef typename dbconnection_t::handle_t nconnection_t;
-  static constexpr ConnectionType connection_t = ContType;
+  static constexpr ConnectionType connection_t = connection_type;
 
   DBConnection() : connection_(), interrupted_(false) {}
   virtual ~DBConnection() {}
