@@ -414,8 +414,8 @@ std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter) 
   auto lastIt = std::prev(zset->end());
   for (auto it = zset->begin(); it != zset->end(); ++it) {
     auto v = *it;
-    std::string key = ConvertValue((v.first), delimiter);
-    std::string val = ConvertValue((v.second), delimiter);
+    std::string key = ConvertValue(v.first, delimiter);
+    std::string val = ConvertValue(v.second, delimiter);
     if (val.empty() || key.empty()) {
       continue;
     }
@@ -439,8 +439,8 @@ std::string ConvertValue(common::HashValue* hash, const std::string& delimiter) 
   std::string result;
   for (auto it = hash->begin(); it != hash->end(); ++it) {
     auto v = *it;
-    std::string key = ConvertValue((v.first), delimiter);
-    std::string val = ConvertValue((v.second), delimiter);
+    std::string key = ConvertValue(v.first, delimiter);
+    std::string val = ConvertValue(v.second, delimiter);
     if (val.empty() || key.empty()) {
       continue;
     }

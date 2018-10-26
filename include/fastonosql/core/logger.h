@@ -33,8 +33,12 @@ class Logger : public common::patterns::LazySingleton<Logger> {
   void print(const char* mess, common::logging::LOG_LEVEL level, bool notify);
   void print(const std::string& mess, common::logging::LOG_LEVEL level, bool notify);
 
+  LogWatcher* GetWatcher() const;
+  void SetWathcer(LogWatcher* watcher);
+
  private:
   Logger();
+  LogWatcher* watcher_;
 };
 
 }  // namespace core

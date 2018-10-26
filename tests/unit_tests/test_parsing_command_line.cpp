@@ -37,17 +37,16 @@ TEST(sds, sdssplitargslong) {
                              "number": 123,
                              "string": "Hello World"
                            })";
-  json_object *obj = json_tokener_parse(json.c_str());
+  json_object* obj = json_tokener_parse(json.c_str());
   ASSERT_TRUE(obj);
   json_object_put(obj);
   obj = json_tokener_parse(json2.c_str());
   ASSERT_TRUE(obj);
   json_object_put(obj);
 
-  const std::string line =
-      "-d \n -c -h 127.0.0.1 -p \t -j " + json + " -j2 " + json2;
+  const std::string line = "-d \n -c -h 127.0.0.1 -p \t -j " + json + " -j2 " + json2;
   int argc = 0;
-  sds *argv = sdssplitargslong(line.c_str(), &argc);
+  sds* argv = sdssplitargslong(line.c_str(), &argc);
   ASSERT_TRUE(argv && argc == 11);
   if (argv) {
     ASSERT_STREQ(argv[0], "-d");
@@ -58,10 +57,10 @@ TEST(sds, sdssplitargslong) {
     ASSERT_STREQ(argv[5], "-p");
     ASSERT_STREQ(argv[6], "\t");
     ASSERT_STREQ(argv[7], "-j");
-    const char *jafter = argv[8];
+    const char* jafter = argv[8];
     ASSERT_STREQ(jafter, json.c_str());
     ASSERT_STREQ(argv[9], "-j2");
-    const char *jafter2 = argv[10];
+    const char* jafter2 = argv[10];
     ASSERT_STREQ(jafter2, json2.c_str());
     sds revert = sdsjoinsdsstable(argv, argc);
     ASSERT_STREQ(line.c_str(), revert);

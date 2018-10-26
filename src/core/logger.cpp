@@ -20,14 +20,10 @@
 
 #include <common/logger.h>
 
-namespace {
-fastonosql::core::LogWatcher* kWatcher = nullptr;
-}
-
 namespace fastonosql {
 namespace core {
 
-Logger::Logger() {}
+Logger::Logger() : watcher_(nullptr) {}
 
 void Logger::print(const char* mess, common::logging::LOG_LEVEL level, bool notify) {
   print(std::string(mess), level, notify);
@@ -35,14 +31,22 @@ void Logger::print(const char* mess, common::logging::LOG_LEVEL level, bool noti
 
 void Logger::print(const std::string& mess, common::logging::LOG_LEVEL level, bool notify) {
   RUNTIME_LOG(level) << mess;
-  if (kWatcher) {
-    kWatcher(level, mess, notify);
+  if (watcher_) {
+    watcher_(level, mess, notify);
   }
+}
+
+LogWatcher* Logger::GetWatcher() const {
+  return watcher_;
+}
+
+void Logger::SetWathcer(LogWatcher* watcher) {
+  watcher_ = watcher;
 }
 
 }  // namespace core
 }  // namespace fastonosql
 
 void SET_LOG_WATCHER(fastonosql::core::LogWatcher* watcher) {
-  kWatcher = watcher;
+  fastonosql::core::Logger::GetInstance().SetWathcer(watcher);
 }
