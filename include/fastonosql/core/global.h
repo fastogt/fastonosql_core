@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <common/intrusive_ptr.h>  // for intrusive_ptr, etc
 #include <common/value.h>
 
@@ -71,17 +74,17 @@ class FastoObject : public common::intrusive_ptr_base<FastoObject> {
   value_t value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(FastoObject);
-
   FastoObject* const parent_;
   childs_t childrens_;
   const std::string delimiter_;
+
+  DISALLOW_COPY_AND_ASSIGN(FastoObject);
 };
 
 class FastoObjectCommand : public FastoObject {
  public:
-  virtual ~FastoObjectCommand() override;
-  virtual std::string ToString() const override;
+  ~FastoObjectCommand() override;
+  std::string ToString() const override;
 
   core::ConnectionType GetConnectionType() const;
 
@@ -96,10 +99,10 @@ class FastoObjectCommand : public FastoObject {
                      core::ConnectionType type);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(FastoObjectCommand);
-
   const core::ConnectionType type_;
   const CmdLoggingType ct_;
+
+  DISALLOW_COPY_AND_ASSIGN(FastoObjectCommand);
 };
 
 }  // namespace core

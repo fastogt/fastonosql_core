@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <fastonosql/core/command_holder.h>
 
 namespace fastonosql {

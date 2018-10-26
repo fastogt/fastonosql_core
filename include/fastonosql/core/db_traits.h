@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <common/value.h>  // for Value, Value::Type
 
 #include <fastonosql/core/connection_types.h>  // for ConnectionType

@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <common/value.h>
 
 namespace fastonosql {
@@ -41,12 +44,12 @@ class StreamValue : public common::Value {
   typedef std::vector<Stream> streams_t;
 
   static const common::Value::Type TYPE_STREAM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 1);
-  explicit StreamValue();
-  virtual ~StreamValue() override;
+  StreamValue();
+  ~StreamValue() override;
 
-  virtual bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
-  virtual StreamValue* DeepCopy() const override;
-  virtual bool Equals(const Value* other) const override;
+  bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
+  StreamValue* DeepCopy() const override;
+  bool Equals(const Value* other) const override;
 
   streams_t GetStreams() const;
   void SetStreams(const streams_t& streams);
@@ -77,11 +80,11 @@ class JsonValue : public common::Value {  // simple json class value, only save
  public:
   static const common::Value::Type TYPE_JSON = static_cast<common::Value::Type>(common::Value::USER_TYPES + 2);
   explicit JsonValue(const std::string& json_value);
-  virtual ~JsonValue() override;
+  ~JsonValue() override;
 
-  virtual bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
-  virtual JsonValue* DeepCopy() const override;
-  virtual bool Equals(const Value* other) const override;
+  bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
+  JsonValue* DeepCopy() const override;
+  bool Equals(const Value* other) const override;
 
   static bool IsValidJson(const std::string& json);
 
@@ -94,10 +97,10 @@ class GraphValue : public common::Value {
  public:
   static const common::Value::Type TYPE_GRAPH = static_cast<common::Value::Type>(common::Value::USER_TYPES + 3);
   GraphValue();
-  virtual ~GraphValue() override;
+  ~GraphValue() override;
 
-  virtual GraphValue* DeepCopy() const override;
-  virtual bool Equals(const Value* other) const override;
+  GraphValue* DeepCopy() const override;
+  bool Equals(const Value* other) const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(GraphValue);
@@ -107,10 +110,10 @@ class BloomValue : public common::Value {
  public:
   static const common::Value::Type TYPE_BLOOM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 4);
   BloomValue();
-  virtual ~BloomValue() override;
+  ~BloomValue() override;
 
-  virtual BloomValue* DeepCopy() const override;
-  virtual bool Equals(const Value* other) const override;
+  BloomValue* DeepCopy() const override;
+  bool Equals(const Value* other) const override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BloomValue);
@@ -120,13 +123,13 @@ class SearchValue : public common::Value {
  public:
   static const common::Value::Type TYPE_FT_INDEX = static_cast<common::Value::Type>(common::Value::USER_TYPES + 5);
   static const common::Value::Type TYPE_FT_TERM = static_cast<common::Value::Type>(common::Value::USER_TYPES + 6);
-  virtual ~SearchValue() override;
+  ~SearchValue() override;
 
   static SearchValue* CreateSearchIndex();
   static SearchValue* CreateSearchDocument();
 
-  virtual SearchValue* DeepCopy() const override;
-  virtual bool Equals(const Value* other) const override;
+  SearchValue* DeepCopy() const override;
+  bool Equals(const Value* other) const override;
 
  private:
   explicit SearchValue(common::Value::Type type);

@@ -294,7 +294,7 @@ common::Error ValueFromReplay(redisReply* r, common::Value** out) {
       break;
     }
     case REDIS_REPLY_ERROR: {
-      if (common::strcasestr(r->str, "NOAUTH")) {  //"NOAUTH Authentication
+      if (common::strcasestr(r->str, "NOAUTH")) {  // "NOAUTH Authentication
                                                    // required."
       }
       std::string str(r->str, r->len);
@@ -529,7 +529,7 @@ common::Error DBConnection<Config, ContType>::CliFormatReplyRaw(FastoObject* out
   common::Value* out_val = nullptr;
   common::Error err = ValueFromReplay(r, &out_val);
   if (err) {
-    if (err->GetDescription() == "NOAUTH") {  //"NOAUTH Authentication
+    if (err->GetDescription() == "NOAUTH") {  // "NOAUTH Authentication
                                               // required."
       is_auth_ = false;
     }

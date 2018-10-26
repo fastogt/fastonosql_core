@@ -18,9 +18,9 @@
 
 #include <fastonosql/core/value.h>
 
-#include <algorithm>
-
 #include <json-c/json_tokener.h>
+
+#include <algorithm>
 
 #include <common/convert2string.h>
 

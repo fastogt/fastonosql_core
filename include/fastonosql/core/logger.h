@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <common/logger.h>
 #include <common/patterns/singleton_pattern.h>  // for LazySingleton
 

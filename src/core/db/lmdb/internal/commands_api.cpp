@@ -18,6 +18,8 @@
 
 #include "core/db/lmdb/internal/commands_api.h"
 
+#include <string>
+
 #include <fastonosql/core/db/lmdb/db_connection.h>
 
 namespace fastonosql {

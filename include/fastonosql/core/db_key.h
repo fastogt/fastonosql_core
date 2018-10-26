@@ -19,6 +19,8 @@
 #pragma once
 
 #include <limits>
+#include <string>
+#include <vector>
 
 #include <common/value.h>  // for Value, Value::Type, etc
 

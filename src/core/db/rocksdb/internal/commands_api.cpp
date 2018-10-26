@@ -18,6 +18,9 @@
 
 #include "core/db/rocksdb/internal/commands_api.h"
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/db/rocksdb/db_connection.h>
 
 namespace fastonosql {

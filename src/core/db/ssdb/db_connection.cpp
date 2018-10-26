@@ -18,6 +18,10 @@
 
 #include <fastonosql/core/db/ssdb/db_connection.h>
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include <common/convert2string.h>
 
 #include <SSDB.h>  // for Status, Client
@@ -617,7 +621,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::DBsize)};
-}
+}  // namespace
 }  // namespace ssdb
 template <>
 const char* ConnectionTraits<SSDB>::GetBasedOn() {

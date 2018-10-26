@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/command_holder.h>
 #include <fastonosql/core/db_key.h>  // for NKey, NDbKValue, ttl_t
 #include <fastonosql/core/db_ps_channel.h>

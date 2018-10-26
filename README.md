@@ -1,7 +1,7 @@
 About FastoNoSQL core
 ===============
 
-FastoGT common sources
+FastoNoSQL core sources
 
 Visit our site: [www.fastogt.com](http://www.fastogt.com)
 

@@ -18,6 +18,9 @@
 
 #include "core/db/pika/internal/commands_api.h"
 
+#include <string>
+#include <vector>
+
 #include <common/string_util.h>
 
 #include <fastonosql/core/db/pika/db_connection.h>

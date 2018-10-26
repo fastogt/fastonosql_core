@@ -18,6 +18,8 @@
 
 #include "core/db/forestdb/internal/commands_api.h"
 
+#include <string>
+
 #include <fastonosql/core/db/forestdb/db_connection.h>
 
 namespace fastonosql {

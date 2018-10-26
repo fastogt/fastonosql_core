@@ -411,7 +411,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit)};
-}
+}  // namespace
 }  // namespace memcached
 template <>
 const char* ConnectionTraits<MEMCACHED>::GetBasedOn() {

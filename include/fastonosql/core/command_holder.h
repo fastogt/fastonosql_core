@@ -19,6 +19,7 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <vector>
 
 #include <common/error.h>  // for Error

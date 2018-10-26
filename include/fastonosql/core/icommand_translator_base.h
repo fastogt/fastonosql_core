@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/icommand_translator.h>
 
 namespace fastonosql {
@@ -26,17 +29,17 @@ namespace core {
 class ICommandTranslatorBase : public ICommandTranslator {
  public:
   explicit ICommandTranslatorBase(const std::vector<CommandHolder>& commands);
-  virtual ~ICommandTranslatorBase() override;
+  ~ICommandTranslatorBase() override;
 
-  virtual const char* GetDBName() const override = 0;
+  const char* GetDBName() const override = 0;
 
  private:
-  virtual common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
-  virtual common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
-  virtual common::Error PublishCommandImpl(const NDbPSChannel& channel,
-                                           const std::string& message,
-                                           command_buffer_t* cmdstring) const override;
-  virtual common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
+  common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
+  common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  common::Error PublishCommandImpl(const NDbPSChannel& channel,
+                                   const std::string& message,
+                                   command_buffer_t* cmdstring) const override;
+  common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
 };
 
 }  // namespace core

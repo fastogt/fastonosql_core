@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include <vector>
+#include <utility>
+#include <string>
+
 #include <common/value.h>  // for ArrayValue
 
 namespace fastonosql {
