@@ -29,6 +29,143 @@
 namespace fastonosql {
 namespace core {
 
+bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out) {
+  if (command_line.empty() || !out) {
+    return false;
+  }
+
+  commands_args_t result;
+  command_buffer_t current_string;
+  size_t in_single_quotes = 0;
+  size_t in_double_quotes = 0;
+  size_t in_json = 0;
+
+  for (size_t i = 0; i < command_line.size(); ++i) {
+    command_buffer_char_t ch = command_line[i];
+    const bool is_last = command_line.size() - 1 == i;
+
+    if (current_string.empty() && !in_double_quotes && !in_single_quotes) {
+      in_single_quotes = 0;
+      in_double_quotes = 0;
+      in_json = 0;
+
+      if (ch == ' ') {
+        for (size_t j = i; j < command_line.size(); ++j) {
+          command_buffer_char_t chj = command_line[j];
+          if (chj == ' ') {
+            i++;
+            continue;
+          }
+          ch = chj;
+          break;
+        }
+      }
+    }
+
+    if (in_single_quotes) {
+      if (ch == '\\' && !is_last && command_line[i + 1] == SINGLE_QUOTES_CHAR) {
+        current_string += command_line[i + 1];
+        ++i;
+        continue;
+      }
+
+      if (ch == '\\') {
+        size_t rem = command_line.size() - i;
+        if (rem > 4 && (command_line[i + 1] == 'x' || command_line[i + 1] == 'X') &&
+            common::IsHexDigit(command_line[i + 2]) && common::IsHexDigit(command_line[i + 3])) {
+          char ch = command_line[i + 2];
+          char ch2 = command_line[i + 3];
+          unsigned char total = common::HexDigitToInt(ch) * 16 + common::HexDigitToInt(ch2);
+          current_string += common::ConvertToCharBytes(total);
+          i += 3;
+          continue;
+        }
+      }
+
+      // common cases
+      if (ch == SINGLE_QUOTES_CHAR) {
+        result.push_back(current_string);
+        current_string.clear();
+        in_single_quotes--;
+        continue;
+      }
+      current_string += ch;
+    } else if (in_double_quotes) {
+      if (ch == '\\' && !is_last && command_line[i + 1] == DOUBLE_QUOTES_CHAR) {
+        current_string += command_line[i + 1];
+        ++i;
+        continue;
+      }
+
+      if (ch == '\\') {
+        size_t rem = command_line.size() - i;
+        if (rem > 4 && (command_line[i + 1] == 'x' || command_line[i + 1] == 'X') &&
+            common::IsHexDigit(command_line[i + 2]) && common::IsHexDigit(command_line[i + 3])) {
+          char ch = command_line[i + 2];
+          char ch2 = command_line[i + 3];
+          unsigned char total = common::HexDigitToInt(ch) * 16 + common::HexDigitToInt(ch2);
+          current_string += total;
+          i += 3;
+          continue;
+        }
+      }
+
+      // common cases
+      if (ch == DOUBLE_QUOTES_CHAR) {
+        result.push_back(current_string);
+        current_string.clear();
+        in_double_quotes--;
+        continue;
+      }
+      current_string += ch;
+    } else if (in_json) {
+      current_string += ch;
+      if (ch == '\\' && !is_last && (command_line[i + 1] == JSON_START_CHAR || command_line[i + 1] == JSON_END_CHAR)) {
+        current_string += command_line[i + 1];
+        ++i;
+        continue;
+      }
+
+      // common cases
+      if (ch == '{') {
+        in_json++;
+      } else if (ch == JSON_END_CHAR) {
+        if (in_json == 1) {
+          result.push_back(current_string);
+          current_string.clear();
+        }
+        in_json--;
+        continue;
+      }
+    } else {
+      if (ch == ' ') {
+        result.push_back(current_string);
+        current_string.clear();
+      } else if (ch == SINGLE_QUOTES_CHAR) {
+        in_single_quotes = 1;  // skip symbol
+      } else if (ch == DOUBLE_QUOTES_CHAR) {
+        in_double_quotes = 1;  // skip symbol
+      } else if (ch == JSON_START_CHAR) {
+        in_json = 1;
+        current_string += ch;
+      } else {
+        current_string += ch;
+      }
+    }
+  }
+
+  if (!current_string.empty()) {
+    result.push_back(current_string);
+  }
+
+  if (in_single_quotes || in_double_quotes || in_json) {
+    return false;
+  }
+
+  *out = result;
+  return true;
+}
+
 readable_string_t StableCommand(const command_buffer_t& command) {
   if (command.empty()) {
     DNOTREACHED();
