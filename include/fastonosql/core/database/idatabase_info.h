@@ -28,7 +28,9 @@ namespace core {
 class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
  public:
   typedef std::vector<NDbKValue> keys_container_t;
-  std::string GetName() const;
+  typedef std::string db_name_t;
+
+  db_name_t GetName() const;
   size_t GetDBKeysCount() const;
   void SetDBKeysCount(size_t size);
   size_t LoadedKeysCount() const;
@@ -50,10 +52,10 @@ class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
   virtual IDataBaseInfo* Clone() const override = 0;
 
  protected:
-  IDataBaseInfo(const std::string& name, bool isDefault, size_t dbkcount, const keys_container_t& keys);
+  IDataBaseInfo(const db_name_t& name, bool is_default, size_t dbkcount, const keys_container_t& keys);
 
  private:
-  const std::string name_;
+  const db_name_t name_;
   bool is_default_;
   size_t db_kcount_;
   keys_container_t keys_;

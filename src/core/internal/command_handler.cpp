@@ -31,7 +31,7 @@ namespace internal {
 CommandHandler::CommandHandler(ICommandTranslator* translator) : translator_(translator) {}
 
 common::Error CommandHandler::Execute(const command_buffer_t& command, FastoObject* out) {
-  command_buffer_t stabled_command = StableCommand(command);
+  readable_string_t stabled_command = StableCommand(command);
   if (stabled_command.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -45,8 +45,7 @@ common::Error CommandHandler::Execute(const command_buffer_t& command, FastoObje
 
   commands_args_t argvv;
   for (int i = 0; i < argc; ++i) {
-    std::string str(argv[i], sdslen(argv[i]));
-    argvv.push_back(str);
+    argvv.push_back(GEN_CMD_STRING_SIZE(argv[i], sdslen(argv[i])));
   }
   common::Error err = Execute(argvv, out);
   sdsfreesplitres(argv, argc);

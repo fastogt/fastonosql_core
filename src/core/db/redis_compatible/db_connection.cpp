@@ -133,7 +133,7 @@ common::Error TestConnection(const Config& config, const SSHInfo& sinfo) {
     return err;
   }
 
-  err = AuthContext(context, config.auth);
+  err = AuthContext(context, common::ConvertToCharBytes(config.auth));
   if (err) {
     redisFree(context);
     return err;
@@ -157,7 +157,7 @@ common::Error DiscoveryClusterConnection(const Config& rconfig,
     return err;
   }
 
-  err = AuthContext(context, rconfig.auth);
+  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));
   if (err) {
     redisFree(context);
     return err;
@@ -197,7 +197,7 @@ common::Error DiscoverySentinelConnection(const Config& rconfig,
     return err;
   }
 
-  err = AuthContext(context, rconfig.auth);
+  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));
   if (err) {
     redisFree(context);
     return err;
@@ -302,8 +302,7 @@ common::Error ValueFromReplay(redisReply* r, common::Value** out) {
     }
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING: {
-      std::string str(r->str, r->len);
-      *out = common::Value::CreateStringValue(str);
+      *out = common::Value::CreateStringValue(GEN_CMD_STRING_SIZE(r->str, r->len));
       break;
     }
     case REDIS_REPLY_INTEGER: {
@@ -402,7 +401,7 @@ common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv,
   int argcc = 0;
   size_t* argvlen = reinterpret_cast<size_t*>(malloc(argv.size() * sizeof(size_t)));
   for (size_t i = 0; i < argv.size(); ++i) {
-    argvc[i] = argv[i].data();
+    argvc[i] = reinterpret_cast<const char*>(argv[i].data());
     argvlen[i] = argv[i].size();
     argcc++;
   }
@@ -413,14 +412,20 @@ common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv,
   return err;
 }
 
-common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, redisReply** out_reply) {
+common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& command, redisReply** out_reply) {
   if (command.empty() || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
+  readable_string_t stabled_command = StableCommand(command);
+  if (stabled_command.empty()) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
   int argc = 0;
-  sds* argv = sdssplitargslong(command.data(), &argc);
+  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
   if (!argv) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -438,13 +443,14 @@ common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, re
   return err;
 }
 
-common::Error AuthContext(NativeConnection* context, const std::string& auth_str) {
+common::Error AuthContext(NativeConnection* context, const command_buffer_t& auth_str) {
   if (auth_str.empty()) {
     return common::Error();
   }
 
   redisReply* reply = nullptr;
-  common::Error err = ExecRedisCommand(context, {"AUTH", auth_str}, &reply);
+  const commands_args_t cmds = {GEN_CMD_STRING("AUTH"), auth_str};
+  common::Error err = ExecRedisCommand(context, cmds, &reply);
   if (err) {
     return err;
   }
@@ -460,7 +466,7 @@ common::Error DBConnection<Config, ContType>::Connect(const config_t& config) {
   }
 
   /* Do AUTH and select the right DB. */
-  err = Auth(config->auth);
+  err = Auth(common::ConvertToCharBytes(config->auth));
   if (err) {
     return err;
   }
@@ -476,7 +482,7 @@ common::Error DBConnection<Config, ContType>::Disconnect() {
 }
 
 template <typename Config, ConnectionType ContType>
-std::string DBConnection<Config, ContType>::GetCurrentDBName() const {
+typename DBConnection<Config, ContType>::db_name_t DBConnection<Config, ContType>::GetCurrentDBName() const {
   if (IsAuthenticated()) {
     auto config = base_class::GetConfig();
     int db_num = config->db_num;
@@ -573,7 +579,7 @@ common::Error DBConnection<Config, ContType>::CliReadReply(FastoObject* out) {
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Auth(const std::string& password) {
+common::Error DBConnection<Config, ContType>::Auth(const command_buffer_t& password) {
   common::Error err = base_class::TestIsConnected();
   if (err) {
     return err;
@@ -956,7 +962,7 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* d
     return err;
   }
 
-  std::string decr_cmd;
+  command_buffer_t decr_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->Decr(key, &decr_cmd);
   if (err) {
@@ -995,7 +1001,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& k
     return err;
   }
 
-  std::string decrby_cmd;
+  command_buffer_t decrby_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->DecrBy(key, dec, &decrby_cmd);
   if (err) {
@@ -1034,7 +1040,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key
     return err;
   }
 
-  std::string incr_cmd;
+  command_buffer_t incr_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->Incr(key, &incr_cmd);
   if (err) {
@@ -1073,7 +1079,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& k
     return err;
   }
 
-  std::string incrby_cmd;
+  command_buffer_t incrby_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->IncrBy(key, inc, &incrby_cmd);
   if (err) {
@@ -1101,7 +1107,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& k
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, double inc, std::string* str_incr) {
+common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, double inc, command_buffer_t* str_incr) {
   if (!str_incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1112,7 +1118,7 @@ common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, doubl
     return err;
   }
 
-  std::string incrfloat_cmd;
+  command_buffer_t incrfloat_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   err = tran->IncrByFloat(key, inc, &incrfloat_cmd);
   if (err) {
@@ -1126,7 +1132,7 @@ common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, doubl
   }
 
   if (reply->type == REDIS_REPLY_STRING) {
-    std::string str(reply->str, reply->len);
+    command_buffer_t str = GEN_CMD_STRING_SIZE(reply->str, reply->len);
     if (base_class::client_) {
       NValue val(common::Value::CreateStringValue(str));
       base_class::client_->OnAddedKey(NDbKValue(key, val));
@@ -1702,9 +1708,9 @@ common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* paylo
 
 template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
-                                                       const std::string& pattern,
+                                                       const command_buffer_t& pattern,
                                                        keys_limit_t count_keys,
-                                                       std::vector<std::string>* keys_out,
+                                                       keys_t* keys_out,
                                                        cursor_t* cursor_out) {
   const command_buffer_t pattern_result = GetKeysPattern(cursor_in, pattern, count_keys);
   redisReply* reply = nullptr;
@@ -1728,7 +1734,7 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
 
   common::ArrayValue* arr = static_cast<common::ArrayValue*>(val);
   CHECK_EQ(2, arr->GetSize());
-  std::string cursor_out_str;
+  command_buffer_t cursor_out_str;
   if (!arr->GetString(0, &cursor_out_str)) {
     delete val;
     freeReplyObject(reply);
@@ -1743,14 +1749,14 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
   }
 
   for (size_t i = 0; i < arr_keys->GetSize(); ++i) {
-    std::string key;
+    command_buffer_t key;
     if (arr_keys->GetString(i, &key)) {
       keys_out->push_back(key);
     }
   }
 
   cursor_t lcursor_out;
-  if (!common::ConvertFromString(cursor_out_str, &lcursor_out)) {
+  if (!common::ConvertFromBytes(cursor_out_str, &lcursor_out)) {
     return common::make_error_inval();
   }
 
@@ -1761,15 +1767,15 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::KeysImpl(const std::string& key_start,
-                                                       const std::string& key_end,
+common::Error DBConnection<Config, ContType>::KeysImpl(const command_buffer_t& key_start,
+                                                       const command_buffer_t& key_end,
                                                        keys_limit_t limit,
-                                                       std::vector<std::string>* ret) {
+                                                       keys_t* ret) {
   UNUSED(key_start);
   UNUSED(key_end);
   UNUSED(limit);
   UNUSED(ret);
-  return ICommandTranslator::NotSupported(DB_KEYS_COMMAND);
+  return ICommandTranslator::NotSupported(GEN_CMD_STRING(DB_KEYS_COMMAND));
 }
 
 template <typename Config, ConnectionType ContType>
@@ -1798,7 +1804,7 @@ common::Error DBConnection<Config, ContType>::FlushDBImpl() {
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::SelectImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection<Config, ContType>::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   int num;
   if (!common::ConvertFromString(name, &num)) {
     return common::make_error_inval();
@@ -1895,7 +1901,7 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
   }
 
   CHECK(reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
-  common::Value* val = common::Value::CreateStringValue(reply->str);
+  common::Value* val = common::Value::CreateStringValue(GEN_CMD_STRING_SIZE(reply->str, reply->len));
   *loaded_key = NDbKValue(key, NValue(val));
   freeReplyObject(reply);
   return common::Error();
@@ -1982,7 +1988,7 @@ common::Error DBConnection<Config, ContType>::QuitImpl() {
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
+common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t get_dbs_cmd;
   common::Error err = tran->GetDatabasesCommand(&get_dbs_cmd);
@@ -2037,8 +2043,9 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
       log_command_cb(cmd);
     }
 
+    std::string command_str = common::ConvertToString(command);
     int argc = 0;
-    sds* argv = sdssplitargslong(command.data(), &argc);
+    sds* argv = sdssplitargslong(command_str.c_str(), &argc);
     if (argv) {
       if (IsPipeLineCommand(argv[0])) {
         valid_cmds.push_back(cmd);

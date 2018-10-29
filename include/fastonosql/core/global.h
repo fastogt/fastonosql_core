@@ -56,7 +56,7 @@ class FastoObject : public common::intrusive_ptr_base<FastoObject> {
   virtual ~FastoObject();
 
   common::Value::Type GetType() const;
-  virtual std::string ToString() const;
+  virtual command_buffer_t ToString() const;
 
   static FastoObject* CreateRoot(const command_buffer_t& text, IFastoObjectObserver* observer = nullptr);
 
@@ -84,7 +84,7 @@ class FastoObject : public common::intrusive_ptr_base<FastoObject> {
 class FastoObjectCommand : public FastoObject {
  public:
   ~FastoObjectCommand() override;
-  std::string ToString() const override;
+  command_buffer_t ToString() const override;
 
   core::ConnectionType GetConnectionType() const;
 
@@ -110,6 +110,6 @@ class FastoObjectCommand : public FastoObject {
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::FastoObject* obj);
+fastonosql::core::command_buffer_t ConvertToString(fastonosql::core::FastoObject* obj);
 
 }  // namespace common

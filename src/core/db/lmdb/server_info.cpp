@@ -62,7 +62,7 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
 common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(db_path);
+      return common::Value::CreateStringValueFromBasicString(db_path);
     default:
       break;
   }

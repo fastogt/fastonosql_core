@@ -42,28 +42,28 @@ class DBConnection : public CDBConnection<NativeConnection, Config, ROCKSDB> {
   typedef CDBConnection<NativeConnection, Config, ROCKSDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
-  virtual std::string GetCurrentDBName() const override;
+  virtual db_name_t GetCurrentDBName() const override;
 
-  common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
-  common::Error Mget(const std::vector<std::string>& keys, std::vector<std::string>* ret);
-  common::Error Merge(const std::string& key, const std::string& value) WARN_UNUSED_RESULT;
+  common::Error Info(const command_buffer_t& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
+  common::Error Mget(const std::vector<command_buffer_t>& keys, std::vector<command_buffer_t>* ret);
+  common::Error Merge(const command_buffer_t& key, const command_buffer_t& value) WARN_UNUSED_RESULT;
 
  private:
   common::Error CheckResultCommand(const std::string& cmd, const ::rocksdb::Status& err) WARN_UNUSED_RESULT;
 
   common::Error SetInner(const key_t& key, const value_t& value) WARN_UNUSED_RESULT;
-  common::Error GetInner(const key_t& key, std::string* ret_val) WARN_UNUSED_RESULT;
+  common::Error GetInner(const key_t& key, command_buffer_t* ret_val) WARN_UNUSED_RESULT;
   common::Error DelInner(const key_t& key) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const std::string& pattern,
+                                 const command_buffer_t& pattern,
                                  keys_limit_t count_keys,
-                                 std::vector<std::string>* keys_out,
+                                 keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const std::string& key_start,
-                                 const std::string& key_end,
+  virtual common::Error KeysImpl(const command_buffer_t& key_start,
+                                 const command_buffer_t& key_end,
                                  keys_limit_t limit,
-                                 std::vector<std::string>* ret) override;
+                                 keys_t* ret) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error CreateDBImpl(const std::string& name, IDataBaseInfo** info) override;
@@ -74,7 +74,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, ROCKSDB> {
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<std::string>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) override;
 };
 
 }  // namespace rocksdb

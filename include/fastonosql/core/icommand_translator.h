@@ -60,7 +60,8 @@
 namespace fastonosql {
 namespace core {
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const std::string& pattern,
+command_buffer_t GetKeysPattern(cursor_t cursor_in,
+                                const command_buffer_t& pattern,
                                 keys_limit_t count_keys);  // for SCAN
 
 class ICommandTranslator {
@@ -87,7 +88,8 @@ class ICommandTranslator {
   common::Error ChangeKeyTTLCommand(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error LoadKeyTTLCommand(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
-  bool IsLoadKeyCommand(const command_buffer_t& cmd, readable_string_t* key) const WARN_UNUSED_RESULT;
+  bool IsLoadKeyCommand(const command_buffer_t& cmd, command_buffer_t* key) const WARN_UNUSED_RESULT;
+  bool IsLoadKeyCommand(const readable_string_t& stabled_cmd, command_buffer_t* key) const WARN_UNUSED_RESULT;
 
   common::Error PublishCommand(const NDbPSChannel& channel,
                                const std::string& message,
@@ -96,18 +98,19 @@ class ICommandTranslator {
   common::Error SubscribeCommand(const NDbPSChannel& channel, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   std::vector<CommandInfo> GetCommands() const;
-  common::Error FindCommand(const std::string& command_first_name, const CommandHolder** info) const WARN_UNUSED_RESULT;
+  common::Error FindCommand(const command_buffer_t& command_first_name,
+                            const CommandHolder** info) const WARN_UNUSED_RESULT;
   common::Error FindCommand(commands_args_t argv, const CommandHolder** info, size_t* off) const WARN_UNUSED_RESULT;
 
   common::Error TestCommandArgs(const CommandHolder* cmd, commands_args_t argv) const WARN_UNUSED_RESULT;
-  common::Error TestCommandLine(const command_buffer_t& cmd) const WARN_UNUSED_RESULT;
+  common::Error TestCommandLine(const readable_string_t& stabled_command) const WARN_UNUSED_RESULT;
   common::Error TestCommandLineArgs(commands_args_t argv,
                                     const CommandHolder** info,
                                     size_t* off) const WARN_UNUSED_RESULT;
 
-  static common::Error InvalidInputArguments(const std::string& cmd) WARN_UNUSED_RESULT;
-  static common::Error NotSupported(const std::string& cmd) WARN_UNUSED_RESULT;
-  static common::Error UnknownCommand(const std::string& cmd) WARN_UNUSED_RESULT;
+  static common::Error InvalidInputArguments(const command_buffer_t& cmd) WARN_UNUSED_RESULT;
+  static common::Error NotSupported(const command_buffer_t& cmd) WARN_UNUSED_RESULT;
+  static common::Error UnknownCommand(const command_buffer_t& cmd) WARN_UNUSED_RESULT;
   static common::Error UnknownSequence(commands_args_t argv) WARN_UNUSED_RESULT;
 
  private:

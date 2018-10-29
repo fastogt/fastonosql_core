@@ -25,6 +25,7 @@
 #include <common/convert2string.h>
 
 #include <fastonosql/core/macros.h>
+#include <fastonosql/core/types.h>
 
 namespace {
 const char* kValueTypes[] = {"TYPE_NULL",
@@ -67,9 +68,9 @@ StreamValue* StreamValue::DeepCopy() const {
   return str;
 }
 
-bool StreamValue::GetAsString(std::string* out_value) const {
+bool StreamValue::GetAsString(string_t* out_value) const {
   if (out_value) {
-    std::ostringstream wr;
+    command_buffer_writer_t wr;
     StreamValue::streams_t streams = GetStreams();
     for (size_t i = 0; i < streams.size(); ++i) {
       StreamValue::Stream cur_str = streams[i];
@@ -106,11 +107,11 @@ void StreamValue::SetStreams(const streams_t& streams) {
   streams_ = streams;
 }
 
-JsonValue::JsonValue(const std::string& json_value) : Value(TYPE_JSON), value_(json_value) {}
+JsonValue::JsonValue(const string_t& json_value) : Value(TYPE_JSON), value_(json_value) {}
 
 JsonValue::~JsonValue() {}
 
-bool JsonValue::GetAsString(std::string* out_value) const {
+bool JsonValue::GetAsString(string_t* out_value) const {
   if (out_value) {
     *out_value = value_;
   }
@@ -127,17 +128,17 @@ bool JsonValue::Equals(const Value* other) const {
     return false;
   }
 
-  std::string lhs, rhs;
+  string_t lhs, rhs;
   return GetAsString(&lhs) && other->GetAsString(&rhs) && lhs == rhs;
 }
 
-bool JsonValue::IsValidJson(const std::string& json) {
+bool JsonValue::IsValidJson(const string_t& json) {
   if (json.empty()) {
     DNOTREACHED();
     return false;
   }
 
-  json_object* obj = json_tokener_parse(json.c_str());
+  json_object* obj = json_tokener_parse(json.data());
   if (!obj) {
     return false;
   }
@@ -255,7 +256,7 @@ common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
       return new StreamValue;
     }
     case JsonValue::TYPE_JSON: {
-      return new JsonValue(std::string());
+      return new JsonValue(JsonValue::string_t());
     }
     case GraphValue::TYPE_GRAPH: {
       return new GraphValue;
@@ -296,15 +297,15 @@ const char* GetTypeName(common::Value::Type value_type) {
   return "UNKNOWN";
 }
 
-std::string ConvertValue(common::Value* value, const std::string& delimiter) {
+convert_to_t ConvertValue(common::Value* value, const std::string& delimiter) {
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   common::Value::Type value_type = value->GetType();
   if (value_type == common::Value::TYPE_NULL) {
-    return "(nil)";
+    return GEN_CMD_STRING("(nil)");
   } else if (value_type == common::Value::TYPE_BOOLEAN) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (value_type == common::Value::TYPE_INTEGER) {
@@ -352,20 +353,20 @@ std::string ConvertValue(common::Value* value, const std::string& delimiter) {
   }
 
   NOTREACHED() << "Not handled type: " << value_type;
-  return std::string();
+  return convert_to_t();
 }
 
-std::string ConvertValue(common::ArrayValue* array, const std::string& delimiter) {
+convert_to_t ConvertValue(common::ArrayValue* array, const std::string& delimiter) {
   if (!array) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string result;
+  convert_to_t result;
   auto last_iter = std::prev(array->end());
   for (auto it = array->begin(); it != array->end(); ++it) {
     common::Value* cur_val = *it;
-    std::string val_str = ConvertValue(cur_val, delimiter);
+    convert_to_t val_str = ConvertValue(cur_val, delimiter);
     if (val_str.empty()) {
       continue;
     }
@@ -380,16 +381,16 @@ std::string ConvertValue(common::ArrayValue* array, const std::string& delimiter
   return result;
 }
 
-std::string ConvertValue(common::SetValue* set, const std::string& delimiter) {
+convert_to_t ConvertValue(common::SetValue* set, const std::string& delimiter) {
   if (!set) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string result;
+  convert_to_t result;
   auto lastIt = std::prev(set->end());
   for (auto it = set->begin(); it != set->end(); ++it) {
-    std::string val = ConvertValue((*it), delimiter);
+    convert_to_t val = ConvertValue((*it), delimiter);
     if (val.empty()) {
       continue;
     }
@@ -404,23 +405,25 @@ std::string ConvertValue(common::SetValue* set, const std::string& delimiter) {
   return result;
 }
 
-std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter) {
+convert_to_t ConvertValue(common::ZSetValue* zset, const std::string& delimiter) {
   if (!zset) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string result;
+  convert_to_t result;
   auto lastIt = std::prev(zset->end());
   for (auto it = zset->begin(); it != zset->end(); ++it) {
     auto v = *it;
-    std::string key = ConvertValue(v.first, delimiter);
-    std::string val = ConvertValue(v.second, delimiter);
+    convert_to_t key = ConvertValue(v.first, delimiter);
+    convert_to_t val = ConvertValue(v.second, delimiter);
     if (val.empty() || key.empty()) {
       continue;
     }
 
-    result += key + SPACE_CHAR + val;
+    result += key;
+    result += SPACE_CHAR;
+    result += val;
     if (lastIt != it) {
       result += delimiter;
     }
@@ -430,22 +433,24 @@ std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter) 
   return result;
 }
 
-std::string ConvertValue(common::HashValue* hash, const std::string& delimiter) {
+convert_to_t ConvertValue(common::HashValue* hash, const std::string& delimiter) {
   if (!hash) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string result;
+  convert_to_t result;
   for (auto it = hash->begin(); it != hash->end(); ++it) {
     auto v = *it;
-    std::string key = ConvertValue(v.first, delimiter);
-    std::string val = ConvertValue(v.second, delimiter);
+    convert_to_t key = ConvertValue(v.first, delimiter);
+    convert_to_t val = ConvertValue(v.second, delimiter);
     if (val.empty() || key.empty()) {
       continue;
     }
 
-    result += key + SPACE_CHAR + val;
+    result += key;
+    result += SPACE_CHAR;
+    result += val;
     if (std::next(it) != hash->end()) {
       result += delimiter;
     }
@@ -455,11 +460,11 @@ std::string ConvertValue(common::HashValue* hash, const std::string& delimiter) 
   return result;
 }
 
-std::string ConvertValue(common::FundamentalValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(common::FundamentalValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   const common::Value::Type value_type = value->GetType();
@@ -467,156 +472,156 @@ std::string ConvertValue(common::FundamentalValue* value, const std::string& del
     bool res;
     if (!value->GetAsBoolean(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_INTEGER) {
     int res;
     if (!value->GetAsInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_UINTEGER) {
     unsigned int res;
     if (!value->GetAsUInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
     long res;
     if (!value->GetAsLongInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
     unsigned long res;
     if (!value->GetAsULongInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
     long long res;
     if (!value->GetAsLongLongInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
     unsigned long long res;
     if (!value->GetAsULongLongInteger(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   } else if (value_type == common::Value::TYPE_DOUBLE) {
     double res;
     if (!value->GetAsDouble(&res)) {
       DNOTREACHED();
-      return std::string();
+      return convert_to_t();
     }
-    return common::ConvertToString(res);
+    return common::ConvertToCharBytes(res);
   }
 
   DNOTREACHED();
-  return std::string();
+  return convert_to_t();
 }
 
-std::string ConvertValue(common::StringValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(common::StringValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string res;
+  command_buffer_t res;
   if (!value->GetAsString(&res)) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   return res;
 }
 
-std::string ConvertValue(common::ByteArrayValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(common::ByteArrayValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   common::byte_array_t res;
   if (!value->GetAsByteArray(&res)) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  return common::ConvertToString(res);
+  return common::ConvertToCharBytes(res);
 }
 
-std::string ConvertValue(StreamValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(StreamValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string res;
+  convert_to_t res;
   if (!value->GetAsString(&res)) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   return res;
 }
 
-std::string ConvertValue(JsonValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(JsonValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  std::string res;
+  convert_to_t res;
   if (!value->GetAsString(&res)) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
   return res;
 }
 
-std::string ConvertValue(GraphValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(GraphValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  return std::string();
+  return convert_to_t();
 }
 
-std::string ConvertValue(BloomValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(BloomValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  return std::string();
+  return convert_to_t();
 }
 
-std::string ConvertValue(SearchValue* value, const std::string& delimiter) {
+convert_to_t ConvertValue(SearchValue* value, const std::string& delimiter) {
   UNUSED(delimiter);
   if (!value) {
     DNOTREACHED();
-    return std::string();
+    return convert_to_t();
   }
 
-  return std::string();
+  return convert_to_t();
 }
 
 }  // namespace core

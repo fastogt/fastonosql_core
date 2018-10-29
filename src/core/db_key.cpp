@@ -60,7 +60,7 @@ NValue::NValue() : base_class() {}
 NValue::NValue(const base_class& other) : base_class(other) {}
 
 value_t NValue::GetValue(const std::string& delimiter) const {
-  std::string converted = ConvertValue(get(), delimiter);
+  convert_to_t converted = ConvertValue(get(), delimiter);
   return converted;
 }
 

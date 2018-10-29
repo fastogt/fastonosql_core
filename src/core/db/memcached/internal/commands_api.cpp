@@ -26,9 +26,9 @@ namespace memcached {
 
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* mem = static_cast<DBConnection*>(handler);
-  std::string args = argv.size() == 1 ? argv[0] : std::string();
-  if (args.empty() && strcasecmp(args.c_str(), "items") == 0) {
-    commands_args_t largv = {"a", "z", "100"};
+  command_buffer_t args = argv.size() == 1 ? argv[0] : command_buffer_t();
+  if (args.empty() && strcasecmp(reinterpret_cast<const char*>(args.data()), "items") == 0) {
+    commands_args_t largv = {GEN_CMD_STRING("a"), GEN_CMD_STRING("z"), GEN_CMD_STRING("100")};
     return Keys(handler, largv, out);
   }
 
@@ -39,7 +39,8 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
   }
 
   ServerInfo minf(statsout);
-  common::StringValue* val = common::Value::CreateStringValue(minf.ToString());
+  const std::string info_str = minf.ToString();
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(info_str);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -50,12 +51,12 @@ common::Error CommandsApi::Add(internal::CommandHandler* handler, commands_args_
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
-  if (!common::ConvertFromString(argv[2], &expiration)) {
+  if (!common::ConvertFromBytes(argv[2], &expiration)) {
     return common::make_error_inval();
   }
 
   uint32_t flags;
-  if (!common::ConvertFromString(argv[1], &flags)) {
+  if (!common::ConvertFromBytes(argv[1], &flags)) {
     return common::make_error_inval();
   }
 
@@ -64,7 +65,7 @@ common::Error CommandsApi::Add(internal::CommandHandler* handler, commands_args_
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -75,12 +76,12 @@ common::Error CommandsApi::Replace(internal::CommandHandler* handler, commands_a
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
-  if (!common::ConvertFromString(argv[2], &expiration)) {
+  if (!common::ConvertFromBytes(argv[2], &expiration)) {
     return common::make_error_inval();
   }
 
   uint32_t flags;
-  if (!common::ConvertFromString(argv[1], &flags)) {
+  if (!common::ConvertFromBytes(argv[1], &flags)) {
     return common::make_error_inval();
   }
 
@@ -89,7 +90,7 @@ common::Error CommandsApi::Replace(internal::CommandHandler* handler, commands_a
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -100,12 +101,12 @@ common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_ar
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
-  if (!common::ConvertFromString(argv[2], &expiration)) {
+  if (!common::ConvertFromBytes(argv[2], &expiration)) {
     return common::make_error_inval();
   }
 
   uint32_t flags;
-  if (!common::ConvertFromString(argv[1], &flags)) {
+  if (!common::ConvertFromBytes(argv[1], &flags)) {
     return common::make_error_inval();
   }
   common::Error err = mem->Append(key, argv[3], expiration, flags);
@@ -113,7 +114,7 @@ common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_ar
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -124,12 +125,12 @@ common::Error CommandsApi::Prepend(internal::CommandHandler* handler, commands_a
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
-  if (!common::ConvertFromString(argv[2], &expiration)) {
+  if (!common::ConvertFromBytes(argv[2], &expiration)) {
     return common::make_error_inval();
   }
 
   uint32_t flags;
-  if (!common::ConvertFromString(argv[1], &flags)) {
+  if (!common::ConvertFromBytes(argv[1], &flags)) {
     return common::make_error_inval();
   }
   common::Error err = mem->Prepend(key, argv[3], expiration, flags);
@@ -137,7 +138,7 @@ common::Error CommandsApi::Prepend(internal::CommandHandler* handler, commands_a
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -148,7 +149,7 @@ common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   uint32_t value;
-  if (!common::ConvertFromString(argv[1], &value)) {
+  if (!common::ConvertFromBytes(argv[1], &value)) {
     return common::make_error_inval();
   }
   uint64_t result = 0;
@@ -168,7 +169,7 @@ common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args
   NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   uint32_t value;
-  if (!common::ConvertFromString(argv[1], &value)) {
+  if (!common::ConvertFromBytes(argv[1], &value)) {
     return common::make_error_inval();
   }
   uint64_t result = 0;

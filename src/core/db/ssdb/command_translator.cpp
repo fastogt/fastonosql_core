@@ -18,6 +18,8 @@
 
 #include <fastonosql/core/db/ssdb/command_translator.h>
 
+#include <common/convert2string.h>
+
 #include <fastonosql/core/connection_types.h>
 
 #define SSDB_SET_KEY_COMMAND DB_SET_KEY_COMMAND
@@ -114,9 +116,11 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(SSDB_GET_KEY_COMMAND) || cmd.IsEqualName(SSDB_GET_KEY_ARRAY_COMMAND) ||
-         cmd.IsEqualName(SSDB_GET_KEY_SET_COMMAND) || cmd.IsEqualName(SSDB_GET_KEY_ZSET_COMMAND) ||
-         cmd.IsEqualName(SSDB_GET_KEY_HASH_COMMAND);
+  return cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_ARRAY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_SET_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_ZSET_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_HASH_COMMAND));
 }
 
 common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
@@ -124,7 +128,7 @@ common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
                                                          command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << SSDB_CHANGE_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << ttl;
+  wr << SSDB_CHANGE_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToString(ttl);
   *cmdstring = wr.str();
   return common::Error();
 }

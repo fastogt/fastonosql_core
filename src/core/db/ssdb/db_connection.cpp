@@ -34,7 +34,7 @@ namespace fastonosql {
 namespace core {
 namespace ssdb {
 namespace {
-const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
+const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_COMMAND),
                                                        "[command]",
                                                        "Return how to use command",
                                                        UNDEFINED_SINCE,
@@ -43,7 +43,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Help),
-                                         CommandHolder(DB_INFO_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_INFO_COMMAND),
                                                        "[section]",
                                                        "Return information about the server.",
                                                        UNDEFINED_SINCE,
@@ -52,7 +52,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Info),
-                                         CommandHolder(DB_GET_CONFIG_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_GET_CONFIG_COMMAND),
                                                        "<parameter>",
                                                        "Get the value of a configuration parameter",
                                                        UNDEFINED_SINCE,
@@ -61,7 +61,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::ConfigGet),
-                                         CommandHolder(DB_SCAN_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SCAN_COMMAND),
                                                        "<cursor> [MATCH pattern] [COUNT count]",
                                                        "Incrementally iterate the keys space",
                                                        UNDEFINED_SINCE,
@@ -70,7 +70,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        4,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Scan),
-                                         CommandHolder(DB_JSONDUMP_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_JSONDUMP_COMMAND),
                                                        "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
                                                        "Dump DB into json file by path.",
                                                        UNDEFINED_SINCE,
@@ -79,7 +79,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        4,
                                                        CommandInfo::Native,
                                                        &CommandsApi::JsonDump),
-                                         CommandHolder("SCANSSDB",
+                                         CommandHolder(GEN_CMD_STRING("SCANSSDB"),
                                                        "<key_start> <key_end> <limit>",
                                                        "List keys in range (key_start, key_end].",
                                                        UNDEFINED_SINCE,
@@ -88,7 +88,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::ScanSSDB),
-                                         CommandHolder(DB_KEYS_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_KEYS_COMMAND),
                                                        "<key_start> <key_end> <limit>",
                                                        "Find all keys matching the given limits.",
                                                        UNDEFINED_SINCE,
@@ -97,7 +97,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Keys),
-                                         CommandHolder(DB_DBKCOUNT_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_DBKCOUNT_COMMAND),
                                                        "-",
                                                        "Return the number of keys in the "
                                                        "selected database",
@@ -107,7 +107,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::DBkcount),
-                                         CommandHolder(DB_FLUSHDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
                                                        UNDEFINED_SINCE,
@@ -116,7 +116,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::FlushDB),
-                                         CommandHolder(DB_SELECTDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SELECTDB_COMMAND),
                                                        "<name>",
                                                        "Change the selected database for the "
                                                        "current connection",
@@ -126,7 +126,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Select),
-                                         CommandHolder(DB_SET_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SET_KEY_COMMAND),
                                                        "<key> <value>",
                                                        "Set the value of a key.",
                                                        UNDEFINED_SINCE,
@@ -135,7 +135,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Set),
-                                         CommandHolder(DB_GET_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_GET_KEY_COMMAND),
                                                        "<key>",
                                                        "Get the value of a key.",
                                                        UNDEFINED_SINCE,
@@ -144,7 +144,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Get),
-                                         CommandHolder(DB_RENAME_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_RENAME_KEY_COMMAND),
                                                        "<key> <newkey>",
                                                        "Rename a key",
                                                        UNDEFINED_SINCE,
@@ -153,7 +153,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Rename),
-                                         CommandHolder(DB_DELETE_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_DELETE_KEY_COMMAND),
                                                        "<key> [key ...]",
                                                        "Delete key.",
                                                        UNDEFINED_SINCE,
@@ -162,7 +162,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Delete),
-                                         CommandHolder(DB_SET_TTL_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SET_TTL_COMMAND),
                                                        "<key> <exptime>",
                                                        "Set a key's time to live in seconds",
                                                        UNDEFINED_SINCE,
@@ -171,7 +171,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::SetTTL),
-                                         CommandHolder(DB_GET_TTL_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_GET_TTL_COMMAND),
                                                        "<key>",
                                                        "Get the time to live for a key",
                                                        UNDEFINED_SINCE,
@@ -180,7 +180,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::GetTTL),
-                                         CommandHolder(DB_QUIT_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_QUIT_COMMAND),
                                                        "-",
                                                        "Close the connection",
                                                        UNDEFINED_SINCE,
@@ -189,7 +189,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit),
-                                         CommandHolder("AUTH",
+                                         CommandHolder(GEN_CMD_STRING("AUTH"),
                                                        "<password>",
                                                        "Authenticate to the server",
                                                        UNDEFINED_SINCE,
@@ -198,7 +198,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Auth),
-                                         CommandHolder("SETX",
+                                         CommandHolder(GEN_CMD_STRING("SETX"),
                                                        "<key> <value> <ttl>",
                                                        "Set the value of the key, with a time to live.",
                                                        UNDEFINED_SINCE,
@@ -207,7 +207,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Setx),
-                                         CommandHolder("INCR",
+                                         CommandHolder(GEN_CMD_STRING("INCR"),
                                                        "<key> [num]",
                                                        "Increment the number stored at key by num.\n"
                                                        "The num argument could be a negative integer.\n"
@@ -221,7 +221,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Incr),
-                                         CommandHolder("RSCAN",
+                                         CommandHolder(GEN_CMD_STRING("RSCAN"),
                                                        "<key_start> <key_end> <limit>",
                                                        "List keys in range (key_start, key_end].",
                                                        UNDEFINED_SINCE,
@@ -230,7 +230,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Rscan),
-                                         CommandHolder("MULTI_GET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_GET"),
                                                        "<keys> [keys ...]",
                                                        "Get the values related to the specified "
                                                        "multiple keys",
@@ -240,7 +240,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiGet),
-                                         CommandHolder("MULTI_SET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_SET"),
                                                        "<key> <value> [key value ...]",
                                                        "Set multiple key-value pairs(kvs) in "
                                                        "one method call.",
@@ -250,7 +250,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiSet),
-                                         CommandHolder("MULTI_DEL",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_DEL"),
                                                        "<keys> [keys ...]",
                                                        "Delete specified multiple keys.",
                                                        UNDEFINED_SINCE,
@@ -259,7 +259,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiDel),
-                                         CommandHolder("HSET",
+                                         CommandHolder(GEN_CMD_STRING("HSET"),
                                                        "<name> <key> <value>",
                                                        "Set the string value in argument as "
                                                        "value of the key of a hashmap.",
@@ -269,7 +269,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hset),
-                                         CommandHolder("HGET",
+                                         CommandHolder(GEN_CMD_STRING("HGET"),
                                                        "<name> <key>",
                                                        "Get the value related to the specified "
                                                        "key of a hashmap",
@@ -279,7 +279,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hget),
-                                         CommandHolder("HDEL",
+                                         CommandHolder(GEN_CMD_STRING("HDEL"),
                                                        "<name> <key>",
                                                        "Delete specified key of a hashmap.",
                                                        UNDEFINED_SINCE,
@@ -288,7 +288,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hdel),
-                                         CommandHolder("HINCR",
+                                         CommandHolder(GEN_CMD_STRING("HINCR"),
                                                        "<name> <key> <num>",
                                                        "Increment the number stored at key in a hashmap "
                                                        "by num.\n"
@@ -303,7 +303,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hincr),
-                                         CommandHolder("HSIZE",
+                                         CommandHolder(GEN_CMD_STRING("HSIZE"),
                                                        "<name>",
                                                        "Return the number of pairs of a hashmap.",
                                                        UNDEFINED_SINCE,
@@ -312,7 +312,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hsize),
-                                         CommandHolder("HCLEAR",
+                                         CommandHolder(GEN_CMD_STRING("HCLEAR"),
                                                        "<name>",
                                                        "Delete all keys in a hashmap.",
                                                        UNDEFINED_SINCE,
@@ -321,7 +321,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hclear),
-                                         CommandHolder("HKEYS",
+                                         CommandHolder(GEN_CMD_STRING("HKEYS"),
                                                        "<name> <key_start> <key_end> <limit>",
                                                        "List keys of a hashmap in range "
                                                        "(key_start, key_end].",
@@ -331,7 +331,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hkeys),
-                                         CommandHolder("HGETALL",
+                                         CommandHolder(GEN_CMD_STRING("HGETALL"),
                                                        "<name>",
                                                        "Returns the whole hash, as an array of "
                                                        "strings indexed by strings.",
@@ -341,7 +341,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hgetall),
-                                         CommandHolder("HSCAN",
+                                         CommandHolder(GEN_CMD_STRING("HSCAN"),
                                                        "<name> <key_start> <key_end> <limit>",
                                                        "List key-value pairs of a hashmap with "
                                                        "keys in range "
@@ -352,7 +352,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hscan),
-                                         CommandHolder("HRSCAN",
+                                         CommandHolder(GEN_CMD_STRING("HRSCAN"),
                                                        "<name> <key_start> <key_end> <limit>",
                                                        "List key-value pairs of a hashmap with "
                                                        "keys in range "
@@ -364,7 +364,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Hrscan),
-                                         CommandHolder("MULTI_HGET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_HGET"),
                                                        "<name> <keys>",
                                                        "Get the values related to the specified "
                                                        "multiple keys of a hashmap.",
@@ -374,7 +374,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiHget),
-                                         CommandHolder("MULTI_HSET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_HSET"),
                                                        "<name> <key> <value> [key value ...]",
                                                        "Set multiple key-value pairs(kvs) of a "
                                                        "hashmap in one method call.",
@@ -384,7 +384,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiHset),
-                                         CommandHolder("ZSET",
+                                         CommandHolder(GEN_CMD_STRING("ZSET"),
                                                        "<name> <key> <score>",
                                                        "Set the score of the key of a zset.",
                                                        UNDEFINED_SINCE,
@@ -393,7 +393,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zset),
-                                         CommandHolder("ZGET",
+                                         CommandHolder(GEN_CMD_STRING("ZGET"),
                                                        "<name> <key>",
                                                        "Get the score related to the specified "
                                                        "key of a zset",
@@ -403,7 +403,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zget),
-                                         CommandHolder("ZDEL",
+                                         CommandHolder(GEN_CMD_STRING("ZDEL"),
                                                        "<name> <key>",
                                                        "Delete specified key of a zset.",
                                                        UNDEFINED_SINCE,
@@ -412,7 +412,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zdel),
-                                         CommandHolder("ZINCR",
+                                         CommandHolder(GEN_CMD_STRING("ZINCR"),
                                                        "<name> <key> <num>",
                                                        "Increment the number stored at key in a zset by "
                                                        "num.\n"
@@ -427,7 +427,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zincr),
-                                         CommandHolder("ZSIZE",
+                                         CommandHolder(GEN_CMD_STRING("ZSIZE"),
                                                        "<name>",
                                                        "Return the number of pairs of a zset.",
                                                        UNDEFINED_SINCE,
@@ -436,7 +436,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zsize),
-                                         CommandHolder("ZCLEAR",
+                                         CommandHolder(GEN_CMD_STRING("ZCLEAR"),
                                                        "<name>",
                                                        "Delete all keys in a zset.",
                                                        UNDEFINED_SINCE,
@@ -445,7 +445,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zclear),
-                                         CommandHolder("ZRANK",
+                                         CommandHolder(GEN_CMD_STRING("ZRANK"),
                                                        "<name> <key>",
                                                        "Returns the rank(index) of a given key in the "
                                                        "specified "
@@ -459,7 +459,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zrank),
-                                         CommandHolder("ZRRANK",
+                                         CommandHolder(GEN_CMD_STRING("ZRRANK"),
                                                        "<name> <key>",
                                                        "Returns the rank(index) of a given key in the "
                                                        "specified "
@@ -473,7 +473,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zrrank),
-                                         CommandHolder("ZRANGE",
+                                         CommandHolder(GEN_CMD_STRING("ZRANGE"),
                                                        "<name> <offset> <limit>",
                                                        "Returns a range of key-score pairs by "
                                                        "index range [offset, "
@@ -485,7 +485,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zrange),
-                                         CommandHolder("ZRRANGE",
+                                         CommandHolder(GEN_CMD_STRING("ZRRANGE"),
                                                        "<name> <offset> <limit>",
                                                        "Returns a range of key-score pairs by "
                                                        "index range [offset, "
@@ -497,7 +497,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zrrange),
-                                         CommandHolder("ZKEYS",
+                                         CommandHolder(GEN_CMD_STRING("ZKEYS"),
                                                        "<name> <key_start> <score_start> "
                                                        "<score_end> <limit>",
                                                        "List keys in a zset.",
@@ -507,7 +507,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zkeys),
-                                         CommandHolder("ZSCAN",
+                                         CommandHolder(GEN_CMD_STRING("ZSCAN"),
                                                        "<name> <key_start> <score_start> "
                                                        "<score_end> <limit>",
                                                        "List key-score pairs in a zset, where "
@@ -529,7 +529,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zscan),
-                                         CommandHolder("ZRSCAN",
+                                         CommandHolder(GEN_CMD_STRING("ZRSCAN"),
                                                        "<name> <key_start> <score_start> <score_end> "
                                                        "<limit>",
                                                        "List key-score pairs of a zset, in reverse order.",
@@ -539,7 +539,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Zrscan),
-                                         CommandHolder("MULTI_ZGET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_ZGET"),
                                                        "<name> <keys>",
                                                        "Get the values related to the specified "
                                                        "multiple keys of a zset.",
@@ -549,7 +549,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiZget),
-                                         CommandHolder("MULTI_ZSET",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_ZSET"),
                                                        "<name> <key> <score> [key score ...]",
                                                        "Set multiple key-score pairs(kvs) of a "
                                                        "zset in one method call.",
@@ -559,7 +559,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiZset),
-                                         CommandHolder("MULTI_ZDEL",
+                                         CommandHolder(GEN_CMD_STRING("MULTI_ZDEL"),
                                                        "<name> <keys>",
                                                        "Delete specified multiple keys of a zset.",
                                                        UNDEFINED_SINCE,
@@ -568,7 +568,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiZdel),
-                                         CommandHolder("QPUSH",
+                                         CommandHolder(GEN_CMD_STRING("QPUSH"),
                                                        "<name> <item>",
                                                        "Adds an or more than one element to the "
                                                        "end of the queue.",
@@ -578,7 +578,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qpush),
-                                         CommandHolder("QPOP",
+                                         CommandHolder(GEN_CMD_STRING("QPOP"),
                                                        "<name> <size>",
                                                        "Pop out one or more elements from the "
                                                        "head of a queue.",
@@ -588,7 +588,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qpop),
-                                         CommandHolder("QSLICE",
+                                         CommandHolder(GEN_CMD_STRING("QSLICE"),
                                                        "<name> <begin> <end>",
                                                        "Returns a portion of elements from the "
                                                        "queue at the "
@@ -600,7 +600,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qslice),
-                                         CommandHolder("QCLEAR",
+                                         CommandHolder(GEN_CMD_STRING("QCLEAR"),
                                                        "<name>",
                                                        "Clear the queue.",
                                                        UNDEFINED_SINCE,
@@ -609,7 +609,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qclear),
-                                         CommandHolder("DBSIZE",
+                                         CommandHolder(GEN_CMD_STRING("DBSIZE"),
                                                        "-",
                                                        "Return the approximate size of the database, in "
                                                        "bytes. If "
@@ -639,7 +639,7 @@ const ConstantCommandsArray& ConnectionCommandsTraits<SSDB>::GetCommands() {
 }
 namespace {
 std::string ConvertToSSDBSlice(const key_t& key) {
-  return key.GetData();
+  return common::ConvertToString(key.GetData());
 }
 }  // namespace
 namespace internal {
@@ -753,7 +753,7 @@ common::Error DBConnection::Disconnect() {
   return base_class::Disconnect();
 }
 
-common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
+common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -765,7 +765,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
   }
 
   std::vector<std::string> ret;
-  err = CheckResultCommand(DB_INFO_COMMAND, connection_.handle_->info(args, &ret));
+  err = CheckResultCommand(DB_INFO_COMMAND, connection_.handle_->info(common::ConvertToString(args), &ret));
   if (err) {
     return err;
   }
@@ -835,7 +835,7 @@ common::Error DBConnection::Auth(const std::string& password) {
   return common::Error();
 }
 
-common::Error DBConnection::Setx(const std::string& key, const std::string& value, ttl_t ttl) {
+common::Error DBConnection::Setx(const raw_key_t& key, const raw_value_t& value, ttl_t ttl) {
   if (key.empty() || value.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -851,13 +851,20 @@ common::Error DBConnection::Setx(const std::string& key, const std::string& valu
 
 common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   const std::string key_slice = ConvertToSSDBSlice(key);
-  const readable_string_t value_str = value.GetData();
+  const std::string value_str = common::ConvertToString(value.GetData());
   return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->set(key_slice, value_str));
 }
 
-common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
+common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
   const std::string key_slice = ConvertToSSDBSlice(key);
-  return CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->get(key_slice, ret_val));
+  std::string ret_str;
+  common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->get(key_slice, &ret_str));
+  if (err) {
+    return err;
+  }
+
+  *ret_val = common::ConvertToCharBytes(ret_str);
+  return common::Error();
 }
 
 common::Error DBConnection::DelInner(const key_t& key) {
@@ -865,7 +872,7 @@ common::Error DBConnection::DelInner(const key_t& key) {
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, connection_.handle_->del(key_slice));
 }
 
-common::Error DBConnection::Incr(const std::string& key, int64_t incrby, int64_t* out) {
+common::Error DBConnection::Incr(const raw_key_t& key, int64_t incrby, int64_t* out) {
   if (key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -879,10 +886,10 @@ common::Error DBConnection::Incr(const std::string& key, int64_t incrby, int64_t
   return CheckResultCommand("INCR", connection_.handle_->incr(key, incrby, out));
 }
 
-common::Error DBConnection::ScanSsdb(const std::string& key_start,
-                                     const std::string& key_end,
+common::Error DBConnection::ScanSsdb(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      uint64_t limit,
-                                     std::vector<std::string>* out) {
+                                     std::vector<raw_key_t>* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -896,10 +903,10 @@ common::Error DBConnection::ScanSsdb(const std::string& key_start,
   return CheckResultCommand(DB_SCAN_COMMAND, connection_.handle_->scan(key_start, key_end, limit, out));
 }
 
-common::Error DBConnection::Rscan(const std::string& key_start,
-                                  const std::string& key_end,
+common::Error DBConnection::Rscan(const raw_key_t& key_start,
+                                  const raw_key_t& key_end,
                                   uint64_t limit,
-                                  std::vector<std::string>* out) {
+                                  std::vector<raw_key_t>* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1478,9 +1485,9 @@ common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const std::string& pattern,
+                                     const command_buffer_t& pattern,
                                      keys_limit_t count_keys,
-                                     std::vector<std::string>* keys_out,
+                                     keys_t* keys_out,
                                      cursor_t* cursor_out) {
   std::vector<std::string> ret;
   common::Error err =
@@ -1491,9 +1498,9 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
 
   cursor_t offset_pos = cursor_in;
   cursor_t lcursor_out = 0;
-  std::vector<std::string> lkeys_out;
+  std::vector<command_buffer_t> lkeys_out;
   for (size_t i = 0; i < ret.size(); ++i) {
-    std::string key = ret[i];
+    command_buffer_t key = common::ConvertToCharBytes(ret[i]);
     if (lkeys_out.size() < count_keys) {
       if (common::MatchPattern(key, pattern)) {
         if (offset_pos == 0) {
@@ -1513,11 +1520,23 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const std::string& key_start,
-                                     const std::string& key_end,
+common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
+                                     const command_buffer_t& key_end,
                                      keys_limit_t limit,
-                                     std::vector<std::string>* ret) {
-  return CheckResultCommand(DB_KEYS_COMMAND, connection_.handle_->keys(key_start, key_end, limit, ret));
+                                     keys_t* ret) {
+  std::vector<std::string> ret_keys;
+  const std::string kstart = common::ConvertToString(key_start);
+  const std::string kend = common::ConvertToString(key_end);
+  common::Error err = CheckResultCommand(DB_KEYS_COMMAND, connection_.handle_->keys(kstart, kend, limit, &ret_keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < ret_keys.size(); ++i) {
+    std::string key = ret_keys[i];
+    (*ret).push_back(common::ConvertToCharBytes(key));
+  }
+  return common::Error();
 }
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
@@ -1552,9 +1571,9 @@ common::Error DBConnection::FlushDBImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   if (name != GetCurrentDBName()) {
-    return ICommandTranslator::InvalidInputArguments(DB_SELECTDB_COMMAND);
+    return ICommandTranslator::InvalidInputArguments(GEN_CMD_STRING(DB_SELECTDB_COMMAND));
   }
 
   keys_limit_t kcount = 0;
@@ -1581,7 +1600,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   const key_t key_str = key.GetKey();
-  std::string value_str;
+  command_buffer_t value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
     return err;
@@ -1611,7 +1630,7 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   const key_t key_str = key.GetKey();
-  std::string value_str;
+  command_buffer_t value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
     return err;

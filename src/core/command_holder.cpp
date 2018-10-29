@@ -22,14 +22,14 @@
 
 #include <common/sprintf.h>
 
+namespace fastonosql {
+namespace core {
+
 namespace {
-size_t count_space(const std::string& data) {
+size_t count_space(const command_buffer_t& data) {
   return std::count_if(data.begin(), data.end(), [](char c) { return std::isspace(c); });
 }
 }  // namespace
-
-namespace fastonosql {
-namespace core {
 
 common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
   const size_t argc = argv.size();
@@ -39,7 +39,7 @@ common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
     std::string buff = common::MemSPrintf(
         "Invalid input argument for command: '%s', passed "
         "%d arguments, must be in range %u - %u.",
-        cmd.name, argc, min, max);
+        cmd.name.data(), argc, min, max);
     return common::make_error(buff);
   }
 
@@ -52,14 +52,14 @@ common::Error TestArgsModule2Equal1(const CommandInfo& cmd, commands_args_t argv
     std::string buff = common::MemSPrintf(
         "Invalid input argument for command: '%s', passed "
         "%d arguments, must be 1 by module 2.",
-        cmd.name, argv.size());
+        cmd.name.data(), argv.size());
     return common::make_error(buff);
   }
 
   return common::Error();
 }
 
-CommandHolder::CommandHolder(const std::string& name,
+CommandHolder::CommandHolder(const command_buffer_t& name,
                              const std::string& params,
                              const std::string& summary,
                              uint32_t since,
@@ -90,7 +90,7 @@ bool CommandHolder::IsCommand(commands_args_t argv, size_t* offset) const {
     merged.push_back(argv[i]);
   }
 
-  command_buffer_t ws = common::JoinString(merged, " ");
+  command_buffer_t ws = common::JoinString(merged, GEN_CMD_STRING(" "));
   if (!IsEqualName(ws)) {
     return false;
   }
@@ -101,7 +101,7 @@ bool CommandHolder::IsCommand(commands_args_t argv, size_t* offset) const {
   return true;
 }
 
-bool CommandHolder::IsEqualFirstName(const std::string& cmd_first_name) const {
+bool CommandHolder::IsEqualFirstName(const command_buffer_t& cmd_first_name) const {
   DCHECK(count_space(cmd_first_name) == 0) << "Command (" << cmd_first_name << ") should be without spaces.";
   if (white_spaces_count_ == 0) {
     return IsEqualName(cmd_first_name);
@@ -110,7 +110,8 @@ bool CommandHolder::IsEqualFirstName(const std::string& cmd_first_name) const {
   for (size_t i = 0; i < name.size(); ++i) {
     char c = name[i];
     if (std::isspace(c)) {
-      return common::FullEqualsASCII(cmd_first_name, name.substr(0, i), false);
+      command_buffer_t cut = GEN_CMD_STRING_SIZE(name.data(), i);
+      return common::FullEqualsASCII(cmd_first_name, cut, false);
     }
   }
 

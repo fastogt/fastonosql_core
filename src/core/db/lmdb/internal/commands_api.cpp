@@ -29,12 +29,12 @@ namespace lmdb {
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* mdb = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err = mdb->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = mdb->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(ServerInfo(statsout).ToString());
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(ServerInfo(statsout).ToString());
   FastoObject* child = new FastoObject(out, val, mdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -49,7 +49,7 @@ common::Error CommandsApi::DropDatabase(internal::CommandHandler* handler, comma
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, mdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

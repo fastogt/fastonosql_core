@@ -31,22 +31,39 @@ namespace internal {
 template <class CDBConnection>
 struct ApiTraits {
   typedef CDBConnection cdb_connection_t;
+
   static common::Error Help(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // string
 
   static common::Error Scan(CommandHandler* handler, commands_args_t argv, FastoObject* out);      // complex array
   static common::Error Keys(CommandHandler* handler, commands_args_t argv, FastoObject* out);      // array of keys
   static common::Error DBkcount(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // keys_limit_t
-  static common::Error CreateDatabase(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // OK_RESULT
-  static common::Error RemoveDatabase(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // OK_RESULT
-  static common::Error FlushDB(CommandHandler* handler, commands_args_t argv, FastoObject* out);         // OK_RESULT
-  static common::Error Select(CommandHandler* handler, commands_args_t argv, FastoObject* out);          // OK_RESULT
-  static common::Error Set(CommandHandler* handler, commands_args_t argv, FastoObject* out);             // OK_RESULT
-  static common::Error Get(CommandHandler* handler, commands_args_t argv, FastoObject* out);     // common::Value
-  static common::Error Rename(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // OK_RESULT
+  static common::Error CreateDatabase(CommandHandler* handler,
+                                      commands_args_t argv,
+                                      FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
+  static common::Error RemoveDatabase(CommandHandler* handler,
+                                      commands_args_t argv,
+                                      FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
+  static common::Error FlushDB(CommandHandler* handler,
+                               commands_args_t argv,
+                               FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
+  static common::Error Select(CommandHandler* handler,
+                              commands_args_t argv,
+                              FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
+  static common::Error Set(CommandHandler* handler,
+                           commands_args_t argv,
+                           FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
+  static common::Error Get(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // common::Value
+  static common::Error Rename(CommandHandler* handler,
+                              commands_args_t argv,
+                              FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
   static common::Error Delete(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // keys_limit_t
-  static common::Error SetTTL(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // OK_RESULT
+  static common::Error SetTTL(CommandHandler* handler,
+                              commands_args_t argv,
+                              FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
   static common::Error GetTTL(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // ttl_t
-  static common::Error Quit(CommandHandler* handler, commands_args_t argv, FastoObject* out);    // OK_RESULT
+  static common::Error Quit(CommandHandler* handler,
+                            commands_args_t argv,
+                            FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
   static common::Error ConfigGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // array
   static common::Error JsonDump(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // cursor_t
 };
@@ -56,7 +73,7 @@ common::Error ApiTraits<CDBConnection>::Help(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  std::string answer;
+  command_buffer_t answer;
   common::Error err = cdb->Help(argv, &answer);
   if (err) {
     return err;
@@ -73,19 +90,19 @@ common::Error ApiTraits<CDBConnection>::Scan(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
   cursor_t cursor_in;
-  if (!common::ConvertFromString(argv[0], &cursor_in)) {
+  if (!common::ConvertFromBytes(argv[0], &cursor_in)) {
     return common::make_error_inval();
   }
 
   const size_t argc = argv.size();
-  std::string pattern = argc >= 3 ? argv[2] : ALL_KEYS_PATTERNS;
+  command_buffer_t pattern = argc >= 3 ? argv[2] : GEN_CMD_STRING(ALL_KEYS_PATTERNS);
   cursor_t count_keys = NO_KEYS_LIMIT;
-  if (argc >= 5 && !common::ConvertFromString(argv[4], &count_keys)) {
+  if (argc >= 5 && !common::ConvertFromBytes(argv[4], &count_keys)) {
     return common::make_error_inval();
   }
 
   cursor_t cursor_out = 0;
-  std::vector<std::string> keys_out;
+  typename CDBConnection::keys_t keys_out;
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
 
   common::Error err = cdb->Scan(cursor_in, pattern, count_keys, &keys_out, &cursor_out);
@@ -116,11 +133,11 @@ common::Error ApiTraits<CDBConnection>::Keys(internal::CommandHandler* handler,
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
 
   keys_limit_t limit;
-  if (!common::ConvertFromString(argv[2], &limit)) {
+  if (!common::ConvertFromBytes(argv[2], &limit)) {
     return common::make_error_inval();
   }
 
-  std::vector<std::string> keysout;
+  typename CDBConnection::keys_t keysout;
   common::Error err = cdb->Keys(argv[0], argv[1], limit, &keysout);
   if (err) {
     return err;
@@ -161,12 +178,13 @@ common::Error ApiTraits<CDBConnection>::CreateDatabase(CommandHandler* handler,
                                                        commands_args_t argv,
                                                        FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  common::Error err = cdb->CreateDB(argv[0]);
+  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  common::Error err = cdb->CreateDB(db_name);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -177,12 +195,13 @@ common::Error ApiTraits<CDBConnection>::RemoveDatabase(CommandHandler* handler,
                                                        commands_args_t argv,
                                                        FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  common::Error err = cdb->RemoveDB(argv[0]);
+  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  common::Error err = cdb->RemoveDB(db_name);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -200,7 +219,7 @@ common::Error ApiTraits<CDBConnection>::FlushDB(internal::CommandHandler* handle
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -209,12 +228,13 @@ common::Error ApiTraits<CDBConnection>::FlushDB(internal::CommandHandler* handle
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Select(CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  common::Error err = cdb->Select(argv[0], nullptr);
+  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  common::Error err = cdb->Select(db_name, nullptr);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -224,7 +244,8 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   NKey key(argv[0]);
 
-  NValue string_val(common::Value::CreateStringValue(argv[1]));
+  const common::Value::string_t val_str = argv[1];
+  NValue string_val(common::Value::CreateStringValue(val_str));
   NDbKValue kv(key, string_val);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
@@ -234,7 +255,7 @@ common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, c
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -293,7 +314,7 @@ common::Error ApiTraits<CDBConnection>::Rename(internal::CommandHandler* handler
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -307,7 +328,7 @@ common::Error ApiTraits<CDBConnection>::SetTTL(internal::CommandHandler* handler
   NKey key(argv[0]);
 
   ttl_t ttl;
-  if (!common::ConvertFromString(argv[1], &ttl)) {
+  if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
 
@@ -316,7 +337,7 @@ common::Error ApiTraits<CDBConnection>::SetTTL(internal::CommandHandler* handler
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -353,7 +374,7 @@ common::Error ApiTraits<CDBConnection>::Quit(internal::CommandHandler* handler,
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -363,11 +384,11 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::ConfigGet(internal::CommandHandler* handler,
                                                   commands_args_t argv,
                                                   FastoObject* out) {
-  if (!common::EqualsASCII(argv[0], "databases", false)) {
+  if (!common::EqualsASCII(argv[0], GEN_CMD_STRING("databases"), false)) {
     return common::make_error_inval();
   }
 
-  std::vector<std::string> dbs;
+  std::vector<typename CDBConnection::db_name_t> dbs;
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   common::Error err = cdb->ConfigGetDatabases(&dbs);
   if (err) {
@@ -375,7 +396,7 @@ common::Error ApiTraits<CDBConnection>::ConfigGet(internal::CommandHandler* hand
   }
 
   common::ArrayValue* arr = new common::ArrayValue;
-  arr->AppendStrings(dbs);
+  arr->AppendBasicStrings(dbs);
   FastoObject* child = new FastoObject(out, arr, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -385,19 +406,20 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::JsonDump(CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   cursor_t cursor_in;
   const size_t argc = argv.size();
-  if (argc < 3 || !common::ConvertFromString(argv[0], &cursor_in)) {
+  if (argc < 3 || !common::ConvertFromBytes(argv[0], &cursor_in)) {
     return common::make_error_inval();
   }
 
-  if (common::file_system::is_relative_path(argv[2])) {
+  const std::string json_path = common::ConvertToString(argv[2]);
+  if (common::file_system::is_relative_path(json_path)) {
     return common::make_error("Please use absolute path!");
   }
 
-  common::file_system::ascii_file_string_path path(argv[2]);
+  common::file_system::ascii_file_string_path path(json_path);
 
-  std::string pattern = argc >= 5 ? argv[4] : ALL_KEYS_PATTERNS;
+  command_buffer_t pattern = argc >= 5 ? argv[4] : GEN_CMD_STRING(ALL_KEYS_PATTERNS);
   cursor_t count_keys = NO_KEYS_LIMIT;
-  if (argc == 7 && !common::ConvertFromString(argv[6], &count_keys)) {
+  if (argc == 7 && !common::ConvertFromBytes(argv[6], &count_keys)) {
     return common::make_error_inval();
   }
 

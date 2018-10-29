@@ -193,13 +193,13 @@ ServerInfo::Server::Server(const std::string& server_text) : Server() {
 common::Value* ServerInfo::Server::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(pika_version_);
+      return common::Value::CreateStringValueFromBasicString(pika_version_);
     case 1:
-      return new common::StringValue(pika_git_sha_);
+      return common::Value::CreateStringValueFromBasicString(pika_git_sha_);
     case 2:
-      return new common::StringValue(pika_build_compile_date_);
+      return common::Value::CreateStringValueFromBasicString(pika_build_compile_date_);
     case 3:
-      return new common::StringValue(os_);
+      return common::Value::CreateStringValueFromBasicString(os_);
     case 4:
       return new common::FundamentalValue(arch_bits_);
     case 5:
@@ -215,7 +215,7 @@ common::Value* ServerInfo::Server::GetValueByIndex(unsigned char index) const {
     case 10:
       return new common::FundamentalValue(uptime_in_days_);
     case 11:
-      return new common::StringValue(config_file_);
+      return common::Value::CreateStringValueFromBasicString(config_file_);
     case 12:
       return new common::FundamentalValue(server_id_);
     default:
@@ -279,13 +279,13 @@ common::Value* ServerInfo::Data::GetValueByIndex(unsigned char index) const {
     case 0:
       return new common::FundamentalValue(db_size_);
     case 1:
-      return new common::StringValue(db_size_human_);
+      return common::Value::CreateStringValueFromBasicString(db_size_human_);
     case 2:
-      return new common::StringValue(compression_);
+      return common::Value::CreateStringValueFromBasicString(compression_);
     case 3:
       return new common::FundamentalValue(used_memory_);
     case 4:
-      return new common::StringValue(used_memory_human_);
+      return common::Value::CreateStringValueFromBasicString(used_memory_human_);
     case 5:
       return new common::FundamentalValue(db_memtable_usage_);
     case 6:
@@ -340,15 +340,15 @@ common::Value* ServerInfo::Log::GetValueByIndex(unsigned char index) const {
     case 0:
       return new common::FundamentalValue(log_size_);
     case 1:
-      return new common::StringValue(log_size_human_);
+      return common::Value::CreateStringValueFromBasicString(log_size_human_);
     case 2:
-      return new common::StringValue(safety_purge_);
+      return common::Value::CreateStringValueFromBasicString(safety_purge_);
     case 3:
       return new common::FundamentalValue(expire_logs_days_);
     case 4:
       return new common::FundamentalValue(expire_logs_nums_);
     case 5:
-      return new common::StringValue(binlog_offset_);
+      return common::Value::CreateStringValueFromBasicString(binlog_offset_);
     default:
       break;
   }
@@ -465,19 +465,19 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
     case 3:
       return new common::FundamentalValue(total_commands_processed_);
     case 4:
-      return new common::StringValue(is_bgsaving_);
+      return common::Value::CreateStringValueFromBasicString(is_bgsaving_);
     case 5:
-      return new common::StringValue(is_slots_reloading_);
+      return common::Value::CreateStringValueFromBasicString(is_slots_reloading_);
     case 6:
-      return new common::StringValue(is_slots_cleanuping_);
+      return common::Value::CreateStringValueFromBasicString(is_slots_cleanuping_);
     case 7:
-      return new common::StringValue(is_scaning_keyspace_);
+      return common::Value::CreateStringValueFromBasicString(is_scaning_keyspace_);
     case 8:
-      return new common::StringValue(is_compact_);
+      return common::Value::CreateStringValueFromBasicString(is_compact_);
     case 9:
-      return new common::StringValue(compact_cron_);
+      return common::Value::CreateStringValueFromBasicString(compact_cron_);
     case 10:
-      return new common::StringValue(compact_interval_);
+      return common::Value::CreateStringValueFromBasicString(compact_interval_);
     default:
       break;
   }
@@ -565,7 +565,7 @@ ServerInfo::Replication::Replication(const std::string& replication_text) : Repl
 common::Value* ServerInfo::Replication::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(role_);
+      return common::Value::CreateStringValueFromBasicString(role_);
     case 1:
       return new common::FundamentalValue(connected_slaves_);
     default:

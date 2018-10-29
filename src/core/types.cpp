@@ -29,31 +29,34 @@
 namespace fastonosql {
 namespace core {
 
-command_buffer_t StableCommand(const command_buffer_t& command) {
+readable_string_t StableCommand(const command_buffer_t& command) {
   if (command.empty()) {
     DNOTREACHED();
-    return command_buffer_t();
+    return readable_string_t();
   }
 
   std::vector<command_buffer_t> tokens;
-  size_t tokens_count = common::Tokenize(command, SPACE_STR, &tokens);
-  command_buffer_t stabled_command;
+  size_t tokens_count = common::Tokenize(command, GEN_CMD_STRING(SPACE_STR), &tokens);
+  std::stringstream wr;
   if (tokens_count > 0) {
     for (size_t i = 0; i < tokens_count; ++i) {
       command_buffer_t part = tokens[i];
       if (i != 0) {
-        stabled_command += SPACE_CHAR;
+        wr << SPACE_CHAR;
       }
       if (part.size() % 4 == 0 && part[0] == '\\' && (part[1] == 'x' || part[1] == 'X')) {
-        stabled_command += DOUBLE_QUOTES_CHAR + part + DOUBLE_QUOTES_CHAR;
+        wr << SINGLE_QUOTES_CHAR << part << SINGLE_QUOTES_CHAR;
       } else {
-        stabled_command += part;
+        wr << part;
       }
     }
   }
 
-  if (stabled_command[stabled_command.size() - 1] == CARRIGE_RETURN_CHAR) {
-    stabled_command.pop_back();
+  readable_string_t stabled_command = wr.str();
+  if (!stabled_command.empty()) {
+    if (stabled_command[stabled_command.size() - 1] == CARRIGE_RETURN_CHAR) {
+      stabled_command.pop_back();
+    }
   }
 
   return stabled_command;
@@ -65,63 +68,76 @@ ReadableString::ReadableString(const readable_string_t& data) : data_(), type_(T
   SetData(data);
 }
 
+ReadableString::ReadableString(const readable_string_data_t& data) : data_(), type_(BINARY_DATA) {
+  SetData(data);
+}
+
 ReadableString::DataType ReadableString::GetType() const {
   return type_;
 }
 
-readable_string_t ReadableString::GetData() const {
+readable_string_data_t ReadableString::GetData() const {
   return data_;
 }
 
 readable_string_t ReadableString::GetHumanReadable() const {
   if (type_ == BINARY_DATA) {
-    std::string hexed;
+    readable_string_data_t hexed;
     bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
     DCHECK(is_ok) << "Can't hexed: " << data_;
-    return hexed;
+    return common::ConvertToString(hexed);
   }
 
-  return data_;
+  return common::ConvertToString(data_);
 }
 
 readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
   if (type_ == BINARY_DATA) {
-    command_buffer_writer_t wr;
-    std::string hexed;
-    bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
-    DCHECK(is_ok) << "Can't hexed: " << data_;
-    wr << DOUBLE_QUOTES_CHAR << hexed << DOUBLE_QUOTES_CHAR;
-    return wr.str();
+    return HexData(data_);
   }
 
   if (detail::is_json(data_)) {
-    return data_;
+    return common::ConvertToString(data_);
   }
 
-  if (detail::have_space(data_) && need_quotes) {
-    return DOUBLE_QUOTES_CHAR + data_ + DOUBLE_QUOTES_CHAR;
+  if (need_quotes && detail::have_space(data_)) {
+    return SINGLE_QUOTES_CHAR + common::ConvertToString(data_) + SINGLE_QUOTES_CHAR;
   }
 
-  return data_;
+  return common::ConvertToString(data_);
 }
 
 void ReadableString::SetData(const readable_string_t& data) {
+  data_ = GEN_CMD_STRING_SIZE(data.data(), data.size());
+  type_ = detail::is_binary_data(data_) ? BINARY_DATA : TEXT_DATA;
+}
+
+void ReadableString::SetData(const readable_string_data_t& data) {
   data_ = data;
-  type_ = detail::is_binary_data(data) ? BINARY_DATA : TEXT_DATA;
+  type_ = detail::is_binary_data(data_) ? BINARY_DATA : TEXT_DATA;
 }
 
 bool ReadableString::Equals(const ReadableString& other) const {
   return type_ == other.type_ && data_ == other.data_;
 }
 
+readable_string_t ReadableString::HexData(const readable_string_data_t& data) {
+  readable_string_data_t hexed;
+  bool is_ok = common::utils::xhex::encode(data, is_lower_hex, &hexed);
+  DCHECK(is_ok) << "Can't hexed: " << data;
+  return SINGLE_QUOTES_CHAR + common::ConvertToString(hexed) + SINGLE_QUOTES_CHAR;
+  ;
+}
+
 namespace detail {
 
-bool have_space(const std::string& data) {
-  auto it = std::find_if(data.begin(), data.end(), [](char c) { return std::isspace(c); });
+bool have_space(const readable_string_data_t& data) {
+  auto it =
+      std::find_if(data.begin(), data.end(), [](readable_string_data_t::value_type c) { return std::isspace(c); });
   return it != data.end();
 }
 
-bool is_binary_data(const command_buffer_t& data) {
+bool is_binary_data(const readable_string_data_t& data) {
   for (size_t i = 0; i < data.size(); ++i) {
     unsigned char c = static_cast<unsigned char>(data[i]);
     if (c < SPACE_CHAR && c != CARRIGE_RETURN_CHAR && c != END_LINE_CHAR) {  // should be hexed symbol
@@ -131,7 +147,7 @@ bool is_binary_data(const command_buffer_t& data) {
   return false;
 }
 
-bool is_json(const std::string& data) {
+bool is_json(const readable_string_data_t& data) {
   if (data.empty()) {
     DNOTREACHED();
     return false;
@@ -140,6 +156,7 @@ bool is_json(const std::string& data) {
   return (data[0] == JSON_START_CHAR && data[data.size() - 1] == JSON_END_CHAR) ||
          (data[0] == JSON_START_ARRAY_CHAR && data[data.size() - 1] == JSON_END_ARRAY_CHAR);
 }
+
 }  // namespace detail
 
 }  // namespace core

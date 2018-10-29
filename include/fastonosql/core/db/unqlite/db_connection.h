@@ -40,24 +40,24 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UNQLITE> {
   typedef CDBConnection<NativeConnection, Config, UNQLITE> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
-  common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
+  common::Error Info(const command_buffer_t& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
 
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 
   common::Error DelInner(const key_t& key) WARN_UNUSED_RESULT;
   common::Error SetInner(const key_t& key, const value_t& value) WARN_UNUSED_RESULT;
-  common::Error GetInner(const key_t& key, std::string* ret_val) WARN_UNUSED_RESULT;
+  common::Error GetInner(const key_t& key, command_buffer_t* ret_val) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const std::string& pattern,
+                                 const command_buffer_t& pattern,
                                  keys_limit_t count_keys,
-                                 std::vector<std::string>* keys_out,
+                                 keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const std::string& key_start,
-                                 const std::string& key_end,
+  virtual common::Error KeysImpl(const command_buffer_t& key_start,
+                                 const command_buffer_t& key_end,
                                  keys_limit_t limit,
-                                 std::vector<std::string>* out) override;
+                                 std::vector<command_buffer_t>* out) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;

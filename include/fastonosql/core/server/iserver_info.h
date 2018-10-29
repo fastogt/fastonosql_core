@@ -27,7 +27,7 @@
 
 namespace common {
 class Value;
-}  // namespace common
+}
 
 namespace fastonosql {
 namespace core {

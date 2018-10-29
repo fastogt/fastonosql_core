@@ -28,13 +28,13 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
   DBConnection* level = static_cast<DBConnection*>(handler);
 
   ServerInfo::Stats statsout;
-  common::Error err = level->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = level->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
   if (err) {
     return err;
   }
 
   ServerInfo linf(statsout);
-  common::StringValue* val = common::Value::CreateStringValue(linf.ToString());
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(linf.ToString());
   FastoObject* child = new FastoObject(out, val, level->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

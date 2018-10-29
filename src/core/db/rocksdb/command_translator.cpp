@@ -78,7 +78,7 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(ROCKSDB_GET_KEY_COMMAND);
+  return cmd.IsEqualName(GEN_CMD_STRING(ROCKSDB_GET_KEY_COMMAND));
 }
 
 }  // namespace rocksdb

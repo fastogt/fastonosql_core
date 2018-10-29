@@ -23,12 +23,12 @@
 namespace fastonosql {
 namespace core {
 
-IDataBaseInfo::IDataBaseInfo(const std::string& name, bool isDefault, size_t dbkcount, const keys_container_t& keys)
-    : name_(name), is_default_(isDefault), db_kcount_(dbkcount), keys_(keys) {}
+IDataBaseInfo::IDataBaseInfo(const db_name_t& name, bool is_default, size_t dbkcount, const keys_container_t& keys)
+    : name_(name), is_default_(is_default), db_kcount_(dbkcount), keys_(keys) {}
 
 IDataBaseInfo::~IDataBaseInfo() {}
 
-std::string IDataBaseInfo::GetName() const {
+IDataBaseInfo::db_name_t IDataBaseInfo::GetName() const {
   return name_;
 }
 

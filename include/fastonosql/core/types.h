@@ -21,25 +21,35 @@
 #include <deque>
 #include <string>
 
+#include <common/byte_writer.h>
+#include <common/types.h>
+
+#define GEN_CMD_STRING_SIZE(STR, SIZE) common::ByteArray<char>(STR, STR + SIZE)
+#define GEN_CMD_STRING(STR) GEN_CMD_STRING_SIZE(STR, sizeof(STR) - 1)
+
 namespace fastonosql {
 namespace core {
 
 typedef char command_buffer_char_t;
-typedef std::basic_string<command_buffer_char_t> command_buffer_t;
-typedef std::basic_stringstream<command_buffer_char_t> command_buffer_writer_t;
+typedef common::ByteArray<command_buffer_char_t> command_buffer_t;
+typedef common::ByteWriter<command_buffer_char_t, 512> command_buffer_writer_t;
 typedef std::deque<command_buffer_t> commands_args_t;
-typedef command_buffer_t readable_string_t;
+
+typedef char readable_string_char_t;
+typedef std::basic_string<readable_string_char_t> readable_string_t;
+typedef command_buffer_t readable_string_data_t;
+
 typedef uint32_t keys_limit_t;  // UIntegerValue
 typedef keys_limit_t cursor_t;
 
-command_buffer_t StableCommand(const command_buffer_t& command);
+readable_string_t StableCommand(const command_buffer_t& command);
 
 namespace detail {
-bool is_binary_data(const command_buffer_t& data);
+bool is_binary_data(const readable_string_data_t& data);
 
-bool have_space(const std::string& data);
+bool have_space(const readable_string_data_t& data);
 
-bool is_json(const std::string& data);
+bool is_json(const readable_string_data_t& data);
 }  // namespace detail
 
 class ReadableString {
@@ -48,20 +58,24 @@ class ReadableString {
   enum DataType : uint8_t { TEXT_DATA = 0, BINARY_DATA };
 
   ReadableString();
-  ReadableString(const readable_string_t& data);  // not explicit
+  ReadableString(const readable_string_t& data);       // not explicit
+  ReadableString(const readable_string_data_t& data);  // not explicit
 
   DataType GetType() const;
 
-  readable_string_t GetData() const;           // for direct bytes call
+  readable_string_data_t GetData() const;      // for direct bytes call
   readable_string_t GetHumanReadable() const;  // for diplaying
   readable_string_t GetForCommandLine(
       bool need_quotes = true) const;  // escape if hex, or double quoted if text with space
   void SetData(const readable_string_t& data);
+  void SetData(const readable_string_data_t& data);
 
   bool Equals(const ReadableString& other) const;
 
+  static readable_string_t HexData(const readable_string_data_t& data);
+
  private:
-  readable_string_t data_;
+  readable_string_data_t data_;
   DataType type_;
 };
 

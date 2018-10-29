@@ -24,7 +24,7 @@
 namespace fastonosql {
 namespace core {
 
-CommandInfo::CommandInfo(const std::string& name,
+CommandInfo::CommandInfo(const command_buffer_t& name,
                          const std::string& params,
                          const std::string& summary,
                          uint32_t since,
@@ -49,7 +49,7 @@ CommandInfo::args_size_t CommandInfo::GetMinArgumentsCount() const {
   return required_arguments_count;
 }
 
-bool CommandInfo::IsEqualName(const std::string& cmd_name) const {
+bool CommandInfo::IsEqualName(const command_buffer_t& cmd_name) const {
   return common::FullEqualsASCII(cmd_name, name, false);
 }
 

@@ -30,12 +30,12 @@ namespace rocksdb {
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* rocks = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err = rocks->Info(argv.size() == 1 ? argv[0] : std::string(), &statsout);
+  common::Error err = rocks->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(ServerInfo(statsout).ToString());
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(ServerInfo(statsout).ToString());
   FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -43,12 +43,12 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
 
 common::Error CommandsApi::Mget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* rocks = static_cast<DBConnection*>(handler);
-  std::vector<std::string> keysget;
+  std::vector<command_buffer_t> keysget;
   for (size_t i = 0; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
 
-  std::vector<std::string> keysout;
+  std::vector<command_buffer_t> keysout;
   common::Error err = rocks->Mget(keysget, &keysout);
   if (err) {
     return err;
@@ -71,7 +71,7 @@ common::Error CommandsApi::Merge(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

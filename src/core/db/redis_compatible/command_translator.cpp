@@ -18,6 +18,8 @@
 
 #include <fastonosql/core/db/redis_compatible/command_translator.h>
 
+#include <common/convert2string.h>
+
 #include <fastonosql/core/connection_types.h>
 #include <fastonosql/core/value.h>
 
@@ -91,7 +93,8 @@ common::Error CommandTranslator::Zrange(const NKey& key,
                                         command_buffer_t* cmdstring) {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << REDIS_ZRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << start << SPACE_STR << stop;
+  wr << REDIS_ZRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(start) << SPACE_STR
+     << common::ConvertToBytes(stop);
   if (withscores) {
     wr << " WITHSCORES";
   }
@@ -182,7 +185,8 @@ common::Error CommandTranslator::Lrange(const NKey& key, int start, int stop, co
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << REDIS_LRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << start << SPACE_STR << stop;
+  wr << REDIS_LRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(start) << SPACE_STR
+     << common::ConvertToBytes(stop);
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -197,7 +201,7 @@ common::Error CommandTranslator::SetEx(const NDbKValue& key, ttl_t ttl, command_
   NValue value = key.GetValue();
   value_t value_str = value.GetValue();
   command_buffer_writer_t wr;
-  wr << REDIS_SETEX SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << ttl << SPACE_STR
+  wr << REDIS_SETEX SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(ttl) << SPACE_STR
      << value_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
@@ -237,7 +241,7 @@ common::Error CommandTranslator::DecrBy(const NKey& key, int inc, command_buffer
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << REDIS_DECRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << inc;
+  wr << REDIS_DECRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -261,7 +265,7 @@ common::Error CommandTranslator::IncrBy(const NKey& key, int inc, command_buffer
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << REDIS_INCRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << inc;
+  wr << REDIS_INCRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -273,7 +277,7 @@ common::Error CommandTranslator::IncrByFloat(const NKey& key, double inc, comman
 
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << REDIS_INCRBYFLOAT SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << inc;
+  wr << REDIS_INCRBYFLOAT SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -308,7 +312,8 @@ common::Error CommandTranslator::PExpire(const NKey& key, ttl_t ttl, command_buf
   if (ttl == NO_TTL) {
     wr << REDIS_PERSIST_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   } else {
-    wr << REDIS_CHANGE_PTTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << ttl;
+    wr << REDIS_CHANGE_PTTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
+       << common::ConvertToBytes(ttl);
   }
 
   *cmdstring = wr.str();
@@ -361,13 +366,13 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   } else if (type == JsonValue::TYPE_JSON) {
     wr << REDIS_SET_KEY_JSON_COMMAND SPACE_STR << key_str.GetForCommandLine() << " . " << value_str.GetForCommandLine();
   } else if (type == GraphValue::TYPE_GRAPH) {
-    return NotSupported(REDIS_GRAPH_MODULE_COMMAND("SET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_GRAPH_MODULE_COMMAND("SET")));
   } else if (type == BloomValue::TYPE_BLOOM) {
-    return NotSupported(REDIS_BLOOM_MODULE_COMMAND("SET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_BLOOM_MODULE_COMMAND("SET")));
   } else if (type == SearchValue::TYPE_FT_INDEX) {
-    return NotSupported(REDIS_SEARCH_MODULE_COMMAND("INDEX.SET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("INDEX.SET")));
   } else if (type == SearchValue::TYPE_FT_TERM) {
-    return NotSupported(REDIS_SEARCH_MODULE_COMMAND("TERM.SET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("TERM.SET")));
   } else {
     wr << REDIS_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   }
@@ -394,13 +399,13 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
   } else if (type == StreamValue::TYPE_STREAM) {
     wr << REDIS_GET_KEY_STREAM_COMMAND SPACE_STR << key_str.GetForCommandLine() << " - +";
   } else if (type == GraphValue::TYPE_GRAPH) {
-    return NotSupported(REDIS_GRAPH_MODULE_COMMAND("GET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_GRAPH_MODULE_COMMAND("GET")));
   } else if (type == BloomValue::TYPE_BLOOM) {
-    return NotSupported(REDIS_BLOOM_MODULE_COMMAND("GET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_BLOOM_MODULE_COMMAND("GET")));
   } else if (type == SearchValue::TYPE_FT_INDEX) {
-    return NotSupported(REDIS_SEARCH_MODULE_COMMAND("INDEX.GET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("INDEX.GET")));
   } else if (type == SearchValue::TYPE_FT_TERM) {
-    return NotSupported(REDIS_SEARCH_MODULE_COMMAND("DOC.GET"));
+    return NotSupported(GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("DOC.GET")));
   } else {
     wr << REDIS_GET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   }
@@ -435,7 +440,7 @@ common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
   if (ttl == NO_TTL) {
     wr << REDIS_PERSIST_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   } else {
-    wr << REDIS_CHANGE_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << ttl;
+    wr << REDIS_CHANGE_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(ttl);
   }
 
   *cmdstring = wr.str();
@@ -451,9 +456,12 @@ common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(REDIS_GET_KEY_COMMAND) || cmd.IsEqualName(REDIS_GET_KEY_ARRAY_COMMAND) ||
-         cmd.IsEqualName(REDIS_GET_KEY_SET_COMMAND) || cmd.IsEqualName(REDIS_GET_KEY_ZSET_COMMAND) ||
-         cmd.IsEqualName(REDIS_GET_KEY_HASH_COMMAND) || cmd.IsEqualName(REDIS_GET_KEY_JSON_COMMAND);
+  return cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_ARRAY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_SET_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_ZSET_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_HASH_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_JSON_COMMAND));
 }
 
 common::Error CommandTranslator::PublishCommandImpl(const NDbPSChannel& channel,

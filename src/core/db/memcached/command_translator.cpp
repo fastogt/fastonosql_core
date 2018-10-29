@@ -18,6 +18,8 @@
 
 #include <fastonosql/core/db/memcached/command_translator.h>
 
+#include <common/convert2string.h>
+
 #include <fastonosql/core/connection_types.h>
 
 #define MEMCACHED_GET_KEY_COMMAND DB_GET_KEY_COMMAND
@@ -83,7 +85,7 @@ common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
                                                          command_buffer_t* cmdstring) const {
   key_t key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << MEMCACHED_CHANGE_TTL_COMMAND " " << key_str.GetForCommandLine() << " " << ttl;
+  wr << MEMCACHED_CHANGE_TTL_COMMAND " " << key_str.GetForCommandLine() << " " << common::ConvertToBytes(ttl);
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -97,7 +99,7 @@ common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(MEMCACHED_GET_KEY_COMMAND);
+  return cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_GET_KEY_COMMAND));
 }
 
 }  // namespace memcached

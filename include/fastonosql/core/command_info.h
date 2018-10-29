@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <string>  // for string
+#include <fastonosql/core/types.h>
 
 #define UNDEFINED_SINCE 0x00000000U
 #define UNDEFINED_ARGS "Undefined"
@@ -34,7 +34,7 @@ namespace core {
 struct CommandInfo {
   enum Type : uint8_t { Native = 0, Extended, Internal };
   typedef uint32_t args_size_t;
-  CommandInfo(const std::string& name,
+  CommandInfo(const command_buffer_t& name,
               const std::string& params,
               const std::string& summary,
               uint32_t since,
@@ -46,9 +46,9 @@ struct CommandInfo {
   args_size_t GetMaxArgumentsCount() const;
   args_size_t GetMinArgumentsCount() const;
 
-  bool IsEqualName(const std::string& cmd_name) const;
+  bool IsEqualName(const command_buffer_t& cmd_name) const;
 
-  const std::string name;
+  const command_buffer_t name;
   const std::string params;
   const std::string summary;
   const uint32_t since;

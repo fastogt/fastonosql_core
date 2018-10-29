@@ -44,7 +44,7 @@ common::Error CommandsApi::Auth(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -96,12 +96,12 @@ common::Error CommandsApi::Lrange(internal::CommandHandler* handler, commands_ar
   key_t key_str(argv[0]);
   NKey key(key_str);
   int start;
-  if (!common::ConvertFromString(argv[1], &start)) {
+  if (!common::ConvertFromBytes(argv[1], &start)) {
     return common::make_error_inval();
   }
 
   int stop;
-  if (!common::ConvertFromString(argv[2], &stop)) {
+  if (!common::ConvertFromBytes(argv[2], &stop)) {
     return common::make_error_inval();
   }
   DBConnection* redis = static_cast<DBConnection*>(handler);
@@ -120,212 +120,212 @@ common::Error CommandsApi::Lrange(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({DB_INFO_COMMAND}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING(DB_INFO_COMMAND)}, argv), out);
 }
 
 common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"APPEND"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("APPEND")}, argv), out);
 }
 
 common::Error CommandsApi::BgRewriteAof(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BGREWRITEAOF"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BGREWRITEAOF")}, argv), out);
 }
 
 common::Error CommandsApi::BgSave(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BGSAVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BGSAVE")}, argv), out);
 }
 
 common::Error CommandsApi::BitCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BITCOUNT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BITCOUNT")}, argv), out);
 }
 
 common::Error CommandsApi::BitField(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BITFIELD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BITFIELD")}, argv), out);
 }
 
 common::Error CommandsApi::BitOp(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BITOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BITOP")}, argv), out);
 }
 
 common::Error CommandsApi::BitPos(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BITPOS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BITPOS")}, argv), out);
 }
 
 common::Error CommandsApi::BlPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BLPOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BLPOP")}, argv), out);
 }
 
 common::Error CommandsApi::BrPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BRPOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BRPOP")}, argv), out);
 }
 
 common::Error CommandsApi::BrPopLpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"BRPOPLPUSH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("BRPOPLPUSH")}, argv), out);
 }
 
 common::Error CommandsApi::ClientGetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "GETNAME"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("GETNAME")}, argv), out);
 }
 
 common::Error CommandsApi::ClientKill(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "KILL"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("KILL")}, argv), out);
 }
 
 common::Error CommandsApi::ClientList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "LIST"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("LIST")}, argv), out);
 }
 
 common::Error CommandsApi::ClientPause(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "PAUSE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("PAUSE")}, argv), out);
 }
 
 common::Error CommandsApi::ClientReply(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "REPLY"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("REPLY")}, argv), out);
 }
 
 common::Error CommandsApi::ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "SETNAME"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("SETNAME")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterAddSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "ADDSLOTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("ADDSLOTS")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterCountFailureReports(internal::CommandHandler* handler,
                                                       commands_args_t argv,
                                                       FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "COUNT-FAILURE-REPORTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("COUNT-FAILURE-REPORTS")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterCountKeysSinSlot(internal::CommandHandler* handler,
                                                    commands_args_t argv,
                                                    FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLIENT", "COUNTKEYSINSLOT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("COUNTKEYSINSLOT")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterDelSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "DELSLOTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("DELSLOTS")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterFailover(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "FAILOVER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("FAILOVER")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterForget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "FORGET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("FORGET")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterGetKeySinSlot(internal::CommandHandler* handler,
                                                 commands_args_t argv,
                                                 FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "GETKEYSINSLOT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("GETKEYSINSLOT")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterInfo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "INFO"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("INFO")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterKeySlot(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "KEYSLOT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("KEYSLOT")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterMeet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "MEET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("MEET")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterNodes(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "NODES"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("NODES")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterReplicate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "REPLICATE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("REPLICATE")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterReset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "RESET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("RESET")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterSaveConfig(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "SAVECONFIG"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("SAVECONFIG")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterSetConfigEpoch(internal::CommandHandler* handler,
                                                  commands_args_t argv,
                                                  FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "SET-CONFIG-EPOCH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("SET-CONFIG-EPOCH")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterSetSlot(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "SETSLOT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("SETSLOT")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterSlaves(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "SLAVES"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("SLAVES")}, argv), out);
 }
 
 common::Error CommandsApi::ClusterSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CLUSTER", "SLOTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CLUSTER"), GEN_CMD_STRING("SLOTS")}, argv), out);
 }
 
 common::Error CommandsApi::CommandCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"COMMAND", "COUNT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("COUNT")}, argv), out);
 }
 
 common::Error CommandsApi::CommandGetKeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"COMMAND", "GETKEYS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("GETKEYS")}, argv), out);
 }
 
 common::Error CommandsApi::CommandInfo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"COMMAND", "INFO"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("INFO")}, argv), out);
 }
 
 common::Error CommandsApi::Command(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"COMMAND"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("COMMAND")}, argv), out);
 }
 
 common::Error CommandsApi::ConfigGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  if (common::EqualsASCII(argv[0], "databases", false)) {
-    std::vector<std::string> dbs;
+  if (common::EqualsASCII(argv[0], GEN_CMD_STRING("databases"), false)) {
+    std::vector<DBConnection::db_name_t> dbs;
     DBConnection* red = static_cast<DBConnection*>(handler);
     common::Error err = red->ConfigGetDatabases(&dbs);
     if (err) {
@@ -333,252 +333,252 @@ common::Error CommandsApi::ConfigGet(internal::CommandHandler* handler, commands
     }
 
     common::ArrayValue* arr = new common::ArrayValue;
-    arr->AppendStrings(dbs);
+    arr->AppendBasicStrings(dbs);
     FastoObject* child = new FastoObject(out, arr, red->GetDelimiter());
     out->AddChildren(child);
     return common::Error();
   }
 
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "GET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("GET")}, argv), out);
 }
 
 common::Error CommandsApi::ConfigResetStat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "RESETSTAT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("RESETSTAT")}, argv), out);
 }
 
 common::Error CommandsApi::ConfigRewrite(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "REWRITE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("REWRITE")}, argv), out);
 }
 
 common::Error CommandsApi::ConfigSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"CONFIG", "SET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("SET")}, argv), out);
 }
 
 common::Error CommandsApi::DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"DBSIZE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("DBSIZE")}, argv), out);
 }
 
 common::Error CommandsApi::DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"DEBUG", "OBJECT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("DEBUG"), GEN_CMD_STRING("OBJECT")}, argv), out);
 }
 
 common::Error CommandsApi::DebugSegFault(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"DEBUG", "SEGFAULT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("DEBUG"), GEN_CMD_STRING("SEGFAULT")}, argv), out);
 }
 
 common::Error CommandsApi::Discard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
 
-  return red->CommonExec(ExpandCommand({"DISCARD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("DISCARD")}, argv), out);
 }
 
 common::Error CommandsApi::Dump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"DUMP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("DUMP")}, argv), out);
 }
 
 common::Error CommandsApi::Echo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ECHO"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ECHO")}, argv), out);
 }
 
 common::Error CommandsApi::Eval(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"EVAL"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("EVAL")}, argv), out);
 }
 
 common::Error CommandsApi::EvalSha(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"EVALSHA"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("EVALSHA")}, argv), out);
 }
 
 common::Error CommandsApi::Exec(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"EXEC"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("EXEC")}, argv), out);
 }
 
 common::Error CommandsApi::Exists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"EXISTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("EXISTS")}, argv), out);
 }
 
 common::Error CommandsApi::ExpireAt(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"EXPIREAT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("EXPIREAT")}, argv), out);
 }
 
 common::Error CommandsApi::FlushALL(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"FLUSHALL"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("FLUSHALL")}, argv), out);
 }
 
 common::Error CommandsApi::GeoAdd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEOADD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEOADD")}, argv), out);
 }
 
 common::Error CommandsApi::GeoDist(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEODIST"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEODIST")}, argv), out);
 }
 
 common::Error CommandsApi::GeoHash(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEOHASH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEOHASH")}, argv), out);
 }
 
 common::Error CommandsApi::GeoPos(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEOPOS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEOPOS")}, argv), out);
 }
 
 common::Error CommandsApi::GeoRadius(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEORADIUS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEORADIUS")}, argv), out);
 }
 
 common::Error CommandsApi::GeoRadiusByMember(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GEORADIUSBYMEMBER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GEORADIUSBYMEMBER")}, argv), out);
 }
 
 common::Error CommandsApi::GetBit(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GETBIT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GETBIT")}, argv), out);
 }
 
 common::Error CommandsApi::GetRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GETRANGE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GETRANGE")}, argv), out);
 }
 
 common::Error CommandsApi::GetSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"GETSET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("GETSET")}, argv), out);
 }
 
 common::Error CommandsApi::Hdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HDEL"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HDEL")}, argv), out);
 }
 
 common::Error CommandsApi::Hexists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HEXISTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HEXISTS")}, argv), out);
 }
 
 common::Error CommandsApi::Hget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HGET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HGET")}, argv), out);
 }
 
 common::Error CommandsApi::HincrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HINCRBY"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HINCRBY")}, argv), out);
 }
 
 common::Error CommandsApi::HincrByFloat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HINCRBYFLOAT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HINCRBYFLOAT")}, argv), out);
 }
 
 common::Error CommandsApi::Hkeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HKEYS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HKEYS")}, argv), out);
 }
 
 common::Error CommandsApi::Hlen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HLEN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HLEN")}, argv), out);
 }
 
 common::Error CommandsApi::Hmget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HMGET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HMGET")}, argv), out);
 }
 
 common::Error CommandsApi::Hscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HSCAN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HSCAN")}, argv), out);
 }
 
 common::Error CommandsApi::Hset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HSET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HSET")}, argv), out);
 }
 
 common::Error CommandsApi::HsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HSETNX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HSETNX")}, argv), out);
 }
 
 common::Error CommandsApi::Hstrlen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HSTRLEN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HSTRLEN")}, argv), out);
 }
 
 common::Error CommandsApi::Hvals(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"HVALS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("HVALS")}, argv), out);
 }
 
 common::Error CommandsApi::RKeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({DB_KEYS_COMMAND}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING(DB_KEYS_COMMAND)}, argv), out);
 }
 
 common::Error CommandsApi::LastSave(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LASTSAVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LASTSAVE")}, argv), out);
 }
 
 common::Error CommandsApi::Lindex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LINDEX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LINDEX")}, argv), out);
 }
 
 common::Error CommandsApi::Linsert(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LINSERT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LINSERT")}, argv), out);
 }
 
 common::Error CommandsApi::Llen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LLEN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LLEN")}, argv), out);
 }
 
 common::Error CommandsApi::Lpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LPOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LPOP")}, argv), out);
 }
 
 common::Error CommandsApi::LpushX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LPUSHX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LPUSHX")}, argv), out);
 }
 
 common::Error CommandsApi::Lrem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LREM"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LREM")}, argv), out);
 }
 
 common::Error CommandsApi::Lset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LSET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LSET")}, argv), out);
 }
 
 common::Error CommandsApi::Ltrim(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"LTRIM"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LTRIM")}, argv), out);
 }
 
 common::Error CommandsApi::Mget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -609,19 +609,19 @@ common::Error CommandsApi::Mget(internal::CommandHandler* handler, commands_args
 
 common::Error CommandsApi::Migrate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"MIGRATE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("MIGRATE")}, argv), out);
 }
 
 common::Error CommandsApi::Move(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"MOVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("MOVE")}, argv), out);
 }
 
 common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
     key_t key_str(argv[i]);
-    std::string val_str = argv[i + 1];
+    command_buffer_t val_str = argv[i + 1];
     NKey key(key_str);
     NValue val(common::Value::CreateStringValue(val_str));
     NDbKValue kv(key, val);
@@ -635,7 +635,7 @@ common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -645,7 +645,7 @@ common::Error CommandsApi::MsetNX(internal::CommandHandler* handler, commands_ar
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
     key_t key_str(argv[i]);
-    std::string val_str = argv[i + 1];
+    command_buffer_t val_str = argv[i + 1];
     NKey key(key_str);
     NValue val(common::Value::CreateStringValue(val_str));
     NDbKValue kv(key, val);
@@ -667,12 +667,12 @@ common::Error CommandsApi::MsetNX(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::Multi(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"MULTI"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("MULTI")}, argv), out);
 }
 
 common::Error CommandsApi::Object(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"OBJECT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("OBJECT")}, argv), out);
 }
 
 common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -680,7 +680,7 @@ common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_a
   NKey key(argv[0]);
 
   pttl_t ttl;
-  if (!common::ConvertFromString(argv[1], &ttl)) {
+  if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
 
@@ -700,32 +700,32 @@ common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_a
 
 common::Error CommandsApi::PexpireAt(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PEXPIREAT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PEXPIREAT")}, argv), out);
 }
 
 common::Error CommandsApi::Pfadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PFADD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PFADD")}, argv), out);
 }
 
 common::Error CommandsApi::Pfcount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PFCOUNT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PFCOUNT")}, argv), out);
 }
 
 common::Error CommandsApi::Pfmerge(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PFMERGE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PFMERGE")}, argv), out);
 }
 
 common::Error CommandsApi::Ping(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PING"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PING")}, argv), out);
 }
 
 common::Error CommandsApi::PsetEx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PSETEX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PSETEX")}, argv), out);
 }
 
 common::Error CommandsApi::Pttl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -746,395 +746,396 @@ common::Error CommandsApi::Pttl(internal::CommandHandler* handler, commands_args
 
 common::Error CommandsApi::Publish(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({DB_PUBLISH_COMMAND}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING(DB_PUBLISH_COMMAND)}, argv), out);
 }
 
 common::Error CommandsApi::PubSub(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PUBSUB"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PUBSUB")}, argv), out);
 }
 
 common::Error CommandsApi::PunSubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"PUNSUBSCRIBE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PUNSUBSCRIBE")}, argv), out);
 }
 
 common::Error CommandsApi::RandomKey(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RANDOMKEY"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RANDOMKEY")}, argv), out);
 }
 
 common::Error CommandsApi::ReadOnly(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"READONLY"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("READONLY")}, argv), out);
 }
 
 common::Error CommandsApi::ReadWrite(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"READWRITE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("READWRITE")}, argv), out);
 }
 
 common::Error CommandsApi::RenameNx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RENAMENX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RENAMENX")}, argv), out);
 }
 
 common::Error CommandsApi::Restore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RESTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RESTORE")}, argv), out);
 }
 
 common::Error CommandsApi::Role(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ROLE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ROLE")}, argv), out);
 }
 
 common::Error CommandsApi::Rpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RPOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RPOP")}, argv), out);
 }
 
 common::Error CommandsApi::RpopLpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RPOPLPUSH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RPOPLPUSH")}, argv), out);
 }
 
 common::Error CommandsApi::Rpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RPUSH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RPUSH")}, argv), out);
 }
 
 common::Error CommandsApi::RpushX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"RPUSHX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("RPUSHX")}, argv), out);
 }
 
 common::Error CommandsApi::Save(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SAVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SAVE")}, argv), out);
 }
 
 common::Error CommandsApi::Scard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCARD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCARD")}, argv), out);
 }
 
 common::Error CommandsApi::ScriptDebug(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCRIPT", "DEBUG"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("DEBUG")}, argv), out);
 }
 
 common::Error CommandsApi::ScriptExists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCRIPT", "EXISTS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("EXISTS")}, argv), out);
 }
 
 common::Error CommandsApi::ScriptFlush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCRIPT", "FLUSH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("FLUSH")}, argv), out);
 }
 
 common::Error CommandsApi::ScriptKill(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCRIPT", "KILL"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("KILL")}, argv), out);
 }
 
 common::Error CommandsApi::ScriptLoad(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SCRIPT", "LOAD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("LOAD")}, argv), out);
 }
 
 common::Error CommandsApi::Sdiff(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SDIFF"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SDIFF")}, argv), out);
 }
 
 common::Error CommandsApi::SdiffStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SDIFFSTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SDIFFSTORE")}, argv), out);
 }
 
 common::Error CommandsApi::SetBit(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SETBIT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SETBIT")}, argv), out);
 }
 
 common::Error CommandsApi::SetRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SETRANGE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SETRANGE")}, argv), out);
 }
 
 common::Error CommandsApi::Shutdown(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SHUTDOWN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SHUTDOWN")}, argv), out);
 }
 
 common::Error CommandsApi::Sinter(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SINTER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SINTER")}, argv), out);
 }
 
 common::Error CommandsApi::SinterStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SINTERSTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SINTERSTORE")}, argv), out);
 }
 
 common::Error CommandsApi::SisMember(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SISMEMBER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SISMEMBER")}, argv), out);
 }
 
 common::Error CommandsApi::SlaveOf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SLAVEOF"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SLAVEOF")}, argv), out);
 }
 
 common::Error CommandsApi::SlowLog(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SLOWLOG"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SLOWLOG")}, argv), out);
 }
 
 common::Error CommandsApi::Smove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SMOVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SMOVE")}, argv), out);
 }
 
 common::Error CommandsApi::Sort(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SORT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SORT")}, argv), out);
 }
 
 common::Error CommandsApi::Spop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SPOP"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SPOP")}, argv), out);
 }
 
 common::Error CommandsApi::SRandMember(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SRANDMEMBER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SRANDMEMBER")}, argv), out);
 }
 
 common::Error CommandsApi::Srem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SREM"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SREM")}, argv), out);
 }
 
 common::Error CommandsApi::Sscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SSCAN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SSCAN")}, argv), out);
 }
 
 common::Error CommandsApi::StrLen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"STRLEN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("STRLEN")}, argv), out);
 }
 
 common::Error CommandsApi::Sunion(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SUNION"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SUNION")}, argv), out);
 }
 
 common::Error CommandsApi::SunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SUNIONSTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SUNIONSTORE")}, argv), out);
 }
 
 common::Error CommandsApi::Time(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"TIME"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TIME")}, argv), out);
 }
 
 common::Error CommandsApi::Type(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"TYPE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TYPE")}, argv), out);
 }
 
 common::Error CommandsApi::Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"UNSUBSCRIBE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("UNSUBSCRIBE")}, argv), out);
 }
 
 common::Error CommandsApi::Unwatch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"UNWATCH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("UNWATCH")}, argv), out);
 }
 
 common::Error CommandsApi::Wait(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"WAIT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("WAIT")}, argv), out);
 }
 
 common::Error CommandsApi::Watch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"WATCH"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("WATCH")}, argv), out);
 }
 
 common::Error CommandsApi::Zcard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZCARD"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZCARD")}, argv), out);
 }
 
 common::Error CommandsApi::Zcount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZCOUNT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZCOUNT")}, argv), out);
 }
 
 common::Error CommandsApi::ZincrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZINCRBY"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZINCRBY")}, argv), out);
 }
 
 common::Error CommandsApi::ZincrStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZINTERSTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZINTERSTORE")}, argv), out);
 }
 
 common::Error CommandsApi::ZlexCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZLEXCOUNT"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZLEXCOUNT")}, argv), out);
 }
 
 common::Error CommandsApi::ZrangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZRANGEBYLEX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZRANGEBYLEX")}, argv), out);
 }
 
 common::Error CommandsApi::ZrangeByScore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZRANGEBYSCORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZRANGEBYSCORE")}, argv), out);
 }
 
 common::Error CommandsApi::Zrank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZRANK"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZRANK")}, argv), out);
 }
 
 common::Error CommandsApi::Zrem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREM"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREM")}, argv), out);
 }
 
 common::Error CommandsApi::ZremRangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREMRANGEBYLEX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREMRANGEBYLEX")}, argv), out);
 }
 
 common::Error CommandsApi::ZremRangeByRank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREMRANGEBYRANK"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREMRANGEBYRANK")}, argv), out);
 }
 
 common::Error CommandsApi::ZremRangeByScore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREMRANGEBYSCORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREMRANGEBYSCORE")}, argv), out);
 }
 
 common::Error CommandsApi::ZrevRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREVRANGE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREVRANGE")}, argv), out);
 }
 
 common::Error CommandsApi::ZrevRangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREVRANGEBYLEX"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREVRANGEBYLEX")}, argv), out);
 }
 
 common::Error CommandsApi::ZrevRangeByScore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREVRANGEBYSCORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREVRANGEBYSCORE")}, argv), out);
 }
 
 common::Error CommandsApi::ZrevRank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZREVRANK"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZREVRANK")}, argv), out);
 }
 
 common::Error CommandsApi::Zscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZSCAN"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZSCAN")}, argv), out);
 }
 
 common::Error CommandsApi::Zscore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZSCORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZSCORE")}, argv), out);
 }
 
 common::Error CommandsApi::ZunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"ZUNIONSTORE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("ZUNIONSTORE")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelMasters(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "MASTERS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("MASTERS")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelMaster(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "MASTER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("MASTER")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelSlaves(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "SLAVES"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("SLAVES")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelSentinels(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "SENTINELS"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("SENTINELS")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelGetMasterAddrByName(internal::CommandHandler* handler,
                                                        commands_args_t argv,
                                                        FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "GET-MASTER-ADDR-BY-NAME"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("GET-MASTER-ADDR-BY-NAME")}, argv),
+                         out);
 }
 
 common::Error CommandsApi::SentinelReset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "RESET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("RESET")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelFailover(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "FAILOVER"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("FAILOVER")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelCkquorum(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "CKQUORUM"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("CKQUORUM")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelFlushConfig(internal::CommandHandler* handler,
                                                commands_args_t argv,
                                                FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "FLUSHCONFIG"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("FLUSHCONFIG")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelMonitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "MONITOR"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("MONITOR")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelRemove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "REMOVE"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("REMOVE")}, argv), out);
 }
 
 common::Error CommandsApi::SentinelSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({"SENTINEL", "SET"}, argv), out);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SENTINEL"), GEN_CMD_STRING("SET")}, argv), out);
 }
 
 common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   key_t key_str(argv[0]);
   NKey key(key_str);
   ttl_t ttl;
-  if (!common::ConvertFromString(argv[1], &ttl)) {
+  if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
   NValue string_val(common::Value::CreateStringValue(argv[2]));
@@ -1146,7 +1147,7 @@ common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1213,8 +1214,8 @@ common::Error CommandsApi::Zadd(internal::CommandHandler* handler, commands_args
   NKey key(key_str);
   common::ZSetValue* zset = common::Value::CreateZSetValue();
   for (size_t i = 1; i < argv.size(); i += 2) {
-    std::string key = argv[i];
-    std::string val = argv[i + 1];
+    command_buffer_t key = argv[i];
+    command_buffer_t val = argv[i + 1];
     zset->Insert(key, val);
   }
 
@@ -1235,15 +1236,16 @@ common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_ar
   key_t key_str(argv[0]);
   NKey key(key_str);
   int start;
-  if (!common::ConvertFromString(argv[1], &start)) {
+  if (!common::ConvertFromBytes(argv[1], &start)) {
     return common::make_error_inval();
   }
 
   int stop;
-  if (!common::ConvertFromString(argv[2], &stop)) {
+  if (!common::ConvertFromBytes(argv[2], &stop)) {
     return common::make_error_inval();
   }
-  bool ws = argv.size() == 4 && strncmp(argv[3].c_str(), "WITHSCORES", 10) == 0;
+
+  bool ws = argv.size() == 4 && strncmp(argv[3].data(), "WITHSCORES", 10) == 0;
   DBConnection* redis = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
   common::Error err = redis->Zrange(key, start, stop, ws, &key_loaded);
@@ -1263,8 +1265,8 @@ common::Error CommandsApi::Hmset(internal::CommandHandler* handler, commands_arg
   NKey key(key_str);
   common::HashValue* hmset = common::Value::CreateHashValue();
   for (size_t i = 1; i < argv.size(); i += 2) {
-    std::string key = argv[i];
-    std::string val = argv[i + 1];
+    command_buffer_t key = argv[i];
+    command_buffer_t val = argv[i + 1];
     hmset->Insert(key, val);
   }
 
@@ -1274,7 +1276,7 @@ common::Error CommandsApi::Hmset(internal::CommandHandler* handler, commands_arg
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(OK_RESULT);
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1317,7 +1319,7 @@ common::Error CommandsApi::DecrBy(internal::CommandHandler* handler, commands_ar
   key_t key_str(argv[0]);
   NKey key(key_str);
   int incr;
-  if (!common::ConvertFromString(argv[1], &incr)) {
+  if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
   }
   DBConnection* redis = static_cast<DBConnection*>(handler);
@@ -1353,7 +1355,7 @@ common::Error CommandsApi::IncrBy(internal::CommandHandler* handler, commands_ar
   key_t key_str(argv[0]);
   NKey key(key_str);
   int incr;
-  if (!common::ConvertFromString(argv[1], &incr)) {
+  if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
   }
   DBConnection* redis = static_cast<DBConnection*>(handler);
@@ -1373,12 +1375,12 @@ common::Error CommandsApi::IncrByFloat(internal::CommandHandler* handler, comman
   key_t key_str(argv[0]);
   NKey key(key_str);
   double incr;
-  if (!common::ConvertFromString(argv[1], &incr)) {
+  if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
   }
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
-  std::string result;
+  command_buffer_t result;
   common::Error err = redis->IncrByFloat(key, incr, &result);
   if (err) {
     return err;
@@ -1412,7 +1414,7 @@ common::Error CommandsApi::ExpireRedis(internal::CommandHandler* handler, comman
   key_t key_str(argv[0]);
   NKey key(key_str);
   ttl_t ttl;
-  if (!common::ConvertFromString(argv[1], &ttl)) {
+  if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
 
@@ -1433,13 +1435,13 @@ common::Error CommandsApi::ExpireRedis(internal::CommandHandler* handler, comman
 
 common::Error CommandsApi::Monitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  argv.push_front("MONITOR");
+  argv.push_front(GEN_CMD_STRING("MONITOR"));
   return red->Monitor(argv, out);
 }
 
 common::Error CommandsApi::Subscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  argv.push_front(DB_SUBSCRIBE_COMMAND);
+  argv.push_front(GEN_CMD_STRING(DB_SUBSCRIBE_COMMAND));
   return red->Subscribe(argv, out);
 }
 

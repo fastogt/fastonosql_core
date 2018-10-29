@@ -18,16 +18,16 @@
 
 #pragma once
 
-#include <vector>
-#include <utility>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <common/value.h>  // for ArrayValue
 
 namespace fastonosql {
 namespace core {
 
-typedef std::pair<std::string, std::string> property_t;
+typedef std::pair<common::Value::string_t, common::Value::string_t> property_t;
 
 struct ServerPropertiesInfo {
   std::vector<property_t> properties;

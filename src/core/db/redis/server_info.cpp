@@ -241,27 +241,27 @@ ServerInfo::Server::Server(const std::string& server_text)
 common::Value* ServerInfo::Server::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(redis_version_);
+      return common::Value::CreateStringValueFromBasicString(redis_version_);
     case 1:
-      return new common::StringValue(redis_git_sha1_);
+      return common::Value::CreateStringValueFromBasicString(redis_git_sha1_);
     case 2:
-      return new common::StringValue(redis_git_dirty_);
+      return common::Value::CreateStringValueFromBasicString(redis_git_dirty_);
     case 3:
-      return new common::StringValue(redis_build_id_);
+      return common::Value::CreateStringValueFromBasicString(redis_build_id_);
     case 4:
-      return new common::StringValue(redis_mode_);
+      return common::Value::CreateStringValueFromBasicString(redis_mode_);
     case 5:
-      return new common::StringValue(os_);
+      return common::Value::CreateStringValueFromBasicString(os_);
     case 6:
       return new common::FundamentalValue(arch_bits_);
     case 7:
-      return new common::StringValue(multiplexing_api_);
+      return common::Value::CreateStringValueFromBasicString(multiplexing_api_);
     case 8:
-      return new common::StringValue(gcc_version_);
+      return common::Value::CreateStringValueFromBasicString(gcc_version_);
     case 9:
       return new common::FundamentalValue(process_id_);
     case 10:
-      return new common::StringValue(run_id_);
+      return common::Value::CreateStringValueFromBasicString(run_id_);
     case 11:
       return new common::FundamentalValue(tcp_port_);
     case 12:
@@ -402,19 +402,19 @@ common::Value* ServerInfo::Memory::GetValueByIndex(unsigned char index) const {
     case 0:
       return new common::FundamentalValue(used_memory_);
     case 1:
-      return new common::StringValue(used_memory_human_);
+      return common::Value::CreateStringValueFromBasicString(used_memory_human_);
     case 2:
       return new common::FundamentalValue(used_memory_rss_);
     case 3:
       return new common::FundamentalValue(used_memory_peak_);
     case 4:
-      return new common::StringValue(used_memory_peak_human_);
+      return common::Value::CreateStringValueFromBasicString(used_memory_peak_human_);
     case 5:
       return new common::FundamentalValue(used_memory_lua_);
     case 6:
       return new common::FundamentalValue(mem_fragmentation_ratio_);
     case 7:
-      return new common::StringValue(mem_allocator_);
+      return common::Value::CreateStringValueFromBasicString(mem_allocator_);
     default:
       break;
   }
@@ -538,7 +538,7 @@ common::Value* ServerInfo::Persistence::GetValueByIndex(unsigned char index) con
     case 3:
       return new common::FundamentalValue(rdb_last_save_time_);
     case 4:
-      return new common::StringValue(rdb_last_bgsave_status_);
+      return common::Value::CreateStringValueFromBasicString(rdb_last_bgsave_status_);
     case 5:
       return new common::FundamentalValue(rdb_last_bgsave_time_sec_);
     case 6:
@@ -554,9 +554,9 @@ common::Value* ServerInfo::Persistence::GetValueByIndex(unsigned char index) con
     case 11:
       return new common::FundamentalValue(aof_current_rewrite_time_sec_);
     case 12:
-      return new common::StringValue(aof_last_bgrewrite_status_);
+      return common::Value::CreateStringValueFromBasicString(aof_last_bgrewrite_status_);
     case 13:
-      return new common::StringValue(aof_last_write_status_);
+      return common::Value::CreateStringValueFromBasicString(aof_last_write_status_);
     default:
       break;
   }
@@ -781,7 +781,7 @@ ServerInfo::Replication::Replication(const std::string& replication_text)
 common::Value* ServerInfo::Replication::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(role_);
+      return common::Value::CreateStringValueFromBasicString(role_);
     case 1:
       return new common::FundamentalValue(connected_slaves_);
     case 2:

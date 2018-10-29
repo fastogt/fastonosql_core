@@ -46,7 +46,7 @@ class CommandHolder : public CommandInfo {
   typedef std::function<common::Error(const CommandInfo&, commands_args_t)> test_function_t;
   typedef std::vector<test_function_t> test_functions_t;
 
-  CommandHolder(const std::string& name,
+  CommandHolder(const command_buffer_t& name,
                 const std::string& params,
                 const std::string& summary,
                 uint32_t since,
@@ -58,7 +58,7 @@ class CommandHolder : public CommandInfo {
                 test_functions_t tests = {&TestArgsInRange});
 
   bool IsCommand(commands_args_t argv, size_t* offset) const;
-  bool IsEqualFirstName(const std::string& cmd_first_name) const;
+  bool IsEqualFirstName(const command_buffer_t& cmd_first_name) const;
 
   common::Error TestArgs(commands_args_t argv) const WARN_UNUSED_RESULT;
 

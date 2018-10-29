@@ -29,7 +29,7 @@ ServerPropertiesInfo MakeServerProperty(const common::ArrayValue* array) {
 
   std::vector<property_t> properties;
   for (size_t i = 0; i < array->GetSize(); i += 2) {
-    std::string key, value;
+    common::Value::string_t key, value;
     if (array->GetString(i, &key) && array->GetString(i + 1, &value)) {
       properties.push_back(std::make_pair(key, value));
     }

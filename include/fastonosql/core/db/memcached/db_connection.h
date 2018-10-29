@@ -39,14 +39,15 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   typedef CDBConnection<NativeConnection, Config, MEMCACHED> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
-  common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
+  common::Error Info(const command_buffer_t& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
 
-  common::Error AddIfNotExist(const NKey& key, const std::string& value, time_t expiration, uint32_t flags)
+  common::Error AddIfNotExist(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
-  common::Error Replace(const NKey& key, const std::string& value, time_t expiration, uint32_t flags)
+  common::Error Replace(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
-  common::Error Append(const NKey& key, const std::string& value, time_t expiration, uint32_t flags) WARN_UNUSED_RESULT;
-  common::Error Prepend(const NKey& key, const std::string& value, time_t expiration, uint32_t flags)
+  common::Error Append(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
+      WARN_UNUSED_RESULT;
+  common::Error Prepend(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
   common::Error Incr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
   common::Error Decr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
@@ -57,22 +58,22 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 
   common::Error DelInner(const key_t& key, time_t expiration) WARN_UNUSED_RESULT;
-  common::Error GetInner(const key_t& key, std::string* ret_val) WARN_UNUSED_RESULT;
+  common::Error GetInner(const key_t& key, command_buffer_t* ret_val) WARN_UNUSED_RESULT;
   common::Error SetInner(const key_t& key, const value_t& value, time_t expiration, uint32_t flags) WARN_UNUSED_RESULT;
   common::Error ExpireInner(key_t key, ttl_t expiration) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const std::string& pattern,
+                                 const command_buffer_t& pattern,
                                  keys_limit_t count_keys,
-                                 std::vector<std::string>* keys_out,
+                                 keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const std::string& key_start,
-                                 const std::string& key_end,
+  virtual common::Error KeysImpl(const command_buffer_t& key_start,
+                                 const command_buffer_t& key_end,
                                  keys_limit_t limit,
-                                 std::vector<std::string>* ret) override;
+                                 keys_t* ret) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
-  virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;
+  virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
@@ -80,7 +81,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<std::string>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) override;
 
   ServerInfo::Stats current_info_;
 };

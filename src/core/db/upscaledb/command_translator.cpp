@@ -81,7 +81,7 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(UPSCALEDB_GET_COMMAND);
+  return cmd.IsEqualName(GEN_CMD_STRING(UPSCALEDB_GET_COMMAND));
 }
 
 }  // namespace upscaledb

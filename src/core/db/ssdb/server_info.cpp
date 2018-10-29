@@ -84,7 +84,7 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
 common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::StringValue(version);
+      return common::Value::CreateStringValueFromBasicString(version);
     case 1:
       return new common::FundamentalValue(links);
     case 2:
@@ -92,7 +92,7 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
     case 3:
       return new common::FundamentalValue(dbsize);
     case 4:
-      return new common::StringValue(binlogs);
+      return common::Value::CreateStringValueFromBasicString(binlogs);
     default:
       break;
   }

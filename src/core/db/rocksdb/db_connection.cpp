@@ -45,7 +45,7 @@ namespace core {
 
 namespace rocksdb {
 namespace {
-const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
+const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_COMMAND),
                                                        "[command]",
                                                        "Return how to use command",
                                                        UNDEFINED_SINCE,
@@ -54,7 +54,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Help),
-                                         CommandHolder(DB_INFO_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_INFO_COMMAND),
                                                        "[section]",
                                                        "These command return database information.",
                                                        UNDEFINED_SINCE,
@@ -63,7 +63,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Info),
-                                         CommandHolder(DB_GET_CONFIG_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_GET_CONFIG_COMMAND),
                                                        "<parameter>",
                                                        "Get the value of a configuration parameter",
                                                        UNDEFINED_SINCE,
@@ -72,7 +72,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::ConfigGet),
-                                         CommandHolder(DB_CREATEDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_CREATEDB_COMMAND),
                                                        "<name>",
                                                        "Create database",
                                                        UNDEFINED_SINCE,
@@ -81,7 +81,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::CreateDatabase),
-                                         CommandHolder(DB_SCAN_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SCAN_COMMAND),
                                                        "<cursor> [MATCH pattern] [COUNT count]",
                                                        "Incrementally iterate the keys space",
                                                        UNDEFINED_SINCE,
@@ -90,7 +90,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        4,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Scan),
-                                         CommandHolder(DB_JSONDUMP_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_JSONDUMP_COMMAND),
                                                        "<cursor> PATH <absolute_path> [MATCH pattern] [COUNT count]",
                                                        "Dump DB into json file by path.",
                                                        UNDEFINED_SINCE,
@@ -99,7 +99,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        4,
                                                        CommandInfo::Native,
                                                        &CommandsApi::JsonDump),
-                                         CommandHolder(DB_KEYS_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_KEYS_COMMAND),
                                                        "<key_start> <key_end> <limit>",
                                                        "Find all keys matching the given limits.",
                                                        UNDEFINED_SINCE,
@@ -108,7 +108,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Keys),
-                                         CommandHolder(DB_DBKCOUNT_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_DBKCOUNT_COMMAND),
                                                        "-",
                                                        "Return the number of keys in the "
                                                        "selected database",
@@ -118,7 +118,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::DBkcount),
-                                         CommandHolder(DB_FLUSHDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
                                                        UNDEFINED_SINCE,
@@ -127,7 +127,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        1,
                                                        CommandInfo::Native,
                                                        &CommandsApi::FlushDB),
-                                         CommandHolder(DB_SELECTDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SELECTDB_COMMAND),
                                                        "<name>",
                                                        "Change the selected database for the "
                                                        "current connection",
@@ -137,7 +137,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Select),
-                                         CommandHolder(DB_SET_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_SET_KEY_COMMAND),
                                                        "<key> <value>",
                                                        "Set the value of a key.",
                                                        UNDEFINED_SINCE,
@@ -146,7 +146,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Set),
-                                         CommandHolder(DB_GET_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_GET_KEY_COMMAND),
                                                        "<key>",
                                                        "Get the value of a key.",
                                                        UNDEFINED_SINCE,
@@ -155,7 +155,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Get),
-                                         CommandHolder(DB_RENAME_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_RENAME_KEY_COMMAND),
                                                        "<key> <newkey>",
                                                        "Rename a key",
                                                        UNDEFINED_SINCE,
@@ -164,7 +164,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Rename),
-                                         CommandHolder("MGET",
+                                         CommandHolder(GEN_CMD_STRING("MGET"),
                                                        "<key> [key ...]",
                                                        "Get the value of a key.",
                                                        UNDEFINED_SINCE,
@@ -173,7 +173,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Mget),
-                                         CommandHolder("MERGE",
+                                         CommandHolder(GEN_CMD_STRING("MERGE"),
                                                        "<key> <value>",
                                                        "Merge the database entry for \"key\" "
                                                        "with \"value\"",
@@ -183,7 +183,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Merge),
-                                         CommandHolder(DB_DELETE_KEY_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_DELETE_KEY_COMMAND),
                                                        "<key> [key ...]",
                                                        "Delete key.",
                                                        UNDEFINED_SINCE,
@@ -192,7 +192,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Delete),
-                                         CommandHolder(DB_QUIT_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_QUIT_COMMAND),
                                                        "-",
                                                        "Close the connection",
                                                        UNDEFINED_SINCE,
@@ -201,7 +201,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(DB_HELP_COMMAND,
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit),
-                                         CommandHolder(DB_REMOVEDB_COMMAND,
+                                         CommandHolder(GEN_CMD_STRING(DB_REMOVEDB_COMMAND),
                                                        "<name>",
                                                        "Remove database",
                                                        UNDEFINED_SINCE,
@@ -478,7 +478,7 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
+common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
   UNUSED(args);
   if (!statsout) {
     DNOTREACHED();
@@ -549,7 +549,7 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
   return common::Error();
 }
 
-std::string DBConnection::GetCurrentDBName() const {
+typename DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
   if (IsConnected()) {
     return connection_.handle_->GetCurrentDBName();
   }
@@ -558,14 +558,21 @@ std::string DBConnection::GetCurrentDBName() const {
   return base_class::GetCurrentDBName();
 }
 
-common::Error DBConnection::GetInner(const key_t& key, std::string* ret_val) {
+common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
   ::rocksdb::ReadOptions ro;
-  const readable_string_t key_str = key.GetData();
+  const auto key_str = key.GetData();
   const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
-  return CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->Get(ro, key_slice, ret_val));
+  std::string ret;
+  common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->Get(ro, key_slice, &ret));
+  if (err) {
+    return err;
+  }
+
+  *ret_val = common::ConvertToCharBytes(ret);
+  return common::Error();
 }
 
-common::Error DBConnection::Mget(const std::vector<std::string>& keys, std::vector<std::string>* ret) {
+common::Error DBConnection::Mget(const std::vector<command_buffer_t>& keys, std::vector<command_buffer_t>* ret) {
   if (keys.empty() || !ret) {
     return common::make_error_inval();
   }
@@ -577,21 +584,25 @@ common::Error DBConnection::Mget(const std::vector<std::string>& keys, std::vect
 
   std::vector<::rocksdb::Slice> rslice;
   for (auto key : keys) {
-    rslice.push_back(key);
+    rslice.push_back(common::ConvertToString(key));
   }
+
+  std::vector<std::string> ret_values;
   ::rocksdb::ReadOptions ro;
-  auto sts = connection_.handle_->MultiGet(ro, rslice, ret);
+  auto sts = connection_.handle_->MultiGet(ro, rslice, &ret_values);
   for (size_t i = 0; i < sts.size(); ++i) {
     common::Error err = CheckResultCommand("MGET", sts[i]);
     if (err) {
       return err;
     }
+
+    (*ret).push_back(common::ConvertToCharBytes(ret_values[i]));
   }
 
   return common::Error();
 }
 
-common::Error DBConnection::Merge(const std::string& key, const std::string& value) {
+common::Error DBConnection::Merge(const command_buffer_t& key, const command_buffer_t& value) {
   if (key.empty() || value.empty()) {
     return common::make_error_inval();
   }
@@ -602,42 +613,46 @@ common::Error DBConnection::Merge(const std::string& key, const std::string& val
   }
 
   ::rocksdb::WriteOptions wo;
-  return CheckResultCommand("MERGE", connection_.handle_->Merge(wo, key, value));
+  const std::string key_str = common::ConvertToString(key);
+  const std::string value_str = common::ConvertToString(value);
+  return CheckResultCommand("MERGE", connection_.handle_->Merge(wo, key_str, value_str));
 }
 
 common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   ::rocksdb::WriteOptions wo;
-  const readable_string_t key_str = key.GetData();
-  const readable_string_t value_str = value.GetData();
+  const auto key_str = key.GetData();
+  const auto value_str = value.GetData();
   const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
-  return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->Put(wo, key_slice, value_str));
+  const ::rocksdb::Slice value_slice(reinterpret_cast<const char*>(value_str.data()), value_str.size());
+  return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->Put(wo, key_slice, value_slice));
 }
 
 common::Error DBConnection::DelInner(const key_t& key) {
-  std::string exist_key;
+  command_buffer_t exist_key;
   common::Error err = GetInner(key, &exist_key);
   if (err) {
     return err;
   }
 
   ::rocksdb::WriteOptions wo;
-  const readable_string_t key_str = key.GetData();
+  const auto key_str = key.GetData();
   const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, connection_.handle_->Delete(wo, key_slice));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const std::string& pattern,
+                                     const command_buffer_t& pattern,
                                      keys_limit_t count_keys,
-                                     std::vector<std::string>* keys_out,
+                                     keys_t* keys_out,
                                      cursor_t* cursor_out) {
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
   cursor_t offset_pos = cursor_in;
   cursor_t lcursor_out = 0;
-  std::vector<std::string> lkeys_out;
+  std::vector<command_buffer_t> lkeys_out;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    std::string key = it->key().ToString();
+    const ::rocksdb::Slice key_slice = it->key();
+    command_buffer_t key = GEN_CMD_STRING_SIZE(key_slice.data(), key_slice.size());
     if (lkeys_out.size() < count_keys) {
       if (common::MatchPattern(key, pattern)) {
         if (offset_pos == 0) {
@@ -665,14 +680,16 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const std::string& key_start,
-                                     const std::string& key_end,
+common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
+                                     const command_buffer_t& key_end,
                                      keys_limit_t limit,
-                                     std::vector<std::string>* ret) {
+                                     keys_t* ret) {
+  ::rocksdb::Slice key_start_slice(key_start.data(), key_start.size());
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
-  for (it->Seek(key_start); it->Valid(); it->Next()) {
-    std::string key = it->key().ToString();
+  for (it->Seek(key_start_slice); it->Valid(); it->Next()) {
+    auto slice = it->key();
+    command_buffer_t key = GEN_CMD_STRING_SIZE(slice.data(), slice.size());
     if (ret->size() < limit) {
       if (key < key_end) {
         ret->push_back(key);
@@ -774,7 +791,7 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   key_t key_str = key.GetKey();
-  std::string value_str;
+  command_buffer_t value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
     return err;
@@ -802,7 +819,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   key_t key_str = key.GetKey();
-  std::string value_str;
+  command_buffer_t value_str;
   common::Error err = GetInner(key_str, &value_str);
   if (err) {
     return err;
@@ -820,7 +837,7 @@ common::Error DBConnection::QuitImpl() {
   return Disconnect();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
   *dbs = connection_.handle_->GetDatabasesNames();
   return common::Error();
 }

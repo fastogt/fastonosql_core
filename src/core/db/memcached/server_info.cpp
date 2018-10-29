@@ -194,7 +194,7 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
     case 2:
       return new common::FundamentalValue(time);
     case 3:
-      return new common::StringValue(version);
+      return common::Value::CreateStringValueFromBasicString(version);
     case 4:
       return new common::FundamentalValue(pointer_size);
     case 5:

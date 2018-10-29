@@ -26,7 +26,7 @@ using namespace fastonosql;
 template <typename NConnection, typename Config, core::ConnectionType ContType>
 void CheckSetGet(core::CDBConnection<NConnection, Config, ContType>* db) {
   ASSERT_TRUE(db->IsConnected());
-  core::NValue val(common::Value::CreateStringValue("test"));
+  core::NValue val(common::Value::CreateStringValueFromBasicString("test"));
   core::key_t key_str("test");
   core::NKey key(key_str);
   core::NDbKValue res1;

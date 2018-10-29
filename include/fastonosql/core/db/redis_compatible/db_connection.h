@@ -62,8 +62,8 @@ common::Error ExecRedisCommand(NativeConnection* c,
                                const size_t* argvlen,
                                redisReply** out_reply);
 common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv, redisReply** out_reply);
-common::Error ExecRedisCommand(NativeConnection* c, command_buffer_t command, redisReply** out_reply);
-common::Error AuthContext(NativeConnection* context, const std::string& auth_str);
+common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& command, redisReply** out_reply);
+common::Error AuthContext(NativeConnection* context, const command_buffer_t& auth_str);
 
 template <typename Config, ConnectionType connection_type>
 class DBConnection : public CDBConnection<NativeConnection, Config, connection_type> {
@@ -71,6 +71,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;
   typedef CDBConnection<NativeConnection, Config, connection_type> base_class;
   typedef typename base_class::config_t config_t;
+  typedef typename base_class::keys_t keys_t;
+  typedef typename base_class::db_name_t db_name_t;
 
   enum { invalid_db_num = -1 };
   explicit DBConnection(CDBConnectionClient* client)
@@ -81,13 +83,13 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   virtual common::Error Connect(const config_t& config) override;
   virtual common::Error Disconnect() override;
 
-  virtual std::string GetCurrentDBName() const override;
+  virtual db_name_t GetCurrentDBName() const override;
 
   virtual bool IsAuthenticated() const override;
 
   common::Error CommonExec(const commands_args_t& argv, FastoObject* out) WARN_UNUSED_RESULT;
 
-  common::Error Auth(const std::string& password) WARN_UNUSED_RESULT;
+  common::Error Auth(const command_buffer_t& password) WARN_UNUSED_RESULT;
 
   common::Error SlaveMode(FastoObject* out) WARN_UNUSED_RESULT;
 
@@ -113,7 +115,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
   common::Error Incr(const NKey& key, long long* incr);
   common::Error IncrBy(const NKey& key, int inc, long long* incr);
-  common::Error IncrByFloat(const NKey& key, double inc, std::string* str_incr);
+  common::Error IncrByFloat(const NKey& key, double inc, command_buffer_t* str_incr);
 
   common::Error PExpire(const NKey& key,
                         ttl_t ttl) WARN_UNUSED_RESULT;  // PEXPIRE works differently than in redis protocol
@@ -136,17 +138,17 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
  private:
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const std::string& pattern,
+                                 const command_buffer_t& pattern,
                                  keys_limit_t count_keys,
-                                 std::vector<std::string>* keys_out,
+                                 keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const std::string& key_start,
-                                 const std::string& key_end,
+  virtual common::Error KeysImpl(const command_buffer_t& key_start,
+                                 const command_buffer_t& key_end,
                                  keys_limit_t limit,
-                                 std::vector<std::string>* ret) override;
+                                 keys_t* ret) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
-  virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;
+  virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
   virtual common::Error GetImpl(const NKey& key,
@@ -156,7 +158,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
                                    ttl_t ttl) override;  // EXPIRE works differently than in redis protocol
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<std::string>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) override;
 
   common::Error CliReadReply(FastoObject* out) WARN_UNUSED_RESULT;
   common::Error SendSync(unsigned long long* payload) WARN_UNUSED_RESULT;

@@ -26,15 +26,17 @@
 namespace fastonosql {
 namespace core {
 
+typedef common::Value::string_t convert_to_t;
+
 class StreamValue : public common::Value {
  public:
   struct Entry {
     bool Equals(const Entry& other) const;
 
-    std::string name;
-    std::string value;
+    convert_to_t name;
+    convert_to_t value;
   };
-  typedef std::string stream_id;
+  typedef convert_to_t stream_id;
   struct Stream {
     bool Equals(const Stream& other) const;
 
@@ -47,7 +49,7 @@ class StreamValue : public common::Value {
   StreamValue();
   ~StreamValue() override;
 
-  bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
+  bool GetAsString(string_t* out_value) const override WARN_UNUSED_RESULT;
   StreamValue* DeepCopy() const override;
   bool Equals(const Value* other) const override;
 
@@ -79,17 +81,17 @@ class JsonValue : public common::Value {  // simple json class value, only save
                                           // string without validation
  public:
   static const common::Value::Type TYPE_JSON = static_cast<common::Value::Type>(common::Value::USER_TYPES + 2);
-  explicit JsonValue(const std::string& json_value);
+  explicit JsonValue(const string_t& json_value);
   ~JsonValue() override;
 
-  bool GetAsString(std::string* out_value) const override WARN_UNUSED_RESULT;
+  bool GetAsString(string_t* out_value) const override WARN_UNUSED_RESULT;
   JsonValue* DeepCopy() const override;
   bool Equals(const Value* other) const override;
 
-  static bool IsValidJson(const std::string& json);
+  static bool IsValidJson(const string_t& json);
 
  private:
-  std::string value_;
+  string_t value_;
   DISALLOW_COPY_AND_ASSIGN(JsonValue);
 };
 
@@ -140,19 +142,19 @@ class SearchValue : public common::Value {
 common::Value* CreateEmptyValueFromType(common::Value::Type value_type);
 const char* GetTypeName(common::Value::Type value_type);
 
-std::string ConvertValue(common::Value* value, const std::string& delimiter);
-std::string ConvertValue(common::ArrayValue* array, const std::string& delimiter);
-std::string ConvertValue(common::SetValue* set, const std::string& delimiter);
-std::string ConvertValue(common::ZSetValue* zset, const std::string& delimiter);
-std::string ConvertValue(common::HashValue* hash, const std::string& delimiter);
-std::string ConvertValue(common::FundamentalValue* value, const std::string& delimiter);
-std::string ConvertValue(common::StringValue* value, const std::string& delimiter);
-std::string ConvertValue(common::ByteArrayValue* value, const std::string& delimiter);
-std::string ConvertValue(StreamValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(common::Value* value, const std::string& delimiter);
+convert_to_t ConvertValue(common::ArrayValue* array, const std::string& delimiter);
+convert_to_t ConvertValue(common::SetValue* set, const std::string& delimiter);
+convert_to_t ConvertValue(common::ZSetValue* zset, const std::string& delimiter);
+convert_to_t ConvertValue(common::HashValue* hash, const std::string& delimiter);
+convert_to_t ConvertValue(common::FundamentalValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(common::StringValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(common::ByteArrayValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(StreamValue* value, const std::string& delimiter);
 // extended
-std::string ConvertValue(JsonValue* value, const std::string& delimiter);
-std::string ConvertValue(GraphValue* value, const std::string& delimiter);
-std::string ConvertValue(BloomValue* value, const std::string& delimiter);
-std::string ConvertValue(SearchValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(JsonValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(GraphValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(BloomValue* value, const std::string& delimiter);
+convert_to_t ConvertValue(SearchValue* value, const std::string& delimiter);
 }  // namespace core
 }  // namespace fastonosql

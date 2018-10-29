@@ -45,7 +45,7 @@ common::Value::Type FastoObject::GetType() const {
   return value_->GetType();
 }
 
-std::string FastoObject::ToString() const {
+command_buffer_t FastoObject::ToString() const {
   return ConvertValue(value_.get(), GetDelimiter());
 }
 
@@ -103,8 +103,8 @@ FastoObjectCommand::FastoObjectCommand(FastoObject* parent,
 
 FastoObjectCommand::~FastoObjectCommand() {}
 
-std::string FastoObjectCommand::ToString() const {
-  return std::string();
+command_buffer_t FastoObjectCommand::ToString() const {
+  return command_buffer_t();
 }
 
 core::ConnectionType FastoObjectCommand::GetConnectionType() const {
@@ -129,15 +129,16 @@ CmdLoggingType FastoObjectCommand::GetCommandLoggingType() const {
 
 namespace common {
 
-std::string ConvertToString(fastonosql::core::FastoObject* obj) {
+fastonosql::core::command_buffer_t ConvertToString(fastonosql::core::FastoObject* obj) {
   if (!obj) {
-    return std::string();
+    return fastonosql::core::command_buffer_t();
   }
 
-  std::string result;
-  std::string str = obj->ToString();
+  fastonosql::core::command_buffer_t result;
+  fastonosql::core::command_buffer_t str = obj->ToString();
   if (!str.empty()) {
-    result += str + obj->GetDelimiter();
+    result += str;
+    result += obj->GetDelimiter();
   }
 
   fastonosql::core::FastoObject::childs_t childrens = obj->GetChildrens();
