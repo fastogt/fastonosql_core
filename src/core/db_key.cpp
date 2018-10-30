@@ -59,9 +59,8 @@ NValue::NValue() : base_class() {}
 
 NValue::NValue(const base_class& other) : base_class(other) {}
 
-value_t NValue::GetValue(const std::string& delimiter) const {
-  convert_to_t converted = ConvertValue(get(), delimiter);
-  return converted;
+ReadableString NValue::GetReadableValue(const std::string& delimiter) const {
+  return ConvertValue(get(), delimiter);
 }
 
 NDbKValue::NDbKValue() : key_(), value_() {}

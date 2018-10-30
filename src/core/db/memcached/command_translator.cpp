@@ -43,7 +43,7 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   const NKey cur = key.GetKey();
   key_t key_str = cur.GetKey();
   NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const auto value_str = value.GetReadableValue();
   command_buffer_writer_t wr;
   wr << MEMCACHED_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine();
   *cmdstring = wr.str();

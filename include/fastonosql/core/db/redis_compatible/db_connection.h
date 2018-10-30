@@ -53,17 +53,16 @@ common::Error DiscoverySentinelConnection(const Config& rconfig,
                                           std::vector<ServerDiscoverySentinelInfoSPtr>* infos);
 #endif
 
-bool IsPipeLineCommand(const char* command);
 common::Error PrintRedisContextError(NativeConnection* context);
 common::Error ValueFromReplay(redisReply* r, common::Value** out);
 common::Error ExecRedisCommand(NativeConnection* c,
-                               int argc,
+                               size_t argc,
                                const char** argv,
                                const size_t* argvlen,
                                redisReply** out_reply);
 common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv, redisReply** out_reply);
 common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& command, redisReply** out_reply);
-common::Error AuthContext(NativeConnection* context, const command_buffer_t& auth_str);
+common::Error AuthContext(NativeConnection* context, const command_buffer_t& password);
 
 template <typename Config, ConnectionType connection_type>
 class DBConnection : public CDBConnection<NativeConnection, Config, connection_type> {
@@ -71,8 +70,12 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;
   typedef CDBConnection<NativeConnection, Config, connection_type> base_class;
   typedef typename base_class::config_t config_t;
-  typedef typename base_class::keys_t keys_t;
+  typedef typename base_class::raw_key_t raw_key_t;
+  typedef typename base_class::raw_value_t raw_value_t;
+  typedef typename base_class::raw_keys_t raw_keys_t;
+  typedef typename base_class::pattern_t pattern_t;
   typedef typename base_class::db_name_t db_name_t;
+  typedef typename base_class::db_names_t db_names_t;
 
   enum { invalid_db_num = -1 };
   explicit DBConnection(CDBConnectionClient* client)
@@ -138,14 +141,14 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
  private:
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const command_buffer_t& pattern,
+                                 const pattern_t& pattern,
                                  keys_limit_t count_keys,
-                                 keys_t* keys_out,
+                                 raw_keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const command_buffer_t& key_start,
-                                 const command_buffer_t& key_end,
+  virtual common::Error KeysImpl(const raw_key_t& key_start,
+                                 const raw_key_t& key_end,
                                  keys_limit_t limit,
-                                 keys_t* ret) override;
+                                 raw_keys_t* ret) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
@@ -158,7 +161,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
                                    ttl_t ttl) override;  // EXPIRE works differently than in redis protocol
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
 
   common::Error CliReadReply(FastoObject* out) WARN_UNUSED_RESULT;
   common::Error SendSync(unsigned long long* payload) WARN_UNUSED_RESULT;

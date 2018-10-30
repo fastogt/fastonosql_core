@@ -29,6 +29,7 @@
 namespace fastonosql {
 namespace core {
 
+// CARRIGE_RETURN_CHAR
 bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out) {
   if (command_line.empty() || !out) {
     return false;
@@ -76,7 +77,7 @@ bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out
           char ch = command_line[i + 2];
           char ch2 = command_line[i + 3];
           unsigned char total = common::HexDigitToInt(ch) * 16 + common::HexDigitToInt(ch2);
-          current_string += common::ConvertToCharBytes(total);
+          current_string.push_back(total);
           i += 3;
           continue;
         }
@@ -164,39 +165,6 @@ bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out
 
   *out = result;
   return true;
-}
-
-readable_string_t StableCommand(const command_buffer_t& command) {
-  if (command.empty()) {
-    DNOTREACHED();
-    return readable_string_t();
-  }
-
-  std::vector<command_buffer_t> tokens;
-  size_t tokens_count = common::Tokenize(command, GEN_CMD_STRING(SPACE_STR), &tokens);
-  std::stringstream wr;
-  if (tokens_count > 0) {
-    for (size_t i = 0; i < tokens_count; ++i) {
-      command_buffer_t part = tokens[i];
-      if (i != 0) {
-        wr << SPACE_CHAR;
-      }
-      if (part.size() % 4 == 0 && part[0] == '\\' && (part[1] == 'x' || part[1] == 'X')) {
-        wr << SINGLE_QUOTES_CHAR << part << SINGLE_QUOTES_CHAR;
-      } else {
-        wr << part;
-      }
-    }
-  }
-
-  readable_string_t stabled_command = wr.str();
-  if (!stabled_command.empty()) {
-    if (stabled_command[stabled_command.size() - 1] == CARRIGE_RETURN_CHAR) {
-      stabled_command.pop_back();
-    }
-  }
-
-  return stabled_command;
 }
 
 ReadableString::ReadableString() : data_(), type_(TEXT_DATA) {}

@@ -27,7 +27,7 @@ namespace memcached {
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* mem = static_cast<DBConnection*>(handler);
   command_buffer_t args = argv.size() == 1 ? argv[0] : command_buffer_t();
-  if (args.empty() && strcasecmp(reinterpret_cast<const char*>(args.data()), "items") == 0) {
+  if (args.empty() && strcasecmp(args.data(), "items") == 0) {
     commands_args_t largv = {GEN_CMD_STRING("a"), GEN_CMD_STRING("z"), GEN_CMD_STRING("100")};
     return Keys(handler, largv, out);
   }

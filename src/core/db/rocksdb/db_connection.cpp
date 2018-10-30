@@ -558,10 +558,9 @@ typename DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
   return base_class::GetCurrentDBName();
 }
 
-common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
   ::rocksdb::ReadOptions ro;
-  const auto key_str = key.GetData();
-  const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
+  const ::rocksdb::Slice key_slice(key.data(), key.size());
   std::string ret;
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->Get(ro, key_slice, &ret));
   if (err) {
@@ -618,16 +617,14 @@ common::Error DBConnection::Merge(const command_buffer_t& key, const command_buf
   return CheckResultCommand("MERGE", connection_.handle_->Merge(wo, key_str, value_str));
 }
 
-common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
+common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
   ::rocksdb::WriteOptions wo;
-  const auto key_str = key.GetData();
-  const auto value_str = value.GetData();
-  const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
-  const ::rocksdb::Slice value_slice(reinterpret_cast<const char*>(value_str.data()), value_str.size());
+  const ::rocksdb::Slice key_slice(key.data(), key.size());
+  const ::rocksdb::Slice value_slice(value.data(), value.size());
   return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->Put(wo, key_slice, value_slice));
 }
 
-common::Error DBConnection::DelInner(const key_t& key) {
+common::Error DBConnection::DelInner(const raw_key_t& key) {
   command_buffer_t exist_key;
   common::Error err = GetInner(key, &exist_key);
   if (err) {
@@ -635,15 +632,14 @@ common::Error DBConnection::DelInner(const key_t& key) {
   }
 
   ::rocksdb::WriteOptions wo;
-  const auto key_str = key.GetData();
-  const ::rocksdb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
+  const ::rocksdb::Slice key_slice(key.data(), key.size());
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, connection_.handle_->Delete(wo, key_slice));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const command_buffer_t& pattern,
+                                     const pattern_t& pattern,
                                      keys_limit_t count_keys,
-                                     keys_t* keys_out,
+                                     raw_keys_t* keys_out,
                                      cursor_t* cursor_out) {
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
@@ -680,10 +676,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
-                                     const command_buffer_t& key_end,
+common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      keys_limit_t limit,
-                                     keys_t* ret) {
+                                     raw_keys_t* ret) {
   ::rocksdb::Slice key_start_slice(key_start.data(), key_start.size());
   ::rocksdb::ReadOptions ro;
   ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
@@ -742,7 +738,7 @@ common::Error DBConnection::FlushDBImpl() {
   return CheckResultCommand(DB_FLUSHDB_COMMAND, st);
 }
 
-common::Error DBConnection::CreateDBImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, connection_.handle_->CreateDB(name));
   if (err) {
     return err;
@@ -752,7 +748,7 @@ common::Error DBConnection::CreateDBImpl(const std::string& name, IDataBaseInfo*
   return common::Error();
 }
 
-common::Error DBConnection::RemoveDBImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, connection_.handle_->RemoveDB(name));
   if (err) {
     return err;
@@ -762,7 +758,7 @@ common::Error DBConnection::RemoveDBImpl(const std::string& name, IDataBaseInfo*
   return common::Error();
 }
 
-common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, connection_.handle_->Select(name));
   if (err) {
     return err;
@@ -776,11 +772,12 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
 }
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
-  NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
-  common::Error err = SetInner(key_str, value_str);
+  const NKey cur = key.GetKey();
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
+  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
   if (err) {
     return err;
   }
@@ -790,9 +787,11 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
+
   command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
@@ -804,9 +803,11 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i];
-    key_t key_str = key.GetKey();
-    common::Error err = DelInner(key_str);
+    const NKey key = keys[i];
+    const key_t key_str = key.GetKey();
+    const raw_key_t rkey = key_str.GetData();
+
+    common::Error err = DelInner(rkey);
     if (err) {
       continue;
     }
@@ -818,26 +819,29 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  key_t key_str = key.GetKey();
+  const key_t key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
+
   command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
 
-  err = DelInner(key_str);
+  err = DelInner(rkey);
   if (err) {
     return err;
   }
 
-  return SetInner(new_key, value_str);
+  const raw_key_t nkey = new_key.GetData();
+  return SetInner(nkey, value_str);
 }
 
 common::Error DBConnection::QuitImpl() {
   return Disconnect();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
   *dbs = connection_.handle_->GetDatabasesNames();
   return common::Error();
 }

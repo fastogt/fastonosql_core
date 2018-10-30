@@ -18,10 +18,6 @@
 
 #include <fastonosql/core/icommand_translator.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/convert2string.h>
 #include <common/sprintf.h>
 
@@ -153,54 +149,30 @@ common::Error ICommandTranslator::LoadKeyTTLCommand(const NKey& key, command_buf
   return LoadKeyTTLCommandImpl(key, cmdstring);
 }
 
-bool ICommandTranslator::IsLoadKeyCommand(const readable_string_t& stabled_command, command_buffer_t* key) const {
-  if (!key) {
-    DNOTREACHED();
-    return false;
-  }
-
-  int argc;
-  sds* argv = sdssplitargslong(stabled_command.c_str(), &argc);
-  if (!argv) {
-    return false;
-  }
-
-  commands_args_t standart_argv;
-  for (int i = 0; i < argc; ++i) {
-    standart_argv.push_back(GEN_CMD_STRING_SIZE(argv[i], sdslen(argv[i])));
-  }
-
-  const CommandHolder* cmdh = nullptr;
-  size_t off = 0;
-  common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &off);
-  if (err) {
-    sdsfreesplitres(argv, argc);
-    return false;
-  }
-
-  if (IsLoadKeyCommandImpl(*cmdh)) {
-    *key = GEN_CMD_STRING_SIZE(argv[off], strlen(argv[off]));
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  sdsfreesplitres(argv, argc);
-  return false;
-}
-
 bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t& cmd, command_buffer_t* key) const {
   if (!key) {
     DNOTREACHED();
     return false;
   }
 
-  const readable_string_t stabled_command = StableCommand(cmd);
-  if (stabled_command.empty()) {
-    DNOTREACHED();
+  commands_args_t standart_argv;
+  if (!ParseCommandLine(cmd, &standart_argv)) {
     return false;
   }
 
-  return IsLoadKeyCommand(stabled_command, key);
+  const CommandHolder* cmdh = nullptr;
+  size_t off = 0;
+  common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &off);
+  if (err) {
+    return false;
+  }
+
+  if (IsLoadKeyCommandImpl(*cmdh)) {
+    *key = standart_argv[off];
+    return true;
+  }
+
+  return false;
 }
 
 common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
@@ -304,28 +276,21 @@ common::Error ICommandTranslator::TestCommandArgs(const CommandHolder* cmd, comm
   return cmd->TestArgs(argv);
 }
 
-common::Error ICommandTranslator::TestCommandLine(const readable_string_t& stabled_command) const {
-  if (stabled_command.empty()) {
+common::Error ICommandTranslator::TestCommandLine(const command_buffer_t& cmd) const {
+  if (cmd.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  int argc;
-  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
-  if (!argv) {
-    return common::make_error_inval();
-  }
-
   commands_args_t standart_argv;
-  for (int i = 0; i < argc; ++i) {
-    standart_argv.push_back(GEN_CMD_STRING_SIZE(argv[i], sdslen(argv[i])));
+  if (!ParseCommandLine(cmd, &standart_argv)) {
+    return common::make_error_inval();
   }
 
   const CommandHolder* cmdh = nullptr;
   size_t loff = 0;
   common::Error err = TestCommandLineArgs(standart_argv, &cmdh, &loff);
   if (err) {
-    sdsfreesplitres(argv, argc);
     return err;
   }
 

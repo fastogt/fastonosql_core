@@ -20,7 +20,6 @@
 
 extern "C" {
 #include <hiredis/hiredis.h>
-#include "sds/sds_fasto.h"
 }
 
 #include <common/file_system/string_path_utils.h>
@@ -45,6 +44,23 @@ extern "C" {
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
+
+namespace {
+bool IsPipeLineCommand(const char* command) {
+  if (!command) {
+    DNOTREACHED();
+    return false;
+  }
+
+  bool skip =
+      strcasecmp(command, "quit") == 0 || strcasecmp(command, "exit") == 0 || strcasecmp(command, "connect") == 0 ||
+      strcasecmp(command, "help") == 0 || strcasecmp(command, "?") == 0 || strcasecmp(command, "shutdown") == 0 ||
+      strcasecmp(command, "monitor") == 0 || strcasecmp(command, "subscribe") == 0 ||
+      strcasecmp(command, "psubscribe") == 0 || strcasecmp(command, "sync") == 0 || strcasecmp(command, "psync") == 0;
+
+  return !skip;
+}
+}  // namespace
 
 const char* GetHiredisVersion() {
   return HIREDIS_VERSION;
@@ -258,21 +274,6 @@ common::Error DiscoverySentinelConnection(const Config& rconfig,
 }
 #endif
 
-bool IsPipeLineCommand(const char* command) {
-  if (!command) {
-    DNOTREACHED();
-    return false;
-  }
-
-  bool skip =
-      strcasecmp(command, "quit") == 0 || strcasecmp(command, "exit") == 0 || strcasecmp(command, "connect") == 0 ||
-      strcasecmp(command, "help") == 0 || strcasecmp(command, "?") == 0 || strcasecmp(command, "shutdown") == 0 ||
-      strcasecmp(command, "monitor") == 0 || strcasecmp(command, "subscribe") == 0 ||
-      strcasecmp(command, "psubscribe") == 0 || strcasecmp(command, "sync") == 0 || strcasecmp(command, "psync") == 0;
-
-  return !skip;
-}
-
 common::Error PrintRedisContextError(NativeConnection* context) {
   if (!context) {
     DNOTREACHED();
@@ -330,7 +331,7 @@ common::Error ValueFromReplay(redisReply* r, common::Value** out) {
 }
 
 common::Error ExecRedisCommand(NativeConnection* c,
-                               int argc,
+                               size_t argc,
                                const char** argv,
                                const size_t* argvlen,
                                redisReply** out_reply) {
@@ -339,7 +340,7 @@ common::Error ExecRedisCommand(NativeConnection* c,
     return common::make_error("Not connected");
   }
 
-  if (argc <= 0 || !argv || !out_reply) {
+  if (argc == 0 || !argv || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
   }
@@ -418,38 +419,35 @@ common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& comm
     return common::make_error_inval();
   }
 
-  readable_string_t stabled_command = StableCommand(command);
-  if (stabled_command.empty()) {
-    DNOTREACHED();
+  commands_args_t standart_argv;
+  if (!ParseCommandLine(command, &standart_argv)) {
     return common::make_error_inval();
   }
 
-  int argc = 0;
-  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
-  if (!argv) {
-    DNOTREACHED();
-    return common::make_error_inval();
-  }
+  size_t argc = standart_argv.size();
+  void* raw_argvlen_ptr = malloc(argc * sizeof(size_t));
+  void* raw_argv_ptr = malloc(argc * sizeof(char*));
 
-  void* raw_argvlen_ptr = malloc(static_cast<size_t>(argc) * sizeof(size_t));
   size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
-  for (int i = 0; i < argc; ++i) {
-    argvlen[i] = sdslen(argv[i]);
+  const char** argv = reinterpret_cast<const char**>(raw_argv_ptr);
+  for (size_t i = 0; i < argc; ++i) {
+    argv[i] = standart_argv[i].data();
+    argvlen[i] = standart_argv[i].size();
   }
 
-  common::Error err = ExecRedisCommand(c, argc, const_cast<const char**>(argv), argvlen, out_reply);
-  sdsfreesplitres(argv, argc);
+  common::Error err = ExecRedisCommand(c, argc, argv, argvlen, out_reply);
+  free(raw_argv_ptr);
   free(raw_argvlen_ptr);
   return err;
 }
 
-common::Error AuthContext(NativeConnection* context, const command_buffer_t& auth_str) {
-  if (auth_str.empty()) {
+common::Error AuthContext(NativeConnection* context, const command_buffer_t& password) {
+  if (password.empty()) {
     return common::Error();
   }
 
   redisReply* reply = nullptr;
-  const commands_args_t cmds = {GEN_CMD_STRING("AUTH"), auth_str};
+  const commands_args_t cmds = {GEN_CMD_STRING("AUTH"), password};
   common::Error err = ExecRedisCommand(context, cmds, &reply);
   if (err) {
     return err;
@@ -607,8 +605,9 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
     return err;
   }
 
-  key_t key_str = key.GetKey();
-  value_t value_str = arr.GetValue();
+  const auto key_str = key.GetKey();
+  const auto value_str = arr.GetReadableValue();
+
   command_buffer_writer_t wr;
   wr << "LPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
 
@@ -652,8 +651,9 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
     return err;
   }
 
-  key_t key_str = key.GetKey();
-  value_t value_str = arr.GetValue();
+  const auto key_str = key.GetKey();
+  const auto value_str = arr.GetReadableValue();
+
   command_buffer_writer_t wr;
   wr << "RPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
 
@@ -1708,9 +1708,9 @@ common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* paylo
 
 template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
-                                                       const command_buffer_t& pattern,
+                                                       const pattern_t& pattern,
                                                        keys_limit_t count_keys,
-                                                       keys_t* keys_out,
+                                                       raw_keys_t* keys_out,
                                                        cursor_t* cursor_out) {
   const command_buffer_t pattern_result = GetKeysPattern(cursor_in, pattern, count_keys);
   redisReply* reply = nullptr;
@@ -1767,10 +1767,10 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::KeysImpl(const command_buffer_t& key_start,
-                                                       const command_buffer_t& key_end,
+common::Error DBConnection<Config, ContType>::KeysImpl(const raw_key_t& key_start,
+                                                       const raw_key_t& key_end,
                                                        keys_limit_t limit,
-                                                       keys_t* ret) {
+                                                       raw_keys_t* ret) {
   UNUSED(key_start);
   UNUSED(key_end);
   UNUSED(limit);
@@ -1988,7 +1988,7 @@ common::Error DBConnection<Config, ContType>::QuitImpl() {
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
+common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(db_names_t* dbs) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t get_dbs_cmd;
   common::Error err = tran->GetDatabasesCommand(&get_dbs_cmd);
@@ -2043,21 +2043,28 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
       log_command_cb(cmd);
     }
 
-    std::string command_str = common::ConvertToString(command);
-    int argc = 0;
-    sds* argv = sdssplitargslong(command_str.c_str(), &argc);
-    if (argv) {
-      if (IsPipeLineCommand(argv[0])) {
-        valid_cmds.push_back(cmd);
-        void* raw_argvlen_ptr = malloc(static_cast<size_t>(argc) * sizeof(size_t));
-        size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
-        for (int i = 0; i < argc; ++i) {
-          argvlen[i] = sdslen(argv[i]);
-        }
-        redisAppendCommandArgv(base_class::connection_.handle_, argc, const_cast<const char**>(argv), argvlen);
-        free(raw_argvlen_ptr);
+    commands_args_t standart_argv;
+    if (!ParseCommandLine(command, &standart_argv)) {
+      return common::make_error_inval();
+    }
+
+    if (IsPipeLineCommand(standart_argv[0].data())) {
+      valid_cmds.push_back(cmd);
+
+      size_t argc = standart_argv.size();
+      void* raw_argvlen_ptr = malloc(argc * sizeof(size_t));
+      void* raw_argv_ptr = malloc(argc * sizeof(char*));
+
+      size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
+      const char** argv = reinterpret_cast<const char**>(raw_argv_ptr);
+      for (size_t i = 0; i < argc; ++i) {
+        argv[i] = standart_argv[i].data();
+        argvlen[i] = standart_argv[i].size();
       }
-      sdsfreesplitres(argv, argc);
+
+      redisAppendCommandArgv(base_class::connection_.handle_, argc, argv, argvlen);
+      free(raw_argv_ptr);
+      free(raw_argvlen_ptr);
     }
   }
 

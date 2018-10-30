@@ -89,7 +89,6 @@ class ICommandTranslator {
   common::Error LoadKeyTTLCommand(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   bool IsLoadKeyCommand(const command_buffer_t& cmd, command_buffer_t* key) const WARN_UNUSED_RESULT;
-  bool IsLoadKeyCommand(const readable_string_t& stabled_cmd, command_buffer_t* key) const WARN_UNUSED_RESULT;
 
   common::Error PublishCommand(const NDbPSChannel& channel,
                                const std::string& message,
@@ -103,7 +102,7 @@ class ICommandTranslator {
   common::Error FindCommand(commands_args_t argv, const CommandHolder** info, size_t* off) const WARN_UNUSED_RESULT;
 
   common::Error TestCommandArgs(const CommandHolder* cmd, commands_args_t argv) const WARN_UNUSED_RESULT;
-  common::Error TestCommandLine(const readable_string_t& stabled_command) const WARN_UNUSED_RESULT;
+  common::Error TestCommandLine(const command_buffer_t& cmd) const WARN_UNUSED_RESULT;
   common::Error TestCommandLineArgs(commands_args_t argv,
                                     const CommandHolder** info,
                                     size_t* off) const WARN_UNUSED_RESULT;

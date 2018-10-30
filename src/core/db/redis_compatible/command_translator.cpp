@@ -123,10 +123,11 @@ common::Error CommandTranslator::Mset(const std::vector<NDbKValue>& keys, comman
   command_buffer_writer_t wr;
   wr << REDIS_MSET;
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i].GetKey();
-    key_t key_str = key.GetKey();
-    NValue value = keys[i].GetValue();
-    value_t value_str = value.GetValue();
+    const NKey key = keys[i].GetKey();
+    const auto key_str = key.GetKey();
+    const NValue value = keys[i].GetValue();
+    const auto value_str = value.GetReadableValue();
+
     wr << SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   }
   *cmdstring = wr.str();
@@ -141,10 +142,11 @@ common::Error CommandTranslator::MsetNX(const std::vector<NDbKValue>& keys, comm
   command_buffer_writer_t wr;
   wr << REDIS_MSETNX;
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i].GetKey();
-    key_t key_str = key.GetKey();
-    NValue value = keys[i].GetValue();
-    value_t value_str = value.GetValue();
+    const NKey key = keys[i].GetKey();
+    const auto key_str = key.GetKey();
+    const NValue value = keys[i].GetValue();
+    const auto value_str = value.GetReadableValue();
+
     wr << SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   }
   *cmdstring = wr.str();
@@ -197,9 +199,10 @@ common::Error CommandTranslator::SetEx(const NDbKValue& key, ttl_t ttl, command_
   }
 
   const NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
   command_buffer_writer_t wr;
   wr << REDIS_SETEX SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(ttl) << SPACE_STR
      << value_str.GetForCommandLine();
@@ -213,9 +216,10 @@ common::Error CommandTranslator::SetNX(const NDbKValue& key, command_buffer_t* c
   }
 
   const NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
   command_buffer_writer_t wr;
   wr << REDIS_SETNX SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -330,9 +334,10 @@ common::Error CommandTranslator::PTTL(const NKey& key, command_buffer_t* cmdstri
 
 common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   const NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
   command_buffer_writer_t wr;
   common::Value::Type type = key.GetType();
 

@@ -339,31 +339,27 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t& key) {
-  command_buffer_t exist_key;
+common::Error DBConnection::DelInner(const raw_key_t& key) {
+  raw_value_t exist_key;
   common::Error err = GetInner(key, &exist_key);
   if (err) {
     return err;
   }
 
-  const auto key_str = key.GetData();
-  const ::leveldb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
+  const ::leveldb::Slice key_slice(key.data(), key.size());
   ::leveldb::WriteOptions wo;
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, connection_.handle_->Delete(wo, key_slice));
 }
 
-common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
-  const auto key_str = key.GetData();
-  const auto value_str = value.GetData();
-  const ::leveldb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
-  const ::leveldb::Slice value_slice(reinterpret_cast<const char*>(value_str.data()), value_str.size());
+common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
+  const ::leveldb::Slice key_slice(key.data(), key.size());
+  const ::leveldb::Slice value_slice(value.data(), value.size());
   ::leveldb::WriteOptions wo;
   return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->Put(wo, key_slice, value_slice));
 }
 
-common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
-  const auto key_str = key.GetData();
-  const ::leveldb::Slice key_slice(reinterpret_cast<const char*>(key_str.data()), key_str.size());
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
+  const ::leveldb::Slice key_slice(key.data(), key.size());
   ::leveldb::ReadOptions ro;
   std::string ret;
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->Get(ro, key_slice, &ret));
@@ -376,18 +372,18 @@ common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const command_buffer_t& pattern,
+                                     const pattern_t& pattern,
                                      keys_limit_t count_keys,
-                                     keys_t* keys_out,
+                                     raw_keys_t* keys_out,
                                      cursor_t* cursor_out) {
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);
   uint64_t offset_pos = cursor_in;
   cursor_t lcursor_out = 0;
-  std::vector<command_buffer_t> lkeys_out;
+  raw_keys_t lkeys_out;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     const ::leveldb::Slice key_slice = it->key();
-    command_buffer_t key = GEN_CMD_STRING_SIZE(key_slice.data(), key_slice.size());
+    raw_key_t key = GEN_CMD_STRING_SIZE(key_slice.data(), key_slice.size());
     if (lkeys_out.size() < count_keys) {
       if (common::MatchPattern(key, pattern)) {
         if (offset_pos == 0) {
@@ -415,16 +411,16 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
-                                     const command_buffer_t& key_end,
+common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      keys_limit_t limit,
-                                     keys_t* ret) {
+                                     raw_keys_t* ret) {
   ::leveldb::Slice key_start_slice(key_start.data(), key_start.size());
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
   for (it->Seek(key_start_slice); it->Valid(); it->Next()) {
     auto slice = it->key();
-    command_buffer_t key = GEN_CMD_STRING_SIZE(slice.data(), slice.size());
+    raw_key_t key = GEN_CMD_STRING_SIZE(slice.data(), slice.size());
     if (ret->size() < limit) {
       if (key < key_end) {
         ret->push_back(key);
@@ -479,7 +475,7 @@ common::Error DBConnection::FlushDBImpl() {
   return CheckResultCommand(DB_FLUSHDB_COMMAND, st);
 }
 
-common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   if (name != GetCurrentDBName()) {
     return ICommandTranslator::InvalidInputArguments(GEN_CMD_STRING(DB_SELECTDB_COMMAND));
   }
@@ -493,9 +489,10 @@ common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** 
 
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i];
-    key_t key_str = key.GetKey();
-    common::Error err = DelInner(key_str);
+    const NKey key = keys[i];
+    const auto key_str = key.GetKey();
+
+    common::Error err = DelInner(key_str.GetData());
     if (err) {
       continue;
     }
@@ -507,11 +504,12 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
-  NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
-  common::Error err = SetInner(key_str, value_str);
+  const NKey cur = key.GetKey();
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
+  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
   if (err) {
     return err;
   }
@@ -521,9 +519,10 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const auto key_str = key.GetKey();
+
+  raw_value_t value_str;
+  common::Error err = GetInner(key_str.GetData(), &value_str);
   if (err) {
     return err;
   }
@@ -534,24 +533,22 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const key_t key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
+
+  raw_value_t value_str;
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
 
-  err = DelInner(key_str);
+  err = DelInner(rkey);
   if (err) {
     return err;
   }
 
-  err = SetInner(new_key, value_str);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  const raw_key_t nkey = new_key.GetData();
+  return SetInner(nkey, value_str);
 }
 
 common::Error DBConnection::QuitImpl() {
@@ -563,7 +560,7 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
   std::vector<std::string> ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();

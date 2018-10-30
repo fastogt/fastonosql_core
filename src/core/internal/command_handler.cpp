@@ -18,10 +18,6 @@
 
 #include <fastonosql/core/internal/command_handler.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <fastonosql/core/command_holder.h>  // for CommandHolder
 
 namespace fastonosql {
@@ -31,25 +27,12 @@ namespace internal {
 CommandHandler::CommandHandler(ICommandTranslator* translator) : translator_(translator) {}
 
 common::Error CommandHandler::Execute(const command_buffer_t& command, FastoObject* out) {
-  readable_string_t stabled_command = StableCommand(command);
-  if (stabled_command.empty()) {
-    DNOTREACHED();
+  commands_args_t standart_argv;
+  if (!ParseCommandLine(command, &standart_argv)) {
     return common::make_error_inval();
   }
 
-  int argc;
-  sds* argv = sdssplitargslong(stabled_command.data(), &argc);
-  if (!argv) {
-    return common::make_error_inval();
-  }
-
-  commands_args_t argvv;
-  for (int i = 0; i < argc; ++i) {
-    argvv.push_back(GEN_CMD_STRING_SIZE(argv[i], sdslen(argv[i])));
-  }
-  common::Error err = Execute(argvv, out);
-  sdsfreesplitres(argv, argc);
-  return err;
+  return Execute(standart_argv, out);
 }
 
 common::Error CommandHandler::Execute(commands_args_t argv, FastoObject* out) {

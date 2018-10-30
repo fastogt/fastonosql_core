@@ -41,7 +41,6 @@ COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= EXPIRED_TTL && EXPIRED_TTL >
                "EXPIRED_TTL define must be in ttl type range");
 
 typedef ReadableString key_t;
-typedef ReadableString value_t;
 
 class NKey {
  public:
@@ -83,7 +82,7 @@ class NValue : public common::ValueSPtr {
 
   explicit NValue(const base_class& other);
 
-  value_t GetValue(const std::string& delimiter = DEFAULT_DELIMITER) const;
+  ReadableString GetReadableValue(const std::string& delimiter = DEFAULT_DELIMITER) const;
 };
 
 class NDbKValue {

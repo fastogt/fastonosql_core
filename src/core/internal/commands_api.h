@@ -102,7 +102,7 @@ common::Error ApiTraits<CDBConnection>::Scan(internal::CommandHandler* handler,
   }
 
   cursor_t cursor_out = 0;
-  typename CDBConnection::keys_t keys_out;
+  typename CDBConnection::raw_keys_t keys_out;
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
 
   common::Error err = cdb->Scan(cursor_in, pattern, count_keys, &keys_out, &cursor_out);
@@ -137,7 +137,7 @@ common::Error ApiTraits<CDBConnection>::Keys(internal::CommandHandler* handler,
     return common::make_error_inval();
   }
 
-  typename CDBConnection::keys_t keysout;
+  typename CDBConnection::raw_keys_t keysout;
   common::Error err = cdb->Keys(argv[0], argv[1], limit, &keysout);
   if (err) {
     return err;

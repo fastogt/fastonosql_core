@@ -637,11 +637,6 @@ template <>
 const ConstantCommandsArray& ConnectionCommandsTraits<SSDB>::GetCommands() {
   return ssdb::kCommands;
 }
-namespace {
-std::string ConvertToSSDBSlice(const key_t& key) {
-  return common::ConvertToString(key.GetData());
-}
-}  // namespace
 namespace internal {
 template <>
 common::Error ConnectionAllocatorTraits<ssdb::NativeConnection, ssdb::Config>::Connect(const ssdb::Config& config,
@@ -849,26 +844,26 @@ common::Error DBConnection::Setx(const raw_key_t& key, const raw_value_t& value,
   return CheckResultCommand("SETX", connection_.handle_->setx(key, value, static_cast<int>(ttl)));
 }
 
-common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
-  const std::string key_slice = ConvertToSSDBSlice(key);
-  const std::string value_str = common::ConvertToString(value.GetData());
+common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
+  const std::string key_slice = common::ConvertToString(key);
+  const std::string value_str = common::ConvertToString(value);
   return CheckResultCommand(DB_SET_KEY_COMMAND, connection_.handle_->set(key_slice, value_str));
 }
 
-common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
-  const std::string key_slice = ConvertToSSDBSlice(key);
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
+  const std::string key_slice = common::ConvertToString(key);
   std::string ret_str;
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, connection_.handle_->get(key_slice, &ret_str));
   if (err) {
     return err;
   }
 
-  *ret_val = common::ConvertToCharBytes(ret_str);
+  *ret_val = ret_str;
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t& key) {
-  const std::string key_slice = ConvertToSSDBSlice(key);
+common::Error DBConnection::DelInner(const raw_key_t& key) {
+  const std::string key_slice = common::ConvertToString(key);
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, connection_.handle_->del(key_slice));
 }
 
@@ -1453,7 +1448,7 @@ common::Error DBConnection::Expire(key_t key, ttl_t ttl) {
     return err;
   }
 
-  const std::string key_slice = ConvertToSSDBSlice(key);
+  const std::string key_slice = common::ConvertToString(key.GetData());
   return CheckResultCommand(DB_SET_TTL_COMMAND, connection_.handle_->expire(key_slice, static_cast<int>(ttl)));
 }
 
@@ -1469,7 +1464,7 @@ common::Error DBConnection::TTL(key_t key, ttl_t* ttl) {
   }
 
   int lttl = 0;
-  const std::string key_slice = ConvertToSSDBSlice(key);
+  const std::string key_slice = common::ConvertToString(key.GetData());
   err = CheckResultCommand(DB_GET_TTL_COMMAND, connection_.handle_->ttl(key_slice, &lttl));
   if (err) {
     return err;
@@ -1485,9 +1480,9 @@ common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const command_buffer_t& pattern,
+                                     const pattern_t& pattern,
                                      keys_limit_t count_keys,
-                                     keys_t* keys_out,
+                                     raw_keys_t* keys_out,
                                      cursor_t* cursor_out) {
   std::vector<std::string> ret;
   common::Error err =
@@ -1523,7 +1518,7 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
 common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
                                      const command_buffer_t& key_end,
                                      keys_limit_t limit,
-                                     keys_t* ret) {
+                                     raw_keys_t* ret) {
   std::vector<std::string> ret_keys;
   const std::string kstart = common::ConvertToString(key_start);
   const std::string kend = common::ConvertToString(key_end);
@@ -1562,7 +1557,7 @@ common::Error DBConnection::FlushDBImpl() {
 
   for (size_t i = 0; i < ret.size(); ++i) {
     key_t key(ret[i]);
-    common::Error err = DelInner(key);
+    common::Error err = DelInner(common::ConvertToString(key.GetData()));
     if (err) {
       return err;
     }
@@ -1587,7 +1582,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     key_t key_str = key.GetKey();
-    common::Error err = DelInner(key_str);
+    common::Error err = DelInner(common::ConvertToString(key_str.GetData()));
     if (err) {
       continue;
     }
@@ -1600,26 +1595,31 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   const key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const raw_key_t rkey = common::ConvertToString(key_str.GetData());
+
+  raw_value_t value_str;
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
 
-  err = DelInner(key_str);
+  err = DelInner(rkey);
   if (err) {
     return err;
   }
 
-  return SetInner(new_key, value_str);
+  const raw_key_t nkey = common::ConvertToString(new_key.GetData());
+  return SetInner(nkey, value_str);
 }
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   const NKey cur = key.GetKey();
-  const key_t key_str = cur.GetKey();
+  const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const value_t value_str = value.GetValue();
-  common::Error err = SetInner(key_str, value_str);
+  const auto value_str = value.GetReadableValue();
+
+  common::Error err =
+      SetInner(common::ConvertToString(key_str.GetData()), common::ConvertToString(value_str.GetData()));
   if (err) {
     return err;
   }
@@ -1630,13 +1630,14 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   const key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+
+  raw_value_t value_str;
+  common::Error err = GetInner(common::ConvertToString(key_str.GetData()), &value_str);
   if (err) {
     return err;
   }
 
-  NValue val(common::Value::CreateStringValue(value_str));
+  NValue val(common::Value::CreateStringValueFromBasicString(value_str));
   *loaded_key = NDbKValue(key, val);
   return common::Error();
 }

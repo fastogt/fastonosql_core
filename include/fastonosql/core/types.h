@@ -43,7 +43,6 @@ typedef uint32_t keys_limit_t;  // UIntegerValue
 typedef keys_limit_t cursor_t;
 
 bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out);
-readable_string_t StableCommand(const command_buffer_t& command);
 
 namespace detail {
 bool is_binary_data(const readable_string_data_t& data);

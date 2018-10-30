@@ -45,19 +45,19 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UNQLITE> {
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 
-  common::Error DelInner(const key_t& key) WARN_UNUSED_RESULT;
-  common::Error SetInner(const key_t& key, const value_t& value) WARN_UNUSED_RESULT;
-  common::Error GetInner(const key_t& key, command_buffer_t* ret_val) WARN_UNUSED_RESULT;
+  common::Error DelInner(const raw_key_t& key) WARN_UNUSED_RESULT;
+  common::Error SetInner(const raw_key_t& key, const raw_value_t& value) WARN_UNUSED_RESULT;
+  common::Error GetInner(const raw_key_t& key, raw_value_t* ret_val) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const command_buffer_t& pattern,
+                                 const pattern_t& pattern,
                                  keys_limit_t count_keys,
-                                 keys_t* keys_out,
+                                 raw_keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const command_buffer_t& key_start,
-                                 const command_buffer_t& key_end,
+  virtual common::Error KeysImpl(const raw_key_t& key_start,
+                                 const raw_key_t& key_end,
                                  keys_limit_t limit,
-                                 std::vector<command_buffer_t>* out) override;
+                                 raw_keys_t* out) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;
@@ -66,7 +66,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UNQLITE> {
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<std::string>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
 };
 
 }  // namespace unqlite

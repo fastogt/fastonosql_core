@@ -419,43 +419,38 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   return common::Error();
 }
 
-common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
-  const auto key_slice = key.GetData();
-  const auto value_raw = value.GetData();
-  return CheckResultCommand(DB_SET_KEY_COMMAND, fdb_set_kv(connection_.handle_->kvs, key_slice.data(), key_slice.size(),
-                                                           value_raw.data(), value_raw.size()));
+common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
+  return CheckResultCommand(DB_SET_KEY_COMMAND,
+                            fdb_set_kv(connection_.handle_->kvs, key.data(), key.size(), value.data(), value.size()));
 }
 
-common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
-  const auto key_slice = key.GetData();
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
   void* value_out = nullptr;
   size_t valuelen_out = 0;
-  common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, fdb_get_kv(connection_.handle_->kvs, key_slice.data(),
-                                                                        key_slice.size(), &value_out, &valuelen_out));
+  common::Error err = CheckResultCommand(
+      DB_GET_KEY_COMMAND, fdb_get_kv(connection_.handle_->kvs, key.data(), key.size(), &value_out, &valuelen_out));
   if (err) {
     return err;
   }
 
-  *ret_val = GEN_CMD_STRING_SIZE(reinterpret_cast<const char*>(value_out), valuelen_out);
+  *ret_val = GEN_CMD_STRING_SIZE(static_cast<const raw_value_t::value_type*>(value_out), valuelen_out);
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t& key) {
+common::Error DBConnection::DelInner(const raw_key_t& key) {
   command_buffer_t exist_key;
   common::Error err = GetInner(key, &exist_key);
   if (err) {
     return err;
   }
 
-  const auto key_slice = key.GetData();
-  return CheckResultCommand(DB_DELETE_KEY_COMMAND,
-                            fdb_del_kv(connection_.handle_->kvs, key_slice.data(), key_slice.size()));
+  return CheckResultCommand(DB_DELETE_KEY_COMMAND, fdb_del_kv(connection_.handle_->kvs, key.data(), key.size()));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const command_buffer_t& pattern,
+                                     const pattern_t& pattern,
                                      keys_limit_t count_keys,
-                                     keys_t* keys_out,
+                                     raw_keys_t* keys_out,
                                      cursor_t* cursor_out) {
   fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
@@ -498,10 +493,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
-                                     const command_buffer_t& key_end,
+common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      keys_limit_t limit,
-                                     keys_t* ret) {
+                                     raw_keys_t* ret) {
   fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
   common::Error err =
@@ -630,10 +625,11 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   const NKey cur = key.GetKey();
-  key_t key_str = cur.GetKey();
-  NValue value = key.GetValue();
-  value_t value_str = value.GetValue();
-  common::Error err = SetInner(key_str, value_str);
+  const auto key_str = cur.GetKey();
+  const NValue value = key.GetValue();
+  const auto value_str = value.GetReadableValue();
+
+  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
   if (err) {
     return err;
   }
@@ -643,9 +639,10 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const key_t key_str = key.GetKey();
+
+  raw_value_t value_str;
+  common::Error err = GetInner(key_str.GetData(), &value_str);
   if (err) {
     return err;
   }
@@ -657,9 +654,10 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
-    NKey key = keys[i];
-    key_t key_str = key.GetKey();
-    common::Error err = DelInner(key_str);
+    const NKey key = keys[i];
+    const key_t key_str = key.GetKey();
+
+    common::Error err = DelInner(key_str.GetData());
     if (err) {
       continue;
     }
@@ -671,24 +669,22 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const key_t key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
+
+  raw_value_t value_str;
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
 
-  err = DelInner(key_str);
+  err = DelInner(rkey);
   if (err) {
     return err;
   }
 
-  err = SetInner(new_key, value_str);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  const raw_key_t nkey = new_key.GetData();
+  return SetInner(nkey, value_str);
 }
 
 common::Error DBConnection::QuitImpl() {
@@ -700,7 +696,7 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
   fdb_kvs_name_list forestdb_dbs;
   common::Error err =
       CheckResultCommand("CONFIG GET DATABASES", fdb_get_kvs_name_list(connection_.handle_->handle, &forestdb_dbs));

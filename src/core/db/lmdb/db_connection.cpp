@@ -522,11 +522,9 @@ common::Error DBConnection::DropDatabase() {
   return CheckResultCommand(LMDB_DROPDB_COMMAND, mdb_txn_commit(txn));
 }
 
-common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
-  const auto key_str = key.GetData();
-  const auto value_str = value.GetData();
-  MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
-  MDB_val val_slice = ConvertToLMDBSlice(value_str.data(), value_str.size());
+common::Error DBConnection::SetInner(const raw_value_t& key, const raw_value_t& value) {
+  MDB_val key_slice = ConvertToLMDBSlice(key.data(), key.size());
+  MDB_val val_slice = ConvertToLMDBSlice(value.data(), value.size());
 
   MDB_txn* txn = nullptr;
   auto conf = GetConfig();
@@ -546,9 +544,8 @@ common::Error DBConnection::SetInner(const key_t& key, const value_t& value) {
   return CheckResultCommand(DB_SET_KEY_COMMAND, mdb_txn_commit(txn));
 }
 
-common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val) {
-  const auto key_str = key.GetData();
-  MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
+  MDB_val key_slice = ConvertToLMDBSlice(key.data(), key.size());
   MDB_val mval;
 
   MDB_txn* txn = nullptr;
@@ -564,13 +561,12 @@ common::Error DBConnection::GetInner(const key_t& key, command_buffer_t* ret_val
     return err;
   }
 
-  *ret_val = GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_t::value_type*>(mval.mv_data), mval.mv_size);
+  *ret_val = GEN_CMD_STRING_SIZE(reinterpret_cast<const raw_value_t::value_type*>(mval.mv_data), mval.mv_size);
   return common::Error();
 }
 
-common::Error DBConnection::DelInner(const key_t& key) {
-  const auto key_str = key.GetData();
-  MDB_val key_slice = ConvertToLMDBSlice(key_str.data(), key_str.size());
+common::Error DBConnection::DelInner(const raw_key_t& key) {
+  MDB_val key_slice = ConvertToLMDBSlice(key.data(), key.size());
 
   MDB_txn* txn = nullptr;
   auto conf = GetConfig();
@@ -592,9 +588,9 @@ common::Error DBConnection::DelInner(const key_t& key) {
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
-                                     const command_buffer_t& pattern,
+                                     const pattern_t& pattern,
                                      keys_limit_t count_keys,
-                                     keys_t* keys_out,
+                                     raw_keys_t* keys_out,
                                      cursor_t* cursor_out) {
   MDB_cursor* cursor = nullptr;
   MDB_txn* txn = nullptr;
@@ -618,7 +614,7 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
     if (lkeys_out.size() < count_keys) {
       command_buffer_t skey =
-          GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_t::value_type*>(key.mv_data), key.mv_size);
+          GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_char_t*>(key.mv_data), key.mv_size);
       if (common::MatchPattern(skey, pattern)) {
         if (offset_pos == 0) {
           lkeys_out.push_back(skey);
@@ -639,10 +635,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
-                                     const command_buffer_t& key_end,
+common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      keys_limit_t limit,
-                                     keys_t* ret) {
+                                     raw_keys_t* ret) {
   MDB_cursor* cursor = nullptr;
   MDB_txn* txn = nullptr;
   common::Error err =
@@ -703,7 +699,7 @@ common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
 common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = reinterpret_cast<const char*>(name.data());
+  const char* db_name = name.data();
   common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, lmdb_create_db(connection_.handle_, db_name, env_flags));
   if (err) {
     return err;
@@ -716,7 +712,7 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
 common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = reinterpret_cast<const char*>(name.data());
+  const char* db_name = name.data();
   common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, lmdb_remove_db(connection_.handle_, db_name, env_flags));
   if (err) {
     return err;
@@ -769,7 +765,7 @@ common::Error DBConnection::FlushDBImpl() {
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = reinterpret_cast<const char*>(name.data());
+  const char* db_name = name.data();
   common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, lmdb_select(connection_.handle_, db_name, env_flags));
   if (err) {
     return err;
@@ -785,10 +781,11 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 
 common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
   const NKey cur = key.GetKey();
-  const key_t key_str = cur.GetKey();
+  const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const value_t value_str = value.GetValue();
-  common::Error err = SetInner(key_str, value_str);
+  const auto value_str = value.GetReadableValue();
+
+  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
   if (err) {
     return err;
   }
@@ -798,9 +795,10 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
   command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
@@ -813,8 +811,10 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
-    key_t key_str = key.GetKey();
-    common::Error err = DelInner(key_str);
+    const auto key_str = key.GetKey();
+    const raw_key_t rkey = key_str.GetData();
+
+    common::Error err = DelInner(rkey);
     if (err) {
       continue;
     }
@@ -826,24 +826,21 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  key_t key_str = key.GetKey();
-  command_buffer_t value_str;
-  common::Error err = GetInner(key_str, &value_str);
+  const auto key_str = key.GetKey();
+  const raw_key_t rkey = key_str.GetData();
+  raw_value_t value_str;
+  common::Error err = GetInner(rkey, &value_str);
   if (err) {
     return err;
   }
 
-  err = DelInner(key_str);
+  err = DelInner(rkey);
   if (err) {
     return err;
   }
 
-  err = SetInner(new_key, value_str);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
+  const raw_key_t new_rkey = new_key.GetData();
+  return SetInner(new_rkey, value_str);
 }
 
 common::Error DBConnection::QuitImpl() {
@@ -855,7 +852,7 @@ common::Error DBConnection::QuitImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) {
+common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
   MDB_dbi ldbi = 0;
   {
     MDB_txn* txn = nullptr;
@@ -891,7 +888,7 @@ common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) 
   MDB_val key;
   MDB_val data;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
-    db_name_t skey(reinterpret_cast<const char*>(key.mv_data), key.mv_size);
+    db_name_t skey(reinterpret_cast<const db_name_t::value_type*>(key.mv_data), key.mv_size);
     // std::string sdata(reinterpret_cast<const char*>(data.mv_data),
     // data.mv_size);
     dbs->push_back(skey);

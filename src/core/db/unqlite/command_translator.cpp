@@ -37,9 +37,10 @@ const char* CommandTranslator::GetDBName() const {
 
 common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   const NKey cur = key.GetKey();
-  const key_t key_str = cur.GetKey();
+  const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const value_t value_str = value.GetValue();
+  const auto value_str = value.GetReadableValue();
+
   command_buffer_writer_t wr;
   wr << UNQLITE_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
   *cmdstring = wr.str();

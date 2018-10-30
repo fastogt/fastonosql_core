@@ -41,13 +41,12 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
 
   common::Error Info(const command_buffer_t& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
 
-  common::Error AddIfNotExist(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
+  common::Error AddIfNotExist(const NKey& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
-  common::Error Replace(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
+  common::Error Replace(const NKey& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
-  common::Error Append(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
-      WARN_UNUSED_RESULT;
-  common::Error Prepend(const NKey& key, const command_buffer_t& value, time_t expiration, uint32_t flags)
+  common::Error Append(const NKey& key, const raw_value_t& value, time_t expiration, uint32_t flags) WARN_UNUSED_RESULT;
+  common::Error Prepend(const NKey& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
   common::Error Incr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
   common::Error Decr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
@@ -57,20 +56,22 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 
-  common::Error DelInner(const key_t& key, time_t expiration) WARN_UNUSED_RESULT;
-  common::Error GetInner(const key_t& key, command_buffer_t* ret_val) WARN_UNUSED_RESULT;
-  common::Error SetInner(const key_t& key, const value_t& value, time_t expiration, uint32_t flags) WARN_UNUSED_RESULT;
-  common::Error ExpireInner(key_t key, ttl_t expiration) WARN_UNUSED_RESULT;
+  common::Error DelInner(const raw_key_t& key, time_t expiration) WARN_UNUSED_RESULT;
+  common::Error GetInner(const raw_key_t& key, raw_value_t* ret_val) WARN_UNUSED_RESULT;
+  common::Error SetInner(const raw_key_t& key, const raw_value_t& value, time_t expiration, uint32_t flags)
+      WARN_UNUSED_RESULT;
+
+  common::Error ExpireInner(const raw_key_t& key, ttl_t expiration) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const command_buffer_t& pattern,
+                                 const pattern_t& pattern,
                                  keys_limit_t count_keys,
-                                 keys_t* keys_out,
+                                 raw_keys_t* keys_out,
                                  cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const command_buffer_t& key_start,
-                                 const command_buffer_t& key_end,
+  virtual common::Error KeysImpl(const raw_key_t& key_start,
+                                 const raw_key_t& key_end,
                                  keys_limit_t limit,
-                                 keys_t* ret) override;
+                                 raw_keys_t* ret) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
@@ -81,7 +82,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(std::vector<db_name_t>* dbs) override;
+  virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
 
   ServerInfo::Stats current_info_;
 };
