@@ -33,7 +33,7 @@ CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands)
 
 common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const {
   const NKey cur = key.GetKey();
-  const key_t key_str = cur.GetKey();
+  const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
   const auto value_str = value.GetReadableValue();
 

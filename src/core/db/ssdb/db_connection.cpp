@@ -841,7 +841,7 @@ common::Error DBConnection::Setx(const raw_key_t& key, const raw_value_t& value,
     return err;
   }
 
-  return CheckResultCommand("SETX", connection_.handle_->setx(key, value, static_cast<int>(ttl)));
+  return CheckResultCommand("SETX", connection_.handle_->setx(key.data(), value.data(), static_cast<int>(ttl)));
 }
 
 common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
@@ -858,7 +858,7 @@ common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val)
     return err;
   }
 
-  *ret_val = ret_str;
+  *ret_val = common::ConvertToCharBytes(ret_str);
   return common::Error();
 }
 
@@ -878,13 +878,13 @@ common::Error DBConnection::Incr(const raw_key_t& key, int64_t incrby, int64_t* 
     return err;
   }
 
-  return CheckResultCommand("INCR", connection_.handle_->incr(key, incrby, out));
+  return CheckResultCommand("INCR", connection_.handle_->incr(key.data(), incrby, out));
 }
 
 common::Error DBConnection::ScanSsdb(const raw_key_t& key_start,
                                      const raw_key_t& key_end,
                                      uint64_t limit,
-                                     std::vector<raw_key_t>* out) {
+                                     raw_keys_t* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -895,13 +895,22 @@ common::Error DBConnection::ScanSsdb(const raw_key_t& key_start,
     return err;
   }
 
-  return CheckResultCommand(DB_SCAN_COMMAND, connection_.handle_->scan(key_start, key_end, limit, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand(DB_SCAN_COMMAND, connection_.handle_->scan(key_start.data(), key_end.data(), limit, &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
 common::Error DBConnection::Rscan(const raw_key_t& key_start,
                                   const raw_key_t& key_end,
                                   uint64_t limit,
-                                  std::vector<raw_key_t>* out) {
+                                  raw_keys_t* out) {
   if (!out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -912,10 +921,19 @@ common::Error DBConnection::Rscan(const raw_key_t& key_start,
     return err;
   }
 
-  return CheckResultCommand("RSCAN", connection_.handle_->rscan(key_start, key_end, limit, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand("RSCAN", connection_.handle_->rscan(key_start.data(), key_end.data(), limit, &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiGet(const std::vector<std::string>& keys, std::vector<std::string>* out) {
+common::Error DBConnection::MultiGet(const raw_keys_t& keys, raw_values_t* out) {
   if (keys.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -926,10 +944,24 @@ common::Error DBConnection::MultiGet(const std::vector<std::string>& keys, std::
     return err;
   }
 
-  return CheckResultCommand("MULTIGET", connection_.handle_->multi_get(keys, out));
+  std::vector<std::string> stabled_keys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    stabled_keys.push_back(common::ConvertToString(keys[i]));
+  }
+
+  std::vector<std::string> values;
+  err = CheckResultCommand("MULTIGET", connection_.handle_->multi_get(stabled_keys, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiSet(const std::map<std::string, std::string>& kvs) {
+common::Error DBConnection::MultiSet(const std::map<raw_key_t, raw_value_t>& kvs) {
   if (kvs.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -940,10 +972,15 @@ common::Error DBConnection::MultiSet(const std::map<std::string, std::string>& k
     return err;
   }
 
-  return CheckResultCommand("MULTISET", connection_.handle_->multi_set(kvs));
+  std::map<std::string, std::string> stabled_kvs;
+  for (auto it = kvs.begin(); it != kvs.end(); ++it) {
+    stabled_kvs[common::ConvertToString(it->first)] = common::ConvertToString(it->second);
+  }
+
+  return CheckResultCommand("MULTISET", connection_.handle_->multi_set(stabled_kvs));
 }
 
-common::Error DBConnection::MultiDel(const std::vector<std::string>& keys) {
+common::Error DBConnection::MultiDel(const raw_keys_t& keys) {
   if (keys.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -954,10 +991,14 @@ common::Error DBConnection::MultiDel(const std::vector<std::string>& keys) {
     return err;
   }
 
-  return CheckResultCommand("MULTIDEL", connection_.handle_->multi_del(keys));
+  std::vector<std::string> stabled_keys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    stabled_keys.push_back(common::ConvertToString(keys[i]));
+  }
+  return CheckResultCommand("MULTIDEL", connection_.handle_->multi_del(stabled_keys));
 }
 
-common::Error DBConnection::Hget(const std::string& name, const std::string& key, std::string* out) {
+common::Error DBConnection::Hget(const raw_key_t& name, const raw_key_t& key, raw_value_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -968,10 +1009,17 @@ common::Error DBConnection::Hget(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("HGET", connection_.handle_->hget(name, key, out));
+  std::string res;
+  err = CheckResultCommand("HGET", connection_.handle_->hget(name.data(), key.data(), &res));
+  if (err) {
+    return err;
+  }
+
+  *out = common::ConvertToCharBytes(res);
+  return common::Error();
 }
 
-common::Error DBConnection::Hgetall(const std::string& name, std::vector<std::string>* out) {
+common::Error DBConnection::Hgetall(const raw_key_t& name, raw_keys_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -982,10 +1030,19 @@ common::Error DBConnection::Hgetall(const std::string& name, std::vector<std::st
     return err;
   }
 
-  return CheckResultCommand("HGETALL", connection_.handle_->hgetall(name, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand("HGETALL", connection_.handle_->hgetall(name.data(), &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Hset(const std::string& name, const std::string& key, const std::string& val) {
+common::Error DBConnection::Hset(const raw_key_t& name, const raw_key_t& key, const raw_key_t& val) {
   if (name.empty() || key.empty() || val.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -996,10 +1053,10 @@ common::Error DBConnection::Hset(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("HSET", connection_.handle_->hset(name, key, val));
+  return CheckResultCommand("HSET", connection_.handle_->hset(name.data(), key.data(), val.data()));
 }
 
-common::Error DBConnection::Hdel(const std::string& name, const std::string& key) {
+common::Error DBConnection::Hdel(const raw_key_t& name, const raw_key_t& key) {
   if (name.empty() || key.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1010,10 +1067,10 @@ common::Error DBConnection::Hdel(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("HDEL", connection_.handle_->hdel(name, key));
+  return CheckResultCommand("HDEL", connection_.handle_->hdel(name.data(), key.data()));
 }
 
-common::Error DBConnection::Hincr(const std::string& name, const std::string& key, int64_t incrby, int64_t* out) {
+common::Error DBConnection::Hincr(const raw_key_t& name, const raw_key_t& key, int64_t incrby, int64_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1024,10 +1081,10 @@ common::Error DBConnection::Hincr(const std::string& name, const std::string& ke
     return err;
   }
 
-  return CheckResultCommand("HINCR", connection_.handle_->hincr(name, key, incrby, out));
+  return CheckResultCommand("HINCR", connection_.handle_->hincr(name.data(), key.data(), incrby, out));
 }
 
-common::Error DBConnection::Hsize(const std::string& name, int64_t* out) {
+common::Error DBConnection::Hsize(const raw_key_t& name, int64_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1038,10 +1095,10 @@ common::Error DBConnection::Hsize(const std::string& name, int64_t* out) {
     return err;
   }
 
-  return CheckResultCommand("HSIZE", connection_.handle_->hsize(name, out));
+  return CheckResultCommand("HSIZE", connection_.handle_->hsize(name.data(), out));
 }
 
-common::Error DBConnection::Hclear(const std::string& name, int64_t* out) {
+common::Error DBConnection::Hclear(const raw_key_t& name, int64_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1052,14 +1109,14 @@ common::Error DBConnection::Hclear(const std::string& name, int64_t* out) {
     return err;
   }
 
-  return CheckResultCommand("HCLEAR", connection_.handle_->hclear(name, out));
+  return CheckResultCommand("HCLEAR", connection_.handle_->hclear(name.data(), out));
 }
 
-common::Error DBConnection::Hkeys(const std::string& name,
-                                  const std::string& key_start,
-                                  const std::string& key_end,
+common::Error DBConnection::Hkeys(const raw_key_t& name,
+                                  const raw_key_t& key_start,
+                                  const raw_key_t& key_end,
                                   uint64_t limit,
-                                  std::vector<std::string>* out) {
+                                  raw_keys_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1070,14 +1127,24 @@ common::Error DBConnection::Hkeys(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("HKEYS", connection_.handle_->hkeys(name, key_start, key_end, limit, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand("HKEYS",
+                           connection_.handle_->hkeys(name.data(), key_start.data(), key_end.data(), limit, &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Hscan(const std::string& name,
-                                  const std::string& key_start,
-                                  const std::string& key_end,
+common::Error DBConnection::Hscan(const raw_key_t& name,
+                                  const raw_key_t& key_start,
+                                  const raw_key_t& key_end,
                                   uint64_t limit,
-                                  std::vector<std::string>* out) {
+                                  raw_keys_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1088,14 +1155,24 @@ common::Error DBConnection::Hscan(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("HSCAN", connection_.handle_->hscan(name, key_start, key_end, limit, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand("HSCAN",
+                           connection_.handle_->hscan(name.data(), key_start.data(), key_end.data(), limit, &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Hrscan(const std::string& name,
-                                   const std::string& key_start,
-                                   const std::string& key_end,
+common::Error DBConnection::Hrscan(const raw_key_t& name,
+                                   const raw_key_t& key_start,
+                                   const raw_key_t& key_end,
                                    uint64_t limit,
-                                   std::vector<std::string>* out) {
+                                   raw_keys_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1106,12 +1183,20 @@ common::Error DBConnection::Hrscan(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("HRSCAN", connection_.handle_->hrscan(name, key_start, key_end, limit, out));
+  std::vector<std::string> keys;
+  err = CheckResultCommand("HRSCAN",
+                           connection_.handle_->hrscan(name.data(), key_start.data(), key_end.data(), limit, &keys));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < keys.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(keys[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiHget(const std::string& name,
-                                      const std::vector<std::string>& keys,
-                                      std::vector<std::string>* out) {
+common::Error DBConnection::MultiHget(const raw_key_t& name, const raw_keys_t& keys, raw_values_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1122,10 +1207,24 @@ common::Error DBConnection::MultiHget(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("MULTIHGET", connection_.handle_->multi_hget(name, keys, out));
+  std::vector<std::string> skeys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    skeys.push_back(common::ConvertToString(keys[i]));
+  }
+
+  std::vector<std::string> values;
+  err = CheckResultCommand("MULTIHGET", connection_.handle_->multi_hget(name.data(), skeys, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiHset(const std::string& name, const std::map<std::string, std::string>& keys) {
+common::Error DBConnection::MultiHset(const raw_key_t& name, const std::map<raw_key_t, raw_value_t>& keys) {
   if (name.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1136,10 +1235,14 @@ common::Error DBConnection::MultiHset(const std::string& name, const std::map<st
     return err;
   }
 
-  return CheckResultCommand("MULTIHSET", connection_.handle_->multi_hset(name, keys));
+  std::map<std::string, std::string> skeys;
+  for (auto it = keys.begin(); it != keys.end(); ++it) {
+    skeys[common::ConvertToString(it->first)] = common::ConvertToString(it->second);
+  }
+  return CheckResultCommand("MULTIHSET", connection_.handle_->multi_hset(name.data(), skeys));
 }
 
-common::Error DBConnection::Zget(const std::string& name, const std::string& key, int64_t* out) {
+common::Error DBConnection::Zget(const raw_key_t& name, const raw_key_t& key, int64_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1150,10 +1253,10 @@ common::Error DBConnection::Zget(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("ZGET", connection_.handle_->zget(name, key, out));
+  return CheckResultCommand("ZGET", connection_.handle_->zget(name.data(), key.data(), out));
 }
 
-common::Error DBConnection::Zset(const std::string& name, const std::string& key, int64_t score) {
+common::Error DBConnection::Zset(const raw_key_t& name, const raw_key_t& key, int64_t score) {
   if (name.empty() || key.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1164,10 +1267,10 @@ common::Error DBConnection::Zset(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("ZSET", connection_.handle_->zset(name, key, score));
+  return CheckResultCommand("ZSET", connection_.handle_->zset(name.data(), key.data(), score));
 }
 
-common::Error DBConnection::Zdel(const std::string& name, const std::string& key) {
+common::Error DBConnection::Zdel(const raw_key_t& name, const raw_key_t& key) {
   if (name.empty() || key.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1178,10 +1281,10 @@ common::Error DBConnection::Zdel(const std::string& name, const std::string& key
     return err;
   }
 
-  return CheckResultCommand("ZDEL", connection_.handle_->zdel(name, key));
+  return CheckResultCommand("ZDEL", connection_.handle_->zdel(name.data(), key.data()));
 }
 
-common::Error DBConnection::Zincr(const std::string& name, const std::string& key, int64_t incrby, int64_t* out) {
+common::Error DBConnection::Zincr(const raw_key_t& name, const raw_key_t& key, int64_t incrby, int64_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1192,10 +1295,10 @@ common::Error DBConnection::Zincr(const std::string& name, const std::string& ke
     return err;
   }
 
-  return CheckResultCommand("ZINCR", connection_.handle_->zincr(name, key, incrby, out));
+  return CheckResultCommand("ZINCR", connection_.handle_->zincr(name.data(), key.data(), incrby, out));
 }
 
-common::Error DBConnection::Zsize(const std::string& name, int64_t* out) {
+common::Error DBConnection::Zsize(const raw_key_t& name, int64_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1206,10 +1309,10 @@ common::Error DBConnection::Zsize(const std::string& name, int64_t* out) {
     return err;
   }
 
-  return CheckResultCommand("ZSIZE", connection_.handle_->zsize(name, out));
+  return CheckResultCommand("ZSIZE", connection_.handle_->zsize(name.data(), out));
 }
 
-common::Error DBConnection::Zclear(const std::string& name, int64_t* out) {
+common::Error DBConnection::Zclear(const raw_key_t& name, int64_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1220,10 +1323,10 @@ common::Error DBConnection::Zclear(const std::string& name, int64_t* out) {
     return err;
   }
 
-  return CheckResultCommand("ZCLEAR", connection_.handle_->zclear(name, out));
+  return CheckResultCommand("ZCLEAR", connection_.handle_->zclear(name.data(), out));
 }
 
-common::Error DBConnection::Zrank(const std::string& name, const std::string& key, int64_t* out) {
+common::Error DBConnection::Zrank(const raw_key_t& name, const raw_key_t& key, int64_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1234,10 +1337,10 @@ common::Error DBConnection::Zrank(const std::string& name, const std::string& ke
     return err;
   }
 
-  return CheckResultCommand("ZRANK", connection_.handle_->zrank(name, key, out));
+  return CheckResultCommand("ZRANK", connection_.handle_->zrank(name.data(), key.data(), out));
 }
 
-common::Error DBConnection::Zrrank(const std::string& name, const std::string& key, int64_t* out) {
+common::Error DBConnection::Zrrank(const raw_key_t& name, const raw_key_t& key, int64_t* out) {
   if (name.empty() || key.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1248,13 +1351,10 @@ common::Error DBConnection::Zrrank(const std::string& name, const std::string& k
     return err;
   }
 
-  return CheckResultCommand("ZRRANK", connection_.handle_->zrrank(name, key, out));
+  return CheckResultCommand("ZRRANK", connection_.handle_->zrrank(name.data(), key.data(), out));
 }
 
-common::Error DBConnection::Zrange(const std::string& name,
-                                   uint64_t offset,
-                                   uint64_t limit,
-                                   std::vector<std::string>* out) {
+common::Error DBConnection::Zrange(const raw_key_t& name, uint64_t offset, uint64_t limit, raw_values_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1265,13 +1365,19 @@ common::Error DBConnection::Zrange(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("ZRANGE", connection_.handle_->zrange(name, offset, limit, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand("ZRANGE", connection_.handle_->zrange(name.data(), offset, limit, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Zrrange(const std::string& name,
-                                    uint64_t offset,
-                                    uint64_t limit,
-                                    std::vector<std::string>* out) {
+common::Error DBConnection::Zrrange(const raw_key_t& name, uint64_t offset, uint64_t limit, raw_values_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1282,15 +1388,24 @@ common::Error DBConnection::Zrrange(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("ZRRANGE", connection_.handle_->zrrange(name, offset, limit, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand("ZRRANGE", connection_.handle_->zrrange(name.data(), offset, limit, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Zkeys(const std::string& name,
-                                  const std::string& key_start,
+common::Error DBConnection::Zkeys(const raw_key_t& name,
+                                  const raw_key_t& key_start,
                                   int64_t* score_start,
                                   int64_t* score_end,
                                   uint64_t limit,
-                                  std::vector<std::string>* out) {
+                                  raw_values_t* out) {
   if (name.empty() || !score_start || !score_end || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1301,15 +1416,25 @@ common::Error DBConnection::Zkeys(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("ZKEYS", connection_.handle_->zkeys(name, key_start, score_start, score_end, limit, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand(
+      "ZKEYS", connection_.handle_->zkeys(name.data(), key_start.data(), score_start, score_end, limit, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Zscan(const std::string& name,
-                                  const std::string& key_start,
+common::Error DBConnection::Zscan(const raw_key_t& name,
+                                  const raw_key_t& key_start,
                                   int64_t* score_start,
                                   int64_t* score_end,
                                   uint64_t limit,
-                                  std::vector<std::string>* out) {
+                                  raw_values_t* out) {
   if (name.empty() || !score_start || !score_end || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1320,15 +1445,25 @@ common::Error DBConnection::Zscan(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("ZSCAN", connection_.handle_->zscan(name, key_start, score_start, score_end, limit, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand(
+      "ZSCAN", connection_.handle_->zscan(name.data(), key_start.data(), score_start, score_end, limit, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Zrscan(const std::string& name,
-                                   const std::string& key_start,
+common::Error DBConnection::Zrscan(const raw_key_t& name,
+                                   const raw_key_t& key_start,
                                    int64_t* score_start,
                                    int64_t* score_end,
                                    uint64_t limit,
-                                   std::vector<std::string>* out) {
+                                   raw_values_t* out) {
   if (name.empty() || !score_start || !score_end || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1339,12 +1474,20 @@ common::Error DBConnection::Zrscan(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("ZRSCAN", connection_.handle_->zrscan(name, key_start, score_start, score_end, limit, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand(
+      "ZRSCAN", connection_.handle_->zrscan(name.data(), key_start.data(), score_start, score_end, limit, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiZget(const std::string& name,
-                                      const std::vector<std::string>& keys,
-                                      std::vector<std::string>* out) {
+common::Error DBConnection::MultiZget(const raw_key_t& name, const raw_keys_t& keys, raw_values_t* out) {
   if (name.empty() || keys.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1355,10 +1498,24 @@ common::Error DBConnection::MultiZget(const std::string& name,
     return err;
   }
 
-  return CheckResultCommand("MULTIZGET", connection_.handle_->multi_zget(name, keys, out));
+  std::vector<std::string> skeys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    skeys.push_back(common::ConvertToString(keys[i]));
+  }
+
+  std::vector<std::string> values;
+  err = CheckResultCommand("MULTIZGET", connection_.handle_->multi_zget(name.data(), skeys, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::MultiZset(const std::string& name, const std::map<std::string, int64_t>& kss) {
+common::Error DBConnection::MultiZset(const raw_key_t& name, const std::map<raw_key_t, int64_t>& kss) {
   if (name.empty() || kss.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1369,10 +1526,14 @@ common::Error DBConnection::MultiZset(const std::string& name, const std::map<st
     return err;
   }
 
-  return CheckResultCommand("MULTIZSET", connection_.handle_->multi_zset(name, kss));
+  std::map<std::string, int64_t> stabled_kvs;
+  for (auto it = kss.begin(); it != kss.end(); ++it) {
+    stabled_kvs[common::ConvertToString(it->first)] = it->second;
+  }
+  return CheckResultCommand("MULTIZSET", connection_.handle_->multi_zset(name.data(), stabled_kvs));
 }
 
-common::Error DBConnection::MultiZdel(const std::string& name, const std::vector<std::string>& keys) {
+common::Error DBConnection::MultiZdel(const raw_key_t& name, const raw_keys_t& keys) {
   if (name.empty() || keys.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1383,10 +1544,14 @@ common::Error DBConnection::MultiZdel(const std::string& name, const std::vector
     return err;
   }
 
-  return CheckResultCommand("MULTIZDEL", connection_.handle_->multi_zdel(name, keys));
+  std::vector<std::string> skeys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    skeys.push_back(common::ConvertToString(keys[i]));
+  }
+  return CheckResultCommand("MULTIZDEL", connection_.handle_->multi_zdel(name.data(), skeys));
 }
 
-common::Error DBConnection::Qpush(const std::string& name, const std::string& item) {
+common::Error DBConnection::Qpush(const raw_key_t& name, const raw_key_t& item) {
   if (name.empty() || item.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1397,10 +1562,10 @@ common::Error DBConnection::Qpush(const std::string& name, const std::string& it
     return err;
   }
 
-  return CheckResultCommand("QPUSH", connection_.handle_->qpush(name, item));
+  return CheckResultCommand("QPUSH", connection_.handle_->qpush(name.data(), item.data()));
 }
 
-common::Error DBConnection::Qpop(const std::string& name, std::string* out) {
+common::Error DBConnection::Qpop(const raw_key_t& name, raw_value_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1411,10 +1576,17 @@ common::Error DBConnection::Qpop(const std::string& name, std::string* out) {
     return err;
   }
 
-  return CheckResultCommand("QPOP", connection_.handle_->qpop(name, out));
+  std::string value;
+  err = CheckResultCommand("QPOP", connection_.handle_->qpop(name.data(), &value));
+  if (err) {
+    return err;
+  }
+
+  *out = common::ConvertToCharBytes(value);
+  return common::Error();
 }
 
-common::Error DBConnection::Qslice(const std::string& name, int64_t begin, int64_t end, std::vector<std::string>* out) {
+common::Error DBConnection::Qslice(const raw_key_t& name, int64_t begin, int64_t end, raw_values_t* out) {
   if (name.empty() || !out) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1425,10 +1597,19 @@ common::Error DBConnection::Qslice(const std::string& name, int64_t begin, int64
     return err;
   }
 
-  return CheckResultCommand("QSLICE", connection_.handle_->qslice(name, begin, end, out));
+  std::vector<std::string> values;
+  err = CheckResultCommand("QSLICE", connection_.handle_->qslice(name.data(), begin, end, &values));
+  if (err) {
+    return err;
+  }
+
+  for (size_t i = 0; i < values.size(); ++i) {
+    out->push_back(common::ConvertToCharBytes(values[i]));
+  }
+  return common::Error();
 }
 
-common::Error DBConnection::Qclear(const std::string& name, int64_t* ret) {
+common::Error DBConnection::Qclear(const raw_key_t& name, int64_t* ret) {
   if (name.empty() || !ret) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1439,7 +1620,7 @@ common::Error DBConnection::Qclear(const std::string& name, int64_t* ret) {
     return err;
   }
 
-  return CheckResultCommand("QCLEAR", connection_.handle_->qclear(name, ret));
+  return CheckResultCommand("QCLEAR", connection_.handle_->qclear(name.data(), ret));
 }
 
 common::Error DBConnection::Expire(key_t key, ttl_t ttl) {
@@ -1473,8 +1654,8 @@ common::Error DBConnection::TTL(key_t key, ttl_t* ttl) {
   return common::Error();
 }
 
-common::Error DBConnection::ConfigGetDatabasesImpl(std::vector<std::string>* dbs) {
-  std::vector<std::string> ldbs = {GetCurrentDBName()};
+common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
+  db_names_t ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }
@@ -1493,7 +1674,7 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
 
   cursor_t offset_pos = cursor_in;
   cursor_t lcursor_out = 0;
-  std::vector<command_buffer_t> lkeys_out;
+  raw_keys_t lkeys_out;
   for (size_t i = 0; i < ret.size(); ++i) {
     command_buffer_t key = common::ConvertToCharBytes(ret[i]);
     if (lkeys_out.size() < count_keys) {
@@ -1557,7 +1738,7 @@ common::Error DBConnection::FlushDBImpl() {
 
   for (size_t i = 0; i < ret.size(); ++i) {
     key_t key(ret[i]);
-    common::Error err = DelInner(common::ConvertToString(key.GetData()));
+    common::Error err = DelInner(key.GetData());
     if (err) {
       return err;
     }
@@ -1582,7 +1763,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     NKey key = keys[i];
     key_t key_str = key.GetKey();
-    common::Error err = DelInner(common::ConvertToString(key_str.GetData()));
+    common::Error err = DelInner(key_str.GetData());
     if (err) {
       continue;
     }
@@ -1595,7 +1776,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   const key_t key_str = key.GetKey();
-  const raw_key_t rkey = common::ConvertToString(key_str.GetData());
+  const raw_key_t rkey = key_str.GetData();
 
   raw_value_t value_str;
   common::Error err = GetInner(rkey, &value_str);
@@ -1608,7 +1789,7 @@ common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
     return err;
   }
 
-  const raw_key_t nkey = common::ConvertToString(new_key.GetData());
+  const raw_key_t nkey = new_key.GetData();
   return SetInner(nkey, value_str);
 }
 
@@ -1618,8 +1799,7 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
   const NValue value = key.GetValue();
   const auto value_str = value.GetReadableValue();
 
-  common::Error err =
-      SetInner(common::ConvertToString(key_str.GetData()), common::ConvertToString(value_str.GetData()));
+  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
   if (err) {
     return err;
   }
@@ -1632,12 +1812,12 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   const key_t key_str = key.GetKey();
 
   raw_value_t value_str;
-  common::Error err = GetInner(common::ConvertToString(key_str.GetData()), &value_str);
+  common::Error err = GetInner(key_str.GetData(), &value_str);
   if (err) {
     return err;
   }
 
-  NValue val(common::Value::CreateStringValueFromBasicString(value_str));
+  NValue val(common::Value::CreateStringValue(value_str));
   *loaded_key = NDbKValue(key, val);
   return common::Error();
 }

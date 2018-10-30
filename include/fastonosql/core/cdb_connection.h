@@ -53,6 +53,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   typedef command_buffer_t raw_value_t;
   typedef command_buffer_t pattern_t;
   typedef std::vector<raw_key_t> raw_keys_t;
+  typedef std::vector<raw_value_t> raw_values_t;
   typedef std::string db_name_t;
   typedef std::vector<db_name_t> db_names_t;
 
