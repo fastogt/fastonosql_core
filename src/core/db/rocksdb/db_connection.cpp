@@ -380,11 +380,11 @@ class rocksdb_handle {
     return ::rocksdb::Status::NotFound();
   }
 
-  std::vector<std::string> GetDatabasesNames() const {
-    std::vector<std::string> res;
+  db_names_t GetDatabasesNames() const {
+    db_names_t res;
     for (size_t i = 0; i < handles_.size(); ++i) {
       ::rocksdb::ColumnFamilyHandle* fam = handles_[i];
-      res.push_back(fam->GetName());
+      res.push_back(common::ConvertToCharBytes(fam->GetName()));  // convert from std::string to char bytes
     }
     return res;
   }
@@ -549,9 +549,9 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   return common::Error();
 }
 
-typename DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
+db_name_t DBConnection::GetCurrentDBName() const {
   if (IsConnected()) {
-    return connection_.handle_->GetCurrentDBName();
+    return common::ConvertToCharBytes(connection_.handle_->GetCurrentDBName());
   }
 
   DNOTREACHED();
@@ -739,7 +739,8 @@ common::Error DBConnection::FlushDBImpl() {
 }
 
 common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
-  common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, connection_.handle_->CreateDB(name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, connection_.handle_->CreateDB(db_name));
   if (err) {
     return err;
   }
@@ -749,7 +750,8 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
 }
 
 common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
-  common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, connection_.handle_->RemoveDB(name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, connection_.handle_->RemoveDB(db_name));
   if (err) {
     return err;
   }
@@ -759,7 +761,8 @@ common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** 
 }
 
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
-  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, connection_.handle_->Select(name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, connection_.handle_->Select(db_name));
   if (err) {
     return err;
   }

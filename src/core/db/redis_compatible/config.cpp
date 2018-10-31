@@ -78,7 +78,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 Config::Config(const common::net::HostAndPort& host)
-    : RemoteConfig(host), hostsocket(), db_num(db_num_default), auth(), is_ssl(false) {}
+    : RemoteConfig(host), hostsocket(), db_num(kDefaultDbNum), auth(), is_ssl(false) {}
 
 Config::Config() : Config(common::net::HostAndPort()) {}
 

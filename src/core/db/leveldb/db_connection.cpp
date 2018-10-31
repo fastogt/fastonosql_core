@@ -367,7 +367,7 @@ common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val)
     return err;
   }
 
-  *ret_val = common::ConvertToCharBytes(ret);
+  *ret_val = common::ConvertToCharBytes(ret);  // convert from std::string to char bytes
   return common::Error();
 }
 
@@ -561,7 +561,7 @@ common::Error DBConnection::QuitImpl() {
 }
 
 common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
-  std::vector<std::string> ldbs = {GetCurrentDBName()};
+  db_names_t ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }

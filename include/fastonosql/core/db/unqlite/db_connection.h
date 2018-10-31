@@ -60,7 +60,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UNQLITE> {
                                  raw_keys_t* out) override;
   virtual common::Error DBkcountImpl(keys_limit_t* size) override;
   virtual common::Error FlushDBImpl() override;
-  virtual common::Error SelectImpl(const std::string& name, IDataBaseInfo** info) override;
+  virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;

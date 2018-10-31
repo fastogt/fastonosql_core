@@ -25,7 +25,7 @@ namespace core {
 namespace redis_compatible {
 
 struct Config : public RemoteConfig {
-  enum { db_num_default = 0 };
+  enum { kDefaultDbNum = 0 };
   explicit Config(const common::net::HostAndPort& host);
   Config();
 

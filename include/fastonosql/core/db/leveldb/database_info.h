@@ -26,7 +26,7 @@ namespace leveldb {
 
 class DataBaseInfo : public IDataBaseInfo {
  public:
-  DataBaseInfo(const std::string& name,
+  DataBaseInfo(const db_name_t& name,
                bool isDefault,
                size_t dbkcount,
                const keys_container_t& keys = keys_container_t());

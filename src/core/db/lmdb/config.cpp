@@ -39,6 +39,7 @@ namespace lmdb {
 namespace {
 
 const char kDefaultPath[] = "~/test.lmdb";
+const char kDefaultDbName[] = "default";
 
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
@@ -50,7 +51,8 @@ Config ParseOptions(int argc, char** argv) {
     } else if (!strcmp(argv[i], "-f") && !lastarg) {
       cfg.db_path = argv[++i];
     } else if (!strcmp(argv[i], "-n") && !lastarg) {
-      cfg.db_name = argv[++i];
+      const char* db_name = argv[++i];
+      cfg.db_name = db_name;
     } else if (!strcmp(argv[i], "-m") && !lastarg) {
       unsigned int max_dbs;
       if (common::ConvertFromString(argv[++i], &max_dbs)) {
@@ -80,12 +82,10 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-const char Config::default_db_name[] = "default";
-
 Config::Config()
     : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       env_flags(LMDB_DEFAULT_ENV_FLAGS),
-      db_name(default_db_name),
+      db_name(kDefaultDbName),
       max_dbs(default_dbs_count) {}
 
 bool Config::ReadOnlyDB() const {

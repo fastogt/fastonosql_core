@@ -149,7 +149,7 @@ common::Error TestConnection(const Config& config, const SSHInfo& sinfo) {
     return err;
   }
 
-  err = AuthContext(context, common::ConvertToCharBytes(config.auth));
+  err = AuthContext(context, common::ConvertToCharBytes(config.auth));  // convert from std::string to char bytes
   if (err) {
     redisFree(context);
     return err;
@@ -173,7 +173,7 @@ common::Error DiscoveryClusterConnection(const Config& rconfig,
     return err;
   }
 
-  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));
+  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));  // convert from std::string to char bytes
   if (err) {
     redisFree(context);
     return err;
@@ -213,7 +213,7 @@ common::Error DiscoverySentinelConnection(const Config& rconfig,
     return err;
   }
 
-  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));
+  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));  // convert from std::string to char bytes
   if (err) {
     redisFree(context);
     return err;
@@ -464,7 +464,7 @@ common::Error DBConnection<Config, ContType>::Connect(const config_t& config) {
   }
 
   /* Do AUTH and select the right DB. */
-  err = Auth(common::ConvertToCharBytes(config->auth));
+  err = Auth(common::ConvertToCharBytes(config->auth));  // convert from std::string to char bytes
   if (err) {
     return err;
   }
@@ -480,11 +480,12 @@ common::Error DBConnection<Config, ContType>::Disconnect() {
 }
 
 template <typename Config, ConnectionType ContType>
-typename DBConnection<Config, ContType>::db_name_t DBConnection<Config, ContType>::GetCurrentDBName() const {
+db_name_t DBConnection<Config, ContType>::GetCurrentDBName() const {
   if (IsAuthenticated()) {
     auto config = base_class::GetConfig();
     int db_num = config->db_num;
-    return cur_db_ != invalid_db_num ? common::ConvertToString(cur_db_) : common::ConvertToString(db_num);
+    return cur_db_ != invalid_db_num ? common::ConvertToCharBytes(cur_db_)
+                                     : common::ConvertToCharBytes(db_num);  // convert from std::string to db_name_t
   }
 
   DNOTREACHED();
@@ -1806,13 +1807,13 @@ common::Error DBConnection<Config, ContType>::FlushDBImpl() {
 template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   int num;
-  if (!common::ConvertFromString(name, &num)) {
+  if (!common::ConvertFromBytes(name, &num)) {
     return common::make_error_inval();
   }
 
   command_buffer_t select_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  common::Error err = tran->SelectDBCommand(common::ConvertToString(num), &select_cmd);
+  common::Error err = tran->SelectDBCommand(name, &select_cmd);
   if (err) {
     return err;
   }
@@ -1828,7 +1829,7 @@ common::Error DBConnection<Config, ContType>::SelectImpl(const db_name_t& name, 
   keys_limit_t sz = 0;
   err = base_class::DBkcount(&sz);
   DCHECK(!err);
-  DataBaseInfo* linfo = new DataBaseInfo(common::ConvertToString(num), true, sz);
+  DataBaseInfo* linfo = new DataBaseInfo(name, true, sz);
   *info = linfo;
   freeReplyObject(reply);
   return common::Error();
@@ -2002,14 +2003,16 @@ common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(db_names_t*
     return PrintRedisContextError(base_class::connection_.handle_);
   }
 
-  size_t count_dbs = 0;
-  if (reply->type == REDIS_REPLY_ARRAY && reply->elements == 2 &&
-      common::ConvertFromString(std::string(reply->element[1]->str, reply->element[1]->len), &count_dbs)) {
-    for (size_t i = 0; i < count_dbs; ++i) {
-      dbs->push_back(common::ConvertToString(i));
+  if (reply->type == REDIS_REPLY_ARRAY && reply->elements == 2) {
+    size_t count_dbs = 0;
+    const std::string count_dbs_str(reply->element[1]->str, reply->element[1]->len);
+    if (common::ConvertFromString(count_dbs_str, &count_dbs)) {
+      for (size_t i = 0; i < count_dbs; ++i) {
+        dbs->push_back(common::ConvertToCharBytes(i));  // convert from std::string to char bytes
+      }
+      freeReplyObject(reply);
+      return common::Error();
     }
-    freeReplyObject(reply);
-    return common::Error();
   }
 
   *dbs = {GetCurrentDBName()};

@@ -22,7 +22,7 @@ namespace fastonosql {
 namespace core {
 namespace leveldb {
 
-DataBaseInfo::DataBaseInfo(const std::string& name, bool isDefault, size_t dbkcount, const keys_container_t& keys)
+DataBaseInfo::DataBaseInfo(const db_name_t& name, bool isDefault, size_t dbkcount, const keys_container_t& keys)
     : IDataBaseInfo(name, isDefault, dbkcount, keys) {}
 
 DataBaseInfo* DataBaseInfo::Clone() const {

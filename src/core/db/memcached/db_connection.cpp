@@ -900,7 +900,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   keys_limit_t kcount = 0;
   common::Error err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
-  *info = new DataBaseInfo(common::ConvertToString(name), true, kcount);
+  *info = new DataBaseInfo(name, true, kcount);
   return common::Error();
 }
 

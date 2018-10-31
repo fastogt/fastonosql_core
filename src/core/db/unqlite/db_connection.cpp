@@ -87,7 +87,7 @@ std::string unqlite_strerror(int unqlite_error) {
 }
 
 int unqlite_data_callback(const void* data, unsigned int nDatalen, void* str) {
-  typedef fastonosql::core::unqlite::DBConnection::raw_key_t raw_key_t;
+  typedef fastonosql::core::raw_key_t raw_key_t;
   raw_key_t* out = static_cast<raw_key_t*>(str);
   const raw_key_t::value_type* begin = static_cast<const raw_key_t::value_type*>(data);
   out->assign(begin, begin + nDatalen);
@@ -484,7 +484,7 @@ common::Error DBConnection::FlushDBImpl() {
   return common::Error();
 }
 
-common::Error DBConnection::SelectImpl(const std::string& name, IDataBaseInfo** info) {
+common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   if (name != GetCurrentDBName()) {
     return ICommandTranslator::InvalidInputArguments(GEN_CMD_STRING(DB_SELECTDB_COMMAND));
   }
@@ -564,7 +564,7 @@ common::Error DBConnection::QuitImpl() {
 }
 
 common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
-  std::vector<std::string> ldbs = {GetCurrentDBName()};
+  db_names_t ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }

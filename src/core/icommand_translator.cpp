@@ -45,7 +45,7 @@ common::Error ICommandTranslator::GetDatabasesCommand(command_buffer_t* cmdstrin
   return common::Error();
 }
 
-common::Error ICommandTranslator::RemoveDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
+common::Error ICommandTranslator::RemoveDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -57,7 +57,7 @@ common::Error ICommandTranslator::RemoveDBCommand(const std::string& name, comma
   return common::Error();
 }
 
-common::Error ICommandTranslator::CreateDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
+common::Error ICommandTranslator::CreateDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -69,7 +69,7 @@ common::Error ICommandTranslator::CreateDBCommand(const std::string& name, comma
   return common::Error();
 }
 
-common::Error ICommandTranslator::SelectDBCommand(const std::string& name, command_buffer_t* cmdstring) const {
+common::Error ICommandTranslator::SelectDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     DNOTREACHED();
     return common::make_error_inval();

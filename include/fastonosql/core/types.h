@@ -18,26 +18,10 @@
 
 #pragma once
 
-#include <deque>
-#include <string>
-
-#include <common/byte_writer.h>
-#include <common/types.h>
-
-#define GEN_CMD_STRING_SIZE(STR, SIZE) common::ByteArray<char>(STR, STR + SIZE)
-#define GEN_CMD_STRING(STR) GEN_CMD_STRING_SIZE(STR, sizeof(STR) - 1)
+#include <fastonosql/core/basic_types.h>
 
 namespace fastonosql {
 namespace core {
-
-typedef char command_buffer_char_t;
-typedef common::ByteArray<command_buffer_char_t> command_buffer_t;
-typedef common::ByteWriter<command_buffer_char_t, 512> command_buffer_writer_t;
-typedef std::deque<command_buffer_t> commands_args_t;
-typedef command_buffer_t readable_string_t;
-
-typedef uint32_t keys_limit_t;  // UIntegerValue
-typedef keys_limit_t cursor_t;
 
 bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out);
 

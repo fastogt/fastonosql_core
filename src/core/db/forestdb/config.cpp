@@ -22,6 +22,7 @@ extern "C" {
 #include "sds/sds_fasto.h"
 }
 
+#include <common/convert2string.h>
 #include <common/file_system/types.h>  // for prepare_path
 #include <common/sprintf.h>            // for MemSPrintf
 
@@ -34,6 +35,7 @@ namespace forestdb {
 namespace {
 
 const char kDefaultPath[] = "~/test.forestdb";
+const char kDefaultDbName[] = "default";
 
 Config ParseOptions(int argc, char** argv) {
   Config cfg;
@@ -45,7 +47,8 @@ Config ParseOptions(int argc, char** argv) {
     } else if (!strcmp(argv[i], "-f") && !lastarg) {
       cfg.db_path = argv[++i];
     } else if (!strcmp(argv[i], "-n") && !lastarg) {
-      cfg.db_name = argv[++i];
+      const char* db_name = argv[++i];
+      cfg.db_name = db_name;
     } else {
       if (argv[i][0] == '-') {
         const std::string buff = common::MemSPrintf(
@@ -65,9 +68,7 @@ Config ParseOptions(int argc, char** argv) {
 
 }  // namespace
 
-const char Config::default_db_name[] = "default";
-
-Config::Config() : LocalConfig(common::file_system::prepare_path(kDefaultPath)), db_name(default_db_name) {}
+Config::Config() : LocalConfig(common::file_system::prepare_path(kDefaultPath)), db_name(kDefaultDbName) {}
 
 }  // namespace forestdb
 }  // namespace core

@@ -231,8 +231,7 @@ readable_string_t ReadableString::HexData(const readable_string_t& data) {
 namespace detail {
 
 bool have_space(const readable_string_t& data) {
-  auto it =
-      std::find_if(data.begin(), data.end(), [](readable_string_t::value_type c) { return std::isspace(c); });
+  auto it = std::find_if(data.begin(), data.end(), [](readable_string_t::value_type c) { return std::isspace(c); });
   return it != data.end();
 }
 

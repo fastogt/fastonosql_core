@@ -102,7 +102,7 @@ common::Error ApiTraits<CDBConnection>::Scan(internal::CommandHandler* handler,
   }
 
   cursor_t cursor_out = 0;
-  typename CDBConnection::raw_keys_t keys_out;
+  raw_keys_t keys_out;
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
 
   common::Error err = cdb->Scan(cursor_in, pattern, count_keys, &keys_out, &cursor_out);
@@ -137,7 +137,7 @@ common::Error ApiTraits<CDBConnection>::Keys(internal::CommandHandler* handler,
     return common::make_error_inval();
   }
 
-  typename CDBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = cdb->Keys(argv[0], argv[1], limit, &keysout);
   if (err) {
     return err;
@@ -178,7 +178,7 @@ common::Error ApiTraits<CDBConnection>::CreateDatabase(CommandHandler* handler,
                                                        commands_args_t argv,
                                                        FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  const db_name_t db_name = argv[0];
   common::Error err = cdb->CreateDB(db_name);
   if (err) {
     return err;
@@ -195,7 +195,7 @@ common::Error ApiTraits<CDBConnection>::RemoveDatabase(CommandHandler* handler,
                                                        commands_args_t argv,
                                                        FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  const db_name_t db_name = argv[0];
   common::Error err = cdb->RemoveDB(db_name);
   if (err) {
     return err;
@@ -228,7 +228,7 @@ common::Error ApiTraits<CDBConnection>::FlushDB(internal::CommandHandler* handle
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Select(CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  typename CDBConnection::db_name_t db_name = common::ConvertToString(argv[0]);
+  const db_name_t db_name = argv[0];
   common::Error err = cdb->Select(db_name, nullptr);
   if (err) {
     return err;
@@ -388,7 +388,7 @@ common::Error ApiTraits<CDBConnection>::ConfigGet(internal::CommandHandler* hand
     return common::make_error_inval();
   }
 
-  std::vector<typename CDBConnection::db_name_t> dbs;
+  db_names_t dbs;
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   common::Error err = cdb->ConfigGetDatabases(&dbs);
   if (err) {
@@ -396,7 +396,7 @@ common::Error ApiTraits<CDBConnection>::ConfigGet(internal::CommandHandler* hand
   }
 
   common::ArrayValue* arr = new common::ArrayValue;
-  arr->AppendBasicStrings(dbs);
+  arr->AppendStrings(dbs);
   FastoObject* child = new FastoObject(out, arr, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

@@ -28,7 +28,6 @@ namespace core {
 class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
  public:
   typedef std::vector<NDbKValue> keys_container_t;
-  typedef std::string db_name_t;
 
   db_name_t GetName() const;
   size_t GetDBKeysCount() const;

@@ -420,6 +420,7 @@ SET(CORE_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/types.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/value.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/macros.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/basic_types.h
 
   ${INTERNAL_HEADERS}
   ${CONFIG_HEADERS}

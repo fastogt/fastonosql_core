@@ -72,7 +72,7 @@ Config ParseOptions(int argc, char** argv) {
 }  // namespace
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path(kDefaultPath)), create_if_missing(false), dbnum(default_db_num) {}
+    : LocalConfig(common::file_system::prepare_path(kDefaultPath)), create_if_missing(false), dbnum(kDefaultDbNum) {}
 
 }  // namespace upscaledb
 }  // namespace core

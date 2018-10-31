@@ -339,9 +339,9 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-typename DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
+db_name_t DBConnection::GetCurrentDBName() const {
   if (connection_.handle_) {
-    return common::ConvertToString(connection_.handle_->cur_db);
+    return common::ConvertToCharBytes(connection_.handle_->cur_db);
   }
 
   DNOTREACHED();
@@ -548,7 +548,7 @@ common::Error DBConnection::FlushDBImpl() {
 
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   uint16_t num;
-  if (!common::ConvertFromString(name, &num)) {
+  if (!common::ConvertFromBytes(name, &num)) {
     return common::make_error_inval();
   }
 
@@ -641,7 +641,7 @@ common::Error DBConnection::QuitImpl() {
 }
 
 common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
-  std::vector<std::string> ldbs = {GetCurrentDBName()};
+  db_names_t ldbs = {GetCurrentDBName()};
   *dbs = ldbs;
   return common::Error();
 }

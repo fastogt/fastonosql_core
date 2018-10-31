@@ -70,12 +70,6 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;
   typedef CDBConnection<NativeConnection, Config, connection_type> base_class;
   typedef typename base_class::config_t config_t;
-  typedef typename base_class::raw_key_t raw_key_t;
-  typedef typename base_class::raw_value_t raw_value_t;
-  typedef typename base_class::raw_keys_t raw_keys_t;
-  typedef typename base_class::pattern_t pattern_t;
-  typedef typename base_class::db_name_t db_name_t;
-  typedef typename base_class::db_names_t db_names_t;
 
   enum { invalid_db_num = -1 };
   explicit DBConnection(CDBConnectionClient* client)

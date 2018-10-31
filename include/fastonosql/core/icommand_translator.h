@@ -72,10 +72,10 @@ class ICommandTranslator {
   virtual const char* GetDBName() const = 0;
 
   common::Error GetDatabasesCommand(command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
-  common::Error RemoveDBCommand(const std::string& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
-  common::Error CreateDBCommand(const std::string& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error RemoveDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error CreateDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
-  common::Error SelectDBCommand(const std::string& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error SelectDBCommand(const db_name_t& name, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error FlushDBCommand(command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error CreateKeyCommand(const NDbKValue& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error LoadKeyCommand(const NKey& key,

@@ -146,7 +146,7 @@ TEST(Connection, lmdb) {
   err = db.Connect(lcfg);
   ASSERT_TRUE(!err);
   ASSERT_TRUE(db.IsConnected());
-  db.Select("default", nullptr);  // need select db
+  db.Select(GEN_READABLE_STRING("default"), nullptr);  // need select db
   CheckSetGet(&db);
 
   err = db.Disconnect();

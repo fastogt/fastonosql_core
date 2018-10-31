@@ -467,11 +467,14 @@ DBConnection::DBConnection(CDBConnectionClient* client)
 
 DBConnection::~DBConnection() {}
 
-DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
+db_name_t DBConnection::GetCurrentDBName() const {
   if (IsConnected()) {  // if connected
+    if (connection_.handle_->db_name) {
+      return common::ConvertToCharBytes(connection_.handle_->db_name);
+    }
+
     auto conf = GetConfig();
-    std::string db_name = connection_.handle_->db_name ? connection_.handle_->db_name : conf->db_name;
-    return db_name;
+    return common::ConvertToCharBytes(conf->db_name);
   }
 
   DNOTREACHED() << "GetCurrentDBName failed!";
@@ -705,7 +708,7 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
     return err;
   }
 
-  *info = new DataBaseInfo(db_name, false, 0);
+  *info = new DataBaseInfo(name, false, 0);
   return common::Error();
 }
 
@@ -718,7 +721,7 @@ common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** 
     return err;
   }
 
-  *info = new DataBaseInfo(db_name, false, 0);
+  *info = new DataBaseInfo(name, false, 0);
   return common::Error();
 }
 
@@ -775,7 +778,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   keys_limit_t kcount = 0;
   err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
-  *info = new DataBaseInfo(db_name, true, kcount);
+  *info = new DataBaseInfo(name, true, kcount);
   return common::Error();
 }
 
@@ -888,7 +891,7 @@ common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
   MDB_val key;
   MDB_val data;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
-    db_name_t skey(reinterpret_cast<const db_name_t::value_type*>(key.mv_data), key.mv_size);
+    db_name_t skey = GEN_READABLE_STRING_SIZE(reinterpret_cast<const db_name_t::value_type*>(key.mv_data), key.mv_size);
     // std::string sdata(reinterpret_cast<const char*>(data.mv_data),
     // data.mv_size);
     dbs->push_back(skey);

@@ -50,7 +50,7 @@ common::Error CommandsApi::ScanSSDB(internal::CommandHandler* handler, commands_
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->ScanSsdb(argv[0], argv[1], limit, &keysout);
   if (err) {
     return err;
@@ -137,7 +137,7 @@ common::Error CommandsApi::Rscan(internal::CommandHandler* handler, commands_arg
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Rscan(argv[0], argv[1], limit, &keysout);
   if (err) {
     return err;
@@ -152,12 +152,12 @@ common::Error CommandsApi::Rscan(internal::CommandHandler* handler, commands_arg
 
 common::Error CommandsApi::MultiGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_keys_t keysget;
+  raw_keys_t keysget;
   for (size_t i = 0; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->MultiGet(keysget, &keysout);
   if (err) {
     return err;
@@ -172,7 +172,7 @@ common::Error CommandsApi::MultiGet(internal::CommandHandler* handler, commands_
 
 common::Error CommandsApi::MultiSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  std::map<DBConnection::raw_key_t, DBConnection::raw_value_t> keysset;
+  std::map<raw_key_t, raw_value_t> keysset;
   for (size_t i = 0; i < argv.size(); i += 2) {
     keysset[argv[i]] = argv[i + 1];
   }
@@ -190,7 +190,7 @@ common::Error CommandsApi::MultiSet(internal::CommandHandler* handler, commands_
 
 common::Error CommandsApi::MultiDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_keys_t keysget;
+  raw_keys_t keysget;
   for (size_t i = 0; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
@@ -208,7 +208,7 @@ common::Error CommandsApi::MultiDel(internal::CommandHandler* handler, commands_
 
 common::Error CommandsApi::Hget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_value_t ret;
+  raw_value_t ret;
   common::Error err = ssdb->Hget(argv[0], argv[1], &ret);
   if (err) {
     return err;
@@ -222,7 +222,7 @@ common::Error CommandsApi::Hget(internal::CommandHandler* handler, commands_args
 
 common::Error CommandsApi::Hgetall(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Hgetall(argv[0], &keysout);
   if (err) {
     return err;
@@ -315,7 +315,7 @@ common::Error CommandsApi::Hkeys(internal::CommandHandler* handler, commands_arg
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Hkeys(argv[0], argv[1], argv[2], limit, &keysout);
   if (err) {
     return err;
@@ -335,7 +335,7 @@ common::Error CommandsApi::Hscan(internal::CommandHandler* handler, commands_arg
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Hscan(argv[0], argv[1], argv[2], limit, &keysout);
   if (err) {
     return err;
@@ -355,7 +355,7 @@ common::Error CommandsApi::Hrscan(internal::CommandHandler* handler, commands_ar
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Hrscan(argv[0], argv[1], argv[2], limit, &keysout);
   if (err) {
     return err;
@@ -370,12 +370,12 @@ common::Error CommandsApi::Hrscan(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::MultiHget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_keys_t keysget;
+  raw_keys_t keysget;
   for (size_t i = 1; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
 
-  DBConnection::raw_values_t keysout;
+  raw_values_t keysout;
   common::Error err = ssdb->MultiHget(argv[0], keysget, &keysout);
   if (err) {
     return err;
@@ -390,7 +390,7 @@ common::Error CommandsApi::MultiHget(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::MultiHset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  std::map<DBConnection::raw_key_t, DBConnection::raw_value_t> keys;
+  std::map<raw_key_t, raw_value_t> keys;
   for (size_t i = 1; i < argv.size(); i += 2) {
     keys[argv[i]] = argv[i + 1];
   }
@@ -538,7 +538,7 @@ common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_ar
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t res;
+  raw_keys_t res;
   common::Error err = ssdb->Zrange(argv[0], offset, limit, &res);
   if (err) {
     return err;
@@ -563,7 +563,7 @@ common::Error CommandsApi::Zrrange(internal::CommandHandler* handler, commands_a
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t res;
+  raw_keys_t res;
   common::Error err = ssdb->Zrrange(argv[0], offset, limit, &res);
   if (err) {
     return err;
@@ -593,7 +593,7 @@ common::Error CommandsApi::Zkeys(internal::CommandHandler* handler, commands_arg
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t res;
+  raw_keys_t res;
   common::Error err = ssdb->Zkeys(argv[0], argv[1], &st, &end, limit, &res);
   if (err) {
     return err;
@@ -608,7 +608,7 @@ common::Error CommandsApi::Zkeys(internal::CommandHandler* handler, commands_arg
 
 common::Error CommandsApi::Zscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_values_t res;
+  raw_values_t res;
   int64_t st;
   if (!common::ConvertFromBytes(argv[2], &st)) {
     return common::make_error_inval();
@@ -638,7 +638,7 @@ common::Error CommandsApi::Zscan(internal::CommandHandler* handler, commands_arg
 
 common::Error CommandsApi::Zrscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_values_t res;
+  raw_values_t res;
   int64_t st;
   if (!common::ConvertFromBytes(argv[2], &st)) {
     return common::make_error_inval();
@@ -668,12 +668,12 @@ common::Error CommandsApi::Zrscan(internal::CommandHandler* handler, commands_ar
 
 common::Error CommandsApi::MultiZget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_keys_t keysget;
+  raw_keys_t keysget;
   for (size_t i = 1; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
 
-  DBConnection::raw_values_t res;
+  raw_values_t res;
   common::Error err = ssdb->MultiZget(argv[0], keysget, &res);
   if (err) {
     return err;
@@ -688,7 +688,7 @@ common::Error CommandsApi::MultiZget(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::MultiZset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  std::map<DBConnection::raw_key_t, int64_t> keysget;
+  std::map<raw_key_t, int64_t> keysget;
   for (size_t i = 1; i < argv.size(); i += 2) {
     int64_t val;
     if (!common::ConvertFromBytes(argv[i + 1], &val)) {
@@ -709,7 +709,7 @@ common::Error CommandsApi::MultiZset(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::MultiZdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  std::vector<DBConnection::raw_key_t> keysget;
+  std::vector<raw_key_t> keysget;
   for (size_t i = 1; i < argv.size(); ++i) {
     keysget.push_back(argv[i]);
   }
@@ -740,7 +740,7 @@ common::Error CommandsApi::Qpush(internal::CommandHandler* handler, commands_arg
 
 common::Error CommandsApi::Qpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  DBConnection::raw_value_t ret;
+  raw_value_t ret;
   common::Error err = ssdb->Qpop(argv[0], &ret);
   if (err) {
     return err;
@@ -764,7 +764,7 @@ common::Error CommandsApi::Qslice(internal::CommandHandler* handler, commands_ar
     return common::make_error_inval();
   }
 
-  DBConnection::raw_keys_t keysout;
+  raw_keys_t keysout;
   common::Error err = ssdb->Qslice(argv[0], begin, end, &keysout);
   if (err) {
     return err;

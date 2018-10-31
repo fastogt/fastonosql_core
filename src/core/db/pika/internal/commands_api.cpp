@@ -325,7 +325,7 @@ common::Error CommandsApi::Command(internal::CommandHandler* handler, commands_a
 
 common::Error CommandsApi::ConfigGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   if (common::EqualsASCII(argv[0], GEN_CMD_STRING("databases"), false)) {
-    std::vector<DBConnection::db_name_t> dbs;
+    db_names_t dbs;
     DBConnection* red = static_cast<DBConnection*>(handler);
     common::Error err = red->ConfigGetDatabases(&dbs);
     if (err) {
@@ -333,7 +333,7 @@ common::Error CommandsApi::ConfigGet(internal::CommandHandler* handler, commands
     }
 
     common::ArrayValue* arr = new common::ArrayValue;
-    arr->AppendBasicStrings(dbs);
+    arr->AppendStrings(dbs);
     FastoObject* child = new FastoObject(out, arr, red->GetDelimiter());
     out->AddChildren(child);
     return common::Error();

@@ -28,7 +28,7 @@ IDataBaseInfo::IDataBaseInfo(const db_name_t& name, bool is_default, size_t dbkc
 
 IDataBaseInfo::~IDataBaseInfo() {}
 
-IDataBaseInfo::db_name_t IDataBaseInfo::GetName() const {
+db_name_t IDataBaseInfo::GetName() const {
   return name_;
 }
 

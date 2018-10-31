@@ -385,10 +385,14 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-typename DBConnection::db_name_t DBConnection::GetCurrentDBName() const {
+db_name_t DBConnection::GetCurrentDBName() const {
   if (IsConnected()) {  // if connected
+    if (connection_.handle_->db_name) {
+      return GEN_READABLE_STRING_SIZE(connection_.handle_->db_name, strlen(connection_.handle_->db_name));
+    }
+
     auto conf = GetConfig();
-    return connection_.handle_->db_name ? connection_.handle_->db_name : conf->db_name;
+    return common::ConvertToCharBytes(conf->db_name);  // convert from std::string to char bytes
   }
 
   DNOTREACHED() << "GetCurrentDBName failed!";
@@ -586,7 +590,7 @@ common::Error DBConnection::FlushDBImpl() {
 
 common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  const char* db_name = name.c_str();
+  const char* db_name = name.data();
   common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, forestdb_create_db(connection_.handle_, db_name));
   if (err) {
     return err;
@@ -598,7 +602,7 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
 
 common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  const char* db_name = name.c_str();
+  const char* db_name = name.data();
   common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, forestdb_remove_db(connection_.handle_, db_name));
   if (err) {
     return err;
@@ -610,12 +614,13 @@ common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** 
 
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, forestdb_select(connection_.handle_, name.c_str()));
+  const char* db_name = name.data();
+  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, forestdb_select(connection_.handle_, db_name));
   if (err) {
     return err;
   }
 
-  connection_.config_->db_name = name;
+  connection_.config_->db_name = db_name;
   keys_limit_t kcount = 0;
   err = DBkcount(&kcount);
   DCHECK(!err) << err->GetDescription();
@@ -704,9 +709,9 @@ common::Error DBConnection::ConfigGetDatabasesImpl(db_names_t* dbs) {
     return err;
   }
 
-  std::vector<std::string> ldbs;
+  db_names_t ldbs;
   for (size_t i = 0; i < forestdb_dbs.num_kvs_names; ++i) {
-    ldbs.push_back(forestdb_dbs.kvs_names[i]);
+    ldbs.push_back(common::ConvertToCharBytes(forestdb_dbs.kvs_names[i]));
   }
 
   err = CheckResultCommand("CONFIG GET DATABASES", fdb_free_kvs_name_list(&forestdb_dbs));

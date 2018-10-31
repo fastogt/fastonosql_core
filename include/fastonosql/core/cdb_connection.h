@@ -49,13 +49,6 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
  public:
   typedef internal::DBConnection<NConnection, Config, connection_type> db_base_class;
   typedef ConnectionCommandsTraits<connection_type> connection_traits_class;
-  typedef readable_string_t raw_key_t;
-  typedef readable_string_t raw_value_t;
-  typedef readable_string_t pattern_t;
-  typedef std::vector<raw_key_t> raw_keys_t;
-  typedef std::vector<raw_value_t> raw_values_t;
-  typedef std::string db_name_t;
-  typedef std::vector<db_name_t> db_names_t;
 
   CDBConnection(CDBConnectionClient* client, ICommandTranslator* translator)
       : db_base_class(), CommandHandler(translator), client_(client) {}
@@ -139,9 +132,8 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
 };
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-typename CDBConnection<NConnection, Config, ContType>::db_name_t
-CDBConnection<NConnection, Config, ContType>::GetCurrentDBName() const {
-  return "default";
+db_name_t CDBConnection<NConnection, Config, ContType>::GetCurrentDBName() const {
+  return GEN_READABLE_STRING("default");
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
