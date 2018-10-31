@@ -34,7 +34,7 @@ ups_key_t ConvertToUpscaleDBSlice(const command_buffer_t& key) {
   ups_key_t dkey;
   memset(&dkey, 0, sizeof(dkey));
   dkey.size = key.size();
-  dkey.data = const_cast<readable_string_data_t::value_type*>(key.data());
+  dkey.data = const_cast<readable_string_t::value_type*>(key.data());
   return dkey;
 }
 }  // namespace

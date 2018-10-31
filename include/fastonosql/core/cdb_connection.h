@@ -49,9 +49,9 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
  public:
   typedef internal::DBConnection<NConnection, Config, connection_type> db_base_class;
   typedef ConnectionCommandsTraits<connection_type> connection_traits_class;
-  typedef command_buffer_t raw_key_t;
-  typedef command_buffer_t raw_value_t;
-  typedef command_buffer_t pattern_t;
+  typedef readable_string_t raw_key_t;
+  typedef readable_string_t raw_value_t;
+  typedef readable_string_t pattern_t;
   typedef std::vector<raw_key_t> raw_keys_t;
   typedef std::vector<raw_value_t> raw_values_t;
   typedef std::string db_name_t;
@@ -62,7 +62,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
 
   virtual db_name_t GetCurrentDBName() const;  //
   common::Error Help(commands_args_t argv,
-                     command_buffer_t* answer) WARN_UNUSED_RESULT;  //
+                     readable_string_t* answer) WARN_UNUSED_RESULT;  //
 
   common::Error Scan(cursor_t cursor_in,
                      const pattern_t& pattern,
@@ -145,7 +145,7 @@ CDBConnection<NConnection, Config, ContType>::GetCurrentDBName() const {
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv, command_buffer_t* answer) {
+common::Error CDBConnection<NConnection, Config, ContType>::Help(commands_args_t argv, readable_string_t* answer) {
   size_t argc = argv.size();
   if (!answer) {
     DNOTREACHED();
@@ -193,7 +193,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::Help(commands_args_t
 
 template <typename NConnection, typename Config, ConnectionType ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::Scan(cursor_t cursor_in,
-                                                                 const command_buffer_t& pattern,
+                                                                 const pattern_t& pattern,
                                                                  keys_limit_t count_keys,
                                                                  raw_keys_t* keys_out,
                                                                  cursor_t* cursor_out) {
@@ -643,13 +643,16 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
 
     const NValue value = loaded_key.GetValue();
     const auto value_str = value.GetReadableValue();
-    const readable_string_t stabled_key = key_str.GetForCommandLine(false);
-    const readable_string_t stabled_value = value_str.GetForCommandLine(false);
-    if (i == keys.size() - 1) {
-      is_wrote = fl.WriteFormated("%s:%s\n", stabled_key, stabled_value);
-    } else {
-      is_wrote = fl.WriteFormated("%s:%s,\n", stabled_key, stabled_value);
+    const auto stabled_key = key_str.GetForCommandLine(false);
+    const auto stabled_value = value_str.GetForCommandLine(false);
+    command_buffer_writer_t wr;
+    wr << stabled_key << ":" << stabled_value;
+    if (i != keys.size() - 1) {
+      wr << ",";
     }
+    wr << "\n";
+    readable_string_t buff = wr.str();
+    is_wrote = fl.Write(buff);
 
     if (!is_wrote) {
       fl.Close();

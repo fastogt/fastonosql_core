@@ -123,10 +123,10 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error Qclear(const raw_key_t& name, int64_t* ret) WARN_UNUSED_RESULT;
   common::Error DBsize(int64_t* size) WARN_UNUSED_RESULT;
 
-  common::Error Expire(key_t key, ttl_t ttl) WARN_UNUSED_RESULT;
-  common::Error TTL(key_t key, ttl_t* ttl) WARN_UNUSED_RESULT;
-
  private:
+  common::Error ExpireInner(const raw_key_t& key, ttl_t ttl) WARN_UNUSED_RESULT;
+  common::Error TTLInner(const raw_key_t& key, ttl_t* ttl) WARN_UNUSED_RESULT;
+
   common::Error SetInner(const raw_key_t& key, const raw_value_t& value) WARN_UNUSED_RESULT;
   common::Error GetInner(const raw_key_t& key, raw_value_t* ret_val) WARN_UNUSED_RESULT;
   common::Error DelInner(const raw_key_t& key) WARN_UNUSED_RESULT;

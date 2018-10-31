@@ -51,17 +51,16 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   common::Error Incr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
   common::Error Decr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
 
-  common::Error TTL(key_t key, ttl_t* expiration) WARN_UNUSED_RESULT;
-
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
+
+  common::Error TTLInner(const raw_key_t& key, ttl_t* expiration) WARN_UNUSED_RESULT;
+  common::Error ExpireInner(const raw_key_t& key, ttl_t expiration) WARN_UNUSED_RESULT;
 
   common::Error DelInner(const raw_key_t& key, time_t expiration) WARN_UNUSED_RESULT;
   common::Error GetInner(const raw_key_t& key, raw_value_t* ret_val) WARN_UNUSED_RESULT;
   common::Error SetInner(const raw_key_t& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
-
-  common::Error ExpireInner(const raw_key_t& key, ttl_t expiration) WARN_UNUSED_RESULT;
 
   virtual common::Error ScanImpl(cursor_t cursor_in,
                                  const pattern_t& pattern,

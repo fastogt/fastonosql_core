@@ -163,9 +163,9 @@ memcached_return_t memcached_dump_scan_callback(const memcached_st* ptr,
 }
 
 struct TTLHolder {
-  TTLHolder(fastonosql::core::key_t key, time_t* exp) : looked_key(key), exp_out(exp) {}
+  TTLHolder(const fastonosql::core::readable_string_t& key, time_t* exp) : looked_key(key), exp_out(exp) {}
   memcached_return_t CheckKey(const char* key, size_t key_length, time_t exp) {
-    fastonosql::core::key_t received_key(std::string(key, key_length));
+    fastonosql::core::readable_string_t received_key = GEN_CMD_STRING_SIZE(key, key_length);
     if (received_key == looked_key) {
       *exp_out = exp;
       return MEMCACHED_END;
@@ -174,7 +174,7 @@ struct TTLHolder {
     return MEMCACHED_SUCCESS;
   }
 
-  const fastonosql::core::key_t looked_key;
+  const fastonosql::core::readable_string_t looked_key;
   time_t* exp_out;
 };
 
@@ -813,7 +813,7 @@ common::Error DBConnection::ExpireInner(const raw_key_t& key, ttl_t expiration) 
                                                               value_length, expiration, flags));
 }
 
-common::Error DBConnection::TTL(key_t key, ttl_t* expiration) {
+common::Error DBConnection::TTLInner(const raw_key_t& key, ttl_t* expiration) {
   common::Error err = TestIsAuthenticated();
   if (err) {
     return err;
@@ -974,7 +974,8 @@ common::Error DBConnection::SetTTLImpl(const NKey& key, ttl_t ttl) {
 }
 
 common::Error DBConnection::GetTTLImpl(const NKey& key, ttl_t* ttl) {
-  return TTL(key.GetKey(), ttl);
+  const key_t key_str = key.GetKey();
+  return TTLInner(key_str.GetData(), ttl);
 }
 
 common::Error DBConnection::QuitImpl() {

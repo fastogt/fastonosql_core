@@ -1623,17 +1623,17 @@ common::Error DBConnection::Qclear(const raw_key_t& name, int64_t* ret) {
   return CheckResultCommand("QCLEAR", connection_.handle_->qclear(name.data(), ret));
 }
 
-common::Error DBConnection::Expire(key_t key, ttl_t ttl) {
+common::Error DBConnection::ExpireInner(const raw_key_t& key, ttl_t ttl) {
   common::Error err = TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  const std::string key_slice = common::ConvertToString(key.GetData());
+  const std::string key_slice = common::ConvertToString(key);
   return CheckResultCommand(DB_SET_TTL_COMMAND, connection_.handle_->expire(key_slice, static_cast<int>(ttl)));
 }
 
-common::Error DBConnection::TTL(key_t key, ttl_t* ttl) {
+common::Error DBConnection::TTLInner(const raw_key_t& key, ttl_t* ttl) {
   if (!ttl) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1645,7 +1645,7 @@ common::Error DBConnection::TTL(key_t key, ttl_t* ttl) {
   }
 
   int lttl = 0;
-  const std::string key_slice = common::ConvertToString(key.GetData());
+  const std::string key_slice = common::ConvertToString(key);
   err = CheckResultCommand(DB_GET_TTL_COMMAND, connection_.handle_->ttl(key_slice, &lttl));
   if (err) {
     return err;
@@ -1737,8 +1737,8 @@ common::Error DBConnection::FlushDBImpl() {
   }
 
   for (size_t i = 0; i < ret.size(); ++i) {
-    key_t key(ret[i]);
-    common::Error err = DelInner(key.GetData());
+    const raw_key_t key = common::ConvertToCharBytes(ret[i]);
+    common::Error err = DelInner(key);
     if (err) {
       return err;
     }
@@ -1824,12 +1824,12 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 
 common::Error DBConnection::SetTTLImpl(const NKey& key, ttl_t ttl) {
   const key_t key_str = key.GetKey();
-  return Expire(key_str, ttl);
+  return ExpireInner(key_str.GetData(), ttl);
 }
 
 common::Error DBConnection::GetTTLImpl(const NKey& key, ttl_t* ttl) {
   const key_t key_str = key.GetKey();
-  return TTL(key_str, ttl);
+  return TTLInner(key_str.GetData(), ttl);
 }
 
 common::Error DBConnection::QuitImpl() {

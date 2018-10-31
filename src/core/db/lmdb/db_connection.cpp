@@ -206,10 +206,10 @@ const ConstantCommandsArray& ConnectionCommandsTraits<LMDB>::GetCommands() {
 }
 
 namespace {
-MDB_val ConvertToLMDBSlice(const readable_string_data_t::value_type* key, size_t len) {
+MDB_val ConvertToLMDBSlice(const readable_string_t::value_type* key, size_t len) {
   MDB_val mkey;
   mkey.mv_size = len;
-  mkey.mv_data = const_cast<readable_string_data_t::value_type*>(key);
+  mkey.mv_data = const_cast<readable_string_t::value_type*>(key);
   return mkey;
 }
 }  // namespace

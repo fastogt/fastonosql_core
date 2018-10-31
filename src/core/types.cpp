@@ -169,11 +169,7 @@ bool ParseCommandLine(const command_buffer_t& command_line, commands_args_t* out
 
 ReadableString::ReadableString() : data_(), type_(TEXT_DATA) {}
 
-ReadableString::ReadableString(const readable_string_t& data) : data_(), type_(TEXT_DATA) {
-  SetData(data);
-}
-
-ReadableString::ReadableString(const readable_string_data_t& data) : data_(), type_(BINARY_DATA) {
+ReadableString::ReadableString(const readable_string_t& data) : data_(), type_(BINARY_DATA) {
   SetData(data);
 }
 
@@ -181,19 +177,19 @@ ReadableString::DataType ReadableString::GetType() const {
   return type_;
 }
 
-readable_string_data_t ReadableString::GetData() const {
+readable_string_t ReadableString::GetData() const {
   return data_;
 }
 
 readable_string_t ReadableString::GetHumanReadable() const {
   if (type_ == BINARY_DATA) {
-    readable_string_data_t hexed;
+    readable_string_t hexed;
     bool is_ok = common::utils::xhex::encode(data_, is_lower_hex, &hexed);
     DCHECK(is_ok) << "Can't hexed: " << data_;
-    return common::ConvertToString(hexed);
+    return hexed;
   }
 
-  return common::ConvertToString(data_);
+  return data_;
 }
 
 readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
@@ -202,22 +198,19 @@ readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
   }
 
   if (detail::is_json(data_)) {
-    return common::ConvertToString(data_);
+    return data_;
   }
 
   if (need_quotes && detail::have_space(data_)) {
-    return SINGLE_QUOTES_CHAR + common::ConvertToString(data_) + SINGLE_QUOTES_CHAR;
+    command_buffer_writer_t wr;
+    wr << SINGLE_QUOTES_CHAR << data_ << SINGLE_QUOTES_CHAR;
+    return wr.str();
   }
 
-  return common::ConvertToString(data_);
+  return data_;
 }
 
 void ReadableString::SetData(const readable_string_t& data) {
-  data_ = GEN_CMD_STRING_SIZE(data.data(), data.size());
-  type_ = detail::is_binary_data(data_) ? BINARY_DATA : TEXT_DATA;
-}
-
-void ReadableString::SetData(const readable_string_data_t& data) {
   data_ = data;
   type_ = detail::is_binary_data(data_) ? BINARY_DATA : TEXT_DATA;
 }
@@ -226,23 +219,24 @@ bool ReadableString::Equals(const ReadableString& other) const {
   return type_ == other.type_ && data_ == other.data_;
 }
 
-readable_string_t ReadableString::HexData(const readable_string_data_t& data) {
-  readable_string_data_t hexed;
+readable_string_t ReadableString::HexData(const readable_string_t& data) {
+  readable_string_t hexed;
   bool is_ok = common::utils::xhex::encode(data, is_lower_hex, &hexed);
   DCHECK(is_ok) << "Can't hexed: " << data;
-  return SINGLE_QUOTES_CHAR + common::ConvertToString(hexed) + SINGLE_QUOTES_CHAR;
-  ;
+  command_buffer_writer_t wr;
+  wr << SINGLE_QUOTES_CHAR << hexed << SINGLE_QUOTES_CHAR;
+  return wr.str();
 }
 
 namespace detail {
 
-bool have_space(const readable_string_data_t& data) {
+bool have_space(const readable_string_t& data) {
   auto it =
-      std::find_if(data.begin(), data.end(), [](readable_string_data_t::value_type c) { return std::isspace(c); });
+      std::find_if(data.begin(), data.end(), [](readable_string_t::value_type c) { return std::isspace(c); });
   return it != data.end();
 }
 
-bool is_binary_data(const readable_string_data_t& data) {
+bool is_binary_data(const readable_string_t& data) {
   for (size_t i = 0; i < data.size(); ++i) {
     unsigned char c = static_cast<unsigned char>(data[i]);
     if (c < SPACE_CHAR && c != CARRIGE_RETURN_CHAR && c != END_LINE_CHAR) {  // should be hexed symbol
@@ -252,7 +246,7 @@ bool is_binary_data(const readable_string_data_t& data) {
   return false;
 }
 
-bool is_json(const readable_string_data_t& data) {
+bool is_json(const readable_string_t& data) {
   if (data.empty()) {
     DNOTREACHED();
     return false;
