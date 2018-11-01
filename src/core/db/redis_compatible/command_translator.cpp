@@ -91,7 +91,7 @@ common::Error CommandTranslator::Zrange(const NKey& key,
                                         int stop,
                                         bool withscores,
                                         command_buffer_t* cmdstring) {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_ZRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(start) << SPACE_STR
      << common::ConvertToBytes(stop);
@@ -203,9 +203,20 @@ common::Error CommandTranslator::SetEx(const NDbKValue& key, ttl_t ttl, command_
   const NValue value = key.GetValue();
   const auto value_str = value.GetReadableValue();
 
+  return SetEx(key_str, value_str, ttl, cmdstring);
+}
+
+common::Error CommandTranslator::SetEx(const trans_key_t& key,
+                                       const trans_key_t& value,
+                                       ttl_t ttl,
+                                       command_buffer_t* cmdstring) {
+  if (!cmdstring) {
+    return common::make_error_inval();
+  }
+
   command_buffer_writer_t wr;
-  wr << REDIS_SETEX SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(ttl) << SPACE_STR
-     << value_str.GetForCommandLine();
+  wr << REDIS_SETEX SPACE_STR << key.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(ttl) << SPACE_STR
+     << value.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -325,7 +336,8 @@ common::Error CommandTranslator::PExpire(const NKey& key, ttl_t ttl, command_buf
 }
 
 common::Error CommandTranslator::PTTL(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
+
   command_buffer_writer_t wr;
   wr << REDIS_GET_PTTL_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();

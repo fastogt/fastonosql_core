@@ -503,7 +503,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
@@ -514,7 +514,6 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
     return err;
   }
 
-  *added_key = key;
   return common::Error();
 }
 

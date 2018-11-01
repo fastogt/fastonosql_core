@@ -18,7 +18,14 @@
 
 #pragma once
 
+#include <limits>
+
+#include <common/macros.h>
+
 #include <fastonosql/core/basic_types.h>
+
+#define NO_TTL -1       // key exists but has no associated expire
+#define EXPIRED_TTL -2  // key does not exist
 
 namespace fastonosql {
 namespace core {
@@ -65,6 +72,16 @@ inline bool operator==(const ReadableString& r, const ReadableString& l) {
 inline bool operator!=(const ReadableString& r, const ReadableString& l) {
   return !(r == l);
 }
+
+typedef long long ttl_t;  // in seconds or NO_TTL, EXPIRED_TTL
+typedef ttl_t pttl_t;
+COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= NO_TTL && NO_TTL >= std::numeric_limits<ttl_t>::min(),
+               "NO_TTL define must be in ttl type range");
+COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= EXPIRED_TTL && EXPIRED_TTL >= std::numeric_limits<ttl_t>::min(),
+               "EXPIRED_TTL define must be in ttl type range");
+
+typedef ReadableString key_t;
+typedef ReadableString value_t;
 
 }  // namespace core
 }  // namespace fastonosql

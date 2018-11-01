@@ -65,11 +65,11 @@ TEST(sds, sdssplitargslong) {
     ASSERT_EQ(res[5], GEN_CMD_STRING("-p"));
     ASSERT_EQ(res[6], GEN_CMD_STRING("\t"));
     ASSERT_EQ(res[7], GEN_CMD_STRING("-j"));
-    const char* jafter = res[8].data();
-    ASSERT_STREQ(jafter, json.c_str());
+    std::string jafter = common::ConvertToString(res[8]);
+    ASSERT_EQ(jafter, json);
     ASSERT_EQ(res[9], GEN_CMD_STRING("-j2"));
-    const char* jafter2 = res[10].data();
-    ASSERT_STREQ(jafter2, json2.c_str());
+    std::string jafter2 = common::ConvertToString(res[10]);
+    ASSERT_EQ(jafter2, json2.c_str());
   }
 
   int argc = 0;

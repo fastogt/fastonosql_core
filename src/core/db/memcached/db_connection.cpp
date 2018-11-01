@@ -544,7 +544,7 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())), current_info_() {}
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
+common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -934,7 +934,7 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const key_t key_str = cur.GetKey();
   const NValue value = key.GetValue();
@@ -945,7 +945,6 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
     return err;
   }
 
-  *added_key = key;
   return common::Error();
 }
 

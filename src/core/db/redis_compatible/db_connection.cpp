@@ -46,17 +46,23 @@ namespace core {
 namespace redis_compatible {
 
 namespace {
-bool IsPipeLineCommand(const char* command) {
-  if (!command) {
+bool IsPipeLineCommand(const command_buffer_t& command) {
+  if (command.empty()) {
     DNOTREACHED();
     return false;
   }
 
-  bool skip =
-      strcasecmp(command, "quit") == 0 || strcasecmp(command, "exit") == 0 || strcasecmp(command, "connect") == 0 ||
-      strcasecmp(command, "help") == 0 || strcasecmp(command, "?") == 0 || strcasecmp(command, "shutdown") == 0 ||
-      strcasecmp(command, "monitor") == 0 || strcasecmp(command, "subscribe") == 0 ||
-      strcasecmp(command, "psubscribe") == 0 || strcasecmp(command, "sync") == 0 || strcasecmp(command, "psync") == 0;
+  bool skip = strncasecmp(command.data(), "quit", command.size()) == 0 ||
+              strncasecmp(command.data(), "exit", command.size()) == 0 ||
+              strncasecmp(command.data(), "connect", command.size()) == 0 ||
+              strncasecmp(command.data(), "help", command.size()) == 0 ||
+              strncasecmp(command.data(), "?", command.size()) == 0 ||
+              strncasecmp(command.data(), "shutdown", command.size()) == 0 ||
+              strncasecmp(command.data(), "monitor", command.size()) == 0 ||
+              strncasecmp(command.data(), "subscribe", command.size()) == 0 ||
+              strncasecmp(command.data(), "psubscribe", command.size()) == 0 ||
+              strncasecmp(command.data(), "sync", command.size()) == 0 ||
+              strncasecmp(command.data(), "psync", command.size()) == 0;
 
   return !skip;
 }
@@ -402,7 +408,7 @@ common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv,
   int argcc = 0;
   size_t* argvlen = reinterpret_cast<size_t*>(malloc(argv.size() * sizeof(size_t)));
   for (size_t i = 0; i < argv.size(); ++i) {
-    argvc[i] = reinterpret_cast<const char*>(argv[i].data());
+    argvc[i] = reinterpret_cast<const char*>(argv[i].data());  // safe
     argvlen[i] = argv[i].size();
     argcc++;
   }
@@ -431,7 +437,7 @@ common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& comm
   size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
   const char** argv = reinterpret_cast<const char**>(raw_argv_ptr);
   for (size_t i = 0; i < argc; ++i) {
-    argv[i] = standart_argv[i].data();
+    argv[i] = standart_argv[i].data();  // safe
     argvlen[i] = standart_argv[i].size();
   }
 
@@ -815,13 +821,7 @@ common::Error DBConnection<Config, ContType>::Mget(const std::vector<NKey>& keys
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>& keys,
-                                                   std::vector<NDbKValue>* added_key) {
-  if (!added_key) {
-    DNOTREACHED();
-    return common::make_error_inval();
-  }
-
+common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>& keys) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
@@ -846,7 +846,6 @@ common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>&
     }
   }
 
-  *added_key = keys;
   freeReplyObject(reply);
   return common::Error();
 }
@@ -907,6 +906,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValu
     return err;
   }
 
+  DCHECK(key.GetType() == common::Value::TYPE_STRING);
   if (base_class::client_) {
     base_class::client_->OnAddedKey(key);
   }
@@ -1862,7 +1862,7 @@ common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys& keys, NKey
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key) {
   command_buffer_t set_cmd;
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->CreateKeyCommand(key, &set_cmd);
@@ -1876,7 +1876,6 @@ common::Error DBConnection<Config, ContType>::SetImpl(const NDbKValue& key, NDbK
     return err;
   }
 
-  *added_key = key;
   freeReplyObject(reply);
   return common::Error();
 }
@@ -2051,7 +2050,7 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
       return common::make_error_inval();
     }
 
-    if (IsPipeLineCommand(standart_argv[0].data())) {
+    if (IsPipeLineCommand(standart_argv[0])) {
       valid_cmds.push_back(cmd);
 
       size_t argc = standart_argv.size();
@@ -2061,7 +2060,7 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
       size_t* argvlen = reinterpret_cast<size_t*>(raw_argvlen_ptr);
       const char** argv = reinterpret_cast<const char**>(raw_argv_ptr);
       for (size_t i = 0; i < argc; ++i) {
-        argv[i] = standart_argv[i].data();
+        argv[i] = standart_argv[i].data();  // safe
         argvlen[i] = standart_argv[i].size();
       }
 

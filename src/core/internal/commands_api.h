@@ -249,8 +249,7 @@ common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, c
   NDbKValue kv(key, string_val);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  NDbKValue key_added;
-  common::Error err = cdb->Set(kv, &key_added);
+  common::Error err = cdb->Set(kv);
   if (err) {
     return err;
   }

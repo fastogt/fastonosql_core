@@ -33,6 +33,9 @@ namespace redis_compatible {
 
 class CommandTranslator : public ICommandTranslator {
  public:
+  typedef ReadableString trans_key_t;
+  typedef ReadableString trans_value_t;
+
   explicit CommandTranslator(const std::vector<CommandHolder>& commands);
   virtual const char* GetDBName() const override;
 
@@ -49,6 +52,9 @@ class CommandTranslator : public ICommandTranslator {
   common::Error Lrange(const NKey& key, int start, int stop, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
   common::Error SetEx(const NDbKValue& key, ttl_t ttl, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error SetEx(const trans_key_t& key, const trans_value_t& value, ttl_t ttl, command_buffer_t* cmdstring)
+      WARN_UNUSED_RESULT;
+
   common::Error SetNX(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
   common::Error Decr(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;

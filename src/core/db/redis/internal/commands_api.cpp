@@ -25,6 +25,8 @@
 
 #include <fastonosql/core/value.h>
 
+#define WITHSCORES "WITHSCORES"
+
 namespace fastonosql {
 namespace core {
 namespace {
@@ -627,8 +629,7 @@ common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args
   }
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
-  std::vector<NDbKValue> result;
-  common::Error err = redis->Mset(keys, &result);
+  common::Error err = redis->Mset(keys);
   if (err) {
     return err;
   }
@@ -1258,7 +1259,7 @@ common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_ar
   if (!common::ConvertFromBytes(argv[2], &stop)) {
     return common::make_error_inval();
   }
-  bool ws = argv.size() == 4 && strncmp(argv[3].data(), "WITHSCORES", 10) == 0;
+  bool ws = argv.size() == 4 && argv[3] == GEN_CMD_STRING(WITHSCORES);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
   common::Error err = redis->Zrange(key, start, stop, ws, &key_loaded);
@@ -1641,9 +1642,8 @@ common::Error CommandsApi::Xadd(internal::CommandHandler* handler, commands_args
   NDbKValue kv(key, NValue(stream));
 
   DBConnection* red = static_cast<DBConnection*>(handler);
-  NDbKValue key_added;
   StreamValue::stream_id gen_id;
-  common::Error err = red->XAdd(kv, &key_added, &gen_id);
+  common::Error err = red->XAdd(kv, &gen_id);
   if (err) {
     return err;
   }
@@ -1866,8 +1866,7 @@ common::Error CommandsApi::JsonSet(internal::CommandHandler* handler, commands_a
   NDbKValue kv(key, json_val);
 
   DBConnection* red = static_cast<DBConnection*>(handler);
-  NDbKValue key_added;
-  common::Error err = red->JsonSet(kv, &key_added);
+  common::Error err = red->JsonSet(kv);
   if (err) {
     return err;
   }

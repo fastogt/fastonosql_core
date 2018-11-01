@@ -34,10 +34,8 @@ void CheckSetGet(core::CDBConnection<NConnection, Config, ContType>* db) {
   ASSERT_TRUE(err);
 
   core::NDbKValue kv(key, val);
-  core::NDbKValue res;
-  err = db->Set(kv, &res);
+  err = db->Set(kv);
   ASSERT_TRUE(!err);
-  ASSERT_TRUE(kv == res);
   core::NDbKValue res2;
   err = db->Get(key, &res2);
   ASSERT_TRUE(!err);
@@ -146,7 +144,6 @@ TEST(Connection, lmdb) {
   err = db.Connect(lcfg);
   ASSERT_TRUE(!err);
   ASSERT_TRUE(db.IsConnected());
-  db.Select(GEN_READABLE_STRING("default"), nullptr);  // need select db
   CheckSetGet(&db);
 
   err = db.Disconnect();

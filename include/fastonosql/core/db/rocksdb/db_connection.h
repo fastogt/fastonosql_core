@@ -69,7 +69,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, ROCKSDB> {
   virtual common::Error CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
-  virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
+  virtual common::Error SetImpl(const NDbKValue& key) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;

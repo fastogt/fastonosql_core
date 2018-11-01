@@ -447,6 +447,14 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     return common::make_error(buff);
   }
 
+  const char* db_name = config.db_name.c_str();
+  st = lmdb_select(lcontext, db_name, env_flags);
+  if (st != LMDB_OK) {
+    lmdb_close(&lcontext);
+    std::string buff = common::MemSPrintf("Failed select database: %s", mdb_strerror(st));
+    return common::make_error(buff);
+  }
+
   *context = lcontext;
   return common::Error();
 }  // namespace lmdb
@@ -702,8 +710,9 @@ common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
 common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, lmdb_create_db(connection_.handle_, db_name, env_flags));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_CREATEDB_COMMAND, lmdb_create_db(connection_.handle_, db_name.data(), env_flags));  // safe
   if (err) {
     return err;
   }
@@ -715,8 +724,9 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
 common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, lmdb_remove_db(connection_.handle_, db_name, env_flags));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_REMOVEDB_COMMAND, lmdb_remove_db(connection_.handle_, db_name.data(), env_flags));  // safe
   if (err) {
     return err;
   }
@@ -768,8 +778,9 @@ common::Error DBConnection::FlushDBImpl() {
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
   int env_flags = conf->env_flags;
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, lmdb_select(connection_.handle_, db_name, env_flags));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_SELECTDB_COMMAND, lmdb_select(connection_.handle_, db_name.data(), env_flags));  // safe
   if (err) {
     return err;
   }
@@ -782,7 +793,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
@@ -793,7 +804,6 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
     return err;
   }
 
-  *added_key = key;
   return common::Error();
 }
 

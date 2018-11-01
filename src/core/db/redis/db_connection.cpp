@@ -3193,7 +3193,7 @@ DBConnection::DBConnection(CDBConnectionClient* client, IModuleConnectionClient*
 DBConnection::DBConnection(CDBConnectionClient* client) : base_class(client) {}
 #endif
 
-common::Error DBConnection::JsonSetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::JsonSetImpl(const NDbKValue& key) {
   command_buffer_t set_cmd;
   redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
   common::Error err = tran->CreateKeyCommand(key, &set_cmd);
@@ -3207,7 +3207,6 @@ common::Error DBConnection::JsonSetImpl(const NDbKValue& key, NDbKValue* added_k
     return err;
   }
 
-  *added_key = key;
   freeReplyObject(reply);
   return common::Error();
 }
@@ -3238,7 +3237,7 @@ common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) 
   return common::Error();
 }
 
-common::Error DBConnection::XAddImpl(const NDbKValue& key, NDbKValue* added_key, command_buffer_t* gen_id) {
+common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen_id) {
   command_buffer_t set_cmd;
   redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
   common::Error err = tran->CreateKeyCommand(key, &set_cmd);
@@ -3254,7 +3253,6 @@ common::Error DBConnection::XAddImpl(const NDbKValue& key, NDbKValue* added_key,
 
   CHECK(reply->type == REDIS_REPLY_STATUS) << "Unexpected replay type: " << reply->type;
   *gen_id = GEN_CMD_STRING_SIZE(reply->str, reply->len);
-  *added_key = key;
   freeReplyObject(reply);
   return common::Error();
 }
@@ -3372,24 +3370,19 @@ common::Error DBConnection::GraphDelete(const commands_args_t& argv, FastoObject
   return CommonExec(argv, out);
 }
 
-common::Error DBConnection::JsonSet(const NDbKValue& key, NDbKValue* added_key) {
-  if (!added_key) {
-    DNOTREACHED();
-    return common::make_error_inval();
-  }
-
+common::Error DBConnection::JsonSet(const NDbKValue& key) {
   common::Error err = TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  err = JsonSetImpl(key, added_key);
+  err = JsonSetImpl(key);
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(*added_key);
+    client_->OnAddedKey(key);
   }
 
   return common::Error();
@@ -3418,8 +3411,8 @@ common::Error DBConnection::JsonGet(const NKey& key, NDbKValue* loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::XAdd(const NDbKValue& key, NDbKValue* added_key, command_buffer_t* gen_id) {
-  if (!added_key || !gen_id) {
+common::Error DBConnection::XAdd(const NDbKValue& key,command_buffer_t* gen_id) {
+  if (!gen_id) {
     DNOTREACHED();
     return common::make_error_inval();
   }
@@ -3429,13 +3422,13 @@ common::Error DBConnection::XAdd(const NDbKValue& key, NDbKValue* added_key, com
     return err;
   }
 
-  err = XAddImpl(key, added_key, gen_id);
+  err = XAddImpl(key, gen_id);
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(*added_key);
+    client_->OnAddedKey(key);
   }
 
   return common::Error();

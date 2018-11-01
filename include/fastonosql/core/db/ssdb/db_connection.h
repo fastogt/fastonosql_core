@@ -144,7 +144,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error DBkcountImpl(keys_limit_t* size) override;
   common::Error FlushDBImpl() override;
   common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
-  common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
+  common::Error SetImpl(const NDbKValue& key) override;
   common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   common::Error RenameImpl(const NKey& key, const key_t& new_key) override;

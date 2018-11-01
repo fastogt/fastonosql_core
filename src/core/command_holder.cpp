@@ -20,6 +20,7 @@
 
 #include <algorithm>
 
+#include <common/convert2string.h>
 #include <common/sprintf.h>
 
 namespace fastonosql {
@@ -36,10 +37,11 @@ common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
   const CommandInfo::args_size_t max = cmd.GetMaxArgumentsCount();
   const CommandInfo::args_size_t min = cmd.GetMinArgumentsCount();
   if (argc > max || argc < min) {
+    const std::string cmd_name = common::ConvertToString(cmd.name);
     std::string buff = common::MemSPrintf(
         "Invalid input argument for command: '%s', passed "
         "%d arguments, must be in range %u - %u.",
-        cmd.name.data(), argc, min, max);
+        cmd_name, argc, min, max);
     return common::make_error(buff);
   }
 
@@ -49,10 +51,11 @@ common::Error TestArgsInRange(const CommandInfo& cmd, commands_args_t argv) {
 common::Error TestArgsModule2Equal1(const CommandInfo& cmd, commands_args_t argv) {
   const size_t argc = argv.size();
   if (argc % 2 != 1) {
+    const std::string cmd_name = common::ConvertToString(cmd.name);
     std::string buff = common::MemSPrintf(
         "Invalid input argument for command: '%s', passed "
         "%d arguments, must be 1 by module 2.",
-        cmd.name.data(), argv.size());
+        cmd_name, argv.size());
     return common::make_error(buff);
   }
 
@@ -110,7 +113,7 @@ bool CommandHolder::IsEqualFirstName(const command_buffer_t& cmd_first_name) con
   for (size_t i = 0; i < name.size(); ++i) {
     char c = name[i];
     if (std::isspace(c)) {
-      command_buffer_t cut = GEN_CMD_STRING_SIZE(name.data(), i);
+      command_buffer_t cut = GEN_CMD_STRING_SIZE(name.data(), i - 1);  // safe
       return common::FullEqualsASCII(cmd_first_name, cut, false);
     }
   }

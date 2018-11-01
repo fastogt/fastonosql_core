@@ -101,7 +101,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   common::Error Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) WARN_UNUSED_RESULT;
-  common::Error Mset(const std::vector<NDbKValue>& keys, std::vector<NDbKValue>* added_key) WARN_UNUSED_RESULT;
+  common::Error Mset(const std::vector<NDbKValue>& keys) WARN_UNUSED_RESULT;
   common::Error MsetNX(const std::vector<NDbKValue>& keys, long long* result) WARN_UNUSED_RESULT;
 
   common::Error SetEx(const NDbKValue& key, ttl_t ttl) WARN_UNUSED_RESULT;
@@ -147,7 +147,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   virtual common::Error FlushDBImpl() override;
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
-  virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
+  virtual common::Error SetImpl(const NDbKValue& key) override;
   virtual common::Error GetImpl(const NKey& key,
                                 NDbKValue* loaded_key) override;  // GET works differently than in redis protocol
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;

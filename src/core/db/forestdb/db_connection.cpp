@@ -590,8 +590,9 @@ common::Error DBConnection::FlushDBImpl() {
 
 common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_CREATEDB_COMMAND, forestdb_create_db(connection_.handle_, db_name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_CREATEDB_COMMAND, forestdb_create_db(connection_.handle_, db_name.data()));  // safe
   if (err) {
     return err;
   }
@@ -602,8 +603,9 @@ common::Error DBConnection::CreateDBImpl(const db_name_t& name, IDataBaseInfo** 
 
 common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_REMOVEDB_COMMAND, forestdb_remove_db(connection_.handle_, db_name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_REMOVEDB_COMMAND, forestdb_remove_db(connection_.handle_, db_name.data()));  // safe
   if (err) {
     return err;
   }
@@ -614,8 +616,9 @@ common::Error DBConnection::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** 
 
 common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
   auto conf = GetConfig();
-  const char* db_name = name.data();
-  common::Error err = CheckResultCommand(DB_SELECTDB_COMMAND, forestdb_select(connection_.handle_, db_name));
+  const std::string db_name = common::ConvertToString(name);
+  common::Error err =
+      CheckResultCommand(DB_SELECTDB_COMMAND, forestdb_select(connection_.handle_, db_name.data()));  // safe
   if (err) {
     return err;
   }
@@ -628,7 +631,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   return common::Error();
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
@@ -639,7 +642,6 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
     return err;
   }
 
-  *added_key = key;
   return common::Error();
 }
 
@@ -674,7 +676,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
 
   raw_value_t value_str;

@@ -51,11 +51,11 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error GraphExplain(const commands_args_t& argv, FastoObject* out) WARN_UNUSED_RESULT;
   common::Error GraphDelete(const commands_args_t& argv, FastoObject* out) WARN_UNUSED_RESULT;
 
-  common::Error JsonSet(const NDbKValue& key, NDbKValue* added_key) WARN_UNUSED_RESULT;
+  common::Error JsonSet(const NDbKValue& key) WARN_UNUSED_RESULT;
   common::Error JsonGet(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   // stream
-  common::Error XAdd(const NDbKValue& key, NDbKValue* added_key, command_buffer_t* gen_id) WARN_UNUSED_RESULT;
+  common::Error XAdd(const NDbKValue& key, command_buffer_t* gen_id) WARN_UNUSED_RESULT;
   common::Error XRange(const NKey& key, NDbKValue* loaded_key, FastoObject* out) WARN_UNUSED_RESULT;
 
   bool IsInternalCommand(const command_buffer_t& command_name);
@@ -64,10 +64,10 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error ModuleUnLoad(const ModuleInfo& module) WARN_UNUSED_RESULT;  // nvi
 #endif
  private:
-  common::Error JsonSetImpl(const NDbKValue& key, NDbKValue* added_key);
+  common::Error JsonSetImpl(const NDbKValue& key);
   common::Error JsonGetImpl(const NKey& key, NDbKValue* loaded_key);
 
-  common::Error XAddImpl(const NDbKValue& key, NDbKValue* added_key, command_buffer_t* gen_id);
+  common::Error XAddImpl(const NDbKValue& key, command_buffer_t* gen_id);
   common::Error XRangeImpl(const NKey& key, NDbKValue* loaded_key, FastoObject* out);
 
 #if defined(PRO_VERSION)

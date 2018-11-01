@@ -27,6 +27,8 @@
 
 #include <fastonosql/core/value.h>
 
+#define WITHSCORES "WITHSCORES"
+
 namespace fastonosql {
 namespace core {
 namespace {
@@ -620,17 +622,16 @@ common::Error CommandsApi::Move(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
-    key_t key_str(argv[i]);
-    command_buffer_t val_str = argv[i + 1];
-    NKey key(key_str);
-    NValue val(common::Value::CreateStringValue(val_str));
-    NDbKValue kv(key, val);
+    const key_t key_str(argv[i]);
+    const command_buffer_t val_str = argv[i + 1];
+    const NKey key(key_str);
+    const NValue val(common::Value::CreateStringValue(val_str));
+    const NDbKValue kv(key, val);
     keys.push_back(kv);
   }
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
-  std::vector<NDbKValue> result;
-  common::Error err = redis->Mset(keys, &result);
+  common::Error err = redis->Mset(keys);
   if (err) {
     return err;
   }
@@ -644,11 +645,11 @@ common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::MsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
-    key_t key_str(argv[i]);
-    command_buffer_t val_str = argv[i + 1];
-    NKey key(key_str);
-    NValue val(common::Value::CreateStringValue(val_str));
-    NDbKValue kv(key, val);
+    const key_t key_str(argv[i]);
+    const command_buffer_t val_str = argv[i + 1];
+    const NKey key(key_str);
+    const NValue val(common::Value::CreateStringValue(val_str));
+    const NDbKValue kv(key, val);
     keys.push_back(kv);
   }
 
@@ -1132,13 +1133,14 @@ common::Error CommandsApi::SentinelSet(internal::CommandHandler* handler, comman
 }
 
 common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
   ttl_t ttl;
   if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
-  NValue string_val(common::Value::CreateStringValue(argv[2]));
+
+  const key_t key_str(argv[0]);
+  const NKey key(key_str);
+  const NValue string_val(common::Value::CreateStringValue(argv[2]));
   NDbKValue kv(key, string_val);
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
@@ -1245,7 +1247,7 @@ common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_ar
     return common::make_error_inval();
   }
 
-  bool ws = argv.size() == 4 && strncmp(argv[3].data(), "WITHSCORES", 10) == 0;
+  bool ws = argv.size() == 4 && argv[3] == GEN_CMD_STRING(WITHSCORES);  // safe
   DBConnection* redis = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
   common::Error err = redis->Zrange(key, start, stop, ws, &key_loaded);

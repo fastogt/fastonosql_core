@@ -45,6 +45,25 @@ const char* kValueTypes[] = {"TYPE_NULL",
                              "TYPE_HASH"};
 static_assert(arraysize(kValueTypes) == static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
               "kValueTypes Has Wrong Size");
+
+struct json_object* json_tokener_parse_hacked(const char* str, int len) {
+  struct json_tokener* tok;
+  struct json_object* obj;
+
+  tok = json_tokener_new();
+  if (!tok)
+    return NULL;
+  obj = json_tokener_parse_ex(tok, str, len);
+  if (tok->err != json_tokener_success) {
+    if (obj != NULL)
+      json_object_put(obj);
+    obj = NULL;
+  }
+
+  json_tokener_free(tok);
+  return obj;
+}
+
 }  // namespace
 
 namespace fastonosql {
@@ -138,7 +157,7 @@ bool JsonValue::IsValidJson(const string_t& json) {
     return false;
   }
 
-  json_object* obj = json_tokener_parse(json.data());
+  json_object* obj = json_tokener_parse_hacked(json.data(), json.size());
   if (!obj) {
     return false;
   }
@@ -377,7 +396,6 @@ convert_to_t ConvertValue(common::ArrayValue* array, const std::string& delimite
     }
   }
 
-  DCHECK(!result.empty());
   return result;
 }
 

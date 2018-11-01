@@ -42,6 +42,8 @@ namespace core {
 // methods naming
 // voi CreateDB() => void OnCreatedDB()
 
+// after connection will be created, cdb must be ready for other commands
+
 template <typename NConnection, typename Config, ConnectionType connection_type>
 class CDBConnection : public internal::DBConnection<NConnection, Config, connection_type>,
                       public internal::CommandHandler,
@@ -54,6 +56,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
       : db_base_class(), CommandHandler(translator), client_(client) {}
 
   virtual db_name_t GetCurrentDBName() const;  //
+
   common::Error Help(commands_args_t argv,
                      readable_string_t* answer) WARN_UNUSED_RESULT;  //
 
@@ -66,17 +69,17 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                      const raw_key_t& key_end,
                      keys_limit_t limit,
                      raw_keys_t* ret) WARN_UNUSED_RESULT;         // nvi
+
   common::Error DBkcount(keys_limit_t* size) WARN_UNUSED_RESULT;  // nvi
   common::Error FlushDB() WARN_UNUSED_RESULT;                     // nvi
   common::Error Select(const db_name_t& name,
-                       IDataBaseInfo** info) WARN_UNUSED_RESULT;         // nvi
+                       IDataBaseInfo** info) WARN_UNUSED_RESULT;         // nvi, select + dblcount
   common::Error CreateDB(const db_name_t& name) WARN_UNUSED_RESULT;      // nvi
   common::Error RemoveDB(const db_name_t& name) WARN_UNUSED_RESULT;      // nvi
   common::Error ConfigGetDatabases(db_names_t* dbs) WARN_UNUSED_RESULT;  // nvi
   common::Error Delete(const NKeys& keys,
                        NKeys* deleted_keys) WARN_UNUSED_RESULT;  // nvi
-  common::Error Set(const NDbKValue& key,
-                    NDbKValue* added_key) WARN_UNUSED_RESULT;  // nvi
+  common::Error Set(const NDbKValue& key) WARN_UNUSED_RESULT;    // nvi
   common::Error Get(const NKey& key,
                     NDbKValue* loaded_key) WARN_UNUSED_RESULT;  // nvi
   common::Error Rename(const NKey& key,
@@ -88,7 +91,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                          const pattern_t& pattern,
                          keys_limit_t limit,
                          const common::file_system::ascii_file_string_path& path,
-                         cursor_t* cursor_out) WARN_UNUSED_RESULT;  // nvi
+                         cursor_t* cursor_out) WARN_UNUSED_RESULT;
 
  protected:
   common::Error GenerateError(const std::string& cmd, const std::string& descr) WARN_UNUSED_RESULT {
@@ -118,17 +121,12 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
 
   virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) = 0;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) = 0;
-  virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) = 0;
+  virtual common::Error SetImpl(const NDbKValue& key) = 0;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) = 0;
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) = 0;
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl);   // optional
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl);  // optional
   virtual common::Error QuitImpl() = 0;
-  virtual common::Error JsonDumpImpl(cursor_t cursor_in,
-                                     const pattern_t& pattern,
-                                     keys_limit_t limit,
-                                     const common::file_system::ascii_file_string_path& path,
-                                     cursor_t* cursor_out);  // optional;
 };
 
 template <typename NConnection, typename Config, ConnectionType ContType>
@@ -276,14 +274,15 @@ common::Error CDBConnection<NConnection, Config, ContType>::CreateDB(const db_na
     return common::make_error_inval();
   }
 
-  if (name == GetCurrentDBName()) {
-    DNOTREACHED();
-    return common::make_error("Sorry we can't create selected database.");
-  }
-
   common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
+  }
+
+  if (name == GetCurrentDBName()) {
+    static const std::string error_str = "Sorry we can't create selected database.";
+    DNOTREACHED() << error_str;
+    return common::make_error(error_str);
   }
 
   IDataBaseInfo* linfo = nullptr;
@@ -307,15 +306,15 @@ common::Error CDBConnection<NConnection, Config, ContType>::RemoveDB(const db_na
     return common::make_error_inval();
   }
 
-  if (name == GetCurrentDBName()) {
-    const std::string error_str = "Sorry we can't remove selected database.";
-    DNOTREACHED() << error_str;
-    return common::make_error(error_str);
-  }
-
   common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
+  }
+
+  if (name == GetCurrentDBName()) {
+    static const std::string error_str = "Sorry we can't remove selected database.";
+    DNOTREACHED() << error_str;
+    return common::make_error(error_str);
   }
 
   IDataBaseInfo* linfo = nullptr;
@@ -400,24 +399,19 @@ common::Error CDBConnection<NConnection, Config, ContType>::Delete(const NKeys& 
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::Set(const NDbKValue& key, NDbKValue* added_key) {
-  if (!added_key) {
-    DNOTREACHED();
-    return common::make_error_inval();
-  }
-
+common::Error CDBConnection<NConnection, Config, ContType>::Set(const NDbKValue& key) {
   common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
   }
 
-  err = SetImpl(key, added_key);
+  err = SetImpl(key);
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(*added_key);
+    client_->OnAddedKey(key);
   }
 
   return common::Error();
@@ -540,7 +534,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
     return common::make_error_inval();
   }
 
-  std::string dir = path.GetDirectory();
+  const std::string dir = path.GetDirectory();
   if (!common::file_system::is_directory_exist(dir)) {
     const std::string error_msg =
         common::MemSPrintf("Please create directory: %s for " DB_JSONDUMP_COMMAND " command.", dir);
@@ -552,59 +546,6 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
     return err;
   }
 
-  err = JsonDumpImpl(cursor_in, pattern, limit, path, cursor_out);
-  if (err) {
-    return err;
-  }
-
-  return common::Error();
-}
-
-template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
-  UNUSED(key);
-  UNUSED(ttl);
-  const std::string error_msg = common::MemSPrintf(
-      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::GetTTLImpl(const NKey& key, ttl_t* ttl) {
-  UNUSED(key);
-  UNUSED(ttl);
-  const std::string error_msg = common::MemSPrintf(
-      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
-  UNUSED(name);
-  UNUSED(info);
-  const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_REMOVEDB_COMMAND " commands.",
-                         connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
-  UNUSED(name);
-  UNUSED(info);
-  const std::string error_msg =
-      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_CREATEDB_COMMAND " commands.",
-                         connection_traits_class::GetDBName());
-  return common::make_error(error_msg);
-}
-
-template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
-    cursor_t cursor_in,
-    const pattern_t& pattern,
-    keys_limit_t limit,
-    const common::file_system::ascii_file_string_path& path,
-    cursor_t* cursor_out) {
   common::file_system::ANSIFile fl;
   common::ErrnoError errn = fl.Open(path, "wb");
   if (errn) {
@@ -618,7 +559,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
   }
 
   raw_keys_t keys;
-  common::Error err = Scan(cursor_in, pattern, limit, &keys, cursor_out);
+  err = ScanImpl(cursor_in, pattern, limit, &keys, cursor_out);
   if (err) {
     return err;
   }
@@ -660,6 +601,44 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDumpImpl(
 
   fl.Close();
   return common::Error();
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
+  UNUSED(key);
+  UNUSED(ttl);
+  const std::string error_msg = common::MemSPrintf(
+      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetTTLImpl(const NKey& key, ttl_t* ttl) {
+  UNUSED(key);
+  UNUSED(ttl);
+  const std::string error_msg = common::MemSPrintf(
+      "Sorry, but now " PROJECT_NAME_TITLE " for %s not supported TTL commands.", connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::RemoveDBImpl(const db_name_t& name, IDataBaseInfo** info) {
+  UNUSED(name);
+  UNUSED(info);
+  const std::string error_msg =
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_REMOVEDB_COMMAND " commands.",
+                         connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::CreateDBImpl(const db_name_t& name, IDataBaseInfo** info) {
+  UNUSED(name);
+  UNUSED(info);
+  const std::string error_msg =
+      common::MemSPrintf("Sorry, but now " PROJECT_NAME_TITLE " for %s not supported " DB_CREATEDB_COMMAND " commands.",
+                         connection_traits_class::GetDBName());
+  return common::make_error(error_msg);
 }
 
 }  // namespace core

@@ -39,7 +39,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   typedef CDBConnection<NativeConnection, Config, MEMCACHED> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
-  common::Error Info(const command_buffer_t& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
+  common::Error Info(const std::string& args, ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
 
   common::Error AddIfNotExist(const NKey& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
@@ -76,7 +76,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
-  virtual common::Error SetImpl(const NDbKValue& key, NDbKValue* added_key) override;
+  virtual common::Error SetImpl(const NDbKValue& key) override;
   virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;

@@ -1793,7 +1793,7 @@ common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
   return SetInner(nkey, value_str);
 }
 
-common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) {
+common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
@@ -1804,7 +1804,6 @@ common::Error DBConnection::SetImpl(const NDbKValue& key, NDbKValue* added_key) 
     return err;
   }
 
-  *added_key = key;
   return common::Error();
 }
 
