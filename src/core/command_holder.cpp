@@ -113,7 +113,7 @@ bool CommandHolder::IsEqualFirstName(const command_buffer_t& cmd_first_name) con
   for (size_t i = 0; i < name.size(); ++i) {
     char c = name[i];
     if (std::isspace(c)) {
-      command_buffer_t cut = GEN_CMD_STRING_SIZE(name.data(), i - 1);  // safe
+      command_buffer_t cut = GEN_CMD_STRING_SIZE(name.data(), i);  // safe
       return common::FullEqualsASCII(cmd_first_name, cut, false);
     }
   }

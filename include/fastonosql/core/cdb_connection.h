@@ -68,7 +68,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   common::Error Keys(const raw_key_t& key_start,
                      const raw_key_t& key_end,
                      keys_limit_t limit,
-                     raw_keys_t* ret) WARN_UNUSED_RESULT;         // nvi
+                     raw_keys_t* ret) WARN_UNUSED_RESULT;  // nvi
 
   common::Error DBkcount(keys_limit_t* size) WARN_UNUSED_RESULT;  // nvi
   common::Error FlushDB() WARN_UNUSED_RESULT;                     // nvi

@@ -555,9 +555,9 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
     return err;
   }
 
-  const char* stabled_args = args.empty() ? nullptr : args.data();
+  const std::string stabled_args = args.empty() ? std::string() : common::ConvertToString(args);
   memcached_return_t error;
-  memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args), &error);
+  memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args.c_str()), &error);
   err = CheckResultCommand(DB_INFO_COMMAND, error);
   if (err) {
     return err;
@@ -608,16 +608,15 @@ common::Error DBConnection::AddIfNotExist(const NKey& key,
 
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
-  const char* key_slice_ptr = key_slice.data();
-  const char* value_slice_ptr = value.data();
-  err = CheckResultCommand("ADD", memcached_add(connection_.handle_, key_slice_ptr, key_slice.size(), value_slice_ptr,
+  err = CheckResultCommand("ADD", memcached_add(connection_.handle_, key_slice.data(), key_slice.size(), value.data(),
                                                 value.size(), expiration, flags));
   if (err) {
     return err;
   }
 
   if (client_) {
-    client_->OnAddedKey(NDbKValue(key, NValue(common::Value::CreateStringValue(value))));
+    NDbKValue dbv(key, NValue(common::Value::CreateStringValue(value)));
+    client_->OnAddedKey(dbv);
   }
   return common::Error();
 }
@@ -634,10 +633,8 @@ common::Error DBConnection::Replace(const NKey& key, const raw_value_t& value, t
 
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
-  const char* key_slice_ptr = key_slice.data();
-  const char* value_slice_ptr = value.data();
-  err = CheckResultCommand("REPLACE", memcached_replace(connection_.handle_, key_slice_ptr, key_slice.size(),
-                                                        value_slice_ptr, value.size(), expiration, flags));
+  err = CheckResultCommand("REPLACE", memcached_replace(connection_.handle_, key_slice.data(), key_slice.size(),
+                                                        value.data(), value.size(), expiration, flags));
   if (err) {
     return err;
   }
@@ -660,10 +657,8 @@ common::Error DBConnection::Append(const NKey& key, const raw_value_t& value, ti
 
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
-  const char* key_slice_ptr = key_slice.data();
-  const char* value_slice_ptr = value.data();
-  err = CheckResultCommand("APPEND", memcached_append(connection_.handle_, key_slice_ptr, key_slice.size(),
-                                                      value_slice_ptr, value.size(), expiration, flags));
+  err = CheckResultCommand("APPEND", memcached_append(connection_.handle_, key_slice.data(), key_slice.size(),
+                                                      value.data(), value.size(), expiration, flags));
   if (err) {
     return err;
   }
@@ -686,10 +681,8 @@ common::Error DBConnection::Prepend(const NKey& key, const raw_value_t& value, t
 
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
-  const char* key_slice_ptr = key_slice.data();
-  const char* value_slice_ptr = value.data();
-  err = CheckResultCommand("PREPEND", memcached_prepend(connection_.handle_, key_slice_ptr, key_slice.size(),
-                                                        value_slice_ptr, value.size(), expiration, flags));
+  err = CheckResultCommand("PREPEND", memcached_prepend(connection_.handle_, key_slice.data(), key_slice.size(),
+                                                        value.data(), value.size(), expiration, flags));
   if (err) {
     return err;
   }
@@ -714,9 +707,8 @@ common::Error DBConnection::Incr(const NKey& key, uint32_t value, uint64_t* resu
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   uint64_t local_value = 0;
-  const char* key_slice_ptr = key_slice.data();
   err = CheckResultCommand(
-      "INCR", memcached_increment(connection_.handle_, key_slice_ptr, key_slice.size(), value, &local_value));
+      "INCR", memcached_increment(connection_.handle_, key_slice.data(), key_slice.size(), value, &local_value));
   if (err) {
     return err;
   }
@@ -743,9 +735,8 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
   const key_t key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   uint64_t local_value = 0;
-  const char* key_slice_ptr = key_slice.data();
   err = CheckResultCommand(
-      "DECR", memcached_decrement(connection_.handle_, key_slice_ptr, key_slice.size(), value, &local_value));
+      "DECR", memcached_decrement(connection_.handle_, key_slice.data(), key_slice.size(), value, &local_value));
   if (err) {
     return err;
   }
@@ -759,19 +750,16 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
 }
 
 common::Error DBConnection::DelInner(const raw_key_t& key, time_t expiration) {
-  const char* key_slice_ptr = key.data();
   return CheckResultCommand(DB_DELETE_KEY_COMMAND,
-                            memcached_delete(connection_.handle_, key_slice_ptr, key.size(), expiration));
+                            memcached_delete(connection_.handle_, key.data(), key.size(), expiration));
 }
 
 common::Error DBConnection::SetInner(const raw_key_t& key,
                                      const raw_value_t& value,
                                      time_t expiration,
                                      uint32_t flags) {
-  const char* key_slice_ptr = key.data();
-  const char* value_slice_ptr = value.data();
-  return CheckResultCommand(DB_SET_KEY_COMMAND, memcached_set(connection_.handle_, key_slice_ptr, key.size(),
-                                                              value_slice_ptr, value.size(), expiration, flags));
+  return CheckResultCommand(DB_SET_KEY_COMMAND, memcached_set(connection_.handle_, key.data(), key.size(), value.data(),
+                                                              value.size(), expiration, flags));
 }
 
 common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
@@ -784,8 +772,7 @@ common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val)
   memcached_return error;
   size_t value_length = 0;
 
-  const char* key_slice_ptr = key.data();
-  char* value = memcached_get(connection_.handle_, key_slice_ptr, key.size(), &value_length, &flags, &error);
+  char* value = memcached_get(connection_.handle_, key.data(), key.size(), &value_length, &flags, &error);
   common::Error err = CheckResultCommand(DB_GET_KEY_COMMAND, error);
   if (err) {
     return err;
@@ -802,14 +789,13 @@ common::Error DBConnection::ExpireInner(const raw_key_t& key, ttl_t expiration) 
   memcached_return error;
   size_t value_length = 0;
 
-  const char* key_slice_ptr = key.data();
-  char* value = memcached_get(connection_.handle_, key_slice_ptr, key.size(), &value_length, &flags, &error);
+  char* value = memcached_get(connection_.handle_, key.data(), key.size(), &value_length, &flags, &error);
   common::Error err = CheckResultCommand(DB_SET_TTL_COMMAND, error);
   if (err) {
     return err;
   }
 
-  return CheckResultCommand(DB_SET_TTL_COMMAND, memcached_set(connection_.handle_, key_slice_ptr, key.size(), value,
+  return CheckResultCommand(DB_SET_TTL_COMMAND, memcached_set(connection_.handle_, key.data(), key.size(), value,
                                                               value_length, expiration, flags));
 }
 

@@ -3411,7 +3411,7 @@ common::Error DBConnection::JsonGet(const NKey& key, NDbKValue* loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::XAdd(const NDbKValue& key,command_buffer_t* gen_id) {
+common::Error DBConnection::XAdd(const NDbKValue& key, command_buffer_t* gen_id) {
   if (!gen_id) {
     DNOTREACHED();
     return common::make_error_inval();
