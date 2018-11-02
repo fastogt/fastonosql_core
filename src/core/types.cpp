@@ -216,7 +216,15 @@ void ReadableString::SetData(const readable_string_t& data) {
 }
 
 bool ReadableString::Equals(const ReadableString& other) const {
-  return type_ == other.type_ && data_ == other.data_;
+  if (type_ != other.type_) {
+    return false;
+  }
+
+  if (data_.size() != other.data_.size()) {
+    return false;
+  }
+
+  return data_ == other.data_;
 }
 
 readable_string_t ReadableString::HexData(const readable_string_t& data) {

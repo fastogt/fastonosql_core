@@ -36,9 +36,9 @@ TEST(ReadableString, TextConversion) {
   ASSERT_EQ(r.GetHumanReadable(), valid_with_rn);
 
   const fastonosql::core::readable_string_t valid_bin = {'H', 'e', 'l', 'l', 'o', 0, '1', '2', '3'};
-  const fastonosql::core::readable_string_t valid_bin_str = {'\\', 'x', '4', '8', '\\', 'x', '6', '5', '\\', 'x', '6', 'c',
-                                           '\\', 'x', '6', 'c', '\\', 'x', '6', 'f', '\\', 'x', '0', '0',
-                                           '\\', 'x', '3', '1', '\\', 'x', '3', '2', '\\', 'x', '3', '3'};
+  const fastonosql::core::readable_string_t valid_bin_str = {
+      '\\', 'x', '4',  '8', '\\', 'x', '6',  '5', '\\', 'x', '6',  'c', '\\', 'x', '6',  'c', '\\', 'x',
+      '6',  'f', '\\', 'x', '0',  '0', '\\', 'x', '3',  '1', '\\', 'x', '3',  '2', '\\', 'x', '3',  '3'};
   r.SetData(valid_bin);
   ASSERT_EQ(r.GetType(), fastonosql::core::ReadableString::BINARY_DATA);
   ASSERT_EQ(r.GetData(), valid_bin);

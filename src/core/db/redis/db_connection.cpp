@@ -1480,7 +1480,7 @@ const ConstantCommandsArray kCommands = {
                   "<key> <seconds> <value>",
                   "Set the value and expiration of a key",
                   PROJECT_VERSION_GENERATE(2, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  "SETEX key 10 value",
                   3,
                   0,
                   CommandInfo::Native,
