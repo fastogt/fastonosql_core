@@ -60,6 +60,8 @@ class ReadableString {
 
   static readable_string_t HexData(const readable_string_t& data);
 
+  void Clear();
+
  private:
   readable_string_t data_;
   DataType type_;

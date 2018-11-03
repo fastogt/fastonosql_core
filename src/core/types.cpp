@@ -236,6 +236,10 @@ readable_string_t ReadableString::HexData(const readable_string_t& data) {
   return wr.str();
 }
 
+void ReadableString::Clear() {
+  data_.clear();
+}
+
 namespace detail {
 
 bool have_space(const readable_string_t& data) {
