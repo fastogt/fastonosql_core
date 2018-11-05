@@ -1339,7 +1339,7 @@ const ConstantCommandsArray kCommands = {
                   "<key> <member> [member ...]",
                   "Add one or more members to a set",
                   PROJECT_VERSION_GENERATE(1, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  "SADD myset World",
                   2,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
@@ -1759,7 +1759,7 @@ const ConstantCommandsArray kCommands = {
                   "set, or update its score if it "
                   "already exists",
                   PROJECT_VERSION_GENERATE(1, 2, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  "ZADD myzset 2 two 3 three",
                   3,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
@@ -2702,12 +2702,12 @@ const ConstantCommandsArray kCommands = {
 
     // json
     CommandHolder(GEN_CMD_STRING(REDIS_JSON_MODULE_COMMAND("DEL")),
-                  "<key> <path>",
+                  "<key> [path]",
                   "Delete a value.",
                   PROJECT_VERSION_GENERATE(1, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
-                  2,
-                  0,
+                  REDIS_JSON_MODULE_COMMAND("DEL") " obj",
+                  1,
+                  1,
                   CommandInfo::Extended,
                   &CommandsApi::JsonDel),
     CommandHolder(GEN_CMD_STRING(REDIS_JSON_MODULE_COMMAND("GET")),
@@ -2715,8 +2715,7 @@ const ConstantCommandsArray kCommands = {
                   "line-break-string][SPACE space-string] [path...]",
                   "Return the value at path in JSON serialized form.",
                   PROJECT_VERSION_GENERATE(1, 0, 0),
-                  REDIS_SEARCH_MODULE_COMMAND("GET") " myjsonkey INDENT \"\t\" NEWLINE \"\n\" SPACE "
-                                                     " path.to.value[1]",
+                  REDIS_JSON_MODULE_COMMAND("GET") " myjsonkey",
                   1,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
@@ -2735,7 +2734,7 @@ const ConstantCommandsArray kCommands = {
                   "<key> <path> <json> [NX | XX]",
                   "Sets the JSON value at path in key.",
                   PROJECT_VERSION_GENERATE(1, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  REDIS_JSON_MODULE_COMMAND("SET") " obj . {\"name\":\"Leonard\",\"seen\":1478476,\"loggedOut\": true}",
                   3,
                   2,
                   CommandInfo::Extended,
@@ -3237,6 +3236,27 @@ common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) 
   return common::Error();
 }
 
+common::Error DBConnection::JsonDelImpl(const NKey& key, long long* deleted) {
+  command_buffer_t del_cmd;
+  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  common::Error err = tran->DeleteKeyCommand(key, &del_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = redis_compatible::ExecRedisCommand(connection_.handle_, del_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  CHECK(reply->type == REDIS_REPLY_INTEGER) << "According docs return must be int.";
+  *deleted = reply->integer;
+
+  freeReplyObject(reply);
+  return common::Error();
+}
+
 common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen_id) {
   command_buffer_t set_cmd;
   redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
@@ -3406,6 +3426,29 @@ common::Error DBConnection::JsonGet(const NKey& key, NDbKValue* loaded_key) {
 
   if (client_) {
     client_->OnLoadedKey(*loaded_key);
+  }
+
+  return common::Error();
+}
+
+common::Error DBConnection::JsonDel(const NKey& key, long long* deleted) {
+  if (!deleted) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  err = JsonDelImpl(key, deleted);
+  if (err) {
+    return err;
+  }
+
+  if (client_ && *deleted == 1) {
+    client_->OnRemovedKeys({key});
   }
 
   return common::Error();

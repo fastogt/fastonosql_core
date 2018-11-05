@@ -391,7 +391,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::Delete(const NKeys& 
     return err;
   }
 
-  if (client_) {
+  if (client_ && !deleted_keys->empty()) {
     client_->OnRemovedKeys(*deleted_keys);
   }
 

@@ -18,6 +18,8 @@
 
 #include "core/db/redis/internal/commands_api.h"
 
+#include <vector>
+
 #include <common/string_util.h>
 
 #include <fastonosql/core/db/redis/db_connection.h>
@@ -1833,8 +1835,19 @@ common::Error CommandsApi::FtSuglen(internal::CommandHandler* handler, commands_
 }
 
 common::Error CommandsApi::JsonDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({GEN_CMD_STRING(REDIS_JSON_MODULE_COMMAND("DEL"))}, argv), out);
+  NKey key(argv[0]);
+
+  DBConnection* cdb = static_cast<DBConnection*>(handler);
+  long long deleted;
+  common::Error err = cdb->JsonDel(key, &deleted);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(deleted);
+  FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
 }
 
 common::Error CommandsApi::JsonGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {

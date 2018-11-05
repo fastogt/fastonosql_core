@@ -153,7 +153,6 @@ bool JsonValue::Equals(const Value* other) const {
 
 bool JsonValue::IsValidJson(const string_t& json) {
   if (json.empty()) {
-    DNOTREACHED();
     return false;
   }
 

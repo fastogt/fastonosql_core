@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
 #include <fastonosql/core/db/redis/config.h>
@@ -53,6 +55,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
 
   common::Error JsonSet(const NDbKValue& key) WARN_UNUSED_RESULT;
   common::Error JsonGet(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
+  common::Error JsonDel(const NKey& key, long long* deleted) WARN_UNUSED_RESULT;
 
   // stream
   common::Error XAdd(const NDbKValue& key, command_buffer_t* gen_id) WARN_UNUSED_RESULT;
@@ -66,6 +69,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
  private:
   common::Error JsonSetImpl(const NDbKValue& key);
   common::Error JsonGetImpl(const NKey& key, NDbKValue* loaded_key);
+  common::Error JsonDelImpl(const NKey& key, long long* deleted);
 
   common::Error XAddImpl(const NDbKValue& key, command_buffer_t* gen_id);
   common::Error XRangeImpl(const NKey& key, NDbKValue* loaded_key, FastoObject* out);

@@ -358,10 +358,10 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
        << value_str.GetForCommandLine(false);
   } else if (type == common::Value::TYPE_SET) {
     wr << REDIS_SET_KEY_SET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+       << value_str.GetForCommandLine(false);
   } else if (type == common::Value::TYPE_ZSET) {
     wr << REDIS_SET_KEY_ZSET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+       << value_str.GetForCommandLine(false);
   } else if (type == common::Value::TYPE_HASH) {
     // HMSET gameConfig:1:1 tile "note3" RY "1920" RX "1080" id 1
     wr << REDIS_SET_KEY_HASH_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
