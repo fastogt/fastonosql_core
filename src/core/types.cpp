@@ -192,7 +192,7 @@ readable_string_t ReadableString::GetHumanReadable() const {
   return data_;
 }
 
-readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
+readable_string_t ReadableString::GetForCommandLine() const {
   if (type_ == BINARY_DATA) {
     return HexData(data_);
   }
@@ -201,7 +201,7 @@ readable_string_t ReadableString::GetForCommandLine(bool need_quotes) const {
     return data_;
   }
 
-  if (need_quotes && detail::have_space(data_)) {
+  if (detail::have_space(data_)) {
     command_buffer_writer_t wr;
     wr << SINGLE_QUOTES_CHAR << data_ << SINGLE_QUOTES_CHAR;
     return wr.str();
@@ -259,7 +259,6 @@ bool is_binary_data(const readable_string_t& data) {
 
 bool is_json(const readable_string_t& data) {
   if (data.empty()) {
-    DNOTREACHED();
     return false;
   }
 

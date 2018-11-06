@@ -54,23 +54,18 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const auto value_str = value.GetReadableValue();
   const common::Value::Type type = key.GetType();
 
   if (type == common::Value::TYPE_ARRAY) {
-    wr << SSDB_SET_KEY_ARRAY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_ARRAY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   } else if (type == common::Value::TYPE_SET) {
-    wr << SSDB_SET_KEY_SET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_SET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   } else if (type == common::Value::TYPE_ZSET) {
-    wr << SSDB_SET_KEY_ZSET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_ZSET_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   } else if (type == common::Value::TYPE_HASH) {
-    wr << SSDB_SET_KEY_HASH_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR
-       << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_HASH_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   } else {
-    wr << SSDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
+    wr << SSDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   }
 
   *cmdstring = wr.str();

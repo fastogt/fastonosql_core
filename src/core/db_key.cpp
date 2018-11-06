@@ -59,8 +59,12 @@ NValue::NValue() : base_class() {}
 
 NValue::NValue(const base_class& other) : base_class(other) {}
 
-ReadableString NValue::GetReadableValue(const std::string& delimiter) const {
-  return ConvertValue(get(), delimiter);
+readable_string_t NValue::GetData() const {
+  return ConvertValue(get(), DEFAULT_DELIMITER);
+}
+
+readable_string_t NValue::GetForCommandLine(const std::string& delimiter) const {
+  return ConvertValueForCommandLine(get(), delimiter);
 }
 
 NDbKValue::NDbKValue() : key_(), value_() {}

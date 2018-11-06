@@ -575,9 +575,8 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
     }
 
     const NValue value = loaded_key.GetValue();
-    const auto value_str = value.GetReadableValue();
-    const auto stabled_key = key_str.GetForCommandLine(false);
-    const auto stabled_value = value_str.GetForCommandLine(false);
+    const auto stabled_key = key_str.GetForCommandLine();
+    const auto stabled_value = value.GetForCommandLine();
     command_buffer_writer_t wr;
     wr << stabled_key << ":" << stabled_value;
     if (i != keys.size() - 1) {

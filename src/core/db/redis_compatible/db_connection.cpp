@@ -613,10 +613,9 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
   }
 
   const auto key_str = key.GetKey();
-  const auto value_str = arr.GetReadableValue();
 
   command_buffer_writer_t wr;
-  wr << "LPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
+  wr << "LPUSH " << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
 
   redisReply* reply = nullptr;
   err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
@@ -659,10 +658,9 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
   }
 
   const auto key_str = key.GetKey();
-  const auto value_str = arr.GetReadableValue();
 
   command_buffer_writer_t wr;
-  wr << "RPUSH " << key_str.GetForCommandLine() << " " << value_str.GetForCommandLine(false);
+  wr << "RPUSH " << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
 
   redisReply* reply = nullptr;
   err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);

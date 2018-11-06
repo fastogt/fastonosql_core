@@ -70,7 +70,8 @@ class NValue : public common::ValueSPtr {
 
   explicit NValue(const base_class& other);
 
-  ReadableString GetReadableValue(const std::string& delimiter = DEFAULT_DELIMITER) const;
+  readable_string_t GetData() const;
+  readable_string_t GetForCommandLine(const std::string& delimiter = DEFAULT_DELIMITER) const;
 };
 
 class NDbKValue {

@@ -39,10 +39,9 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const auto value_str = value.GetReadableValue();
 
   command_buffer_writer_t wr;
-  wr << LMDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value_str.GetForCommandLine();
+  wr << LMDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

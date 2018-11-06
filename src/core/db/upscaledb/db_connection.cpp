@@ -569,9 +569,8 @@ common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
   const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
-  const auto value_str = value.GetReadableValue();
 
-  common::Error err = SetInner(key_str.GetData(), value_str.GetData());
+  common::Error err = SetInner(key_str.GetData(), value.GetData());
   if (err) {
     return err;
   }

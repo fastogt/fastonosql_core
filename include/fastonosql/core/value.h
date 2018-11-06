@@ -156,5 +156,22 @@ convert_to_t ConvertValue(JsonValue* value, const std::string& delimiter);
 convert_to_t ConvertValue(GraphValue* value, const std::string& delimiter);
 convert_to_t ConvertValue(BloomValue* value, const std::string& delimiter);
 convert_to_t ConvertValue(SearchValue* value, const std::string& delimiter);
+
+// for command line
+convert_to_t ConvertValueForCommandLine(common::Value* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::ArrayValue* array, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::SetValue* set, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::ZSetValue* zset, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::HashValue* hash, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::FundamentalValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::StringValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(common::ByteArrayValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(StreamValue* value, const std::string& delimiter);
+// extended
+convert_to_t ConvertValueForCommandLine(JsonValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(GraphValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(BloomValue* value, const std::string& delimiter);
+convert_to_t ConvertValueForCommandLine(SearchValue* value, const std::string& delimiter);
+
 }  // namespace core
 }  // namespace fastonosql

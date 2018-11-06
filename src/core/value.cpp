@@ -641,5 +641,333 @@ convert_to_t ConvertValue(SearchValue* value, const std::string& delimiter) {
   return convert_to_t();
 }
 
+// for command line
+
+convert_to_t ConvertValueForCommandLine(common::Value* value, const std::string& delimiter) {
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  common::Value::Type value_type = value->GetType();
+  if (value_type == common::Value::TYPE_NULL) {
+    return GEN_CMD_STRING("(nil)");
+  } else if (value_type == common::Value::TYPE_BOOLEAN) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_INTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_UINTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_DOUBLE) {
+    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
+
+  } else if (value_type == common::Value::TYPE_STRING) {
+    return ConvertValueForCommandLine(static_cast<common::StringValue*>(value), delimiter);
+
+  } else if (value_type == common::Value::TYPE_ARRAY) {
+    return ConvertValueForCommandLine(static_cast<common::ArrayValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_BYTE_ARRAY) {
+    return ConvertValueForCommandLine(static_cast<common::ByteArrayValue*>(value), delimiter);
+
+  } else if (value_type == common::Value::TYPE_SET) {
+    return ConvertValueForCommandLine(static_cast<common::SetValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_ZSET) {
+    return ConvertValueForCommandLine(static_cast<common::ZSetValue*>(value), delimiter);
+  } else if (value_type == common::Value::TYPE_HASH) {
+    return ConvertValueForCommandLine(static_cast<common::HashValue*>(value), delimiter);
+  } else if (value_type == StreamValue::TYPE_STREAM) {
+    return ConvertValueForCommandLine(static_cast<StreamValue*>(value), delimiter);
+    // extended
+  } else if (value_type == JsonValue::TYPE_JSON) {
+    return ConvertValueForCommandLine(static_cast<JsonValue*>(value), delimiter);
+  } else if (value_type == GraphValue::TYPE_GRAPH) {
+    return ConvertValueForCommandLine(static_cast<GraphValue*>(value), delimiter);
+  } else if (value_type == BloomValue::TYPE_BLOOM) {
+    return ConvertValueForCommandLine(static_cast<BloomValue*>(value), delimiter);
+  } else if (value_type == SearchValue::TYPE_FT_INDEX) {
+    return ConvertValueForCommandLine(static_cast<SearchValue*>(value), delimiter);
+  } else if (value_type == SearchValue::TYPE_FT_TERM) {
+    return ConvertValueForCommandLine(static_cast<SearchValue*>(value), delimiter);
+  }
+
+  NOTREACHED() << "Not handled type: " << value_type;
+  return convert_to_t();
+}
+
+convert_to_t ConvertValueForCommandLine(common::ArrayValue* array, const std::string& delimiter) {
+  if (!array) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t result;
+  auto last_iter = std::prev(array->end());
+  for (auto it = array->begin(); it != array->end(); ++it) {
+    common::Value* cur_val = *it;
+    convert_to_t val_str = ConvertValueForCommandLine(cur_val, delimiter);
+    if (val_str.empty()) {
+      continue;
+    }
+
+    result += val_str;
+    if (last_iter != it) {
+      result += delimiter;
+    }
+  }
+
+  return result;
+}
+
+convert_to_t ConvertValueForCommandLine(common::SetValue* set, const std::string& delimiter) {
+  if (!set) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t result;
+  auto lastIt = std::prev(set->end());
+  for (auto it = set->begin(); it != set->end(); ++it) {
+    convert_to_t val = ConvertValueForCommandLine((*it), delimiter);
+    if (val.empty()) {
+      continue;
+    }
+
+    result += val;
+    if (lastIt != it) {
+      result += delimiter;
+    }
+  }
+
+  DCHECK(!result.empty());
+  return result;
+}
+
+convert_to_t ConvertValueForCommandLine(common::ZSetValue* zset, const std::string& delimiter) {
+  if (!zset) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t result;
+  auto lastIt = std::prev(zset->end());
+  for (auto it = zset->begin(); it != zset->end(); ++it) {
+    auto v = *it;
+    convert_to_t key = ConvertValueForCommandLine(v.first, delimiter);
+    convert_to_t val = ConvertValueForCommandLine(v.second, delimiter);
+    if (val.empty() || key.empty()) {
+      continue;
+    }
+
+    result += key;
+    result += SPACE_CHAR;
+    result += val;
+    if (lastIt != it) {
+      result += delimiter;
+    }
+  }
+
+  DCHECK(!result.empty());
+  return result;
+}
+
+convert_to_t ConvertValueForCommandLine(common::HashValue* hash, const std::string& delimiter) {
+  if (!hash) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t result;
+  for (auto it = hash->begin(); it != hash->end(); ++it) {
+    auto v = *it;
+    convert_to_t key = ConvertValueForCommandLine(v.first, delimiter);
+    convert_to_t val = ConvertValueForCommandLine(v.second, delimiter);
+    if (val.empty() || key.empty()) {
+      continue;
+    }
+
+    result += key;
+    result += SPACE_CHAR;
+    result += val;
+    if (std::next(it) != hash->end()) {
+      result += delimiter;
+    }
+  }
+
+  DCHECK(!result.empty());
+  return result;
+}
+
+convert_to_t ConvertValueForCommandLine(common::FundamentalValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  const common::Value::Type value_type = value->GetType();
+  if (value_type == common::Value::TYPE_BOOLEAN) {
+    bool res;
+    if (!value->GetAsBoolean(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_INTEGER) {
+    int res;
+    if (!value->GetAsInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_UINTEGER) {
+    unsigned int res;
+    if (!value->GetAsUInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+    long res;
+    if (!value->GetAsLongInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
+    unsigned long res;
+    if (!value->GetAsULongInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
+    long long res;
+    if (!value->GetAsLongLongInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
+    unsigned long long res;
+    if (!value->GetAsULongLongInteger(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  } else if (value_type == common::Value::TYPE_DOUBLE) {
+    double res;
+    if (!value->GetAsDouble(&res)) {
+      DNOTREACHED();
+      return convert_to_t();
+    }
+    return common::ConvertToCharBytes(res);
+  }
+
+  DNOTREACHED();
+  return convert_to_t();
+}
+
+convert_to_t ConvertValueForCommandLine(common::StringValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  command_buffer_t res;
+  if (!value->GetAsString(&res)) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return ReadableString(res).GetForCommandLine();
+}
+
+convert_to_t ConvertValueForCommandLine(common::ByteArrayValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  common::byte_array_t res;
+  if (!value->GetAsByteArray(&res)) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return common::ConvertToCharBytes(res);
+}
+
+convert_to_t ConvertValueForCommandLine(StreamValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t res;
+  if (!value->GetAsString(&res)) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return res;
+}
+
+convert_to_t ConvertValueForCommandLine(JsonValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  convert_to_t res;
+  if (!value->GetAsString(&res)) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return res;
+}
+
+convert_to_t ConvertValueForCommandLine(GraphValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return convert_to_t();
+}
+
+convert_to_t ConvertValueForCommandLine(BloomValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return convert_to_t();
+}
+
+convert_to_t ConvertValueForCommandLine(SearchValue* value, const std::string& delimiter) {
+  UNUSED(delimiter);
+  if (!value) {
+    DNOTREACHED();
+    return convert_to_t();
+  }
+
+  return convert_to_t();
+}
+
 }  // namespace core
 }  // namespace fastonosql

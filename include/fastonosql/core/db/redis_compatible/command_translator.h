@@ -34,7 +34,7 @@ namespace redis_compatible {
 class CommandTranslator : public ICommandTranslator {
  public:
   typedef ReadableString trans_key_t;
-  typedef ReadableString trans_value_t;
+  typedef readable_string_t trans_value_t;
 
   explicit CommandTranslator(const std::vector<CommandHolder>& commands);
   virtual const char* GetDBName() const override;
