@@ -147,7 +147,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error SetImpl(const NDbKValue& key) override;
   common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
-  common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
+  common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
   common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
   common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   common::Error QuitImpl() override;

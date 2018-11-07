@@ -38,7 +38,7 @@ class CDBConnectionClient {
   virtual void OnAddedKey(const NDbKValue& key) = 0;
   virtual void OnLoadedKey(const NDbKValue& key) = 0;
 
-  virtual void OnRenamedKey(const NKey& key, const key_t& new_key) = 0;
+  virtual void OnRenamedKey(const NKey& key, const nkey_t& new_key) = 0;
   virtual void OnChangedKeyTTL(const NKey& key, ttl_t ttl) = 0;
   virtual void OnLoadedKeyTTL(const NKey& key, ttl_t ttl) = 0;
 

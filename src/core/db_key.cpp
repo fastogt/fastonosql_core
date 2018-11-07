@@ -25,13 +25,13 @@ namespace core {
 
 NKey::NKey() : key_(), ttl_(NO_TTL) {}
 
-NKey::NKey(key_t key, ttl_t ttl_sec) : key_(key), ttl_(ttl_sec) {}
+NKey::NKey(nkey_t key, ttl_t ttl_sec) : key_(key), ttl_(ttl_sec) {}
 
-key_t NKey::GetKey() const {
+nkey_t NKey::GetKey() const {
   return key_;
 }
 
-void NKey::SetKey(key_t key) {
+void NKey::SetKey(nkey_t key) {
   key_ = key;
 }
 

@@ -35,7 +35,7 @@ class CommandTranslator : public ICommandTranslatorBase {
                                            command_buffer_t* cmdstring) const override;
   virtual common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
   virtual common::Error RenameKeyCommandImpl(const NKey& key,
-                                             const key_t& new_name,
+                                             const nkey_t& new_name,
                                              command_buffer_t* cmdstring) const override;
 
   virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;

@@ -101,7 +101,7 @@ common::Error ICommandTranslator::DeleteKeyCommand(const NKey& key, command_buff
 }
 
 common::Error ICommandTranslator::RenameKeyCommand(const NKey& key,
-                                                   const key_t& new_name,
+                                                   const trans_key_t& new_name,
                                                    command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     DNOTREACHED();

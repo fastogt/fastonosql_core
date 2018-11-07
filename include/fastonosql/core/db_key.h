@@ -30,13 +30,15 @@
 namespace fastonosql {
 namespace core {
 
+typedef ReadableString nkey_t;
+
 class NKey {
  public:
   NKey();
-  explicit NKey(key_t key, ttl_t ttl_sec = NO_TTL);
+  explicit NKey(nkey_t key, ttl_t ttl_sec = NO_TTL);
 
-  key_t GetKey() const;
-  void SetKey(key_t key);
+  nkey_t GetKey() const;
+  void SetKey(nkey_t key);
 
   ttl_t GetTTL() const;
   void SetTTL(ttl_t ttl);
@@ -45,7 +47,7 @@ class NKey {
   bool Equals(const NKey& other) const;
 
  private:
-  key_t key_;
+  nkey_t key_;
   ttl_t ttl_;
 };
 

@@ -68,7 +68,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, UPSCALEDB> {
   virtual common::Error SetImpl(const NDbKValue& key) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
-  virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
+  virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
   virtual common::Error QuitImpl() override;
   virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
 };

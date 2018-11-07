@@ -53,8 +53,8 @@ common::Error CommandsApi::Auth(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Lpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   common::ArrayValue* arr = common::Value::CreateArrayValue();
   for (size_t i = 1; i < argv.size(); ++i) {
     arr->AppendString(argv[i]);
@@ -74,8 +74,8 @@ common::Error CommandsApi::Lpush(internal::CommandHandler* handler, commands_arg
 }
 
 common::Error CommandsApi::LfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   common::ArrayValue* arr = common::Value::CreateArrayValue();
   for (size_t i = 1; i < argv.size(); ++i) {
     arr->AppendString(argv[i]);
@@ -95,8 +95,8 @@ common::Error CommandsApi::LfastoSet(internal::CommandHandler* handler, commands
 }
 
 common::Error CommandsApi::Lrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   int start;
   if (!common::ConvertFromBytes(argv[1], &start)) {
     return common::make_error_inval();
@@ -587,8 +587,8 @@ common::Error CommandsApi::Mget(internal::CommandHandler* handler, commands_args
   DBConnection* red = static_cast<DBConnection*>(handler);
   std::vector<NKey> keys;
   for (size_t i = 0; i < argv.size(); ++i) {
-    key_t key_str(argv[i]);
-    NKey key(key_str);
+    const auto key_str(argv[i]);
+    const NKey key(key_str);
     keys.push_back(key);
   }
 
@@ -622,7 +622,7 @@ common::Error CommandsApi::Move(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
-    const key_t key_str(argv[i]);
+    const auto key_str(argv[i]);
     const command_buffer_t val_str = argv[i + 1];
     const NKey key(key_str);
     const NValue val(common::Value::CreateStringValue(val_str));
@@ -645,7 +645,7 @@ common::Error CommandsApi::Mset(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::MsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   std::vector<NDbKValue> keys;
   for (size_t i = 0; i < argv.size(); i += 2) {
-    const key_t key_str(argv[i]);
+    const auto key_str(argv[i]);
     const command_buffer_t val_str = argv[i + 1];
     const NKey key(key_str);
     const NValue val(common::Value::CreateStringValue(val_str));
@@ -1138,7 +1138,7 @@ common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_arg
     return common::make_error_inval();
   }
 
-  const key_t key_str(argv[0]);
+  const auto key_str(argv[0]);
   const NKey key(key_str);
   const NValue string_val(common::Value::CreateStringValue(argv[2]));
   NDbKValue kv(key, string_val);
@@ -1156,10 +1156,10 @@ common::Error CommandsApi::SetEx(internal::CommandHandler* handler, commands_arg
 }
 
 common::Error CommandsApi::SetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
-  NValue string_val(common::Value::CreateStringValue(argv[1]));
-  NDbKValue kv(key, string_val);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
+  const NValue string_val(common::Value::CreateStringValue(argv[1]));
+  const NDbKValue kv(key, string_val);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   long long result = 0;
   common::Error err = redis->SetNX(kv, &result);
@@ -1174,8 +1174,8 @@ common::Error CommandsApi::SetNX(internal::CommandHandler* handler, commands_arg
 }
 
 common::Error CommandsApi::Sadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   common::SetValue* set = common::Value::CreateSetValue();
   for (size_t i = 1; i < argv.size(); ++i) {
     set->Insert(argv[i]);
@@ -1195,8 +1195,8 @@ common::Error CommandsApi::Sadd(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Smembers(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
   common::Error err = redis->Smembers(key, &key_loaded);
@@ -1212,8 +1212,8 @@ common::Error CommandsApi::Smembers(internal::CommandHandler* handler, commands_
 }
 
 common::Error CommandsApi::Zadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   common::ZSetValue* zset = common::Value::CreateZSetValue();
   for (size_t i = 1; i < argv.size(); i += 2) {
     command_buffer_t key = argv[i];
@@ -1235,8 +1235,8 @@ common::Error CommandsApi::Zadd(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   int start;
   if (!common::ConvertFromBytes(argv[1], &start)) {
     return common::make_error_inval();
@@ -1263,8 +1263,8 @@ common::Error CommandsApi::Zrange(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::Hmset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   common::HashValue* hmset = common::Value::CreateHashValue();
   for (size_t i = 1; i < argv.size(); i += 2) {
     command_buffer_t key = argv[i];
@@ -1285,8 +1285,8 @@ common::Error CommandsApi::Hmset(internal::CommandHandler* handler, commands_arg
 }
 
 common::Error CommandsApi::Hgetall(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   NDbKValue key_loaded;
   common::Error err = redis->Hgetall(key, &key_loaded);
@@ -1302,8 +1302,8 @@ common::Error CommandsApi::Hgetall(internal::CommandHandler* handler, commands_a
 }
 
 common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   long long result = 0;
   common::Error err = redis->Decr(key, &result);
@@ -1318,8 +1318,8 @@ common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::DecrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   int incr;
   if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
@@ -1338,8 +1338,8 @@ common::Error CommandsApi::DecrBy(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* redis = static_cast<DBConnection*>(handler);
   long long result = 0;
   common::Error err = redis->Incr(key, &result);
@@ -1354,8 +1354,8 @@ common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::IncrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   int incr;
   if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
@@ -1374,8 +1374,8 @@ common::Error CommandsApi::IncrBy(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::IncrByFloat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   double incr;
   if (!common::ConvertFromBytes(argv[1], &incr)) {
     return common::make_error_inval();
@@ -1395,8 +1395,8 @@ common::Error CommandsApi::IncrByFloat(internal::CommandHandler* handler, comman
 }
 
 common::Error CommandsApi::Persist(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* red = static_cast<DBConnection*>(handler);
   common::Error err = red->SetTTL(key, NO_TTL);
   if (err) {
@@ -1413,8 +1413,8 @@ common::Error CommandsApi::Persist(internal::CommandHandler* handler, commands_a
 }
 
 common::Error CommandsApi::ExpireRedis(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   ttl_t ttl;
   if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
@@ -1454,8 +1454,8 @@ common::Error CommandsApi::Sync(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::GetRedis(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* red = static_cast<DBConnection*>(handler);
   NDbKValue value;
   common::Error err = red->Get(key, &value);

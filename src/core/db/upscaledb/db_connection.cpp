@@ -579,7 +579,7 @@ common::Error DBConnection::SetImpl(const NDbKValue& key) {
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
 
   command_buffer_t value_str;
@@ -596,7 +596,7 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     const NKey key = keys[i];
-    const key_t key_str = key.GetKey();
+    const auto key_str = key.GetKey();
     const raw_key_t rkey = key_str.GetData();
 
     common::Error err = DelInner(rkey);
@@ -610,8 +610,8 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  const key_t key_str = key.GetKey();
+common::Error DBConnection::RenameImpl(const NKey& key, const nkey_t& new_key) {
+  const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
 
   command_buffer_t value_str;

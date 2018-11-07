@@ -83,7 +83,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   common::Error Get(const NKey& key,
                     NDbKValue* loaded_key) WARN_UNUSED_RESULT;  // nvi
   common::Error Rename(const NKey& key,
-                       const key_t& new_key) WARN_UNUSED_RESULT;         // nvi
+                       const nkey_t& new_key) WARN_UNUSED_RESULT;        // nvi
   common::Error SetTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;   // nvi
   common::Error GetTTL(const NKey& key, ttl_t* ttl) WARN_UNUSED_RESULT;  // nvi
   common::Error Quit() WARN_UNUSED_RESULT;                               // nvi
@@ -123,7 +123,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) = 0;
   virtual common::Error SetImpl(const NDbKValue& key) = 0;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) = 0;
-  virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) = 0;
+  virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) = 0;
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl);   // optional
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl);  // optional
   virtual common::Error QuitImpl() = 0;
@@ -442,7 +442,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::Get(const NKey& key,
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::Rename(const NKey& key, const key_t& new_key) {
+common::Error CDBConnection<NConnection, Config, ContType>::Rename(const NKey& key, const nkey_t& new_key) {
   common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
     return err;
@@ -565,7 +565,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
   }
 
   for (size_t i = 0; i < keys.size(); ++i) {
-    const key_t key_str = keys[i];
+    const nkey_t key_str = keys[i];  //
     const NKey key(key_str);
     NDbKValue loaded_key;
     err = GetImpl(key, &loaded_key);

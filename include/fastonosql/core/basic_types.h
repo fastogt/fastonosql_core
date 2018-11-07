@@ -19,9 +19,11 @@
 #pragma once
 
 #include <deque>
+#include <limits>
 #include <string>
 
 #include <common/byte_writer.h>
+#include <common/macros.h>
 #include <common/types.h>
 
 #define GEN_CMD_STRING_SIZE(STR, SIZE) common::ByteArray<char>(STR, STR + SIZE)
@@ -29,6 +31,9 @@
 
 #define GEN_READABLE_STRING_SIZE(STR, SIZE) GEN_CMD_STRING_SIZE(STR, SIZE)
 #define GEN_READABLE_STRING(STR) GEN_CMD_STRING(STR)
+
+#define NO_TTL -1       // key exists but has no associated expire
+#define EXPIRED_TTL -2  // key does not exist
 
 namespace fastonosql {
 namespace core {
@@ -50,6 +55,13 @@ typedef std::vector<db_name_t> db_names_t;
 
 typedef uint32_t keys_limit_t;  // UIntegerValue
 typedef keys_limit_t cursor_t;
+
+typedef long long ttl_t;  // in seconds or NO_TTL, EXPIRED_TTL
+typedef ttl_t pttl_t;
+COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= NO_TTL && NO_TTL >= std::numeric_limits<ttl_t>::min(),
+               "NO_TTL define must be in ttl type range");
+COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= EXPIRED_TTL && EXPIRED_TTL >= std::numeric_limits<ttl_t>::min(),
+               "EXPIRED_TTL define must be in ttl type range");
 
 }  // namespace core
 }  // namespace fastonosql

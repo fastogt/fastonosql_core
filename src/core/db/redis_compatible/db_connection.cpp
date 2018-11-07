@@ -1894,7 +1894,6 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
   }
 
   if (reply->type == REDIS_REPLY_NIL) {
-    // key_t key_str = key.GetKey();
     return base_class::GenerateError(DB_GET_KEY_COMMAND, "key not found.");
   }
 
@@ -1906,7 +1905,7 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::RenameImpl(const NKey& key, const key_t& new_key) {
+common::Error DBConnection<Config, ContType>::RenameImpl(const NKey& key, const nkey_t& new_key) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t rename_cmd;
   common::Error err = tran->RenameKeyCommand(key, new_key, &rename_cmd);

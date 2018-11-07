@@ -108,7 +108,7 @@ common::Error CommandTranslator::Hgetall(const NKey& key, command_buffer_t* cmds
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_HGETALL SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -159,7 +159,7 @@ common::Error CommandTranslator::Mget(const std::vector<NKey>& keys, command_buf
   command_buffer_writer_t wr;
   wr << REDIS_MGET;
   for (size_t i = 0; i < keys.size(); ++i) {
-    key_t key_str = keys[i].GetKey();
+    const auto key_str = keys[i].GetKey();
     wr << SPACE_STR << key_str.GetForCommandLine();
   }
   *cmdstring = wr.str();
@@ -171,7 +171,7 @@ common::Error CommandTranslator::Smembers(const NKey& key, command_buffer_t* cmd
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_SMEMBERS SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -183,7 +183,7 @@ common::Error CommandTranslator::Lrange(const NKey& key, int start, int stop, co
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_LRANGE SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(start) << SPACE_STR
      << common::ConvertToBytes(stop);
@@ -238,7 +238,7 @@ common::Error CommandTranslator::Decr(const NKey& key, command_buffer_t* cmdstri
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_DECR SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -250,7 +250,7 @@ common::Error CommandTranslator::DecrBy(const NKey& key, int inc, command_buffer
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_DECRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
@@ -262,7 +262,7 @@ common::Error CommandTranslator::Incr(const NKey& key, command_buffer_t* cmdstri
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_INCR SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -274,7 +274,7 @@ common::Error CommandTranslator::IncrBy(const NKey& key, int inc, command_buffer
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_INCRBY SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
@@ -286,7 +286,7 @@ common::Error CommandTranslator::IncrByFloat(const NKey& key, double inc, comman
     return common::make_error_inval();
   }
 
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_INCRBYFLOAT SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToBytes(inc);
   *cmdstring = wr.str();
@@ -318,7 +318,7 @@ common::Error CommandTranslator::ModuleUnload(const ModuleInfo& module, command_
 #endif
 
 common::Error CommandTranslator::PExpire(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   if (ttl == NO_TTL) {
     wr << REDIS_PERSIST_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
@@ -393,7 +393,7 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
 common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
                                                     common::Value::Type type,
                                                     command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   if (type == common::Value::TYPE_ARRAY) {
     wr << REDIS_GET_KEY_ARRAY_COMMAND SPACE_STR << key_str.GetForCommandLine() << " 0 -1";
@@ -424,7 +424,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 }
 
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -432,9 +432,9 @@ common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_b
 }
 
 common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
-                                                      const key_t& new_name,
+                                                      const trans_key_t& new_name,
                                                       command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << new_name.GetForCommandLine();
   *cmdstring = wr.str();
@@ -444,7 +444,7 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
 common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
                                                          ttl_t ttl,
                                                          command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   if (ttl == NO_TTL) {
     wr << REDIS_PERSIST_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
@@ -457,7 +457,7 @@ common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
 }
 
 common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_GET_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();

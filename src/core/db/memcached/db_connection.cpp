@@ -606,7 +606,7 @@ common::Error DBConnection::AddIfNotExist(const NKey& key,
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   err = CheckResultCommand("ADD", memcached_add(connection_.handle_, key_slice.data(), key_slice.size(), value.data(),
                                                 value.size(), expiration, flags));
@@ -631,7 +631,7 @@ common::Error DBConnection::Replace(const NKey& key, const raw_value_t& value, t
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   err = CheckResultCommand("REPLACE", memcached_replace(connection_.handle_, key_slice.data(), key_slice.size(),
                                                         value.data(), value.size(), expiration, flags));
@@ -655,7 +655,7 @@ common::Error DBConnection::Append(const NKey& key, const raw_value_t& value, ti
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   err = CheckResultCommand("APPEND", memcached_append(connection_.handle_, key_slice.data(), key_slice.size(),
                                                       value.data(), value.size(), expiration, flags));
@@ -679,7 +679,7 @@ common::Error DBConnection::Prepend(const NKey& key, const raw_value_t& value, t
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   err = CheckResultCommand("PREPEND", memcached_prepend(connection_.handle_, key_slice.data(), key_slice.size(),
                                                         value.data(), value.size(), expiration, flags));
@@ -704,7 +704,7 @@ common::Error DBConnection::Incr(const NKey& key, uint32_t value, uint64_t* resu
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   uint64_t local_value = 0;
   err = CheckResultCommand(
@@ -732,7 +732,7 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
     return err;
   }
 
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   const auto key_slice = key_str.GetData();
   uint64_t local_value = 0;
   err = CheckResultCommand(
@@ -893,7 +893,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   for (size_t i = 0; i < keys.size(); ++i) {
     const NKey key = keys[i];
-    const key_t key_str = key.GetKey();
+    const auto key_str = key.GetKey();
 
     common::Error err = DelInner(key_str.GetData(), 0);
     if (err) {
@@ -907,7 +907,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
 }
 
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
 
   raw_value_t value_str;
   common::Error err = GetInner(key_str.GetData(), &value_str);
@@ -922,7 +922,7 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
 
 common::Error DBConnection::SetImpl(const NDbKValue& key) {
   const NKey cur = key.GetKey();
-  const key_t key_str = cur.GetKey();
+  const auto key_str = cur.GetKey();
   const NValue value = key.GetValue();
 
   common::Error err = SetInner(key_str.GetData(), value.GetData(), 0, 0);
@@ -933,8 +933,8 @@ common::Error DBConnection::SetImpl(const NDbKValue& key) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  const key_t key_str = key.GetKey();
+common::Error DBConnection::RenameImpl(const NKey& key, const nkey_t& new_key) {
+  const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
 
   raw_value_t value_str;
@@ -953,12 +953,12 @@ common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
 }
 
 common::Error DBConnection::SetTTLImpl(const NKey& key, ttl_t ttl) {
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   return ExpireInner(key_str.GetData(), ttl);
 }
 
 common::Error DBConnection::GetTTLImpl(const NKey& key, ttl_t* ttl) {
-  const key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   return TTLInner(key_str.GetData(), ttl);
 }
 

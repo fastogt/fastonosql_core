@@ -530,8 +530,8 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
-  const key_t key_str = key.GetKey();
+common::Error DBConnection::RenameImpl(const NKey& key, const nkey_t& new_key) {
+  const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
 
   raw_value_t value_str;

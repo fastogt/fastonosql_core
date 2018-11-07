@@ -76,7 +76,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
                                                     common::Value::Type type,
                                                     command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   if (type == common::Value::TYPE_ARRAY) {
     wr << SSDB_GET_KEY_ARRAY_COMMAND SPACE_STR << key_str.GetForCommandLine() << " 0 -1";
   } else if (type == common::Value::TYPE_SET) {
@@ -94,7 +94,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 }
 
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
@@ -102,9 +102,9 @@ common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_b
 }
 
 common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
-                                                      const key_t& new_name,
+                                                      const nkey_t& new_name,
                                                       command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << new_name.GetForCommandLine();
   *cmdstring = wr.str();
@@ -122,7 +122,7 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
 common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
                                                          ttl_t ttl,
                                                          command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_CHANGE_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToString(ttl);
   *cmdstring = wr.str();
@@ -130,7 +130,7 @@ common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,
 }
 
 common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
-  key_t key_str = key.GetKey();
+  const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << SSDB_GET_TTL_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();

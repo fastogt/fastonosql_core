@@ -49,8 +49,8 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Add(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
   if (!common::ConvertFromBytes(argv[2], &expiration)) {
@@ -74,8 +74,8 @@ common::Error CommandsApi::Add(internal::CommandHandler* handler, commands_args_
 }
 
 common::Error CommandsApi::Replace(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
   if (!common::ConvertFromBytes(argv[2], &expiration)) {
@@ -99,8 +99,8 @@ common::Error CommandsApi::Replace(internal::CommandHandler* handler, commands_a
 }
 
 common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
   if (!common::ConvertFromBytes(argv[2], &expiration)) {
@@ -123,8 +123,8 @@ common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::Prepend(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   time_t expiration;
   if (!common::ConvertFromBytes(argv[2], &expiration)) {
@@ -147,8 +147,8 @@ common::Error CommandsApi::Prepend(internal::CommandHandler* handler, commands_a
 }
 
 common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   uint32_t value;
   if (!common::ConvertFromBytes(argv[1], &value)) {
@@ -167,8 +167,8 @@ common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args
 }
 
 common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  key_t key_str(argv[0]);
-  NKey key(key_str);
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
   DBConnection* mem = static_cast<DBConnection*>(handler);
   uint32_t value;
   if (!common::ConvertFromBytes(argv[1], &value)) {

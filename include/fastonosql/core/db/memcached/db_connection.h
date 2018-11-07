@@ -77,7 +77,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error SetImpl(const NDbKValue& key) override;
-  virtual common::Error RenameImpl(const NKey& key, const key_t& new_key) override;
+  virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
   virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
   virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
   virtual common::Error QuitImpl() override;

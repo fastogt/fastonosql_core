@@ -837,7 +837,7 @@ common::Error DBConnection::DeleteImpl(const NKeys& keys, NKeys* deleted_keys) {
   return common::Error();
 }
 
-common::Error DBConnection::RenameImpl(const NKey& key, const key_t& new_key) {
+common::Error DBConnection::RenameImpl(const NKey& key, const nkey_t& new_key) {
   const auto key_str = key.GetKey();
   const raw_key_t rkey = key_str.GetData();
   raw_value_t value_str;

@@ -17,9 +17,9 @@
 #ifdef BUILD_WITH_UNQLITE
 #include <fastonosql/core/db/unqlite/db_connection.h>
 #endif
-/*#ifdef BUILD_WITH_UPSCALEDB
+#ifdef BUILD_WITH_UPSCALEDB
 #include <fastonosql/core/db/upscaledb/db_connection.h>
-#endif*/
+#endif
 
 using namespace fastonosql;
 
@@ -27,7 +27,7 @@ template <typename NConnection, typename Config, core::ConnectionType ContType>
 void CheckSetGet(core::CDBConnection<NConnection, Config, ContType>* db) {
   ASSERT_TRUE(db->IsConnected());
   core::NValue val(common::Value::CreateStringValueFromBasicString("test"));
-  core::key_t key_str({'t', 'e', 's', 't'});
+  core::nkey_t key_str({'t', 'e', 's', 't'});
   core::NKey key(key_str);
   core::NDbKValue res1;
   common::Error err = db->Get(key, &res1);
@@ -175,7 +175,6 @@ TEST(Connection, unqlite) {
 }
 #endif
 
-/*
 #ifdef BUILD_WITH_UPSCALEDB
 TEST(Connection, upscaledb) {
   core::upscaledb::DBConnection db(nullptr);
@@ -195,7 +194,6 @@ TEST(Connection, upscaledb) {
   ASSERT_TRUE(!errn);
 }
 #endif
-*/
 
 #ifdef BUILD_WITH_FORESTDB
 TEST(Connection, forestdb) {
