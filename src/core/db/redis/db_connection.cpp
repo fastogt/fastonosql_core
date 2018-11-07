@@ -3271,7 +3271,7 @@ common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen
     return err;
   }
 
-  CHECK(reply->type == REDIS_REPLY_STATUS) << "Unexpected replay type: " << reply->type;
+  CHECK(reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
   *gen_id = GEN_CMD_STRING_SIZE(reply->str, reply->len);
   freeReplyObject(reply);
   return common::Error();

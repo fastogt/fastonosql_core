@@ -470,6 +470,7 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_SET_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_ZSET_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_HASH_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_STREAM_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_GET_KEY_JSON_COMMAND));
 }
 
