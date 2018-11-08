@@ -906,6 +906,11 @@ common::Error CommandsApi::SlaveOf(internal::CommandHandler* handler, commands_a
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SLAVEOF")}, argv), out);
 }
 
+common::Error CommandsApi::ReplicaOf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("REPLICAOF")}, argv), out);
+}
+
 common::Error CommandsApi::SlowLog(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("SLOWLOG")}, argv), out);
@@ -1719,6 +1724,16 @@ common::Error CommandsApi::ZpopMax(internal::CommandHandler* handler, commands_a
 common::Error CommandsApi::PFSelfTest(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("PFSELFTEST")}, argv), out);
+}
+
+common::Error CommandsApi::XSetID(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("XSETID")}, argv), out);
+}
+
+common::Error CommandsApi::LolWut(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("LOLWUT")}, argv), out);
 }
 
 common::Error CommandsApi::Asking(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {

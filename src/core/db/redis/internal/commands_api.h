@@ -164,6 +164,7 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error SinterStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SisMember(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SlaveOf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error ReplicaOf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SlowLog(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Smove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Sort(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
@@ -255,6 +256,8 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error ReplConf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Substr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error PFSelfTest(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error XSetID(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error LolWut(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 #if defined(PRO_VERSION)
   static common::Error ModuleList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 #endif

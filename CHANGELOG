@@ -1,6 +1,8 @@
-1.3.3 /
+1.3.4 / November 8, 2018
 [Alexandr Topilski]
-- JSON.DEL command handling
+- Reviewed DB types
+- [Redis] JSON.DEL command handling
+- [Redis] LOLWUT, XSETID, REPLICAOF commands support
 
 1.3.2 / November 3, 2018
 [Alexandr Topilski]
