@@ -626,22 +626,23 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
   NDbKValue rarr;
   rarr.SetKey(key);
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
-      if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
-        rarr.SetValue(arr);
-      } else {
-        rarr.SetValue(NValue(common::Value::CreateArrayValue()));
-      }
-      base_class::client_->OnAddedKey(rarr);
-    }
-    *list_len = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  NOTREACHED();
+  if (base_class::client_) {
+    common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+    if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
+      rarr.SetValue(arr);
+    } else {
+      rarr.SetValue(NValue(common::Value::CreateArrayValue()));
+    }
+    base_class::client_->OnAddedKey(rarr);
+  }
+  *list_len = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -671,22 +672,23 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
   NDbKValue rarr;
   rarr.SetKey(key);
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
-      if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
-        rarr.SetValue(arr);
-      } else {
-        rarr.SetValue(NValue(common::Value::CreateArrayValue()));
-      }
-      base_class::client_->OnAddedKey(rarr);
-    }
-    *list_len = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  NOTREACHED();
+  if (base_class::client_) {
+    common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+    if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
+      rarr.SetValue(arr);
+    } else {
+      rarr.SetValue(NValue(common::Value::CreateArrayValue()));
+    }
+    base_class::client_->OnAddedKey(rarr);
+  }
+  *list_len = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -746,24 +748,25 @@ common::Error DBConnection<Config, ContType>::Lrange(const NKey& key, int start,
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value* val = nullptr;
-    common::Error err = ValueFromReplay(reply, &val);
-    if (err) {
-      delete val;
-      freeReplyObject(reply);
-      return err;
-    }
-
-    *loaded_key = NDbKValue(key, NValue(val));
-    if (base_class::client_) {
-      base_class::client_->OnLoadedKey(*loaded_key);
-    }
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  *loaded_key = NDbKValue(key, NValue(val));
+  if (base_class::client_) {
+    base_class::client_->OnLoadedKey(*loaded_key);
+  }
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -793,8 +796,9 @@ common::Error DBConnection<Config, ContType>::Mget(const std::vector<NKey>& keys
   }
 
   if (reply->type != REDIS_REPLY_ARRAY) {
-    NOTREACHED() << mget_cmd << "command should return array somthing changed?";
-    return common::Error();
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
   }
 
   for (size_t i = 0; i < reply->elements; ++i) {
@@ -868,19 +872,20 @@ common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_ && reply->integer) {
-      for (size_t i = 0; i < keys.size(); ++i) {
-        base_class::client_->OnAddedKey(keys[i]);
-      }
-    }
-
-    *result = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_ && reply->integer) {
+    for (size_t i = 0; i < keys.size(); ++i) {
+      base_class::client_->OnAddedKey(keys[i]);
+    }
+  }
+
+  *result = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -935,17 +940,18 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValu
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_ && reply->integer) {
-      base_class::client_->OnAddedKey(key);
-    }
-
-    *result = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_ && reply->integer) {
+    base_class::client_->OnAddedKey(key);
+  }
+
+  *result = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -974,17 +980,19 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* d
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      NValue val(common::Value::CreateLongLongIntegerValue(reply->integer));
-      base_class::client_->OnAddedKey(NDbKValue(key, val));
-    }
-    *decr = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    auto result_str = common::ConvertToCharBytes(reply->integer);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
+    base_class::client_->OnAddedKey(NDbKValue(key, val));
+  }
+  *decr = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1013,17 +1021,19 @@ common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& k
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      NValue val(common::Value::CreateLongLongIntegerValue(reply->integer));
-      base_class::client_->OnAddedKey(NDbKValue(key, val));
-    }
-    *decr = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    auto result_str = common::ConvertToCharBytes(reply->integer);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
+    base_class::client_->OnAddedKey(NDbKValue(key, val));
+  }
+  *decr = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1052,17 +1062,19 @@ common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      NValue val(common::Value::CreateLongLongIntegerValue(reply->integer));
-      base_class::client_->OnAddedKey(NDbKValue(key, val));
-    }
-    *incr = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    auto result_str = common::ConvertToCharBytes(reply->integer);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
+    base_class::client_->OnAddedKey(NDbKValue(key, val));
+  }
+  *incr = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1091,17 +1103,19 @@ common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& k
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      NValue val(common::Value::CreateLongLongIntegerValue(reply->integer));
-      base_class::client_->OnAddedKey(NDbKValue(key, val));
-    }
-    *incr = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    auto result_str = common::ConvertToCharBytes(reply->integer);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
+    base_class::client_->OnAddedKey(NDbKValue(key, val));
+  }
+  *incr = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1130,18 +1144,19 @@ common::Error DBConnection<Config, ContType>::IncrByFloat(const NKey& key, doubl
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_STRING) {
-    command_buffer_t str = GEN_CMD_STRING_SIZE(reply->str, reply->len);
-    if (base_class::client_) {
-      NValue val(common::Value::CreateStringValue(str));
-      base_class::client_->OnAddedKey(NDbKValue(key, val));
-    }
-    *str_incr = str;
+  if (reply->type != REDIS_REPLY_STRING) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  command_buffer_t str = GEN_CMD_STRING_SIZE(reply->str, reply->len);
+  if (base_class::client_) {
+    NValue val(common::Value::CreateStringValue(str));
+    base_class::client_->OnAddedKey(NDbKValue(key, val));
+  }
+  *str_incr = str;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1247,16 +1262,17 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, 
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      base_class::client_->OnAddedKey(rset);
-    }
-    *added = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    base_class::client_->OnAddedKey(rset);
+  }
+  *added = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1285,40 +1301,41 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValu
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value* val = nullptr;
-    common::Error err = ValueFromReplay(reply, &val);
-    if (err) {
-      delete val;
-      freeReplyObject(reply);
-      return err;
-    }
-
-    common::ArrayValue* arr = nullptr;
-    if (!val->GetAsList(&arr)) {
-      delete val;
-      freeReplyObject(reply);
-      return common::make_error("Conversion error array to set");
-    }
-
-    common::SetValue* set = common::Value::CreateSetValue();
-    for (size_t i = 0; i < arr->GetSize(); ++i) {
-      common::Value* lval = nullptr;
-      if (arr->Get(i, &lval)) {
-        set->Insert(lval->DeepCopy());
-      }
-    }
-
-    delete val;
-    *loaded_key = NDbKValue(key, NValue(set));
-    if (base_class::client_) {
-      base_class::client_->OnLoadedKey(*loaded_key);
-    }
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to set");
+  }
+
+  common::SetValue* set = common::Value::CreateSetValue();
+  for (size_t i = 0; i < arr->GetSize(); ++i) {
+    common::Value* lval = nullptr;
+    if (arr->Get(i, &lval)) {
+      set->Insert(lval->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(set));
+  if (base_class::client_) {
+    base_class::client_->OnLoadedKey(*loaded_key);
+  }
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1348,16 +1365,17 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue score
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_INTEGER) {
-    if (base_class::client_) {
-      base_class::client_->OnAddedKey(rzset);
-    }
-    *added = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  DNOTREACHED();
+  if (base_class::client_) {
+    base_class::client_->OnAddedKey(rzset);
+  }
+  *added = reply->integer;
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1390,42 +1408,22 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value* val = nullptr;
-    common::Error err = ValueFromReplay(reply, &val);
-    if (err) {
-      delete val;
-      freeReplyObject(reply);
-      return err;
-    }
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
 
-    if (!withscores) {
-      *loaded_key = NDbKValue(key, NValue(val));
-      if (base_class::client_) {
-        base_class::client_->OnLoadedKey(*loaded_key);
-      }
-      freeReplyObject(reply);
-      return common::Error();
-    }
-
-    common::ArrayValue* arr = nullptr;
-    if (!val->GetAsList(&arr)) {
-      delete val;
-      freeReplyObject(reply);
-      return common::make_error("Conversion error array to zset");
-    }
-
-    common::ZSetValue* zset = common::Value::CreateZSetValue();
-    for (size_t i = 0; i < arr->GetSize(); i += 2) {
-      common::Value* lmember = nullptr;
-      common::Value* lscore = nullptr;
-      if (arr->Get(i, &lmember) && arr->Get(i + 1, &lscore)) {
-        zset->Insert(lscore->DeepCopy(), lmember->DeepCopy());
-      }
-    }
-
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
     delete val;
-    *loaded_key = NDbKValue(key, NValue(zset));
+    freeReplyObject(reply);
+    return err;
+  }
+
+  if (!withscores) {
+    *loaded_key = NDbKValue(key, NValue(val));
     if (base_class::client_) {
       base_class::client_->OnLoadedKey(*loaded_key);
     }
@@ -1433,7 +1431,28 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
     return common::Error();
   }
 
-  DNOTREACHED();
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to zset");
+  }
+
+  common::ZSetValue* zset = common::Value::CreateZSetValue();
+  for (size_t i = 0; i < arr->GetSize(); i += 2) {
+    common::Value* lmember = nullptr;
+    common::Value* lscore = nullptr;
+    if (arr->Get(i, &lmember) && arr->Get(i + 1, &lscore)) {
+      zset->Insert(lscore->DeepCopy(), lmember->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(zset));
+  if (base_class::client_) {
+    base_class::client_->OnLoadedKey(*loaded_key);
+  }
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1463,15 +1482,16 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_STATUS) {
-    if (base_class::client_) {
-      base_class::client_->OnAddedKey(rhash);
-    }
+  if (reply->type != REDIS_REPLY_STATUS) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  NOTREACHED();
+  if (base_class::client_) {
+    base_class::client_->OnAddedKey(rhash);
+  }
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1500,41 +1520,42 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey& key, NDbKValue
     return err;
   }
 
-  if (reply->type == REDIS_REPLY_ARRAY) {
-    common::Value* val = nullptr;
-    common::Error err = ValueFromReplay(reply, &val);
-    if (err) {
-      delete val;
-      freeReplyObject(reply);
-      return err;
-    }
-
-    common::ArrayValue* arr = nullptr;
-    if (!val->GetAsList(&arr)) {
-      delete val;
-      freeReplyObject(reply);
-      return common::make_error("Conversion error array to hash");
-    }
-
-    common::HashValue* hash = common::Value::CreateHashValue();
-    for (size_t i = 0; i < arr->GetSize(); i += 2) {
-      common::Value* lkey = nullptr;
-      common::Value* lvalue = nullptr;
-      if (arr->Get(i, &lkey) && arr->Get(i + 1, &lvalue)) {
-        hash->Insert(lkey->DeepCopy(), lvalue->DeepCopy());
-      }
-    }
-
-    delete val;
-    *loaded_key = NDbKValue(key, NValue(hash));
-    if (base_class::client_) {
-      base_class::client_->OnLoadedKey(*loaded_key);
-    }
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::Error();
+    return common::make_error("I/O error");
   }
 
-  NOTREACHED();
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to hash");
+  }
+
+  common::HashValue* hash = common::Value::CreateHashValue();
+  for (size_t i = 0; i < arr->GetSize(); i += 2) {
+    common::Value* lkey = nullptr;
+    common::Value* lvalue = nullptr;
+    if (arr->Get(i, &lkey) && arr->Get(i + 1, &lvalue)) {
+      hash->Insert(lkey->DeepCopy(), lvalue->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(hash));
+  if (base_class::client_) {
+    base_class::client_->OnLoadedKey(*loaded_key);
+  }
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1719,15 +1740,17 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
   }
 
   if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
     return common::make_error("I/O error");
   }
 
   common::Value* val = nullptr;
   err = ValueFromReplay(reply, &val);
+  freeReplyObject(reply);
+  reply = nullptr;
   if (err) {
     delete val;
-    freeReplyObject(reply);
     return err;
   }
 
@@ -1736,14 +1759,12 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
   command_buffer_t cursor_out_str;
   if (!arr->GetString(0, &cursor_out_str)) {
     delete val;
-    freeReplyObject(reply);
     return common::make_error("I/O error");
   }
 
   common::ArrayValue* arr_keys = nullptr;
   if (!arr->GetList(1, &arr_keys)) {
     delete val;
-    freeReplyObject(reply);
     return common::make_error("I/O error");
   }
 
@@ -1761,7 +1782,6 @@ common::Error DBConnection<Config, ContType>::ScanImpl(cursor_t cursor_in,
 
   *cursor_out = lcursor_out;
   delete val;
-  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1850,7 +1870,13 @@ common::Error DBConnection<Config, ContType>::DeleteImpl(const NKeys& keys, NKey
       return err;
     }
 
-    if (reply->type == REDIS_REPLY_INTEGER && reply->integer == 1) {
+    if (reply->type != REDIS_REPLY_INTEGER) {
+      DNOTREACHED() << "Unexpected type: " << reply->type;
+      freeReplyObject(reply);
+      return common::make_error("I/O error");
+    }
+
+    if (reply->integer == 1) {
       deleted_keys->push_back(key);
     }
     freeReplyObject(reply);
@@ -1894,10 +1920,16 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
   }
 
   if (reply->type == REDIS_REPLY_NIL) {
+    freeReplyObject(reply);
     return base_class::GenerateError(DB_GET_KEY_COMMAND, "key not found.");
   }
 
-  CHECK(reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
+  if (reply->type != REDIS_REPLY_STRING) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
   common::Value* val = common::Value::CreateStringValue(GEN_CMD_STRING_SIZE(reply->str, reply->len));
   *loaded_key = NDbKValue(key, NValue(val));
   freeReplyObject(reply);
@@ -1938,7 +1970,14 @@ common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t 
     return err;
   }
 
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
   if (reply->integer == 0) {
+    freeReplyObject(reply);
     return base_class::GenerateError(DB_SET_TTL_COMMAND, "key does not exist or the timeout could not be set.");
   }
 
@@ -1962,8 +2001,9 @@ common::Error DBConnection<Config, ContType>::GetTTLImpl(const NKey& key, ttl_t*
   }
 
   if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
     freeReplyObject(reply);
-    return common::make_error("TTL command internal error");
+    return common::make_error("I/O error");
   }
 
   *ttl = reply->integer;

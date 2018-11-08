@@ -825,7 +825,7 @@ const ConstantCommandsArray kCommands = {
                   "<key> <field> <value> [field value ...]",
                   "Set multiple hash fields to multiple values",
                   PROJECT_VERSION_GENERATE(2, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  "HMSET key 1 value",
                   3,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
@@ -3226,10 +3226,16 @@ common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) 
 
   if (reply->type == REDIS_REPLY_NIL) {
     // key_t key_str = key.GetKey();
+    freeReplyObject(reply);
     return GenerateError(REDIS_JSON_MODULE_COMMAND("GET"), "key not found.");
   }
 
-  CHECK(reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
+  if (reply->type != REDIS_REPLY_STRING) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
   common::Value* val = new JsonValue(GEN_CMD_STRING_SIZE(reply->str, reply->len));
   *loaded_key = NDbKValue(key, NValue(val));
   freeReplyObject(reply);
@@ -3250,9 +3256,13 @@ common::Error DBConnection::JsonDelImpl(const NKey& key, long long* deleted) {
     return err;
   }
 
-  CHECK(reply->type == REDIS_REPLY_INTEGER) << "According docs return must be int.";
-  *deleted = reply->integer;
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
 
+  *deleted = reply->integer;
   freeReplyObject(reply);
   return common::Error();
 }
@@ -3271,7 +3281,13 @@ common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen
     return err;
   }
 
-  CHECK(reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_STRING) << "Unexpected replay type: " << reply->type;
+  bool is_right_reply_type = reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_STRING;
+  if (!is_right_reply_type) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
   *gen_id = GEN_CMD_STRING_SIZE(reply->str, reply->len);
   freeReplyObject(reply);
   return common::Error();
@@ -3296,7 +3312,12 @@ common::Error DBConnection::XRangeImpl(const NKey& key, NDbKValue* loaded_key, f
     return GenerateError("XRANGE", "key not found.");
   }
 
-  CHECK(reply->type == REDIS_REPLY_ARRAY) << "Unexpected replay type: " << reply->type;
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
   err = CliFormatReplyRaw(out, reply);
   if (err) {
     return err;

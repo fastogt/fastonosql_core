@@ -824,7 +824,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        "<key> <field> <value> [field value ...]",
                                                        "Set multiple hash fields to multiple values",
                                                        UNDEFINED_SINCE,
-                                                       UNDEFINED_EXAMPLE_STR,
+                                                       "HMSET key 1 value",
                                                        3,
                                                        INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,

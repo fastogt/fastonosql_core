@@ -33,8 +33,7 @@ const std::vector<Field> lmdb_common_fields = {Field(LMDB_STATS_FILE_NAME_LABEL,
 namespace lmdb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
-  return {common::Value::TYPE_BOOLEAN, common::Value::TYPE_INTEGER, common::Value::TYPE_UINTEGER,
-          common::Value::TYPE_DOUBLE, common::Value::TYPE_STRING};
+  return {common::Value::TYPE_STRING};
 }
 
 std::vector<info_field_t> GetInfoFields() {

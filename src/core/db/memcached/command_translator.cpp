@@ -29,6 +29,9 @@
 #define MEMCACHED_CHANGE_TTL_COMMAND DB_SET_TTL_COMMAND
 #define MEMCACHED_GET_TTL_COMMAND DB_GET_TTL_COMMAND
 
+#define MEMCACHED_INCR_KEY_COMMAND "INCR"
+#define MEMCACHED_DECR_KEY_COMMAND "DECR"
+
 namespace fastonosql {
 namespace core {
 namespace memcached {
@@ -98,7 +101,9 @@ common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_GET_KEY_COMMAND));
+  return cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_GET_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_INCR_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_DECR_KEY_COMMAND));
 }
 
 }  // namespace memcached

@@ -714,7 +714,8 @@ common::Error DBConnection::Incr(const NKey& key, uint32_t value, uint64_t* resu
   }
 
   if (client_) {
-    NValue val(common::Value::CreateULongLongIntegerValue(local_value));
+    auto result_str = common::ConvertToCharBytes(local_value);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
     client_->OnAddedKey(NDbKValue(key, val));
   }
   *result = local_value;
@@ -742,7 +743,8 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
   }
 
   if (client_) {
-    NValue val(common::Value::CreateULongLongIntegerValue(local_value));
+    auto result_str = common::ConvertToCharBytes(local_value);
+    NValue val(common::Value::CreateStringValue(result_str));  // type of key should be string
     client_->OnAddedKey(NDbKValue(key, val));
   }
   *result = local_value;

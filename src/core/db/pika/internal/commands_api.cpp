@@ -1311,7 +1311,7 @@ common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateLongLongIntegerValue(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1331,7 +1331,7 @@ common::Error CommandsApi::DecrBy(internal::CommandHandler* handler, commands_ar
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateLongLongIntegerValue(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1347,7 +1347,7 @@ common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateLongLongIntegerValue(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -1367,7 +1367,7 @@ common::Error CommandsApi::IncrBy(internal::CommandHandler* handler, commands_ar
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateLongLongIntegerValue(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
