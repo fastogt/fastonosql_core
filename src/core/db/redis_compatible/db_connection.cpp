@@ -31,6 +31,8 @@ extern "C" {
 
 #include <fastonosql/core/db/redis_compatible/database_info.h>
 
+#include <fastonosql/core/value.h>
+
 #define GET_SERVER_TYPE "CLUSTER NODES"
 #define GET_SENTINEL_MASTERS "SENTINEL MASTERS"
 #define GET_SENTINEL_SLAVES_PATTERN_1ARGS_S "SENTINEL SLAVES %s"
@@ -44,6 +46,74 @@ extern "C" {
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
+
+bool ConvertFromString(const readable_string_t& value, common::Value::Type* out) {
+  if (value.empty() || !out) {
+    return false;
+  }
+
+  common::Value::Type lout = common::Value::TYPE_NULL;
+  if (value == GEN_CMD_STRING("string")) {
+    lout = common::Value::TYPE_STRING;
+  } else if (value == GEN_CMD_STRING("list")) {
+    lout = common::Value::TYPE_ARRAY;
+  } else if (value == GEN_CMD_STRING("set")) {
+    lout = common::Value::TYPE_SET;
+  } else if (value == GEN_CMD_STRING("hash")) {
+    lout = common::Value::TYPE_HASH;
+  } else if (value == GEN_CMD_STRING("zset")) {
+    lout = common::Value::TYPE_ZSET;
+  } else if (value == GEN_CMD_STRING("stream")) {
+    lout = core::StreamValue::TYPE_STREAM;
+  } else if (value == GEN_CMD_STRING("ReJSON-RL")) {
+    lout = core::JsonValue::TYPE_JSON;
+  } else if (value == GEN_CMD_STRING("trietype1")) {
+    lout = core::GraphValue::TYPE_GRAPH;
+  } else if (value == GEN_CMD_STRING("MBbloom--")) {
+    lout = core::BloomValue::TYPE_BLOOM;
+  } else if (value == GEN_CMD_STRING("ft_invidx")) {
+    lout = core::SearchValue::TYPE_FT_TERM;
+  } else if (value == GEN_CMD_STRING("ft_index0")) {
+    lout = core::SearchValue::TYPE_FT_INDEX;
+  }
+
+  *out = lout;
+  return true;
+}
+
+bool ConvertFromType(common::Value::Type type, readable_string_t* out) {
+  if (!out) {
+    return false;
+  }
+
+  readable_string_t lout = GEN_CMD_STRING("nil");
+  if (type == common::Value::TYPE_STRING) {
+    lout = GEN_CMD_STRING("string");
+  } else if (type == common::Value::TYPE_ARRAY) {
+    lout = GEN_CMD_STRING("list");
+  } else if (type == common::Value::TYPE_SET) {
+    lout = GEN_CMD_STRING("set");
+  } else if (type == common::Value::TYPE_HASH) {
+    lout = GEN_CMD_STRING("hash");
+  } else if (type == common::Value::TYPE_ZSET) {
+    lout = GEN_CMD_STRING("zset");
+  } else if (type == core::StreamValue::TYPE_STREAM) {
+    lout = GEN_CMD_STRING("stream");
+  } else if (type == core::JsonValue::TYPE_JSON) {
+    lout = GEN_CMD_STRING("ReJSON-RL");
+  } else if (type == core::GraphValue::TYPE_GRAPH) {
+    lout = GEN_CMD_STRING("trietype1");
+  } else if (type == core::BloomValue::TYPE_BLOOM) {
+    lout = GEN_CMD_STRING("MBbloom--");
+  } else if (type == core::SearchValue::TYPE_FT_TERM) {
+    lout = GEN_CMD_STRING("ft_invidx");
+  } else if (type == core::SearchValue::TYPE_FT_INDEX) {
+    lout = GEN_CMD_STRING("ft_index0");
+  }
+
+  *out = lout;
+  return true;
+}
 
 namespace {
 bool IsPipeLineCommand(const command_buffer_t& command) {
@@ -699,8 +769,13 @@ common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue 
     return common::make_error_inval();
   }
 
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
   ttl_t ttl;
-  common::Error err = base_class::GetTTL(key, &ttl);
+  err = base_class::GetTTL(key, &ttl);
   if (err) {
     return err;
   }
@@ -735,38 +810,15 @@ common::Error DBConnection<Config, ContType>::Lrange(const NKey& key, int start,
     return err;
   }
 
-  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  command_buffer_t lrange_cmd;
-  err = tran->Lrange(key, start, stop, &lrange_cmd);
+  err = LrangeImpl(key, start, stop, loaded_key);
   if (err) {
     return err;
   }
 
-  redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, lrange_cmd, &reply);
-  if (err) {
-    return err;
-  }
-
-  if (reply->type != REDIS_REPLY_ARRAY) {
-    DNOTREACHED() << "Unexpected type: " << reply->type;
-    freeReplyObject(reply);
-    return common::make_error("I/O error");
-  }
-
-  common::Value* val = nullptr;
-  err = ValueFromReplay(reply, &val);
-  if (err) {
-    delete val;
-    freeReplyObject(reply);
-    return err;
-  }
-
-  *loaded_key = NDbKValue(key, NValue(val));
   if (base_class::client_) {
     base_class::client_->OnLoadedKey(*loaded_key);
   }
-  freeReplyObject(reply);
+
   return common::Error();
 }
 
@@ -1288,54 +1340,14 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValu
     return err;
   }
 
-  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  command_buffer_t smembers_cmd;
-  err = tran->Smembers(key, &smembers_cmd);
+  err = SmembersImpl(key, loaded_key);
   if (err) {
     return err;
   }
 
-  redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, smembers_cmd, &reply);
-  if (err) {
-    return err;
-  }
-
-  if (reply->type != REDIS_REPLY_ARRAY) {
-    DNOTREACHED() << "Unexpected type: " << reply->type;
-    freeReplyObject(reply);
-    return common::make_error("I/O error");
-  }
-
-  common::Value* val = nullptr;
-  err = ValueFromReplay(reply, &val);
-  if (err) {
-    delete val;
-    freeReplyObject(reply);
-    return err;
-  }
-
-  common::ArrayValue* arr = nullptr;
-  if (!val->GetAsList(&arr)) {
-    delete val;
-    freeReplyObject(reply);
-    return common::make_error("Conversion error array to set");
-  }
-
-  common::SetValue* set = common::Value::CreateSetValue();
-  for (size_t i = 0; i < arr->GetSize(); ++i) {
-    common::Value* lval = nullptr;
-    if (arr->Get(i, &lval)) {
-      set->Insert(lval->DeepCopy());
-    }
-  }
-
-  delete val;
-  *loaded_key = NDbKValue(key, NValue(set));
   if (base_class::client_) {
     base_class::client_->OnLoadedKey(*loaded_key);
   }
-  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1395,64 +1407,14 @@ common::Error DBConnection<Config, ContType>::Zrange(const NKey& key,
     return err;
   }
 
-  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  command_buffer_t zrange;
-  err = tran->Zrange(key, start, stop, withscores, &zrange);
+  err = ZrangeImpl(key, start, stop, withscores, loaded_key);
   if (err) {
     return err;
   }
 
-  redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, zrange, &reply);
-  if (err) {
-    return err;
-  }
-
-  if (reply->type != REDIS_REPLY_ARRAY) {
-    DNOTREACHED() << "Unexpected type: " << reply->type;
-    freeReplyObject(reply);
-    return common::make_error("I/O error");
-  }
-
-  common::Value* val = nullptr;
-  err = ValueFromReplay(reply, &val);
-  if (err) {
-    delete val;
-    freeReplyObject(reply);
-    return err;
-  }
-
-  if (!withscores) {
-    *loaded_key = NDbKValue(key, NValue(val));
-    if (base_class::client_) {
-      base_class::client_->OnLoadedKey(*loaded_key);
-    }
-    freeReplyObject(reply);
-    return common::Error();
-  }
-
-  common::ArrayValue* arr = nullptr;
-  if (!val->GetAsList(&arr)) {
-    delete val;
-    freeReplyObject(reply);
-    return common::make_error("Conversion error array to zset");
-  }
-
-  common::ZSetValue* zset = common::Value::CreateZSetValue();
-  for (size_t i = 0; i < arr->GetSize(); i += 2) {
-    common::Value* lmember = nullptr;
-    common::Value* lscore = nullptr;
-    if (arr->Get(i, &lmember) && arr->Get(i + 1, &lscore)) {
-      zset->Insert(lscore->DeepCopy(), lmember->DeepCopy());
-    }
-  }
-
-  delete val;
-  *loaded_key = NDbKValue(key, NValue(zset));
   if (base_class::client_) {
     base_class::client_->OnLoadedKey(*loaded_key);
   }
-  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1491,7 +1453,6 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash
   if (base_class::client_) {
     base_class::client_->OnAddedKey(rhash);
   }
-  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1507,55 +1468,14 @@ common::Error DBConnection<Config, ContType>::Hgetall(const NKey& key, NDbKValue
     return err;
   }
 
-  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
-  command_buffer_t hgetall_cmd;
-  err = tran->Hgetall(key, &hgetall_cmd);
+  err = HgetallImpl(key, loaded_key);
   if (err) {
     return err;
   }
 
-  redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, hgetall_cmd, &reply);
-  if (err) {
-    return err;
-  }
-
-  if (reply->type != REDIS_REPLY_ARRAY) {
-    DNOTREACHED() << "Unexpected type: " << reply->type;
-    freeReplyObject(reply);
-    return common::make_error("I/O error");
-  }
-
-  common::Value* val = nullptr;
-  err = ValueFromReplay(reply, &val);
-  if (err) {
-    delete val;
-    freeReplyObject(reply);
-    return err;
-  }
-
-  common::ArrayValue* arr = nullptr;
-  if (!val->GetAsList(&arr)) {
-    delete val;
-    freeReplyObject(reply);
-    return common::make_error("Conversion error array to hash");
-  }
-
-  common::HashValue* hash = common::Value::CreateHashValue();
-  for (size_t i = 0; i < arr->GetSize(); i += 2) {
-    common::Value* lkey = nullptr;
-    common::Value* lvalue = nullptr;
-    if (arr->Get(i, &lkey) && arr->Get(i + 1, &lvalue)) {
-      hash->Insert(lkey->DeepCopy(), lvalue->DeepCopy());
-    }
-  }
-
-  delete val;
-  *loaded_key = NDbKValue(key, NValue(hash));
   if (base_class::client_) {
     base_class::client_->OnLoadedKey(*loaded_key);
   }
-  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1723,6 +1643,205 @@ common::Error DBConnection<Config, ContType>::SendSync(unsigned long long* paylo
   }
 
   *payload = strtoull(buf + 1, nullptr, 10);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::LrangeImpl(const NKey& key, int start, int stop, NDbKValue* loaded_key) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t lrange_cmd;
+  common::Error err = tran->Lrange(key, start, stop, &lrange_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, lrange_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  *loaded_key = NDbKValue(key, NValue(val));
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::SmembersImpl(const NKey& key, NDbKValue* loaded_key) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t smembers_cmd;
+  common::Error err = tran->Smembers(key, &smembers_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, smembers_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to set");
+  }
+
+  common::SetValue* set = common::Value::CreateSetValue();
+  for (size_t i = 0; i < arr->GetSize(); ++i) {
+    common::Value* lval = nullptr;
+    if (arr->Get(i, &lval)) {
+      set->Insert(lval->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(set));
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::HgetallImpl(const NKey& key, NDbKValue* loaded_key) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t hgetall_cmd;
+  common::Error err = tran->Hgetall(key, &hgetall_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, hgetall_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to hash");
+  }
+
+  common::HashValue* hash = common::Value::CreateHashValue();
+  for (size_t i = 0; i < arr->GetSize(); i += 2) {
+    common::Value* lkey = nullptr;
+    common::Value* lvalue = nullptr;
+    if (arr->Get(i, &lkey) && arr->Get(i + 1, &lvalue)) {
+      hash->Insert(lkey->DeepCopy(), lvalue->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(hash));
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::ZrangeImpl(const NKey& key,
+                                                         int start,
+                                                         int stop,
+                                                         bool withscores,
+                                                         NDbKValue* loaded_key) {
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t zrange;
+  common::Error err = tran->Zrange(key, start, stop, withscores, &zrange);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, zrange, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  if (!withscores) {
+    *loaded_key = NDbKValue(key, NValue(val));
+    if (base_class::client_) {
+      base_class::client_->OnLoadedKey(*loaded_key);
+    }
+    freeReplyObject(reply);
+    return common::Error();
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to zset");
+  }
+
+  common::ZSetValue* zset = common::Value::CreateZSetValue();
+  for (size_t i = 0; i < arr->GetSize(); i += 2) {
+    common::Value* lmember = nullptr;
+    common::Value* lscore = nullptr;
+    if (arr->Get(i, &lmember) && arr->Get(i + 1, &lscore)) {
+      zset->Insert(lscore->DeepCopy(), lmember->DeepCopy());
+    }
+  }
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(zset));
+  freeReplyObject(reply);
   return common::Error();
 }
 
@@ -1934,6 +2053,63 @@ common::Error DBConnection<Config, ContType>::GetImpl(const NKey& key, NDbKValue
   *loaded_key = NDbKValue(key, NValue(val));
   freeReplyObject(reply);
   return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::GetTypeImpl(const NKey& key, readable_string_t* type) {
+  command_buffer_t get_type_cmd;
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  common::Error err = tran->GetTypeCommand(key, &get_type_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, get_type_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_STATUS) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  const auto type_str = GEN_CMD_STRING_SIZE(reply->str, reply->len);
+  if (type_str == GEN_CMD_STRING("none")) {
+    freeReplyObject(reply);
+    return base_class::GenerateError(DB_KEY_TYPE_COMMAND, "key not found.");
+  }
+
+  *type = type_str;
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::GetUniImpl(const NKey& key, NDbKValue* loaded_key) {
+  readable_string_t type_str;
+  common::Error err = base_class::GetType(key, &type_str);
+  if (err) {
+    return err;
+  }
+
+  if (type_str == GEN_CMD_STRING("string")) {
+    return GetImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("list")) {
+    return LrangeImpl(key, 0, -1, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("set")) {
+    return SmembersImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("hash")) {
+    return HgetallImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("zset")) {
+    return ZrangeImpl(key, 0, -1, true, loaded_key);
+  }
+
+  std::stringstream wr;
+  wr << "Unknown type: " << common::ConvertToString(type_str);
+  return common::make_error(wr.str());
 }
 
 template <typename Config, ConnectionType ContType>

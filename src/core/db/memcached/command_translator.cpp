@@ -103,7 +103,8 @@ common::Error CommandTranslator::LoadKeyTTLCommandImpl(const NKey& key, command_
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
   return cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_GET_KEY_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_INCR_KEY_COMMAND)) ||
-         cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_DECR_KEY_COMMAND));
+         cmd.IsEqualName(GEN_CMD_STRING(MEMCACHED_DECR_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND));
 }
 
 }  // namespace memcached

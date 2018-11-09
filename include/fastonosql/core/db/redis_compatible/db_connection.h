@@ -39,6 +39,9 @@ namespace redis_compatible {
 
 typedef redisContext NativeConnection;
 
+bool ConvertFromString(const readable_string_t& value, common::Value::Type* out);
+bool ConvertFromType(common::Value::Type type, readable_string_t* out);
+
 const char* GetHiredisVersion();
 
 common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, NativeConnection** context);
@@ -73,9 +76,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
   enum { invalid_db_num = -1 };
   explicit DBConnection(CDBConnectionClient* client)
-      : base_class(client, new CommandTranslator(base_class::GetCommands())),
-        is_auth_(false),
-        cur_db_(invalid_db_num) {}
+      : DBConnection(client, new CommandTranslator(base_class::GetCommands())) {}
 
   virtual common::Error Connect(const config_t& config) override;
   virtual common::Error Disconnect() override;
@@ -131,7 +132,18 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
                                   void (*log_command_cb)(FastoObjectCommandIPtr)) WARN_UNUSED_RESULT;
 
  protected:
+  DBConnection(CDBConnectionClient* client, ICommandTranslator* translator)
+      : base_class(client, translator), is_auth_(false), cur_db_(invalid_db_num) {}
+
   common::Error CliFormatReplyRaw(FastoObject* out, redisReply* r) WARN_UNUSED_RESULT;
+
+  common::Error LrangeImpl(const NKey& key, int start, int stop, NDbKValue* loaded_key);                   // for list
+  common::Error SmembersImpl(const NKey& key, NDbKValue* loaded_key);                                      // for set
+  common::Error HgetallImpl(const NKey& key, NDbKValue* loaded_key);                                       // for hash
+  common::Error ZrangeImpl(const NKey& key, int start, int stop, bool withscores, NDbKValue* loaded_key);  // for zset
+  virtual common::Error GetImpl(const NKey& key,
+                                NDbKValue* loaded_key) override;  // GET works differently than in redis protocol
+  virtual common::Error GetTypeImpl(const NKey& key, readable_string_t* type) override;
 
  private:
   virtual common::Error ScanImpl(cursor_t cursor_in,
@@ -148,8 +160,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   virtual common::Error SetImpl(const NDbKValue& key) override;
-  virtual common::Error GetImpl(const NKey& key,
-                                NDbKValue* loaded_key) override;  // GET works differently than in redis protocol
+  virtual common::Error GetUniImpl(const NKey& key, NDbKValue* loaded_key) override;
   virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
   virtual common::Error SetTTLImpl(const NKey& key,
                                    ttl_t ttl) override;  // EXPIRE works differently than in redis protocol

@@ -82,16 +82,20 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   common::Error Set(const NDbKValue& key) WARN_UNUSED_RESULT;    // nvi
   common::Error Get(const NKey& key,
                     NDbKValue* loaded_key) WARN_UNUSED_RESULT;  // nvi
+  common::Error GetUni(const NKey& key,
+                       NDbKValue* loaded_key) WARN_UNUSED_RESULT;  // nvi
   common::Error Rename(const NKey& key,
-                       const nkey_t& new_key) WARN_UNUSED_RESULT;        // nvi
-  common::Error SetTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;   // nvi
-  common::Error GetTTL(const NKey& key, ttl_t* ttl) WARN_UNUSED_RESULT;  // nvi
-  common::Error Quit() WARN_UNUSED_RESULT;                               // nvi
+                       const nkey_t& new_key) WARN_UNUSED_RESULT;                      // nvi
+  common::Error SetTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;                 // nvi
+  common::Error GetTTL(const NKey& key, ttl_t* ttl) WARN_UNUSED_RESULT;                // nvi
+  common::Error GetType(const NKey& key, readable_string_t* type) WARN_UNUSED_RESULT;  // nvi
+  common::Error Quit() WARN_UNUSED_RESULT;                                             // nvi
   common::Error JsonDump(cursor_t cursor_in,
                          const pattern_t& pattern,
                          keys_limit_t limit,
                          const common::file_system::ascii_file_string_path& path,
                          cursor_t* cursor_out) WARN_UNUSED_RESULT;
+  common::Error StoreValue(const NKey& key, const common::file_system::ascii_file_string_path& path) WARN_UNUSED_RESULT;
 
  protected:
   common::Error GenerateError(const std::string& cmd, const std::string& descr) WARN_UNUSED_RESULT {
@@ -123,9 +127,11 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
   virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) = 0;
   virtual common::Error SetImpl(const NDbKValue& key) = 0;
   virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) = 0;
+  virtual common::Error GetUniImpl(const NKey& key, NDbKValue* loaded_key);  // have default implementation
   virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) = 0;
-  virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl);   // optional
-  virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl);  // optional
+  virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl);                 // optional
+  virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl);                // optional
+  virtual common::Error GetTypeImpl(const NKey& key, readable_string_t* type);  // have default implementation
   virtual common::Error QuitImpl() = 0;
 };
 
@@ -442,6 +448,67 @@ common::Error CDBConnection<NConnection, Config, ContType>::Get(const NKey& key,
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetUni(const NKey& key, NDbKValue* loaded_key) {
+  if (!loaded_key) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  err = GetUniImpl(key, loaded_key);
+  if (err) {
+    return err;
+  }
+
+  if (client_) {
+    client_->OnLoadedKey(*loaded_key);
+  }
+
+  return common::Error();
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetUniImpl(const NKey& key, NDbKValue* loaded_key) {
+  return GetImpl(key, loaded_key);
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetType(const NKey& key, readable_string_t* type) {
+  if (!type) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  err = GetTypeImpl(key, type);
+  if (err) {
+    return err;
+  }
+
+  return common::Error();
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::GetTypeImpl(const NKey& key, readable_string_t* type) {
+  NDbKValue val;
+  common::Error err = GetImpl(key, &val);
+  if (err) {
+    return err;
+  }
+
+  *type = GEN_READABLE_STRING("string");
+  return common::Error();
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
 common::Error CDBConnection<NConnection, Config, ContType>::Rename(const NKey& key, const nkey_t& new_key) {
   common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
   if (err) {
@@ -568,7 +635,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
     const nkey_t key_str = keys[i];  //
     const NKey key(key_str);
     NDbKValue loaded_key;
-    err = GetImpl(key, &loaded_key);
+    err = GetUniImpl(key, &loaded_key);
     if (err) {
       fl.Close();
       return err;
@@ -596,6 +663,48 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
   if (!is_wrote) {
     fl.Close();
     return common::make_error(common::MemSPrintf("Failed to write end of json file: %s.", path.GetPath()));
+  }
+
+  fl.Close();
+  return common::Error();
+}
+
+template <typename NConnection, typename Config, ConnectionType ContType>
+common::Error CDBConnection<NConnection, Config, ContType>::StoreValue(
+    const NKey& key,
+    const common::file_system::ascii_file_string_path& path) {
+  const std::string dir = path.GetDirectory();
+  if (!common::file_system::is_directory_exist(dir)) {
+    const std::string error_msg =
+        common::MemSPrintf("Please create directory: %s for " DB_STORE_VALUE_COMMAND " command.", dir);
+    return common::make_error(error_msg);
+  }
+
+  common::Error err = CDBConnection<NConnection, Config, ContType>::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  common::file_system::ANSIFile fl;
+  common::ErrnoError errn = fl.Open(path, "wb");
+  if (errn) {
+    return common::make_error_from_errno(errn);
+  }
+
+  NDbKValue loaded_key;
+  err = GetUniImpl(key, &loaded_key);
+  if (err) {
+    fl.Close();
+    return err;
+  }
+
+  const NValue value = loaded_key.GetValue();
+  const auto stabled_value = value.GetData();
+
+  bool is_wrote = fl.Write(stabled_value);
+  if (!is_wrote) {
+    fl.Close();
+    return common::make_error(common::MemSPrintf("Failed to write entry of json file: %s.", path.GetPath()));
   }
 
   fl.Close();

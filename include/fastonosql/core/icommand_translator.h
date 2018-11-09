@@ -36,10 +36,13 @@
 #define DB_DBKCOUNT_COMMAND "DBKCOUNT"  // exist for all
 #define DB_QUIT_COMMAND "QUIT"          // exist for all
 
-#define DB_JSONDUMP_COMMAND "JSONDUMP"  // exist for all
+#define DB_JSONDUMP_COMMAND "JSONDUMP"       // exist for all
+#define DB_STORE_VALUE_COMMAND "STOREVALUE"  // exist for all
 
 #define DB_SET_TTL_COMMAND "EXPIRE"
 #define DB_GET_TTL_COMMAND "TTL"
+
+#define DB_KEY_TYPE_COMMAND "TYPE"  // exist for all
 
 #define DB_CREATEDB_COMMAND "CREATEDB"
 #define DB_REMOVEDB_COMMAND "REMOVEDB"
@@ -48,6 +51,7 @@
 #define DB_SUBSCRIBE_COMMAND "SUBSCRIBE"
 
 #define DB_GET_KEY_COMMAND "GET"        // exist for all
+#define DB_GETUNI_KEY_COMMAND "GETUNI"  // exist for all
 #define DB_SET_KEY_COMMAND "SET"        // exist for all
 #define DB_DELETE_KEY_COMMAND "DEL"     // exist for all
 #define DB_RENAME_KEY_COMMAND "RENAME"  // exist for all
@@ -92,6 +96,8 @@ class ICommandTranslator {
   common::Error LoadKeyTTLCommand(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   bool IsLoadKeyCommand(const command_buffer_t& cmd, command_buffer_t* key) const WARN_UNUSED_RESULT;
+
+  common::Error GetTypeCommand(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   common::Error PublishCommand(const NDbPSChannel& channel,
                                const std::string& message,

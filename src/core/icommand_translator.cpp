@@ -175,6 +175,20 @@ bool ICommandTranslator::IsLoadKeyCommand(const command_buffer_t& cmd, command_b
   return false;
 }
 
+common::Error ICommandTranslator::GetTypeCommand(const NKey& key, command_buffer_t* cmdstring) const {
+  if (!cmdstring) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  const auto key_str = key.GetKey();
+
+  command_buffer_writer_t wr;
+  wr << GEN_CMD_STRING(DB_KEY_TYPE_COMMAND SPACE_STR) << key_str.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
 common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
                                                  const std::string& message,
                                                  command_buffer_t* cmdstring) const {

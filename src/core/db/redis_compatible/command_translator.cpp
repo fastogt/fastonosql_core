@@ -30,7 +30,7 @@
 #define REDIS_SET_KEY_SET_COMMAND "SADD"
 #define REDIS_SET_KEY_ZSET_COMMAND "ZADD"
 #define REDIS_SET_KEY_HASH_COMMAND "HMSET"
-#define REDIS_SET_KEY_STREAM_COMMAND "XADD"
+#define REDIS_SET_KEY_STREAM_COMMAND "XFASTOSET"
 #define REDIS_SET_KEY_JSON_COMMAND REDIS_JSON_MODULE_COMMAND("SET")
 
 #define REDIS_GET_KEY_COMMAND DB_GET_KEY_COMMAND
@@ -78,11 +78,6 @@
 #define REDIS_INCR "INCR"
 #define REDIS_INCRBY "INCRBY"
 #define REDIS_INCRBYFLOAT "INCRBYFLOAT"
-
-#if defined(PRO_VERSION)
-#define REDIS_MODULE_LOAD "MODULE LOAD"
-#define REDIS_MODULE_UNLOAD "MODULE UNLOAD"
-#endif
 
 namespace fastonosql {
 namespace core {
@@ -301,30 +296,6 @@ common::Error CommandTranslator::IncrByFloat(const NKey& key, double inc, comman
   return common::Error();
 }
 
-#if defined(PRO_VERSION)
-common::Error CommandTranslator::ModuleLoad(const ModuleInfo& module, command_buffer_t* cmdstring) {
-  if (!cmdstring) {
-    return common::make_error_inval();
-  }
-
-  command_buffer_writer_t wr;
-  wr << REDIS_MODULE_LOAD SPACE_STR << module.name;
-  *cmdstring = wr.str();
-  return common::Error();
-}
-
-common::Error CommandTranslator::ModuleUnload(const ModuleInfo& module, command_buffer_t* cmdstring) {
-  if (!cmdstring) {
-    return common::make_error_inval();
-  }
-
-  command_buffer_writer_t wr;
-  wr << REDIS_MODULE_UNLOAD SPACE_STR << module.name;
-  *cmdstring = wr.str();
-  return common::Error();
-}
-#endif
-
 common::Error CommandTranslator::PExpire(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const {
   const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
@@ -367,17 +338,13 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
     // HMSET gameConfig:1:1 tile "note3" RY "1920" RX "1080" id 1
     wr << REDIS_SET_KEY_HASH_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   } else if (type == StreamValue::TYPE_STREAM) {  // XADD is complex
-    NValue nv = key.GetValue();
-    StreamValue* value = static_cast<StreamValue*>(nv.get());
-    StreamValue::streams_t streams = value->GetStreams();
+    StreamValue* stream = static_cast<StreamValue*>(value.get());
+    StreamValue::streams_t streams = stream->GetStreams();
+    wr << REDIS_SET_KEY_STREAM_COMMAND SPACE_STR << key_str.GetForCommandLine();
     for (size_t i = 0; i < streams.size(); ++i) {
       StreamValue::Stream cur_str = streams[i];
-      wr << REDIS_SET_KEY_STREAM_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << cur_str.sid;
       for (size_t j = 0; j < cur_str.entries.size(); ++j) {
-        wr << SPACE_STR << cur_str.entries[j].name << SPACE_STR << cur_str.entries[j].value;
-      }
-      if (i != streams.size() - 1) {
-        wr << END_COMMAND_CHAR;
+        wr << SPACE_STR << cur_str.sid << SPACE_STR << cur_str.entries[j].name << SPACE_STR << cur_str.entries[j].value;
       }
     }
   } else if (type == JsonValue::TYPE_JSON) {
@@ -483,7 +450,8 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_INCR_KEY_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_DECR_KEY_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(REDIS_INCRBY_KEY_COMMAND)) ||
-         cmd.IsEqualName(GEN_CMD_STRING(REDIS_DECRBY_KEY_COMMAND));
+         cmd.IsEqualName(GEN_CMD_STRING(REDIS_DECRBY_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND));
 }
 
 common::Error CommandTranslator::PublishCommandImpl(const NDbPSChannel& channel,

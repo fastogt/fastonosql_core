@@ -945,11 +945,6 @@ common::Error CommandsApi::Time(internal::CommandHandler* handler, commands_args
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TIME")}, argv), out);
 }
 
-common::Error CommandsApi::Type(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TYPE")}, argv), out);
-}
-
 common::Error CommandsApi::Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("UNSUBSCRIBE")}, argv), out);

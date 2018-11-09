@@ -116,7 +116,8 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
          cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_ARRAY_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_SET_COMMAND)) ||
          cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_ZSET_COMMAND)) ||
-         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_HASH_COMMAND));
+         cmd.IsEqualName(GEN_CMD_STRING(SSDB_GET_KEY_HASH_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND));
 }
 
 common::Error CommandTranslator::ChangeKeyTTLCommandImpl(const NKey& key,

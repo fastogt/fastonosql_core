@@ -175,7 +175,6 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Sunion(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Time(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Type(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Unwatch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Wait(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

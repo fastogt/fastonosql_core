@@ -20,6 +20,7 @@
 
 #include <vector>
 
+#include <fastonosql/core/db/redis/command_translator.h>
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
 #include <fastonosql/core/db/redis/config.h>
@@ -42,6 +43,7 @@ common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<Ser
 
 class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
  public:
+  typedef std::shared_ptr<CommandTranslator> redis_translator_t;
   typedef redis_compatible::DBConnection<RConfig, REDIS> base_class;
 #if defined(PRO_VERSION)
   explicit DBConnection(CDBConnectionClient* client, IModuleConnectionClient* mclient);
@@ -58,8 +60,9 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error JsonDel(const NKey& key, long long* deleted) WARN_UNUSED_RESULT;
 
   // stream
-  common::Error XAdd(const NDbKValue& key, command_buffer_t* gen_id) WARN_UNUSED_RESULT;
+  common::Error XAdd(const NDbKValue& key, readable_string_t* gen_id) WARN_UNUSED_RESULT;
   common::Error XRange(const NKey& key, NDbKValue* loaded_key, FastoObject* out) WARN_UNUSED_RESULT;
+  common::Error XfastoSet(const NKey& key, NValue stream) WARN_UNUSED_RESULT;
 
   bool IsInternalCommand(const command_buffer_t& command_name);
 #if defined(PRO_VERSION)
@@ -73,6 +76,9 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
 
   common::Error XAddImpl(const NDbKValue& key, command_buffer_t* gen_id);
   common::Error XRangeImpl(const NKey& key, NDbKValue* loaded_key, FastoObject* out);
+  common::Error XRangeImpl2(const NKey& key, NDbKValue* loaded_key);
+
+  virtual common::Error GetUniImpl(const NKey& key, NDbKValue* loaded_key) override;
 
 #if defined(PRO_VERSION)
   virtual common::Error ModuleLoadImpl(const ModuleInfo& module);

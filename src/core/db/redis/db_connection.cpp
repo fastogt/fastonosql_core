@@ -709,6 +709,15 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::Get),
+    CommandHolder(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND),
+                  "<key>",
+                  "Get the value of a key.",
+                  UNDEFINED_SINCE,
+                  DB_GETUNI_KEY_COMMAND " key",
+                  1,
+                  0,
+                  CommandInfo::Native,
+                  &CommandsApi::GetUni),
     CommandHolder(GEN_CMD_STRING("GETBIT"),
                   "<key> <offset>",
                   "Returns the bit value at offset in the "
@@ -1371,6 +1380,15 @@ const ConstantCommandsArray kCommands = {
                   4,
                   CommandInfo::Native,
                   &CommandsApi::JsonDump),
+    CommandHolder(GEN_CMD_STRING(DB_STORE_VALUE_COMMAND),
+                  "<key> PATH <absolute_path>",
+                  "Save value to file by path.",
+                  UNDEFINED_SINCE,
+                  DB_STORE_VALUE_COMMAND " key PATH ~/key_raw",
+                  3,
+                  0,
+                  CommandInfo::Native,
+                  &CommandsApi::StoreValue),
     CommandHolder(GEN_CMD_STRING("SCARD"),
                   "<key>",
                   "Get the number of members in a set",
@@ -1712,15 +1730,15 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::GetTTL),
-    CommandHolder(GEN_CMD_STRING("TYPE"),
+    CommandHolder(GEN_CMD_STRING(DB_KEY_TYPE_COMMAND),
                   "<key>",
                   "Determine the type stored at key",
-                  PROJECT_VERSION_GENERATE(1, 0, 0),
-                  UNDEFINED_EXAMPLE_STR,
+                  UNDEFINED_SINCE,
+                  DB_KEY_TYPE_COMMAND " key",
                   1,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::Type),
+                  &CommandsApi::GetType),
     CommandHolder(GEN_CMD_STRING("UNSUBSCRIBE"),
                   "[channel [channel ...]]",
                   "Stop listening for messages posted to "
@@ -2358,6 +2376,15 @@ const ConstantCommandsArray kCommands = {
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
                   &CommandsApi::LfastoSet),
+    CommandHolder(GEN_CMD_STRING("XFASTOSET"),
+                  "<sid ><key> <value> [sid key value ...]",
+                  "Create stream with one or multiple values",
+                  PROJECT_VERSION_GENERATE(5, 0, 0),
+                  "XFASTOSET sid1 0 1 sid2 2 3",
+                  3,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Extended,
+                  &CommandsApi::XfastoSet),
     CommandHolder(GEN_CMD_STRING("LATENCY"),
                   "<arg> <arg>  [options ...]",
                   UNDEFINED_SUMMARY,
@@ -2404,7 +2431,7 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Extended,
                   &CommandsApi::PFSelfTest),
     CommandHolder(GEN_CMD_STRING("LOLWUT"),
-                  UNDEFINED_ARGS,
+                  "-",
                   UNDEFINED_SUMMARY,
                   PROJECT_VERSION_GENERATE(5, 0, 0),
                   UNDEFINED_EXAMPLE_STR,
@@ -3215,14 +3242,15 @@ common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<Ser
 
 #if defined(PRO_VERSION)
 DBConnection::DBConnection(CDBConnectionClient* client, IModuleConnectionClient* mclient)
-    : base_class(client), mclient_(mclient) {}
+    : base_class(client, new CommandTranslator(base_class::GetCommands())), mclient_(mclient) {}
 #else
-DBConnection::DBConnection(CDBConnectionClient* client) : base_class(client) {}
+DBConnection::DBConnection(CDBConnectionClient* client)
+    : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 #endif
 
 common::Error DBConnection::JsonSetImpl(const NDbKValue& key) {
   command_buffer_t set_cmd;
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->CreateKeyCommand(key, &set_cmd);
   if (err) {
     return err;
@@ -3240,7 +3268,7 @@ common::Error DBConnection::JsonSetImpl(const NDbKValue& key) {
 
 common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) {
   command_buffer_t get_cmd;
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->LoadKeyCommand(key, JsonValue::TYPE_JSON, &get_cmd);
   if (err) {
     return err;
@@ -3272,7 +3300,7 @@ common::Error DBConnection::JsonGetImpl(const NKey& key, NDbKValue* loaded_key) 
 
 common::Error DBConnection::JsonDelImpl(const NKey& key, long long* deleted) {
   command_buffer_t del_cmd;
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->DeleteKeyCommand(key, &del_cmd);
   if (err) {
     return err;
@@ -3297,8 +3325,8 @@ common::Error DBConnection::JsonDelImpl(const NKey& key, long long* deleted) {
 
 common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen_id) {
   command_buffer_t set_cmd;
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
-  common::Error err = tran->CreateKeyCommand(key, &set_cmd);
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
+  common::Error err = tran->Xadd(key, &set_cmd);
   if (err) {
     return err;
   }
@@ -3321,9 +3349,45 @@ common::Error DBConnection::XAddImpl(const NDbKValue& key, command_buffer_t* gen
   return common::Error();
 }
 
+common::Error DBConnection::GetUniImpl(const NKey& key, NDbKValue* loaded_key) {
+  readable_string_t type_str;
+  common::Error err = base_class::GetType(key, &type_str);
+  if (err) {
+    return err;
+  }
+
+  if (type_str == GEN_CMD_STRING("string")) {
+    return GetImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("list")) {
+    return LrangeImpl(key, 0, -1, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("set")) {
+    return SmembersImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("hash")) {
+    return HgetallImpl(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("zset")) {
+    return ZrangeImpl(key, 0, -1, true, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("stream")) {
+    return XRangeImpl2(key, loaded_key);
+  } else if (type_str == GEN_CMD_STRING("ReJSON-RL")) {
+    return JsonGetImpl(key, loaded_key);
+  } /*else if (type_str == GEN_CMD_STRING("trietype1")) {
+    lout = core::GraphValue::TYPE_GRAPH;
+  } else if (type_str == GEN_CMD_STRING("MBbloom--")) {
+    lout = core::BloomValue::TYPE_BLOOM;
+  } else if (type_str == GEN_CMD_STRING("ft_invidx")) {
+    lout = core::SearchValue::TYPE_FT_TERM;
+  } else if (type_str == GEN_CMD_STRING("ft_index0")) {
+    lout = core::SearchValue::TYPE_FT_INDEX;
+  }*/
+
+  std::stringstream wr;
+  wr << "Unknown type: " << common::ConvertToString(type_str);
+  return common::make_error(wr.str());
+}
+
 common::Error DBConnection::XRangeImpl(const NKey& key, NDbKValue* loaded_key, fastonosql::core::FastoObject* out) {
   command_buffer_t get_cmd;
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   common::Error err = tran->LoadKeyCommand(key, StreamValue::TYPE_STREAM, &get_cmd);
   if (err) {
     return err;
@@ -3389,9 +3453,86 @@ common::Error DBConnection::XRangeImpl(const NKey& key, NDbKValue* loaded_key, f
   return common::Error();
 }
 
+common::Error DBConnection::XRangeImpl2(const NKey& key, NDbKValue* loaded_key) {
+  command_buffer_t get_cmd;
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
+  common::Error err = tran->LoadKeyCommand(key, StreamValue::TYPE_STREAM, &get_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = redis_compatible::ExecRedisCommand(connection_.handle_, get_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type == REDIS_REPLY_NIL) {
+    // key_t key_str = key.GetKey();
+    return GenerateError("XRANGE", "key not found.");
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = redis_compatible::ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error array to hash");
+  }
+
+  StreamValue* stream = new StreamValue;
+  StreamValue::streams_t streams;
+  for (size_t i = 0; i < arr->GetSize(); ++i) {
+    StreamValue::stream_id sid;
+    std::vector<StreamValue::Entry> entr;
+    common::Value* lval = nullptr;
+    common::ArrayValue* inner_arr = nullptr;
+    if (arr->Get(i, &lval) && lval->GetAsList(&inner_arr)) {
+      common::Value* vid = nullptr;
+      common::Value* lentries = nullptr;
+      common::ArrayValue* entries = nullptr;
+      CHECK_EQ(inner_arr->GetSize(), 2);
+      if (inner_arr->Get(0, &vid) && vid->GetAsString(&sid) && inner_arr->Get(1, &lentries) &&
+          lentries->GetAsList(&entries)) {
+        for (size_t j = 0; j < entries->GetSize(); j += 2) {
+          common::Value* entr_key = nullptr;
+          common::Value* entr_val = nullptr;
+          if (entries->Get(j, &entr_key) && entries->Get(j + 1, &entr_val)) {
+            convert_to_t key;
+            convert_to_t value;
+            if (entr_key->GetAsString(&key) && entr_val->GetAsString(&value)) {
+              entr.push_back(StreamValue::Entry{key, value});
+            }
+          }
+        }
+      }
+      streams.push_back(StreamValue::Stream{sid, entr});
+    }
+  }
+  stream->SetStreams(streams);
+
+  delete val;
+  *loaded_key = NDbKValue(key, NValue(stream));
+  freeReplyObject(reply);
+  return common::Error();
+}
+
 #if defined(PRO_VERSION)
 common::Error DBConnection::ModuleLoadImpl(const ModuleInfo& module) {
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   command_buffer_t module_load_cmd;
   common::Error err = tran->ModuleLoad(module, &module_load_cmd);
   if (err) {
@@ -3409,7 +3550,7 @@ common::Error DBConnection::ModuleLoadImpl(const ModuleInfo& module) {
 }
 
 common::Error DBConnection::ModuleUnLoadImpl(const ModuleInfo& module) {
-  redis_translator_t tran = GetSpecificTranslator<redis_compatible::CommandTranslator>();
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
   command_buffer_t module_unload_cmd;
   common::Error err = tran->ModuleUnload(module, &module_unload_cmd);
   if (err) {
@@ -3503,7 +3644,7 @@ common::Error DBConnection::JsonDel(const NKey& key, long long* deleted) {
   return common::Error();
 }
 
-common::Error DBConnection::XAdd(const NDbKValue& key, command_buffer_t* gen_id) {
+common::Error DBConnection::XAdd(const NDbKValue& key, readable_string_t* gen_id) {
   if (!gen_id) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -3547,6 +3688,52 @@ common::Error DBConnection::XRange(const NKey& key, NDbKValue* loaded_key, Fasto
   }
 
   return common::Error();
+}
+
+common::Error DBConnection::XfastoSet(const NKey& key, NValue stream) {
+  if (!stream || stream->GetType() != StreamValue::TYPE_STREAM) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  ttl_t ttl;
+  err = base_class::GetTTL(key, &ttl);
+  if (err) {
+    return err;
+  }
+
+  NKeys keys;
+  err = base_class::Delete({key}, &keys);
+  if (err) {
+    return err;
+  }
+
+  StreamValue* value = static_cast<StreamValue*>(stream.get());
+  const auto streams = value->GetStreams();
+  for (size_t i = 0; i < streams.size(); ++i) {
+    readable_string_t gen_id;
+    StreamValue* st = new StreamValue;
+    st->SetStreams({streams[i]});
+    err = XAddImpl(NDbKValue(key, NValue(st)), &gen_id);
+    if (err) {
+      return err;
+    }
+  }
+
+  if (client_) {
+    client_->OnAddedKey(NDbKValue(key, stream));
+  }
+
+  if (ttl == NO_TTL || ttl == EXPIRED_TTL) {
+    return common::Error();
+  }
+
+  return base_class::SetTTL(key, ttl);
 }
 
 #if defined(PRO_VERSION)

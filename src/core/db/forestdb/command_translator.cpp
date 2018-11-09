@@ -73,7 +73,8 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
 }
 
 bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
-  return cmd.IsEqualName(GEN_CMD_STRING(FORESTDB_GET_KEY_COMMAND));
+  return cmd.IsEqualName(GEN_CMD_STRING(FORESTDB_GET_KEY_COMMAND)) ||
+         cmd.IsEqualName(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND));
 }
 
 const char* CommandTranslator::GetDBName() const {

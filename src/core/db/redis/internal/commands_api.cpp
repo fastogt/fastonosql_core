@@ -966,11 +966,6 @@ common::Error CommandsApi::Time(internal::CommandHandler* handler, commands_args
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TIME")}, argv), out);
 }
 
-common::Error CommandsApi::Type(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(ExpandCommand({GEN_CMD_STRING("TYPE")}, argv), out);
-}
-
 common::Error CommandsApi::Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(ExpandCommand({GEN_CMD_STRING("UNSUBSCRIBE")}, argv), out);
@@ -1657,6 +1652,46 @@ common::Error CommandsApi::Xadd(internal::CommandHandler* handler, commands_args
 
   common::StringValue* val = common::Value::CreateStringValue(gen_id);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+common::Error CommandsApi::XfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  if (argv.size() == 1 || argv.size() % 3 != 1) {
+    return common::make_error_inval();
+  }
+
+  const auto key_str(argv[0]);
+  const NKey key(key_str);
+  StreamValue* stream = new StreamValue;
+  StreamValue::streams_t streams;
+  for (size_t i = 1; i < argv.size(); i += 3) {
+    StreamValue::stream_id sid = argv[i];
+    StreamValue::Entry ent = {argv[i + 1], argv[i + 2]};
+
+    bool is_found = false;
+    for (size_t j = 0; j < streams.size(); ++j) {
+      if (streams[j].sid == sid) {
+        streams[j].entries.push_back(ent);
+        is_found = true;
+        break;
+      }
+    }
+
+    if (!is_found) {
+      streams.push_back({sid, {ent}});
+    }
+  }
+  stream->SetStreams(streams);
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  common::Error err = redis->XfastoSet(key, NValue(stream));
+  if (err) {
+    return err;
+  }
+
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }

@@ -176,7 +176,6 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Sunion(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Time(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Type(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Unwatch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Wait(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
@@ -274,6 +273,7 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Xrevrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xread(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error XfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xack(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error XreadGroup(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error XGroup(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

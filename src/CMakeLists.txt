@@ -84,6 +84,7 @@ IF(BUILD_WITH_REDIS)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/db_connection.h
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/command_translator.h
   )
   SET(SOURCES_CORE_DB_REDIS
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/modules.h
@@ -93,6 +94,7 @@ IF(BUILD_WITH_REDIS)
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/config.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/server_info.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/db_connection.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/command_translator.cpp
   )
 ENDIF(BUILD_WITH_REDIS)
 
