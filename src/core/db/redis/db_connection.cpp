@@ -3370,7 +3370,8 @@ common::Error DBConnection::GetUniImpl(const NKey& key, NDbKValue* loaded_key) {
     return XRangeImpl2(key, loaded_key);
   } else if (type_str == GEN_CMD_STRING("ReJSON-RL")) {
     return JsonGetImpl(key, loaded_key);
-  } /*else if (type_str == GEN_CMD_STRING("trietype1")) {
+  }
+  /* else if (type_str == GEN_CMD_STRING("trietype1")) {
     lout = core::GraphValue::TYPE_GRAPH;
   } else if (type_str == GEN_CMD_STRING("MBbloom--")) {
     lout = core::BloomValue::TYPE_BLOOM;

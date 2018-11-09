@@ -27,12 +27,12 @@ namespace core {
 
 namespace {
 
-const std::vector<Field> kLeveldbCommonFields = {
-    Field(LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL, common::Value::TYPE_UINTEGER),
-    Field(LEVELDB_STATS_FILE_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER),
-    Field(LEVELDB_STATS_TIME_SEC_LABEL, common::Value::TYPE_UINTEGER),
-    Field(LEVELDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER),
-    Field(LEVELDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kLeveldbCommonFields = {Field(LEVELDB_STATS_LEVEL_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(LEVELDB_STATS_FILES_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(LEVELDB_STATS_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(LEVELDB_STATS_TIME_SEC_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(LEVELDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(LEVELDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER)};
 
 }  // namespace
 
@@ -46,7 +46,7 @@ std::vector<info_field_t> GetInfoFields() {
   return {std::make_pair(LEVELDB_STATS_LABEL, kLeveldbCommonFields)};
 }
 
-ServerInfo::Stats::Stats() : compactions_level(0), file_size_mb(0), time_sec(0), read_mb(0), write_mb(0) {}
+ServerInfo::Stats::Stats() : level(0), files(0), size_mb(0), time_sec(0), read_mb(0), write_mb(0) {}
 
 ServerInfo::Stats::Stats(const std::string& common_text) {
   size_t pos = 0;
@@ -57,15 +57,20 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
     size_t delem = line.find_first_of(COLON_CHAR);
     std::string field = line.substr(0, delem);
     std::string value = line.substr(delem + 1);
-    if (field == LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL) {
-      uint32_t lcompactions_level;
-      if (common::ConvertFromString(value, &lcompactions_level)) {
-        compactions_level = lcompactions_level;
+    if (field == LEVELDB_STATS_LEVEL_LABEL) {
+      uint32_t llevel;
+      if (common::ConvertFromString(value, &llevel)) {
+        level = llevel;
       }
-    } else if (field == LEVELDB_STATS_FILE_SIZE_MB_LABEL) {
-      uint32_t lfile_size_mb;
-      if (common::ConvertFromString(value, &lfile_size_mb)) {
-        file_size_mb = lfile_size_mb;
+    } else if (field == LEVELDB_STATS_FILES_LABEL) {
+      uint32_t llevel;
+      if (common::ConvertFromString(value, &llevel)) {
+        level = llevel;
+      }
+    } else if (field == LEVELDB_STATS_SIZE_MB_LABEL) {
+      uint32_t lsize_mb;
+      if (common::ConvertFromString(value, &lsize_mb)) {
+        size_mb = lsize_mb;
       }
     } else if (field == LEVELDB_STATS_TIME_SEC_LABEL) {
       uint32_t ltime_sec;
@@ -90,14 +95,16 @@ ServerInfo::Stats::Stats(const std::string& common_text) {
 common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   switch (index) {
     case 0:
-      return new common::FundamentalValue(compactions_level);
+      return new common::FundamentalValue(level);
     case 1:
-      return new common::FundamentalValue(file_size_mb);
+      return new common::FundamentalValue(files);
     case 2:
-      return new common::FundamentalValue(time_sec);
+      return new common::FundamentalValue(size_mb);
     case 3:
-      return new common::FundamentalValue(read_mb);
+      return new common::FundamentalValue(time_sec);
     case 4:
+      return new common::FundamentalValue(read_mb);
+    case 5:
       return new common::FundamentalValue(write_mb);
     default:
       break;
@@ -124,8 +131,8 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL COLON_STR << value.compactions_level << MARKER_STR
-             << LEVELDB_STATS_FILE_SIZE_MB_LABEL COLON_STR << value.file_size_mb << MARKER_STR
+  return out << LEVELDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR << LEVELDB_STATS_FILES_LABEL COLON_STR
+             << value.files << MARKER_STR << LEVELDB_STATS_SIZE_MB_LABEL COLON_STR << value.size_mb << MARKER_STR
              << LEVELDB_STATS_TIME_SEC_LABEL COLON_STR << value.time_sec << MARKER_STR
              << LEVELDB_STATS_READ_MB_LABEL COLON_STR << value.read_mb << MARKER_STR
              << LEVELDB_STATS_WRITE_MB_LABEL COLON_STR << value.write_mb << MARKER_STR;

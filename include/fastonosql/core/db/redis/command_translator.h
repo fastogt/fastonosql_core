@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <fastonosql/core/db/redis_compatible/command_translator.h>
 
 #if defined(PRO_VERSION)

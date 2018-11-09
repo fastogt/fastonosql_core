@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/config/config.h>  // for RemoteConfig
 
 namespace fastonosql {

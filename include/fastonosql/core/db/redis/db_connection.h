@@ -69,6 +69,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error ModuleLoad(const ModuleInfo& module) WARN_UNUSED_RESULT;    // nvi
   common::Error ModuleUnLoad(const ModuleInfo& module) WARN_UNUSED_RESULT;  // nvi
 #endif
+
  private:
   common::Error JsonSetImpl(const NDbKValue& key);
   common::Error JsonGetImpl(const NKey& key, NDbKValue* loaded_key);
@@ -78,7 +79,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error XRangeImpl(const NKey& key, NDbKValue* loaded_key, FastoObject* out);
   common::Error XRangeImpl2(const NKey& key, NDbKValue* loaded_key);
 
-  virtual common::Error GetUniImpl(const NKey& key, NDbKValue* loaded_key) override;
+  common::Error GetUniImpl(const NKey& key, NDbKValue* loaded_key) override;
 
 #if defined(PRO_VERSION)
   virtual common::Error ModuleLoadImpl(const ModuleInfo& module);

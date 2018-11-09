@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/icommand_translator.h>  // for ICommandTranslator
 
 #define REDIS_GET_PTTL_COMMAND "PTTL"
@@ -30,7 +33,7 @@ namespace redis_compatible {
 class CommandTranslator : public ICommandTranslator {
  public:
   explicit CommandTranslator(const std::vector<CommandHolder>& commands);
-  virtual const char* GetDBName() const override;
+  const char* GetDBName() const override;
 
   common::Error Zrange(const NKey& key, int start, int stop, bool withscores, command_buffer_t* cmdstring)
       WARN_UNUSED_RESULT;
@@ -61,23 +64,23 @@ class CommandTranslator : public ICommandTranslator {
   common::Error PTTL(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
  private:
-  virtual common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
-  virtual common::Error LoadKeyCommandImpl(const NKey& key,
-                                           common::Value::Type type,
-                                           command_buffer_t* cmdstring) const override;
-  virtual common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
-  virtual common::Error RenameKeyCommandImpl(const NKey& key,
-                                             const trans_key_t& new_name,
-                                             command_buffer_t* cmdstring) const override;
-  virtual common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
-  virtual common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
+  common::Error LoadKeyCommandImpl(const NKey& key,
+                                   common::Value::Type type,
+                                   command_buffer_t* cmdstring) const override;
+  common::Error DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
+  common::Error RenameKeyCommandImpl(const NKey& key,
+                                     const trans_key_t& new_name,
+                                     command_buffer_t* cmdstring) const override;
+  common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
+  common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
 
-  virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
+  bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
 
-  virtual common::Error PublishCommandImpl(const NDbPSChannel& channel,
-                                           const std::string& message,
-                                           command_buffer_t* cmdstring) const override;
-  virtual common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
+  common::Error PublishCommandImpl(const NDbPSChannel& channel,
+                                   const std::string& message,
+                                   command_buffer_t* cmdstring) const override;
+  common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
 };
 
 }  // namespace redis_compatible

@@ -27,18 +27,11 @@
 #include <fastonosql/core/db/rocksdb/database_info.h>
 #include "core/db/rocksdb/internal/commands_api.h"
 
-#define ROCKSDB_HEADER_STATS                               \
-  "\n** Compaction Stats [default] **\n"                   \
-  "Level    Files   Size(MB) Score Read(GB)  Rn(GB) "      \
-  "Rnp1(GB) "                                              \
-  "Write(GB) Wnew(GB) Moved(GB) W-Amp Rd(MB/s) Wr(MB/s) "  \
-  "Comp(sec) Comp(cnt) Avg(sec) "                          \
-  "Stall(cnt)  KeyIn KeyDrop\n"                            \
-  "------------------------------------------------------" \
-  "--------------"                                         \
-  "------------------------------------------------------" \
-  "-----"                                                  \
-  "--------------------------------------\n"
+#define ROCKSDB_HEADER_STATS                                                                                           \
+  "\n** Compaction Stats [default] **\nLevel    Files   Size     Score Read(GB)  Rn(GB) Rnp1(GB) Write(GB) Wnew(GB) "  \
+  "Moved(GB) W-Amp Rd(MB/s) Wr(MB/s) Comp(sec) Comp(cnt) Avg(sec) KeyIn "                                              \
+  "KeyDrop\n---------------------------------------------------------------------------------------------------------" \
+  "-------------------------------------------------\n"
 
 namespace fastonosql {
 namespace core {
@@ -237,7 +230,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::RemoveDatabase)};
-}
+}  // namespace
 }  // namespace rocksdb
 
 template <>
@@ -417,10 +410,11 @@ class rocksdb_handle {
   }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(rocksdb_handle);
   ::rocksdb::DB* db_;
   std::vector<::rocksdb::ColumnFamilyHandle*> handles_;
   size_t current_db_index_;
+
+  DISALLOW_COPY_AND_ASSIGN(rocksdb_handle);
 };
 common::Error CreateConnection(const Config& config, NativeConnection** context) {
   if (!context) {
@@ -523,56 +517,101 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
     return common::make_error("info function failed");
   }
 
-  ServerInfo::Stats lstatsout;
+  ServerInfo::Stats lstats;
   if (rets.size() > sizeof(ROCKSDB_HEADER_STATS)) {
-    const char* retsc = rets.c_str() + sizeof(ROCKSDB_HEADER_STATS);
-    char* p2 = strtok(const_cast<char*>(retsc), " ");
-    int pos = 0;
-    while (p2) {
-      switch (pos++) {
-        case 0: {
-          uint32_t compactions_level;
-          if (common::ConvertFromString(p2, &compactions_level)) {
-            lstatsout.compactions_level = compactions_level;
-          }
-          break;
-        }
-        case 1: {
-          uint32_t file_size_mb;
-          if (common::ConvertFromString(p2, &file_size_mb)) {
-            lstatsout.file_size_mb = file_size_mb;
-          }
-          break;
-        }
-        case 2: {
-          uint32_t time_sec;
-          if (common::ConvertFromString(p2, &time_sec)) {
-            lstatsout.time_sec = time_sec;
-          }
-          break;
-        }
-        case 3: {
-          uint32_t read_mb;
-          if (common::ConvertFromString(p2, &read_mb)) {
-            lstatsout.read_mb = read_mb;
-          }
-          break;
-        }
-        case 4: {
-          uint32_t write_mb;
-          if (common::ConvertFromString(p2, &write_mb)) {
-            lstatsout.write_mb = write_mb;
-          }
-          break;
-        }
-        default:
-          break;
+    const std::string part = std::string(rets.c_str() + sizeof(ROCKSDB_HEADER_STATS));
+    const size_t delem = part.find_first_of('\n');
+    const std::string field = part.substr(0, delem);
+
+    std::vector<std::string> tokens;
+    size_t tokens_count = common::Tokenize(field, " ", &tokens);
+    if (tokens_count == 19) {
+      lstats.level = tokens[0];
+      lstats.files = tokens[1];
+
+      double size;
+      if (common::ConvertFromString(tokens[2], &size)) {
+        lstats.size = size;
       }
-      p2 = strtok(nullptr, SPACE_STR);
+
+      double score;
+      if (common::ConvertFromString(tokens[4], &score)) {
+        lstats.score = score;
+      }
+
+      double read_gb;
+      if (common::ConvertFromString(tokens[5], &read_gb)) {
+        lstats.read_gb = read_gb;
+      }
+
+      double rn_gb;
+      if (common::ConvertFromString(tokens[6], &rn_gb)) {
+        lstats.rn_gb = rn_gb;
+      }
+
+      double rn_p1;
+      if (common::ConvertFromString(tokens[7], &rn_p1)) {
+        lstats.rn_p1 = rn_p1;
+      }
+
+      double write_gb;
+      if (common::ConvertFromString(tokens[8], &write_gb)) {
+        lstats.write_gb = write_gb;
+      }
+
+      double wnew_gb;
+      if (common::ConvertFromString(tokens[9], &wnew_gb)) {
+        lstats.wnew_gb = wnew_gb;
+      }
+
+      double moved_gb;
+      if (common::ConvertFromString(tokens[10], &moved_gb)) {
+        lstats.moved_gb = moved_gb;
+      }
+
+      double wamp;
+      if (common::ConvertFromString(tokens[11], &wamp)) {
+        lstats.wamp = wamp;
+      }
+
+      double rd_mbs;
+      if (common::ConvertFromString(tokens[12], &rd_mbs)) {
+        lstats.rd_mbs = rd_mbs;
+      }
+
+      double wr_mbs;
+      if (common::ConvertFromString(tokens[13], &wr_mbs)) {
+        lstats.wr_mbs = wr_mbs;
+      }
+
+      double comp_sec;
+      if (common::ConvertFromString(tokens[14], &comp_sec)) {
+        lstats.comp_sec = comp_sec;
+      }
+
+      double comp_cnt;
+      if (common::ConvertFromString(tokens[15], &comp_cnt)) {
+        lstats.comp_cnt = comp_cnt;
+      }
+
+      uint32_t avg_sec;
+      if (common::ConvertFromString(tokens[16], &avg_sec)) {
+        lstats.avg_sec = avg_sec;
+      }
+
+      double key_in;
+      if (common::ConvertFromString(tokens[17], &key_in)) {
+        lstats.key_in = key_in;
+      }
+
+      double key_drop;
+      if (common::ConvertFromString(tokens[18], &key_drop)) {
+        lstats.key_drop = key_drop;
+      }
     }
   }
 
-  *statsout = lstatsout;
+  *statsout = lstats;
   return common::Error();
 }
 

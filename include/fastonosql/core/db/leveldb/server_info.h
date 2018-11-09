@@ -18,14 +18,18 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/server/iserver_info.h>
 
 #include <fastonosql/core/db_traits.h>
 
 #define LEVELDB_STATS_LABEL "# Stats"
 
-#define LEVELDB_STATS_CAMPACTIONS_LEVEL_LABEL "compactions_level"
-#define LEVELDB_STATS_FILE_SIZE_MB_LABEL "file_size_mb"
+#define LEVELDB_STATS_LEVEL_LABEL "level"
+#define LEVELDB_STATS_FILES_LABEL "files"
+#define LEVELDB_STATS_SIZE_MB_LABEL "size_mb"
 #define LEVELDB_STATS_TIME_SEC_LABEL "time_sec"
 #define LEVELDB_STATS_READ_MB_LABEL "read_mb"
 #define LEVELDB_STATS_WRITE_MB_LABEL "write_mb"
@@ -44,10 +48,11 @@ class ServerInfo : public IServerInfo {
   struct Stats : IStateField {
     Stats();
     explicit Stats(const std::string& common_text);
-    virtual common::Value* GetValueByIndex(unsigned char index) const override;
+    common::Value* GetValueByIndex(unsigned char index) const override;
 
-    uint32_t compactions_level;
-    uint32_t file_size_mb;
+    uint32_t level;
+    uint32_t files;
+    uint32_t size_mb;
     uint32_t time_sec;
     uint32_t read_mb;
     uint32_t write_mb;
@@ -56,9 +61,9 @@ class ServerInfo : public IServerInfo {
   ServerInfo();
   explicit ServerInfo(const Stats& stats);
 
-  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
-  virtual std::string ToString() const override;
-  virtual uint32_t GetVersion() const override;
+  common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
+  std::string ToString() const override;
+  uint32_t GetVersion() const override;
 };
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value);

@@ -2,6 +2,8 @@
 [Alexandr Topilski]
 - STOREVALUE command
 - GETUNI command
+- [LevelDB] Info review
+- [RocksDB] Info review
 
 1.3.3 / November 8, 2018
 [Alexandr Topilski]

@@ -27,6 +27,7 @@
 #include <fastonosql/core/db/leveldb/command_translator.h>
 #include <fastonosql/core/db/leveldb/comparators/indexed_db.h>
 #include <fastonosql/core/db/leveldb/database_info.h>
+
 #include "core/db/leveldb/internal/commands_api.h"
 
 #define LEVELDB_HEADER_STATS                             \
@@ -193,7 +194,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit)};
-}
+}  // namespace
 }  // namespace leveldb
 template <>
 const char* ConnectionTraits<LEVELDB>::GetBasedOn() {
@@ -315,50 +316,38 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
 
   ServerInfo::Stats lstats;
   if (rets.size() > sizeof(LEVELDB_HEADER_STATS)) {
-    const char* retsc = rets.c_str() + sizeof(LEVELDB_HEADER_STATS);
-    char* p2 = strtok(const_cast<char*>(retsc), " ");
-    int pos = 0;
-    while (p2) {
-      switch (pos++) {
-        case 0: {
-          uint32_t lv;
-          if (common::ConvertFromString(p2, &lv)) {
-            lstats.compactions_level = lv;
-          }
-          break;
-        }
-        case 1: {
-          uint32_t file_size_mb;
-          if (common::ConvertFromString(p2, &file_size_mb)) {
-            lstats.file_size_mb = file_size_mb;
-          }
-          break;
-        }
-        case 2: {
-          uint32_t time_sec;
-          if (common::ConvertFromString(p2, &time_sec)) {
-            lstats.time_sec = time_sec;
-          }
-          break;
-        }
-        case 3: {
-          uint32_t read_mb;
-          if (common::ConvertFromString(p2, &read_mb)) {
-            lstats.read_mb = read_mb;
-          }
-          break;
-        }
-        case 4: {
-          uint32_t write_mb;
-          if (common::ConvertFromString(p2, &write_mb)) {
-            lstats.read_mb = write_mb;
-          }
-          break;
-        }
-        default:
-          break;
+    std::vector<std::string> tokens;
+    size_t tokens_count = common::Tokenize(rets.c_str() + sizeof(LEVELDB_HEADER_STATS), " \n", &tokens);
+    if (tokens_count == 6) {
+      uint32_t level;
+      if (common::ConvertFromString(tokens[0], &level)) {
+        lstats.level = level;
       }
-      p2 = strtok(nullptr, " ");
+
+      uint32_t files;
+      if (common::ConvertFromString(tokens[1], &files)) {
+        lstats.files = files;
+      }
+
+      uint32_t size_mb;
+      if (common::ConvertFromString(tokens[2], &size_mb)) {
+        lstats.size_mb = size_mb;
+      }
+
+      uint32_t time_sec;
+      if (common::ConvertFromString(tokens[3], &time_sec)) {
+        lstats.time_sec = time_sec;
+      }
+
+      uint32_t read_mb;
+      if (common::ConvertFromString(tokens[4], &read_mb)) {
+        lstats.read_mb = read_mb;
+      }
+
+      uint32_t write_mb;
+      if (common::ConvertFromString(tokens[5], &write_mb)) {
+        lstats.read_mb = write_mb;
+      }
     }
   }
 

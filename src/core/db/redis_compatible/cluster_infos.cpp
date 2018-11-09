@@ -130,7 +130,6 @@ common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHos
                                        std::vector<ServerDiscoveryClusterInfoSPtr>* infos) {
   if (text.empty() || !infos) {
     return common::make_error_inval();
-    ;
   }
 
   size_t pos = 0;
