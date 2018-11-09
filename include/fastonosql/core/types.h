@@ -39,7 +39,7 @@ class ReadableString {
   enum DataType : uint8_t { TEXT_DATA = 0, BINARY_DATA };
 
   ReadableString();
-  ReadableString(const readable_string_t& data);  // not explicit
+  explicit ReadableString(const readable_string_t& data);
 
   DataType GetType() const;
 

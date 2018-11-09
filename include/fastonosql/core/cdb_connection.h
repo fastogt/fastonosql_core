@@ -632,7 +632,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::JsonDump(
   }
 
   for (size_t i = 0; i < keys.size(); ++i) {
-    const nkey_t key_str = keys[i];  //
+    const nkey_t key_str(keys[i]);
     const NKey key(key_str);
     NDbKValue loaded_key;
     err = GetUniImpl(key, &loaded_key);

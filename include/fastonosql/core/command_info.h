@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/types.h>
 
 #define UNDEFINED_SINCE 0x00000000U

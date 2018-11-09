@@ -25,6 +25,8 @@ namespace core {
 
 class IDataBaseInfo;
 
+// Database connection client
+
 class CDBConnectionClient {
  public:
   virtual void OnCreatedDB(IDataBaseInfo* info) = 0;

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <common/convert2string.h>
 
 #include <fastonosql/core/cdb_connection.h>
@@ -247,7 +249,8 @@ common::Error ApiTraits<CDBConnection>::Select(CommandHandler* handler, commands
 
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
 
   const common::Value::string_t val_str = argv[1];
   NValue string_val(common::Value::CreateStringValue(val_str));
@@ -267,7 +270,8 @@ common::Error ApiTraits<CDBConnection>::Set(internal::CommandHandler* handler, c
 
 template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Get(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   NDbKValue key_loaded;
@@ -287,7 +291,8 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::GetUni(internal::CommandHandler* handler,
                                                commands_args_t argv,
                                                FastoObject* out) {
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   NDbKValue key_loaded;
@@ -309,7 +314,9 @@ common::Error ApiTraits<CDBConnection>::Delete(internal::CommandHandler* handler
                                                FastoObject* out) {
   NKeys keysdel;
   for (size_t i = 0; i < argv.size(); ++i) {
-    NKey key(argv[i]);
+    const nkey_t key_str(argv[i]);
+    const NKey key(key_str);
+
     keysdel.push_back(key);
   }
 
@@ -330,10 +337,12 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::Rename(internal::CommandHandler* handler,
                                                commands_args_t argv,
                                                FastoObject* out) {
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+  const nkey_t new_key_str(argv[1]);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  common::Error err = cdb->Rename(key, argv[1]);
+  common::Error err = cdb->Rename(key, new_key_str);
   if (err) {
     return err;
   }
@@ -348,14 +357,15 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::SetTTL(internal::CommandHandler* handler,
                                                commands_args_t argv,
                                                FastoObject* out) {
-  CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
 
   ttl_t ttl;
   if (!common::ConvertFromBytes(argv[1], &ttl)) {
     return common::make_error_inval();
   }
 
+  CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   common::Error err = cdb->SetTTL(key, ttl);
   if (err) {
     return err;
@@ -372,7 +382,8 @@ common::Error ApiTraits<CDBConnection>::GetTTL(internal::CommandHandler* handler
                                                commands_args_t argv,
                                                FastoObject* out) {
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
 
   ttl_t ttl;
   common::Error err = cdb->GetTTL(key, &ttl);
@@ -390,8 +401,9 @@ template <class CDBConnection>
 common::Error ApiTraits<CDBConnection>::GetType(internal::CommandHandler* handler,
                                                 commands_args_t argv,
                                                 FastoObject* out) {
-  const auto key_str(argv[0]);
+  const nkey_t key_str(argv[0]);
   const NKey key(key_str);
+
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   readable_string_t result;
   common::Error err = cdb->GetType(key, &result);
@@ -492,7 +504,9 @@ common::Error ApiTraits<CDBConnection>::StoreValue(CommandHandler* handler, comm
   }
 
   common::file_system::ascii_file_string_path path(store_path);
-  NKey key(argv[0]);
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
   common::Error err = cdb->StoreValue(key, path);
   if (err) {
