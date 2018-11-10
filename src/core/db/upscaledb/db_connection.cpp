@@ -468,10 +468,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
        * of the database */
       st = ups_cursor_move(cursor, &key, &rec, UPS_CURSOR_NEXT | UPS_SKIP_DUPLICATES);
       if (st == UPS_SUCCESS) {
-        command_buffer_t skey = GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_char_t*>(key.data), key.size);
-        if (common::MatchPattern(skey, pattern)) {
+        if (IsKeyMatchPattern(static_cast<const char*>(key.data), key.size, pattern)) {
           if (offset_pos == 0) {
-            lkeys_out.push_back(skey);
+            const raw_key_t rkey = GEN_CMD_STRING_SIZE(static_cast<const raw_key_t::value_type*>(key.data), key.size);
+            lkeys_out.push_back(rkey);
           } else {
             offset_pos--;
           }
@@ -515,7 +515,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
     st = ups_cursor_move(cursor, &key, &rec, UPS_CURSOR_NEXT | UPS_SKIP_DUPLICATES);
     if (st == UPS_SUCCESS) {
       command_buffer_t skey = GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_char_t*>(key.data), key.size);
-      if (key_start < skey && key_end > skey) {
+      if (IsKeyInRange(key_start, skey, key_end)) {
         ret->push_back(skey);
       }
     } else if (st != UPS_KEY_NOT_FOUND) {

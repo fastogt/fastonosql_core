@@ -24,7 +24,7 @@
 namespace fastonosql {
 namespace core {
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in, const command_buffer_t& pattern, keys_limit_t count_keys) {
+command_buffer_t GetKeysPattern(cursor_t cursor_in, const pattern_t& pattern, keys_limit_t count_keys) {
   command_buffer_writer_t wr;
   wr << DB_SCAN_COMMAND << " " << common::ConvertToBytes(cursor_in) << " MATCH " << pattern << " COUNT "
      << common::ConvertToBytes(count_keys);

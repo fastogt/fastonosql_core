@@ -88,13 +88,15 @@ bool CommandHolder::IsCommand(commands_args_t argv, size_t* offset) const {
   }
 
   CHECK(uargc > white_spaces_count_);
-  std::vector<command_buffer_t> merged;
+  command_buffer_t merged;
   for (size_t i = 0; i < white_spaces_count_ + 1; ++i) {
-    merged.push_back(argv[i]);
+    if (i != 0) {
+      merged += ' ';
+    }
+    merged += argv[i];
   }
 
-  command_buffer_t ws = common::JoinString(merged, GEN_CMD_STRING(" "));
-  if (!IsEqualName(ws)) {
+  if (!IsEqualName(merged)) {
     return false;
   }
 

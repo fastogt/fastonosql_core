@@ -503,10 +503,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
     }
 
     if (lkeys_out.size() < count_keys) {
-      command_buffer_t skey = GEN_CMD_STRING_SIZE(static_cast<const char*>(doc->key), doc->keylen);
-      if (common::MatchPattern(skey, pattern)) {
+      if (IsKeyMatchPattern(static_cast<const char*>(doc->key), doc->keylen, pattern)) {
         if (offset_pos == 0) {
-          lkeys_out.push_back(skey);
+          lkeys_out.push_back(
+              GEN_READABLE_STRING_SIZE(static_cast<const raw_key_t::value_type*>(doc->key), doc->keylen));
         } else {
           offset_pos--;
         }
@@ -530,9 +530,14 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
                                      raw_keys_t* ret) {
   fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
-  common::Error err =
-      CheckResultCommand(DB_KEYS_COMMAND, fdb_iterator_init(connection_.handle_->kvs, &it, key_start.data(),
-                                                            key_start.size(), key_end.data(), key_end.size(), opt));
+  const char* key_start_ptr = key_start == kRangeKeyStart ? nullptr : key_start.data();
+  const size_t key_start_size = key_start == kRangeKeyStart ? 0 : key_start.size();
+  const char* key_end_ptr = key_end == kRangeKeyEnd ? nullptr : key_end.data();
+  const size_t key_end_size = key_end == kRangeKeyEnd ? 0 : key_end.size();
+
+  common::Error err = CheckResultCommand(
+      DB_KEYS_COMMAND,
+      fdb_iterator_init(connection_.handle_->kvs, &it, key_start_ptr, key_start_size, key_end_ptr, key_end_size, opt));
   if (err) {
     return err;
   }
@@ -544,9 +549,9 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
       break;
     }
 
-    command_buffer_t key = GEN_CMD_STRING_SIZE(static_cast<const char*>(doc->key), doc->keylen);
     if (ret->size() < limit) {
-      if (key < key_end) {
+      const raw_key_t key = GEN_CMD_STRING_SIZE(static_cast<const char*>(doc->key), doc->keylen);
+      if (IsKeyInEndRange(key, key_end)) {
         ret->push_back(key);
       }
     } else {

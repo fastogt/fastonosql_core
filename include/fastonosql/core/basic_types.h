@@ -21,6 +21,7 @@
 #include <deque>
 #include <limits>
 #include <string>
+#include <vector>
 
 #include <common/byte_writer.h>
 #include <common/macros.h>
@@ -46,7 +47,7 @@ typedef command_buffer_t readable_string_t;
 
 typedef readable_string_t raw_key_t;
 typedef readable_string_t raw_value_t;
-typedef readable_string_t pattern_t;
+typedef std::string pattern_t;
 typedef std::vector<raw_key_t> raw_keys_t;
 typedef std::vector<raw_value_t> raw_values_t;
 
@@ -62,6 +63,14 @@ COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= NO_TTL && NO_TTL >= std::num
                "NO_TTL define must be in ttl type range");
 COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= EXPIRED_TTL && EXPIRED_TTL >= std::numeric_limits<ttl_t>::min(),
                "EXPIRED_TTL define must be in ttl type range");
+
+bool IsKeyMatchPattern(const char* data, size_t size, const pattern_t& pattern);
+
+extern const raw_key_t kRangeKeyEnd;
+extern const raw_key_t kRangeKeyStart;
+
+bool IsKeyInRange(const raw_key_t& key_start, const raw_key_t& key, const raw_key_t& key_end = kRangeKeyEnd);
+bool IsKeyInEndRange(const raw_key_t& key, const raw_key_t& key_end = kRangeKeyEnd);
 
 }  // namespace core
 }  // namespace fastonosql

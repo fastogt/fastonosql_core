@@ -215,7 +215,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit)};
-}
+}  // namespace
 }  // namespace lmdb
 template <>
 const char* ConnectionTraits<LMDB>::GetBasedOn() {
@@ -651,11 +651,11 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   std::vector<command_buffer_t> lkeys_out;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK)) {
     if (lkeys_out.size() < count_keys) {
-      command_buffer_t skey =
-          GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_char_t*>(key.mv_data), key.mv_size);
-      if (common::MatchPattern(skey, pattern)) {
+      if (IsKeyMatchPattern(static_cast<const char*>(key.mv_data), key.mv_size, pattern)) {
         if (offset_pos == 0) {
-          lkeys_out.push_back(skey);
+          const raw_key_t rkey =
+              GEN_CMD_STRING_SIZE(static_cast<const raw_key_t::value_type*>(key.mv_data), key.mv_size);
+          lkeys_out.push_back(rkey);
         } else {
           offset_pos--;
         }
@@ -694,10 +694,10 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   MDB_val key;
   MDB_val data;
   while ((mdb_cursor_get(cursor, &key, &data, MDB_NEXT) == LMDB_OK) && limit > ret->size()) {
-    command_buffer_t skey =
+    const raw_key_t rkey =
         GEN_CMD_STRING_SIZE(reinterpret_cast<const command_buffer_t::value_type*>(key.mv_data), key.mv_size);
-    if (key_start < skey && key_end > skey) {
-      ret->push_back(skey);
+    if (IsKeyInRange(key_start, rkey, key_end)) {
+      ret->push_back(rkey);
     }
   }
 

@@ -64,8 +64,7 @@
 namespace fastonosql {
 namespace core {
 
-command_buffer_t GetKeysPattern(cursor_t cursor_in,
-                                const command_buffer_t& pattern,
+command_buffer_t GetKeysPattern(cursor_t cursor_in, const pattern_t& pattern,
                                 keys_limit_t count_keys);  // for SCAN
 
 class ICommandTranslator {

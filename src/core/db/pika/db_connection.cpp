@@ -920,7 +920,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        "<pattern>",
                                                        "Find all keys matching the given pattern",
                                                        UNDEFINED_SINCE,
-                                                       DB_KEYS_COMMAND " a z 10",
+                                                       DB_KEYS_COMMAND ALL_KEYS_PATTERNS,
                                                        1,
                                                        0,
                                                        CommandInfo::Native,

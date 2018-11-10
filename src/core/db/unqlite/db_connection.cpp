@@ -86,11 +86,19 @@ std::string unqlite_strerror(int unqlite_error) {
   }
 }
 
-int unqlite_data_callback(const void* data, unsigned int nDatalen, void* str) {
+int unqlite_data_callback_get_value(const void* data, unsigned int size, void* str) {
+  typedef fastonosql::core::raw_value_t raw_value_t;
+  raw_value_t* out = static_cast<raw_value_t*>(str);
+  const raw_value_t::value_type* begin = static_cast<const raw_value_t::value_type*>(data);
+  out->assign(begin, begin + size);
+  return UNQLITE_OK;
+}
+
+int unqlite_data_callback_get_key(const void* data, unsigned int size, void* str) {
   typedef fastonosql::core::raw_key_t raw_key_t;
   raw_key_t* out = static_cast<raw_key_t*>(str);
   const raw_key_t::value_type* begin = static_cast<const raw_key_t::value_type*>(data);
-  out->assign(begin, begin + nDatalen);
+  out->assign(begin, begin + size);
   return UNQLITE_OK;
 }
 
@@ -255,7 +263,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Quit)};
-}
+}  // namespace
 }  // namespace unqlite
 
 template <>
@@ -381,9 +389,9 @@ common::Error DBConnection::DelInner(const raw_key_t& key) {
   return CheckResultCommand(DB_DELETE_KEY_COMMAND, unqlite_kv_delete(connection_.handle_, key.data(), key.size()));
 }
 
-common::Error DBConnection::GetInner(const raw_key_t& key, command_buffer_t* ret_val) {
+common::Error DBConnection::GetInner(const raw_key_t& key, raw_value_t* ret_val) {
   return CheckResultCommand(DB_GET_KEY_COMMAND, unqlite_kv_fetch_callback(connection_.handle_, key.data(), key.size(),
-                                                                          unqlite_data_callback, ret_val));
+                                                                          unqlite_data_callback_get_value, ret_val));
 }
 
 common::Error DBConnection::ScanImpl(cursor_t cursor_in,
@@ -405,9 +413,9 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   std::vector<command_buffer_t> lkeys_out;
   while (unqlite_kv_cursor_valid_entry(cursor)) {
     if (lkeys_out.size() < count_keys) {
-      command_buffer_t skey;
-      unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &skey);
-      if (common::MatchPattern(skey, pattern)) {
+      raw_key_t skey;
+      unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback_get_key, &skey);
+      if (IsKeyMatchPattern(skey.data(), skey.size(), pattern)) {
         if (offset_pos == 0) {
           lkeys_out.push_back(skey);
         } else {
@@ -445,9 +453,9 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   /* Iterate over the entries */
   std::vector<command_buffer_t> result;
   while (unqlite_kv_cursor_valid_entry(cursor) && limit > result.size()) {
-    command_buffer_t key;
-    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &key);
-    if (key_start < key && key_end > key) {
+    raw_key_t key;
+    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback_get_key, &key);
+    if (IsKeyInRange(key_start, key, key_end)) {
       result.push_back(key);
     }
 
@@ -497,7 +505,7 @@ common::Error DBConnection::FlushDBImpl() {
   /* Iterate over the entries */
   while (unqlite_kv_cursor_valid_entry(cursor)) {
     raw_key_t key;
-    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback, &key);
+    unqlite_kv_cursor_key_callback(cursor, unqlite_data_callback_get_key, &key);
     common::Error err = DelInner(key);
     if (err) {
       return err;

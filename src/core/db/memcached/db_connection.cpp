@@ -81,21 +81,21 @@ struct hacked_memcached_instance_st {
 namespace {
 
 struct KeysHolder {
-  const fastonosql::core::command_buffer_t key_start;
-  const fastonosql::core::command_buffer_t key_end;
+  const fastonosql::core::raw_key_t key_start;
+  const fastonosql::core::raw_key_t key_end;
   const fastonosql::core::keys_limit_t limit;
-  std::vector<fastonosql::core::command_buffer_t> result;
+  std::vector<fastonosql::core::raw_key_t> result;
 
-  KeysHolder(const fastonosql::core::command_buffer_t& key_start,
-             const fastonosql::core::command_buffer_t& key_end,
+  KeysHolder(const fastonosql::core::raw_key_t& key_start,
+             const fastonosql::core::raw_key_t& key_end,
              fastonosql::core::keys_limit_t limit)
       : key_start(key_start), key_end(key_end), limit(limit), result() {}
 
   memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
     if (result.size() < limit) {
-      fastonosql::core::command_buffer_t received_key = GEN_CMD_STRING_SIZE(key, key_length);
-      if (key_start < received_key && key_end > received_key) {
+      const fastonosql::core::raw_key_t received_key = GEN_CMD_STRING_SIZE(key, key_length);
+      if (fastonosql::core::IsKeyInRange(key_start, received_key, key_end)) {
         result.push_back(received_key);
         return MEMCACHED_SUCCESS;
       }
@@ -119,14 +119,12 @@ memcached_return_t memcached_dump_keys_callback(const memcached_st* ptr,
 }
 
 struct ScanHolder {
-  ScanHolder(fastonosql::core::cursor_t cursor_in,
-             const fastonosql::core::command_buffer_t& pattern,
-             fastonosql::core::keys_limit_t limit)
+  ScanHolder(fastonosql::core::cursor_t cursor_in, const std::string& pattern, fastonosql::core::keys_limit_t limit)
       : cursor_in(cursor_in), limit(limit), pattern(pattern), cursor_out(0), offset_pos(cursor_in), result() {}
 
   const fastonosql::core::cursor_t cursor_in;
   const fastonosql::core::keys_limit_t limit;
-  const fastonosql::core::command_buffer_t pattern;
+  const std::string pattern;
   fastonosql::core::cursor_t cursor_out;
   fastonosql::core::cursor_t offset_pos;
   std::vector<fastonosql::core::command_buffer_t> result;
@@ -134,10 +132,9 @@ struct ScanHolder {
   memcached_return_t AddKey(const char* key, size_t key_length, time_t exp) {
     UNUSED(exp);
     if (result.size() < limit) {
-      fastonosql::core::command_buffer_t received_key = GEN_CMD_STRING_SIZE(key, key_length);
-      if (common::MatchPattern(received_key, pattern)) {
+      if (fastonosql::core::IsKeyMatchPattern(key, key_length, pattern)) {
         if (offset_pos == 0) {
-          result.push_back(received_key);
+          result.push_back(GEN_CMD_STRING_SIZE(key, key_length));
         } else {
           offset_pos--;
         }
@@ -891,7 +888,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
 }
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
-  KeysHolder hld(GEN_CMD_STRING("a"), GEN_CMD_STRING("z"), NO_KEYS_LIMIT);
+  KeysHolder hld(kRangeKeyStart, kRangeKeyEnd, NO_KEYS_LIMIT);
   memcached_dump_fn func[1] = {memcached_dump_keys_callback};
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND, memcached_dump(connection_.handle_, func, &hld, SIZEOFMASS(func)));

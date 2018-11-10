@@ -921,7 +921,7 @@ const ConstantCommandsArray kCommands = {
                   "<pattern>",
                   "Find all keys matching the given pattern",
                   PROJECT_VERSION_GENERATE(1, 0, 0),
-                  DB_KEYS_COMMAND " a z 10",
+                  DB_KEYS_COMMAND ALL_KEYS_PATTERNS,
                   1,
                   0,
                   CommandInfo::Native,

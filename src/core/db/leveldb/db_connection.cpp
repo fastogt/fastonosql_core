@@ -399,10 +399,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   raw_keys_t lkeys_out;
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     const ::leveldb::Slice key_slice = it->key();
-    raw_key_t key = GEN_CMD_STRING_SIZE(key_slice.data(), key_slice.size());
     if (lkeys_out.size() < count_keys) {
-      if (common::MatchPattern(key, pattern)) {
+      if (IsKeyMatchPattern(key_slice.data(), key_slice.size(), pattern)) {
         if (offset_pos == 0) {
+          const raw_key_t key = GEN_READABLE_STRING_SIZE(key_slice.data(), key_slice.size());
           lkeys_out.push_back(key);
         } else {
           offset_pos--;
@@ -431,14 +431,14 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
                                      const raw_key_t& key_end,
                                      keys_limit_t limit,
                                      raw_keys_t* ret) {
-  ::leveldb::Slice key_start_slice(key_start.data(), key_start.size());
+  const ::leveldb::Slice key_start_slice(key_start.data(), key_start.size());
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);  // keys(key_start, key_end, limit, ret);
   for (it->Seek(key_start_slice); it->Valid(); it->Next()) {
     auto slice = it->key();
     raw_key_t key = GEN_CMD_STRING_SIZE(slice.data(), slice.size());
     if (ret->size() < limit) {
-      if (key < key_end) {
+      if (IsKeyInEndRange(key, key_end)) {
         ret->push_back(key);
       }
     } else {

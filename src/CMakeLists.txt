@@ -463,6 +463,7 @@ SET(CORE_SOURCES
   ${CMAKE_SOURCE_DIR}/src/core/ssh_info.cpp
   ${CMAKE_SOURCE_DIR}/src/core/types.cpp
   ${CMAKE_SOURCE_DIR}/src/core/value.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/basic_types.cpp
 
   ${INTERNAL_SOURCES}
   ${CONFIG_SOURCES}
@@ -618,6 +619,7 @@ IF(DEVELOPER_ENABLE_TESTS)
     ${CMAKE_SOURCE_DIR}/tests/unit_tests/test_readable_string.cpp
     ${CMAKE_SOURCE_DIR}/tests/unit_tests/test_parsing_command_line.cpp
     ${CMAKE_SOURCE_DIR}/tests/unit_tests/test_command_holder.cpp
+    ${CMAKE_SOURCE_DIR}/tests/unit_tests/test_keys_ranges.cpp
   )
 
   TARGET_INCLUDE_DIRECTORIES(${UNIT_TEST}

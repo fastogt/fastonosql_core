@@ -1726,11 +1726,10 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   cursor_t lcursor_out = 0;
   raw_keys_t lkeys_out;
   for (size_t i = 0; i < ret.size(); ++i) {
-    command_buffer_t key = common::ConvertToCharBytes(ret[i]);
     if (lkeys_out.size() < count_keys) {
-      if (common::MatchPattern(key, pattern)) {
+      if (IsKeyMatchPattern(ret[i].data(), ret[i].size(), pattern)) {
         if (offset_pos == 0) {
-          lkeys_out.push_back(key);
+          lkeys_out.push_back(common::ConvertToCharBytes(ret[i]));
         } else {
           offset_pos--;
         }
@@ -1746,13 +1745,13 @@ common::Error DBConnection::ScanImpl(cursor_t cursor_in,
   return common::Error();
 }
 
-common::Error DBConnection::KeysImpl(const command_buffer_t& key_start,
-                                     const command_buffer_t& key_end,
+common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
+                                     const raw_key_t& key_end,
                                      keys_limit_t limit,
                                      raw_keys_t* ret) {
   std::vector<std::string> ret_keys;
-  const std::string kstart = common::ConvertToString(key_start);
-  const std::string kend = common::ConvertToString(key_end);
+  const std::string kstart = key_start == kRangeKeyStart ? std::string() : common::ConvertToString(key_start);
+  const std::string kend = key_start == kRangeKeyEnd ? std::string() : common::ConvertToString(key_end);
   common::Error err = CheckResultCommand(DB_KEYS_COMMAND, connection_.handle_->keys(kstart, kend, limit, &ret_keys));
   if (err) {
     return err;

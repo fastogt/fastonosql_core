@@ -102,7 +102,7 @@ common::Error ApiTraits<CDBConnection>::Scan(internal::CommandHandler* handler,
   }
 
   const size_t argc = argv.size();
-  command_buffer_t pattern = argc >= 3 ? argv[2] : GEN_CMD_STRING(ALL_KEYS_PATTERNS);
+  const pattern_t pattern = argc >= 3 ? argv[2].as_string() : ALL_KEYS_PATTERNS;
   cursor_t count_keys = NO_KEYS_LIMIT;
   if (argc >= 5 && !common::ConvertFromBytes(argv[4], &count_keys)) {
     return common::make_error_inval();
@@ -472,7 +472,7 @@ common::Error ApiTraits<CDBConnection>::JsonDump(CommandHandler* handler, comman
 
   common::file_system::ascii_file_string_path path(json_path);
 
-  command_buffer_t pattern = argc >= 5 ? argv[4] : GEN_CMD_STRING(ALL_KEYS_PATTERNS);
+  const pattern_t pattern = argc >= 5 ? argv[4].as_string() : ALL_KEYS_PATTERNS;
   cursor_t count_keys = NO_KEYS_LIMIT;
   if (argc == 7 && !common::ConvertFromBytes(argv[6], &count_keys)) {
     return common::make_error_inval();

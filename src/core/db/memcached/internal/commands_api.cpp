@@ -32,7 +32,7 @@ common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args
   DBConnection* mem = static_cast<DBConnection*>(handler);
   const std::string args = argv.size() == 1 ? common::ConvertToString(argv[0]) : std::string();
   if (!args.empty() && common::FullEqualsASCII(args, "items", false)) {
-    commands_args_t largv = {GEN_CMD_STRING("a"), GEN_CMD_STRING("z"), GEN_CMD_STRING("100")};
+    commands_args_t largv = {kRangeKeyStart, kRangeKeyEnd, GEN_CMD_STRING("100")};
     return Keys(handler, largv, out);
   }
 

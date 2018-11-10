@@ -137,8 +137,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
                          keys_limit_t count_keys,
                          raw_keys_t* keys_out,
                          cursor_t* cursor_out) override;
-  common::Error KeysImpl(const command_buffer_t& key_start,
-                         const command_buffer_t& key_end,
+  common::Error KeysImpl(const raw_key_t& key_start,
+                         const raw_key_t& key_end,
                          keys_limit_t limit,
                          raw_keys_t* ret) override;
   common::Error DBkcountImpl(keys_limit_t* size) override;
