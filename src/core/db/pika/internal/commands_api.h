@@ -18,15 +18,14 @@
 
 #pragma once
 
-#include "core/internal/commands_api.h"  // for ApiTraits
+#include "core/db/redis_compatible/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {
 namespace pika {
 
 class DBConnection;
-struct CommandsApi : public internal::ApiTraits<DBConnection> {
-  static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error BgRewriteAof(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error BgSave(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
@@ -213,37 +212,9 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error SentinelRemove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error SentinelSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
-  static common::Error SetEx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Lpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error LfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Lrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Sadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Smembers(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Zadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Zrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Hmset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Hgetall(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Decr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error DecrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Incr(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error IncrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error IncrByFloat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error Persist(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ExpireRedis(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error Auth(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Monitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Subscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Sync(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-
-  static common::Error GetRedis(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
 }  // namespace pika

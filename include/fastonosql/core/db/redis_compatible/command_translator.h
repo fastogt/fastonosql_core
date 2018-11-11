@@ -47,6 +47,8 @@ class CommandTranslator : public ICommandTranslator {
 
   common::Error Lrange(const NKey& key, int start, int stop, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 
+  common::Error Append(const NKey& key, const NValue& value, command_buffer_t* cmdstring);
+
   common::Error SetEx(const NDbKValue& key, ttl_t ttl, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
   common::Error SetEx(const trans_key_t& key, const trans_value_t& value, ttl_t ttl, command_buffer_t* cmdstring)
       WARN_UNUSED_RESULT;

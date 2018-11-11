@@ -671,7 +671,7 @@ common::Error DBConnection<Config, ContType>::Auth(const command_buffer_t& passw
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr, long long* list_len) {
+common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr, redis_int_t* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -717,7 +717,7 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr, long long* list_len) {
+common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr, redis_int_t* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -763,7 +763,7 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue arr, long long* list_len) {
+common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue arr, redis_int_t* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -905,7 +905,7 @@ common::Error DBConnection<Config, ContType>::Mset(const std::vector<NDbKValue>&
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue>& keys, long long* result) {
+common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue>& keys, redis_int_t* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
@@ -942,6 +942,50 @@ common::Error DBConnection<Config, ContType>::MsetNX(const std::vector<NDbKValue
 }
 
 template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::Append(const NKey& key, const NValue& val, redis_int_t* new_string_len) {
+  if (!new_string_len) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t append_cmd;
+  err = tran->Append(key, val, &append_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, append_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type != REDIS_REPLY_INTEGER) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  if (base_class::client_) {
+    const readable_string_t data = val.GetData();
+    const bool is_created = static_cast<size_t>(reply->integer) == data.size();
+    if (is_created) {
+      base_class::client_->OnAddedKey(NDbKValue(key, val));
+    }
+  }
+
+  *new_string_len = reply->integer;
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValue& key, ttl_t ttl) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
@@ -973,7 +1017,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetEx(const NDbKValu
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue& key, long long* result) {
+common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValue& key, redis_int_t* result) {
   common::Error err = base_class::TestIsAuthenticated();
   if (err) {
     return err;
@@ -1008,7 +1052,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::SetNX(const NDbKValu
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* decr) {
+common::Error DBConnection<Config, ContType>::Decr(const NKey& key, redis_int_t* decr) {
   if (!decr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1049,7 +1093,7 @@ common::Error DBConnection<Config, ContType>::Decr(const NKey& key, long long* d
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& key, int dec, long long* decr) {
+common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& key, int dec, redis_int_t* decr) {
   if (!decr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1090,7 +1134,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::DecrBy(const NKey& k
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key, long long* incr) {
+common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key, redis_int_t* incr) {
   if (!incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1131,7 +1175,7 @@ common::Error DBConnection<Config, ContType>::DBConnection::Incr(const NKey& key
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& key, int inc, long long* incr) {
+common::Error DBConnection<Config, ContType>::DBConnection::IncrBy(const NKey& key, int inc, redis_int_t* incr) {
   if (!incr) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1289,7 +1333,7 @@ common::Error DBConnection<Config, ContType>::PTTL(const NKey& key, pttl_t* ttl)
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, long long* added) {
+common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, redis_int_t* added) {
   if (!set || set->GetType() != common::Value::TYPE_SET || !added) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1352,7 +1396,7 @@ common::Error DBConnection<Config, ContType>::Smembers(const NKey& key, NDbKValu
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue scores, long long* added) {
+common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue scores, redis_int_t* added) {
   if (!scores || scores->GetType() != common::Value::TYPE_ZSET || !added) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -2135,6 +2179,7 @@ template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t ttl) {
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t ttl_cmd;
+  // PERSIST/EXPIRE
   common::Error err = tran->ChangeKeyTTLCommand(key, ttl, &ttl_cmd);
   if (err) {
     return err;
@@ -2152,7 +2197,7 @@ common::Error DBConnection<Config, ContType>::SetTTLImpl(const NKey& key, ttl_t 
     return common::make_error("I/O error");
   }
 
-  if (reply->integer == 0) {
+  if (reply->integer == 0) {  // key not exists
     freeReplyObject(reply);
     return base_class::GenerateError(DB_SET_TTL_COMMAND, "key does not exist or the timeout could not be set.");
   }

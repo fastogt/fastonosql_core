@@ -61,6 +61,9 @@ IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/sentinel_info.h
   )
   SET(SOURCES_CORE_DB_REDIS_COMPATIBLE
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/internal/commands_api.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/internal/commands_api.cpp
+
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/config.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/db_connection.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/command_translator.cpp

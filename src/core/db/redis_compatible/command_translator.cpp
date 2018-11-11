@@ -69,6 +69,7 @@
 
 #define REDIS_LRANGE "LRANGE"
 
+#define REDIS_APPEND "APPEND"
 #define REDIS_SETEX "SETEX"
 #define REDIS_SETNX "SETNX"
 
@@ -194,13 +195,26 @@ common::Error CommandTranslator::Lrange(const NKey& key, int start, int stop, co
   return common::Error();
 }
 
+common::Error CommandTranslator::Append(const NKey& key, const NValue& value, command_buffer_t* cmdstring) {
+  if (!cmdstring || !value) {
+    return common::make_error_inval();
+  }
+
+  const nkey_t key_str = key.GetKey();
+
+  command_buffer_writer_t wr;
+  wr << REDIS_APPEND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
 common::Error CommandTranslator::SetEx(const NDbKValue& key, ttl_t ttl, command_buffer_t* cmdstring) {
   if (!cmdstring) {
     return common::make_error_inval();
   }
 
   const NKey cur = key.GetKey();
-  const auto key_str = cur.GetKey();
+  const nkey_t key_str = cur.GetKey();
   const NValue value = key.GetValue();
 
   return SetEx(key_str, value.GetForCommandLine(), ttl, cmdstring);

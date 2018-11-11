@@ -72,6 +72,7 @@ common::Error AuthContext(NativeConnection* context, const command_buffer_t& pas
 template <typename Config, ConnectionType connection_type>
 class DBConnection : public CDBConnection<NativeConnection, Config, connection_type> {
  public:
+  typedef long long redis_int_t;
   typedef std::shared_ptr<CommandTranslator> redis_translator_t;
   typedef CDBConnection<NativeConnection, Config, connection_type> base_class;
   typedef typename base_class::config_t config_t;
@@ -80,8 +81,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   explicit DBConnection(CDBConnectionClient* client)
       : DBConnection(client, new CommandTranslator(base_class::GetCommands())) {}
 
-  common::Error Connect(const config_t& config) override;
-  common::Error Disconnect() override;
+  common::Error Connect(const config_t& config) override WARN_UNUSED_RESULT;
+  common::Error Disconnect() override WARN_UNUSED_RESULT;
 
   db_name_t GetCurrentDBName() const override;
 
@@ -98,37 +99,39 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   common::Error Subscribe(const commands_args_t& argv,
                           FastoObject* out) WARN_UNUSED_RESULT;  // interrupt
 
-  common::Error Lpush(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
-  common::Error Rpush(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
-  common::Error LfastoSet(const NKey& key, NValue arr, long long* list_len) WARN_UNUSED_RESULT;
+  common::Error Lpush(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
+  common::Error Rpush(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
+  common::Error LfastoSet(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
   common::Error Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) WARN_UNUSED_RESULT;
   common::Error Mset(const std::vector<NDbKValue>& keys) WARN_UNUSED_RESULT;
-  common::Error MsetNX(const std::vector<NDbKValue>& keys, long long* result) WARN_UNUSED_RESULT;
+  common::Error MsetNX(const std::vector<NDbKValue>& keys, redis_int_t* result) WARN_UNUSED_RESULT;
+
+  common::Error Append(const NKey& key, const NValue& val, redis_int_t* new_string_len) WARN_UNUSED_RESULT;
 
   common::Error SetEx(const NDbKValue& key, ttl_t ttl) WARN_UNUSED_RESULT;
-  common::Error SetNX(const NDbKValue& key, long long* result) WARN_UNUSED_RESULT;
+  common::Error SetNX(const NDbKValue& key, redis_int_t* result) WARN_UNUSED_RESULT;
 
-  common::Error Decr(const NKey& key, long long* decr);
-  common::Error DecrBy(const NKey& key, int inc, long long* decr);
+  common::Error Decr(const NKey& key, redis_int_t* decr) WARN_UNUSED_RESULT;
+  common::Error DecrBy(const NKey& key, int inc, redis_int_t* decr) WARN_UNUSED_RESULT;
 
-  common::Error Incr(const NKey& key, long long* incr);
-  common::Error IncrBy(const NKey& key, int inc, long long* incr);
-  common::Error IncrByFloat(const NKey& key, double inc, command_buffer_t* str_incr);
+  common::Error Incr(const NKey& key, redis_int_t* incr) WARN_UNUSED_RESULT;
+  common::Error IncrBy(const NKey& key, int inc, redis_int_t* incr) WARN_UNUSED_RESULT;
+  common::Error IncrByFloat(const NKey& key, double inc, command_buffer_t* str_incr) WARN_UNUSED_RESULT;
 
   common::Error PExpire(const NKey& key,
                         ttl_t ttl) WARN_UNUSED_RESULT;  // PEXPIRE works differently than in redis protocol
   common::Error PTTL(const NKey& key, pttl_t* ttl) WARN_UNUSED_RESULT;
 
-  common::Error Sadd(const NKey& key, NValue set, long long* added);
-  common::Error Smembers(const NKey& key, NDbKValue* loaded_key);
+  common::Error Sadd(const NKey& key, NValue set, redis_int_t* added) WARN_UNUSED_RESULT;
+  common::Error Smembers(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
-  common::Error Zadd(const NKey& key, NValue scores, long long* added);
-  common::Error Zrange(const NKey& key, int start, int stop, bool withscores, NDbKValue* loaded_key);
+  common::Error Zadd(const NKey& key, NValue scores, redis_int_t* added) WARN_UNUSED_RESULT;
+  common::Error Zrange(const NKey& key, int start, int stop, bool withscores, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
-  common::Error Hmset(const NKey& key, NValue hash);
-  common::Error Hgetall(const NKey& key, NDbKValue* loaded_key);
+  common::Error Hmset(const NKey& key, NValue hash) WARN_UNUSED_RESULT;
+  common::Error Hgetall(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error ExecuteAsPipeline(const std::vector<FastoObjectCommandIPtr>& cmds,
                                   void (*log_command_cb)(FastoObjectCommandIPtr)) WARN_UNUSED_RESULT;
