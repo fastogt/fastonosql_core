@@ -220,10 +220,6 @@ bool ReadableString::Equals(const ReadableString& other) const {
     return false;
   }
 
-  if (data_.size() != other.data_.size()) {
-    return false;
-  }
-
   return data_ == other.data_;
 }
 

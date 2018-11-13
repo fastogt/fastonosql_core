@@ -27,6 +27,8 @@ namespace core {
 
 class ConstantCommandsArray : public std::vector<CommandHolder> {
  public:
+  typedef std::vector<CommandHolder> base_class;
+
   ConstantCommandsArray(std::initializer_list<CommandHolder> l);  // not explicit
 };
 
