@@ -607,8 +607,8 @@ common::Error DBConnection::FlushDBImpl() {
       break;
     }
 
-    std::string key;
-    err = CheckResultCommand(DB_FLUSHDB_COMMAND, fdb_del_kv(connection_.handle_->kvs, key.c_str(), key.size()));
+    err = CheckResultCommand(DB_FLUSHDB_COMMAND,
+                             fdb_del_kv(connection_.handle_->kvs, static_cast<const char*>(doc->key), doc->keylen));
     if (err) {
       fdb_iterator_close(it);
       return err;
