@@ -36,11 +36,21 @@ struct Config : public RemoteConfig {
   void Init(const config_args_t& args);
   config_args_t ToArgs() const;
 
+  bool Equals(const Config& other) const;
+
   std::string hostsocket;
   int db_num;
   std::string auth;
   bool is_ssl;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace redis_compatible
 }  // namespace core

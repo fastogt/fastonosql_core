@@ -50,10 +50,20 @@ struct Config : public LocalConfig {
   void Init(const config_args_t& args);
   config_args_t ToArgs() const;
 
+  bool Equals(const Config& other) const;
+
   bool create_if_missing;
   ComparatorType comparator;
   CompressionType compression;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace rocksdb
 }  // namespace core

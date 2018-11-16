@@ -83,6 +83,11 @@ config_args_t Config::ToArgs() const {
   return args;
 }
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && env_flags == other.env_flags && db_name == other.db_name &&
+         max_dbs == other.max_dbs;
+}
+
 bool Config::ReadOnlyDB() const {
   return env_flags & MDB_RDONLY;
 }

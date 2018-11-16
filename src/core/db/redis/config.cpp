@@ -29,6 +29,10 @@ const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLo
 
 Config::Config() : base_class(kDefaultHost) {}
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other);
+}
+
 RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
 
 }  // namespace redis

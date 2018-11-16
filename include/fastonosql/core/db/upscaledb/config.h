@@ -25,18 +25,28 @@ namespace core {
 namespace upscaledb {
 
 struct Config : public LocalConfig {
+  typedef LocalConfig base_class;
+
   enum { kDefaultDbNum = 1 };
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
+
+  bool Equals(const Config& other) const;
 
   bool create_if_missing;
   uint16_t dbnum;
 };
 
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
+
 }  // namespace upscaledb
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::upscaledb::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::upscaledb::Config* out);
-}  // namespace common

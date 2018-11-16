@@ -63,6 +63,10 @@ config_args_t Config::ToArgs() const {
   return args;
 }
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && env_flags == other.env_flags;
+}
+
 bool Config::ReadOnlyDB() const {
   return env_flags & UNQLITE_OPEN_READONLY;
 }

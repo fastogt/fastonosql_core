@@ -18,15 +18,11 @@
 
 #include <fastonosql/core/db/upscaledb/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/convert2string.h>
 #include <common/file_system/types.h>  // for prepare_path
-#include <common/sprintf.h>            // for MemSPrintf
 
-#include <fastonosql/core/logger.h>
+#define UPSCALEDB_DB_NAME_FIELD ARGS_FROM_FIELD("n")
+#define UPSCALEDB_CIM_FIELD ARGS_FROM_FIELD("c")
 
 namespace fastonosql {
 namespace core {
@@ -36,79 +32,43 @@ namespace {
 
 const char kDefaultPath[] = "~/test.upscaledb";
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-f") && !lastarg) {
-      cfg.db_path = argv[++i];
-    } else if (!strcmp(argv[i], "-c")) {
-      cfg.create_if_missing = true;
-    } else if (!strcmp(argv[i], "-n")) {
-      uint16_t dbnum;
-      if (common::ConvertFromString(argv[++i], &dbnum)) {
-        cfg.dbnum = dbnum;
-      }
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path(kDefaultPath)), create_if_missing(false), dbnum(kDefaultDbNum) {}
 
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == UPSCALEDB_DB_NAME_FIELD && !lastarg) {
+      uint16_t ldbnum;
+      if (common::ConvertFromString(args[++i], &ldbnum)) {
+        dbnum = ldbnum;
+      }
+    } else if (args[i] == UPSCALEDB_CIM_FIELD) {
+      create_if_missing = true;
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (create_if_missing) {
+    args.push_back(UPSCALEDB_CIM_FIELD);
+  }
+
+  args.push_back(UPSCALEDB_DB_NAME_FIELD);
+  args.push_back(common::ConvertToString(dbnum));
+
+  return args;
+}
+
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && create_if_missing == other.create_if_missing && dbnum == other.dbnum;
+}
+
 }  // namespace upscaledb
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-
-std::string ConvertToString(const fastonosql::core::upscaledb::Config& conf) {
-  auto argv = conf.Args();
-
-  if (conf.create_if_missing) {
-    argv.push_back("-c");
-  }
-
-  if (conf.dbnum) {
-    argv.push_back("-n");
-    argv.push_back(ConvertToString(conf.dbnum));
-  }
-
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::upscaledb::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::upscaledb::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
-
-}  // namespace common

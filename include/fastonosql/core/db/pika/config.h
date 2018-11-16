@@ -29,6 +29,8 @@ namespace pika {
 struct Config : public redis_compatible::Config {
   typedef redis_compatible::Config base_class;
   Config();
+
+  bool Equals(const Config& other) const;
 };
 
 struct RConfig : public Config {
@@ -36,6 +38,14 @@ struct RConfig : public Config {
 
   SSHInfo ssh_info;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace pika
 }  // namespace core

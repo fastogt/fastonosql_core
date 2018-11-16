@@ -34,8 +34,18 @@ struct Config : public LocalConfig {
   void Init(const config_args_t& args);
   config_args_t ToArgs() const;
 
+  bool Equals(const Config& other) const;
+
   std::string db_name;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace forestdb
 }  // namespace core

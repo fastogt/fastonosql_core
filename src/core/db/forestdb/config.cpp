@@ -57,6 +57,10 @@ config_args_t Config::ToArgs() const {
   return args;
 }
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && db_name == other.db_name;
+}
+
 }  // namespace forestdb
 }  // namespace core
 }  // namespace fastonosql

@@ -44,7 +44,7 @@ Config::Config()
     : base_class(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
       comparator(COMP_BYTEWISE),
-      compression(kSnappyCompression) {}
+      compression(kNoCompression) {}
 
 void Config::Init(const config_args_t& args) {
   base_class::Init(args);
@@ -80,6 +80,11 @@ config_args_t Config::ToArgs() const {
   args.push_back(common::ConvertToString(compression));
 
   return args;
+}
+
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && create_if_missing == other.create_if_missing && comparator == other.comparator &&
+         compression == other.compression;
 }
 
 }  // namespace leveldb

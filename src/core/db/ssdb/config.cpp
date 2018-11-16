@@ -55,6 +55,10 @@ config_args_t Config::ToArgs() const {
   return args;
 }
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && auth == other.auth;
+}
+
 }  // namespace ssdb
 }  // namespace core
 }  // namespace fastonosql

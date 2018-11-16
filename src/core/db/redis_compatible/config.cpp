@@ -76,6 +76,11 @@ config_args_t Config::ToArgs() const {
   return args;
 }
 
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other) && hostsocket == other.hostsocket && db_num == other.db_num && auth == other.auth &&
+         is_ssl == other.is_ssl;
+}
+
 }  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

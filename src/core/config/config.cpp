@@ -51,7 +51,13 @@ config_args_t BaseConfig::ToArgs() const {
   return args;
 }
 
-LocalConfig::LocalConfig(const std::string& db_path) : BaseConfig(), db_path(db_path) {}
+bool BaseConfig::Equals(const BaseConfig& other) const {
+  return delimiter == other.delimiter;
+}
+
+LocalConfig::LocalConfig() : LocalConfig(std::string()) {}
+
+LocalConfig::LocalConfig(const std::string& db_path) : base_class(), db_path(db_path) {}
 
 void LocalConfig::Init(const config_args_t& args) {
   base_class::Init(args);
@@ -75,7 +81,13 @@ config_args_t LocalConfig::ToArgs() const {
   return args;
 }
 
-RemoteConfig::RemoteConfig(const common::net::HostAndPort& host) : BaseConfig(), host(host) {}
+bool LocalConfig::Equals(const LocalConfig& other) const {
+  return base_class::Equals(other) && db_path == other.db_path;
+}
+
+RemoteConfig::RemoteConfig() : RemoteConfig(common::net::HostAndPort()) {}
+
+RemoteConfig::RemoteConfig(const common::net::HostAndPort& host) : base_class(), host(host) {}
 
 void RemoteConfig::Init(const config_args_t& args) {
   base_class::Init(args);
@@ -103,6 +115,10 @@ config_args_t RemoteConfig::ToArgs() const {
   }
 
   return args;
+}
+
+bool RemoteConfig::Equals(const RemoteConfig& other) const {
+  return base_class::Equals(other) && host == other.host;
 }
 
 bool ConvertToConfigArgsString(const std::string& line, config_args_t* args) {

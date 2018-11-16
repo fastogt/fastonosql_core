@@ -41,8 +41,18 @@ struct Config : public LocalConfig {
   bool CreateIfMissingDB() const;
   void SetCreateIfMissingDB(bool ro);
 
+  bool Equals(const Config& other) const;
+
   unsigned int env_flags;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace unqlite
 }  // namespace core

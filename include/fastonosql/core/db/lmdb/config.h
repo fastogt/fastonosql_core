@@ -41,10 +41,20 @@ struct Config : public LocalConfig {
   bool IsSingleFileDB() const;
   void SetSingleFileDB(bool single);
 
+  bool Equals(const Config& other) const;
+
   unsigned int env_flags;
   std::string db_name;
   unsigned int max_dbs;
 };
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
+}
+
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
 
 }  // namespace lmdb
 }  // namespace core
