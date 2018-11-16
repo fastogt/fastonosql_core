@@ -20,16 +20,14 @@
 
 extern "C" {
 #include <unqlite.h>
-#include "sds/sds_fasto.h"
 }
 
 #include <common/convert2string.h>
 #include <common/file_system/types.h>  // for prepare_path
-#include <common/sprintf.h>            // for MemSPrintf
-
-#include <fastonosql/core/logger.h>
 
 #define UNQLITE_DEFAULT_ENV_FLAGS (UNQLITE_OPEN_CREATE | UNQLITE_OPEN_READWRITE)
+
+#define UNQLITE_ENV_FIELD ARGS_FROM_FIELD("e")
 
 namespace fastonosql {
 namespace core {
@@ -38,40 +36,32 @@ namespace {
 
 const char kDefaultPath[] = "~/test.unqlite";
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-f") && !lastarg) {
-      cfg.db_path = argv[++i];
-    } else if (!strcmp(argv[i], "-e") && !lastarg) {
-      unsigned int env_flags;
-      if (common::ConvertFromString(argv[++i], &env_flags)) {
-        cfg.env_flags = env_flags;
-      }
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config() : LocalConfig(common::file_system::prepare_path(kDefaultPath)), env_flags(UNQLITE_DEFAULT_ENV_FLAGS) {}
+
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == UNQLITE_ENV_FIELD && !lastarg) {
+      unsigned int lenv;
+      if (common::ConvertFromString(args[++i], &lenv)) {
+        env_flags = lenv;
+      }
+      break;
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  fastonosql::core::config_args_t args = base_class::ToArgs();
+
+  args.push_back(UNQLITE_ENV_FIELD);
+  args.push_back(common::ConvertToString(env_flags));
+
+  return args;
+}
 
 bool Config::ReadOnlyDB() const {
   return env_flags & UNQLITE_OPEN_READONLY;
@@ -116,30 +106,3 @@ void Config::SetCreateIfMissingDB(bool ro) {
 }  // namespace unqlite
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-
-std::string ConvertToString(const fastonosql::core::unqlite::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-  argv.push_back("-e");
-  argv.push_back(common::ConvertToString(conf.env_flags));
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::unqlite::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::unqlite::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
-
-}  // namespace common

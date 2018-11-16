@@ -18,112 +18,64 @@
 
 #include <fastonosql/core/db/redis_compatible/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
+#include <common/convert2string.h>
 
-#include <common/convert2string.h>  // for ConvertToString, etc
-#include <common/sprintf.h>         // for MemSPrintf
-
-#include <fastonosql/core/logger.h>
+#define REDIS_DB_NAME_FIELD ARGS_FROM_FIELD("n")
+#define REDIS_HOST_SOCKET_FIELD ARGS_FROM_FIELD("s")
+#define REDIS_AUTH_FIELD ARGS_FROM_FIELD("a")
+#define REDIS_SSL_FIELD ARGS_FROM_FIELD("ssl")
 
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
-namespace {
-
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-h") && !lastarg) {
-      cfg.host.SetHost(argv[++i]);
-    } else if (!strcmp(argv[i], "-p") && !lastarg) {
-      uint16_t lport;
-      if (common::ConvertFromString(std::string(argv[++i]), &lport)) {
-        cfg.host.SetPort(lport);
-      }
-    } else if (!strcmp(argv[i], "-s") && !lastarg) {
-      cfg.hostsocket = argv[++i];
-    } else if (!strcmp(argv[i], "-n") && !lastarg) {
-      int ldbnum;
-      if (common::ConvertFromString(std::string(argv[++i]), &ldbnum)) {
-        cfg.db_num = ldbnum;
-      }
-    } else if (!strcmp(argv[i], "-a") && !lastarg) {
-      cfg.auth = argv[++i];
-    } else if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-ssl")) {
-      cfg.is_ssl = true;
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-
-  return cfg;
-}
-
-}  // namespace
 
 Config::Config(const common::net::HostAndPort& host)
     : RemoteConfig(host), hostsocket(), db_num(kDefaultDbNum), auth(), is_ssl(false) {}
 
 Config::Config() : Config(common::net::HostAndPort()) {}
 
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == REDIS_DB_NAME_FIELD && !lastarg) {
+      int ldbnum;
+      if (common::ConvertFromString(args[++i], &ldbnum)) {
+        db_num = ldbnum;
+      }
+    } else if (args[i] == REDIS_HOST_SOCKET_FIELD && !lastarg) {
+      hostsocket = args[++i];
+    } else if (args[i] == REDIS_AUTH_FIELD && !lastarg) {
+      auth = args[++i];
+    } else if (args[i] == REDIS_SSL_FIELD) {
+      is_ssl = true;
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  fastonosql::core::config_args_t args = base_class::ToArgs();
+
+  if (!hostsocket.empty()) {
+    args.push_back(REDIS_HOST_SOCKET_FIELD);
+    args.push_back(hostsocket);
+  }
+
+  args.push_back(REDIS_DB_NAME_FIELD);
+  args.push_back(common::ConvertToString(db_num));
+
+  if (!auth.empty()) {
+    args.push_back(REDIS_AUTH_FIELD);
+    args.push_back(auth);
+  }
+
+  if (is_ssl) {
+    args.push_back(REDIS_SSL_FIELD);
+  }
+
+  return args;
+}
+
 }  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-
-std::string ConvertToString(const fastonosql::core::redis_compatible::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-
-  if (!conf.hostsocket.empty()) {
-    argv.push_back("-s");
-    argv.push_back(conf.hostsocket);
-  }
-  argv.push_back("-n");
-  argv.push_back(ConvertToString(conf.db_num));
-
-  if (!conf.auth.empty()) {
-    argv.push_back("-a");
-    argv.push_back(conf.auth);
-  }
-
-  if (conf.is_ssl) {
-    argv.push_back("-ssl");
-  }
-
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::redis_compatible::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::redis_compatible::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
-
-}  // namespace common

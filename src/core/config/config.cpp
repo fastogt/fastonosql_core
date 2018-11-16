@@ -18,72 +18,111 @@
 
 #include <fastonosql/core/config/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/convert2string.h>
+#include <common/string_util.h>
 
 namespace fastonosql {
 namespace core {
+
+extern const char kArgsSeparator[] = " ";
 
 const char BaseConfig::default_delimiter[] = "\n";
 
 BaseConfig::BaseConfig() : delimiter(default_delimiter) {}
 
-LocalConfig::LocalConfig(const std::string& db_path) : BaseConfig(), db_path(db_path) {}
-
-config_args_t LocalConfig::Args() const {
-  config_args_t argv;
-
-  if (!db_path.empty()) {
-    argv.push_back("-f");
-    argv.push_back(db_path);
+void BaseConfig::Init(const config_args_t& args) {
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == DELIMITER_FIELD && !lastarg) {
+      delimiter = args[++i];
+      break;
+    }
   }
+}
+
+config_args_t BaseConfig::ToArgs() const {
+  config_args_t args;
 
   if (!delimiter.empty()) {
-    argv.push_back("-d");
-    argv.push_back(delimiter);
+    args.push_back(DELIMITER_FIELD);
+    args.push_back(delimiter);
   }
 
-  return argv;
+  return args;
+}
+
+LocalConfig::LocalConfig(const std::string& db_path) : BaseConfig(), db_path(db_path) {}
+
+void LocalConfig::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == DB_PATH_FIELD && !lastarg) {
+      db_path = args[++i];
+      break;
+    }
+  }
+}
+
+config_args_t LocalConfig::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (!db_path.empty()) {
+    args.push_back(DB_PATH_FIELD);
+    args.push_back(db_path);
+  }
+
+  return args;
 }
 
 RemoteConfig::RemoteConfig(const common::net::HostAndPort& host) : BaseConfig(), host(host) {}
 
-config_args_t RemoteConfig::Args() const {
-  config_args_t argv;
-
-  if (host.IsValid()) {
-    argv.push_back("-h");
-    argv.push_back(host.GetHost());
-    argv.push_back("-p");
-    argv.push_back(common::ConvertToString(host.GetPort()));
+void RemoteConfig::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == HOST_FIELD && !lastarg) {
+      host.SetHost(args[++i]);
+    } else if (args[i] == PORT_FIELD && !lastarg) {
+      common::net::HostAndPort::port_t port;
+      if (common::ConvertFromString(args[++i], &port)) {
+        host.SetPort(port);
+      }
+    }
   }
-
-  if (!delimiter.empty()) {
-    argv.push_back("-d");
-    argv.push_back(delimiter);
-  }
-
-  return argv;
 }
 
-std::string ConvertToStringConfigArgs(const config_args_t& args) {
-  std::string result;
-  for (size_t i = 0; i < args.size(); ++i) {
-    std::string curr = args[i];
-    if (is_need_escape(curr.c_str(), curr.length())) {
-      result += "'" + args[i] + "'";
-    } else {
-      result += args[i];
-    }
-    if (i != args.size() - 1) {
-      result += " ";
-    }
+config_args_t RemoteConfig::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (host.IsValid()) {
+    args.push_back(HOST_FIELD);
+    args.push_back(host.GetHost());
+    args.push_back(PORT_FIELD);
+    args.push_back(common::ConvertToString(host.GetPort()));
   }
 
-  return result;
+  return args;
+}
+
+bool ConvertToConfigArgsString(const std::string& line, config_args_t* args) {
+  if (!args) {
+    return false;
+  }
+
+  config_args_t largs;
+  common::Tokenize(line, kArgsSeparator, &largs);
+  *args = largs;
+  return true;
+}
+
+bool ConvertToStringConfigArgs(const config_args_t& args, std::string* out) {
+  if (!out) {
+    return false;
+  }
+
+  *out = common::JoinString(args, kArgsSeparator);
+  return true;
 }
 
 }  // namespace core

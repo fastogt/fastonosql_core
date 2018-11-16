@@ -25,7 +25,13 @@ namespace core {
 namespace unqlite {
 
 struct Config : public LocalConfig {
+  typedef LocalConfig base_class;
+
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
+
   bool ReadOnlyDB() const;
   void SetReadOnlyDB(bool ro);
 
@@ -41,8 +47,3 @@ struct Config : public LocalConfig {
 }  // namespace unqlite
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::unqlite::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::unqlite::Config* out);
-}  // namespace common

@@ -18,17 +18,11 @@
 
 #include <fastonosql/core/db/rocksdb/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/file_system/types.h>  // for prepare_path
-#include <common/sprintf.h>            // for MemSPrintf
 
-#include <fastonosql/core/logger.h>
-
-#define ROCKSDB_COMPARATOR_FIELD "comparator"
-#define ROCKSDB_COMPRESSION_FIELD "compression"
+#define ROCKSDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
+#define ROCKSDB_COMPRESSION_FIELD ARGS_FROM_FIELD("compression")
+#define ROCKSDB_CIM_FIELD ARGS_FROM_FIELD("c")
 
 namespace fastonosql {
 namespace core {
@@ -44,44 +38,6 @@ namespace {
 
 const char kDefaultPath[] = "~/test.rocksdb";
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-f") && !lastarg) {
-      cfg.db_path = argv[++i];
-    } else if (!strcmp(argv[i], "-c")) {
-      cfg.create_if_missing = true;
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPARATOR_FIELD)) && !lastarg) {
-      ComparatorType lcomparator;
-      if (common::ConvertFromString(argv[++i], &lcomparator)) {
-        cfg.comparator = lcomparator;
-      }
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(ROCKSDB_COMPRESSION_FIELD)) && !lastarg) {
-      CompressionType lcomp;
-      if (common::ConvertFromString(argv[++i], &lcomp)) {
-        cfg.compression = lcomp;
-      }
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config()
@@ -90,41 +46,47 @@ Config::Config()
       comparator(COMP_BYTEWISE),
       compression(kNoCompression) {}
 
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == ROCKSDB_COMPARATOR_FIELD && !lastarg) {
+      ComparatorType lcomparator;
+      if (common::ConvertFromString(args[++i], &lcomparator)) {
+        comparator = lcomparator;
+      }
+    } else if (args[i] == ROCKSDB_COMPRESSION_FIELD && !lastarg) {
+      CompressionType lcompression;
+      if (common::ConvertFromString(args[++i], &lcompression)) {
+        compression = lcompression;
+      }
+    } else if (args[i] == ROCKSDB_CIM_FIELD) {
+      create_if_missing = true;
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (create_if_missing) {
+    args.push_back(ROCKSDB_CIM_FIELD);
+  }
+
+  args.push_back(ROCKSDB_COMPARATOR_FIELD);
+  args.push_back(common::ConvertToString(comparator));
+
+  args.push_back(ROCKSDB_COMPRESSION_FIELD);
+  args.push_back(common::ConvertToString(compression));
+
+  return args;
+}
+
 }  // namespace rocksdb
 }  // namespace core
 }  // namespace fastonosql
 
 namespace common {
-
-std::string ConvertToString(const fastonosql::core::rocksdb::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-
-  if (conf.create_if_missing) {
-    argv.push_back("-c");
-  }
-
-  argv.push_back(ARGS_FROM_FIELD(ROCKSDB_COMPARATOR_FIELD));
-  argv.push_back(common::ConvertToString(conf.comparator));
-  argv.push_back(ARGS_FROM_FIELD(ROCKSDB_COMPRESSION_FIELD));
-  argv.push_back(common::ConvertToString(conf.compression));
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::rocksdb::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
 
 std::string ConvertToString(fastonosql::core::rocksdb::ComparatorType comp) {
   return fastonosql::core::rocksdb::g_comparator_types[comp];

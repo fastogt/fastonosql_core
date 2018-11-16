@@ -18,19 +18,13 @@
 
 #include <fastonosql/core/db/leveldb/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/file_system/types.h>  // for prepare_path
-#include <common/sprintf.h>            // for MemSPrintf
 
 #include <leveldb/options.h>  // for Options
 
-#include <fastonosql/core/logger.h>
-
-#define LEVELDB_COMPARATOR_FIELD "comparator"
-#define LEVELDB_COMPRESSION_FIELD "compression"
+#define LEVELDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
+#define LEVELDB_COMPRESSION_FIELD ARGS_FROM_FIELD("compression")
+#define LEVELDB_CIM_FIELD ARGS_FROM_FIELD("c")
 
 namespace fastonosql {
 namespace core {
@@ -44,88 +38,55 @@ namespace {
 
 const char kDefaultPath[] = "~/test.leveldb";
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-f") && !lastarg) {
-      cfg.db_path = argv[++i];
-    } else if (!strcmp(argv[i], "-c")) {
-      cfg.create_if_missing = true;
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPARATOR_FIELD)) && !lastarg) {
-      ComparatorType lcomparator;
-      if (common::ConvertFromString(argv[++i], &lcomparator)) {
-        cfg.comparator = lcomparator;
-      }
-    } else if (!strcmp(argv[i], ARGS_FROM_FIELD(LEVELDB_COMPRESSION_FIELD)) && !lastarg) {
-      CompressionType lcompression;
-      if (common::ConvertFromString(argv[++i], &lcompression)) {
-        cfg.compression = lcompression;
-      }
-    } else {
-      if (argv[i][0] == '-') {
-        std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config()
-    : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
+    : base_class(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
       comparator(COMP_BYTEWISE),
       compression(kSnappyCompression) {}
+
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == LEVELDB_COMPARATOR_FIELD && !lastarg) {
+      ComparatorType lcomparator;
+      if (common::ConvertFromString(args[++i], &lcomparator)) {
+        comparator = lcomparator;
+      }
+    } else if (args[i] == LEVELDB_COMPRESSION_FIELD && !lastarg) {
+      CompressionType lcompression;
+      if (common::ConvertFromString(args[++i], &lcompression)) {
+        compression = lcompression;
+      }
+    } else if (args[i] == LEVELDB_CIM_FIELD) {
+      create_if_missing = true;
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (create_if_missing) {
+    args.push_back(LEVELDB_CIM_FIELD);
+  }
+
+  args.push_back(LEVELDB_COMPARATOR_FIELD);
+  args.push_back(common::ConvertToString(comparator));
+
+  args.push_back(LEVELDB_COMPRESSION_FIELD);
+  args.push_back(common::ConvertToString(compression));
+
+  return args;
+}
 
 }  // namespace leveldb
 }  // namespace core
 }  // namespace fastonosql
 
 namespace common {
-
-std::string ConvertToString(const fastonosql::core::leveldb::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-
-  if (conf.create_if_missing) {
-    argv.push_back("-c");
-  }
-
-  argv.push_back(ARGS_FROM_FIELD(LEVELDB_COMPARATOR_FIELD));
-  argv.push_back(common::ConvertToString(conf.comparator));
-
-  argv.push_back(ARGS_FROM_FIELD(LEVELDB_COMPRESSION_FIELD));
-  argv.push_back(common::ConvertToString(conf.compression));
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::Config* out) {
-  if (!out) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::leveldb::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
 
 std::string ConvertToString(fastonosql::core::leveldb::ComparatorType comp) {
   return fastonosql::core::leveldb::g_comparator_types[comp];

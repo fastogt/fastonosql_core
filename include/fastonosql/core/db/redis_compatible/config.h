@@ -27,9 +27,14 @@ namespace core {
 namespace redis_compatible {
 
 struct Config : public RemoteConfig {
+  typedef RemoteConfig base_class;
+
   enum { kDefaultDbNum = 0 };
   explicit Config(const common::net::HostAndPort& host);
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   std::string hostsocket;
   int db_num;
@@ -40,8 +45,3 @@ struct Config : public RemoteConfig {
 }  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::redis_compatible::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::redis_compatible::Config* out);
-}  // namespace common

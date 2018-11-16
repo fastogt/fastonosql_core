@@ -18,16 +18,10 @@
 
 #include <fastonosql/core/db/memcached/config.h>
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
-#include <common/convert2string.h>  // for ConvertFromString
-#include <common/sprintf.h>         // for MemSPrintf
-
-#include <fastonosql/core/logger.h>
-
 #define DEFAULT_MEMCACHED_SERVER_PORT 11211
+
+#define MEMCACHED_USER_FIELD ARGS_FROM_FIELD("u")
+#define MEMCACHED_PASSWORD_FIELD ARGS_FROM_FIELD("a")
 
 namespace fastonosql {
 namespace core {
@@ -37,82 +31,38 @@ namespace {
 
 const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_MEMCACHED_SERVER_PORT);
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-h") && !lastarg) {
-      cfg.host.SetHost(argv[++i]);
-    } else if (!strcmp(argv[i], "-p") && !lastarg) {
-      uint16_t lport;
-      if (common::ConvertFromString(argv[++i], &lport)) {
-        cfg.host.SetPort(lport);
-      }
-    } else if (!strcmp(argv[i], "-u") && !lastarg) {
-      cfg.user = argv[++i];
-    } else if (!strcmp(argv[i], "-a") && !lastarg) {
-      cfg.password = argv[++i];
-    } else if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config() : RemoteConfig(kDefaultHost), user(), password() {}
 
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == MEMCACHED_USER_FIELD && !lastarg) {
+      user = args[++i];
+    } else if (args[i] == MEMCACHED_PASSWORD_FIELD && !lastarg) {
+      password = args[++i];
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  fastonosql::core::config_args_t args = base_class::ToArgs();
+
+  if (!user.empty()) {
+    args.push_back(MEMCACHED_USER_FIELD);
+    args.push_back(user);
+  }
+
+  if (!password.empty()) {
+    args.push_back(MEMCACHED_PASSWORD_FIELD);
+    args.push_back(password);
+  }
+
+  return args;
+}
+
 }  // namespace memcached
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-
-std::string ConvertToString(const fastonosql::core::memcached::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-
-  if (!conf.user.empty()) {
-    argv.push_back("-u");
-    argv.push_back(conf.user);
-  }
-
-  if (!conf.password.empty()) {
-    argv.push_back("-a");
-    argv.push_back(conf.password);
-  }
-
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::memcached::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::memcached::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
-
-}  // namespace common

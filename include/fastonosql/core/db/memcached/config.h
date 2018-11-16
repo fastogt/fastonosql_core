@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/config/config.h>
 
 namespace fastonosql {
@@ -25,7 +27,12 @@ namespace core {
 namespace memcached {
 
 struct Config : public RemoteConfig {
+  typedef RemoteConfig base_class;
+
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   std::string user;
   std::string password;
@@ -34,8 +41,3 @@ struct Config : public RemoteConfig {
 }  // namespace memcached
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::memcached::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::memcached::Config* out);
-}  // namespace common

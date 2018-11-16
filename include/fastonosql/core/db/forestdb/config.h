@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/config/config.h>
 
 namespace fastonosql {
@@ -25,7 +27,12 @@ namespace core {
 namespace forestdb {
 
 struct Config : public LocalConfig {
+  typedef LocalConfig base_class;
+
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   std::string db_name;
 };
@@ -33,8 +40,3 @@ struct Config : public LocalConfig {
 }  // namespace forestdb
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::forestdb::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::forestdb::Config* out);
-}  // namespace common

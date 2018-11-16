@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <common/types.h>  // for ClonableBase
 
 #include <fastonosql/core/db_key.h>  // for NDbKValue
@@ -37,7 +39,7 @@ class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
   bool IsDefault() const;
   void SetIsDefault(bool is_def);
 
-  virtual ~IDataBaseInfo();
+  ~IDataBaseInfo() override;
 
   keys_container_t GetKeys() const;
   void SetKeys(const keys_container_t& keys);
@@ -48,7 +50,7 @@ class IDataBaseInfo : public common::ClonableBase<IDataBaseInfo> {
   bool UpdateKeyTTL(const NKey& key, ttl_t ttl) WARN_UNUSED_RESULT;
   bool RemoveKey(const NKey& key) WARN_UNUSED_RESULT;
 
-  virtual IDataBaseInfo* Clone() const override = 0;
+  IDataBaseInfo* Clone() const override = 0;
 
  protected:
   IDataBaseInfo(const db_name_t& name, bool is_default, size_t dbkcount, const keys_container_t& keys);

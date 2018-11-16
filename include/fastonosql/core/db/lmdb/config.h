@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/config/config.h>
 
 namespace fastonosql {
@@ -25,8 +27,13 @@ namespace core {
 namespace lmdb {
 
 struct Config : public LocalConfig {
+  typedef LocalConfig base_class;
+
   enum { default_dbs_count = 1024 };
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   bool ReadOnlyDB() const;
   void SetReadOnlyDB(bool ro);
@@ -42,8 +49,3 @@ struct Config : public LocalConfig {
 }  // namespace lmdb
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-std::string ConvertToString(const fastonosql::core::lmdb::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::lmdb::Config* out);
-}  // namespace common

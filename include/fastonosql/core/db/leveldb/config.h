@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/config/config.h>
 
 namespace fastonosql {
@@ -31,7 +34,12 @@ enum CompressionType : uint8_t { kNoCompression = 0, kSnappyCompression };
 extern const std::vector<const char*> g_compression_types;
 
 struct Config : public LocalConfig {
+  typedef LocalConfig base_class;
+
   Config();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   bool create_if_missing;
   ComparatorType comparator;
@@ -43,9 +51,6 @@ struct Config : public LocalConfig {
 }  // namespace fastonosql
 
 namespace common {
-std::string ConvertToString(const fastonosql::core::leveldb::Config& conf);
-bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::Config* out);
-
 std::string ConvertToString(fastonosql::core::leveldb::ComparatorType comp);
 bool ConvertFromString(const std::string& from, fastonosql::core::leveldb::ComparatorType* out);
 

@@ -18,44 +18,63 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <common/net/types.h>
 
 #define ARGS_FROM_FIELD(x) "-" x
 
+#define DELIMITER_FIELD ARGS_FROM_FIELD("d")
+#define DB_PATH_FIELD ARGS_FROM_FIELD("f")
+#define HOST_FIELD ARGS_FROM_FIELD("h")
+#define PORT_FIELD ARGS_FROM_FIELD("p")
+
 namespace fastonosql {
 namespace core {
 
 typedef std::vector<std::string> config_args_t;
 
+extern const char kArgsSeparator[];
+
 // -d
 struct BaseConfig {
   static const char default_delimiter[];
+
   BaseConfig();
+
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   std::string delimiter;
 };
 
 // -f -d
 struct LocalConfig : public BaseConfig {
+  typedef BaseConfig base_class;
+
   explicit LocalConfig(const std::string& db_path);
 
-  config_args_t Args() const;
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   std::string db_path;
 };
 
 // -h -p -d
 struct RemoteConfig : public BaseConfig {
+  typedef BaseConfig base_class;
+
   explicit RemoteConfig(const common::net::HostAndPort& host);
 
-  config_args_t Args() const;
+  void Init(const config_args_t& args);
+  config_args_t ToArgs() const;
 
   common::net::HostAndPort host;
 };
 
-std::string ConvertToStringConfigArgs(const config_args_t& args);
+bool ConvertToConfigArgsString(const std::string& line, config_args_t* args);
+bool ConvertToStringConfigArgs(const config_args_t& args, std::string* out);
 
 }  // namespace core
 }  // namespace fastonosql

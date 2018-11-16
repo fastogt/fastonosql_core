@@ -20,17 +20,14 @@
 
 #include <lmdb.h>  // for mdb_txn_abort, MDB_val
 
-extern "C" {
-#include "sds/sds_fasto.h"
-}
-
 #include <common/convert2string.h>
 #include <common/file_system/types.h>  // for prepare_path
-#include <common/sprintf.h>            // for MemSPrintf
-
-#include <fastonosql/core/logger.h>
 
 #define LMDB_DEFAULT_ENV_FLAGS MDB_NOSUBDIR
+
+#define LMDB_DB_NAME_FIELD ARGS_FROM_FIELD("n")
+#define LMDB_MAX_DBS_FIELD ARGS_FROM_FIELD("m")
+#define LMDB_ENV_FIELD ARGS_FROM_FIELD("e")
 
 namespace fastonosql {
 namespace core {
@@ -41,45 +38,6 @@ namespace {
 const char kDefaultPath[] = "~/test.lmdb";
 const char kDefaultDbName[] = "default";
 
-Config ParseOptions(int argc, char** argv) {
-  Config cfg;
-  for (int i = 0; i < argc; i++) {
-    const bool lastarg = i == argc - 1;
-
-    if (!strcmp(argv[i], "-d") && !lastarg) {
-      cfg.delimiter = argv[++i];
-    } else if (!strcmp(argv[i], "-f") && !lastarg) {
-      cfg.db_path = argv[++i];
-    } else if (!strcmp(argv[i], "-n") && !lastarg) {
-      const char* db_name = argv[++i];
-      cfg.db_name = db_name;
-    } else if (!strcmp(argv[i], "-m") && !lastarg) {
-      unsigned int max_dbs;
-      if (common::ConvertFromString(argv[++i], &max_dbs)) {
-        cfg.max_dbs = max_dbs;
-      }
-    } else if (!strcmp(argv[i], "-e") && !lastarg) {
-      unsigned int env_flags;
-      if (common::ConvertFromString(argv[++i], &env_flags)) {
-        cfg.env_flags = env_flags;
-      }
-    } else {
-      if (argv[i][0] == '-') {
-        const std::string buff = common::MemSPrintf(
-            "Unrecognized option or bad number of args "
-            "for: '%s'",
-            argv[i]);
-        LOG_CORE_MSG(buff, common::logging::LOG_LEVEL_WARNING, true);
-        break;
-      } else {
-        /* Likely the command name, stop here. */
-        break;
-      }
-    }
-  }
-  return cfg;
-}
-
 }  // namespace
 
 Config::Config()
@@ -87,6 +45,43 @@ Config::Config()
       env_flags(LMDB_DEFAULT_ENV_FLAGS),
       db_name(kDefaultDbName),
       max_dbs(default_dbs_count) {}
+
+void Config::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == LMDB_DB_NAME_FIELD && !lastarg) {
+      db_name = args[++i];
+    } else if (args[i] == LMDB_ENV_FIELD && !lastarg) {
+      unsigned int lenv;
+      if (common::ConvertFromString(args[++i], &lenv)) {
+        env_flags = lenv;
+      }
+    } else if (args[i] == LMDB_MAX_DBS_FIELD && !lastarg) {
+      unsigned int lmax_dbs;
+      if (common::ConvertFromString(args[++i], &lmax_dbs)) {
+        max_dbs = lmax_dbs;
+      }
+    }
+  }
+}
+
+config_args_t Config::ToArgs() const {
+  fastonosql::core::config_args_t args = base_class::ToArgs();
+
+  args.push_back(LMDB_ENV_FIELD);
+  args.push_back(common::ConvertToString(env_flags));
+
+  if (!db_name.empty()) {
+    args.push_back(LMDB_DB_NAME_FIELD);
+    args.push_back(db_name);
+  }
+
+  args.push_back(LMDB_MAX_DBS_FIELD);
+  args.push_back(common::ConvertToString(max_dbs));
+
+  return args;
+}
 
 bool Config::ReadOnlyDB() const {
   return env_flags & MDB_RDONLY;
@@ -115,39 +110,3 @@ void Config::SetReadOnlyDB(bool ro) {
 }  // namespace lmdb
 }  // namespace core
 }  // namespace fastonosql
-
-namespace common {
-
-std::string ConvertToString(const fastonosql::core::lmdb::Config& conf) {
-  fastonosql::core::config_args_t argv = conf.Args();
-  argv.push_back("-e");
-  argv.push_back(common::ConvertToString(conf.env_flags));
-
-  if (!conf.db_name.empty()) {
-    argv.push_back("-n");
-    argv.push_back(conf.db_name);
-  }
-
-  argv.push_back("-m");
-  argv.push_back(common::ConvertToString(conf.max_dbs));
-
-  return fastonosql::core::ConvertToStringConfigArgs(argv);
-}
-
-bool ConvertFromString(const std::string& from, fastonosql::core::lmdb::Config* out) {
-  if (!out || from.empty()) {
-    return false;
-  }
-
-  int argc = 0;
-  sds* argv = sdssplitargslong(from.c_str(), &argc);
-  if (argv) {
-    *out = fastonosql::core::lmdb::ParseOptions(argc, argv);
-    sdsfreesplitres(argv, argc);
-    return true;
-  }
-
-  return false;
-}
-
-}  // namespace common
