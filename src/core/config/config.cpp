@@ -18,7 +18,6 @@
 
 #include <fastonosql/core/config/config.h>
 
-#include <common/convert2string.h>
 #include <common/string_util.h>
 
 namespace fastonosql {
@@ -53,72 +52,6 @@ config_args_t BaseConfig::ToArgs() const {
 
 bool BaseConfig::Equals(const BaseConfig& other) const {
   return delimiter == other.delimiter;
-}
-
-LocalConfig::LocalConfig() : LocalConfig(std::string()) {}
-
-LocalConfig::LocalConfig(const std::string& db_path) : base_class(), db_path(db_path) {}
-
-void LocalConfig::Init(const config_args_t& args) {
-  base_class::Init(args);
-  for (size_t i = 0; i < args.size(); i++) {
-    const bool lastarg = i == args.size() - 1;
-    if (args[i] == DB_PATH_FIELD && !lastarg) {
-      db_path = args[++i];
-      break;
-    }
-  }
-}
-
-config_args_t LocalConfig::ToArgs() const {
-  config_args_t args = base_class::ToArgs();
-
-  if (!db_path.empty()) {
-    args.push_back(DB_PATH_FIELD);
-    args.push_back(db_path);
-  }
-
-  return args;
-}
-
-bool LocalConfig::Equals(const LocalConfig& other) const {
-  return base_class::Equals(other) && db_path == other.db_path;
-}
-
-RemoteConfig::RemoteConfig() : RemoteConfig(common::net::HostAndPort()) {}
-
-RemoteConfig::RemoteConfig(const common::net::HostAndPort& host) : base_class(), host(host) {}
-
-void RemoteConfig::Init(const config_args_t& args) {
-  base_class::Init(args);
-  for (size_t i = 0; i < args.size(); i++) {
-    const bool lastarg = i == args.size() - 1;
-    if (args[i] == HOST_FIELD && !lastarg) {
-      host.SetHost(args[++i]);
-    } else if (args[i] == PORT_FIELD && !lastarg) {
-      common::net::HostAndPort::port_t port;
-      if (common::ConvertFromString(args[++i], &port)) {
-        host.SetPort(port);
-      }
-    }
-  }
-}
-
-config_args_t RemoteConfig::ToArgs() const {
-  config_args_t args = base_class::ToArgs();
-
-  if (host.IsValid()) {
-    args.push_back(HOST_FIELD);
-    args.push_back(host.GetHost());
-    args.push_back(PORT_FIELD);
-    args.push_back(common::ConvertToString(host.GetPort()));
-  }
-
-  return args;
-}
-
-bool RemoteConfig::Equals(const RemoteConfig& other) const {
-  return base_class::Equals(other) && host == other.host;
 }
 
 bool ConvertToConfigArgsString(const std::string& line, config_args_t* args) {

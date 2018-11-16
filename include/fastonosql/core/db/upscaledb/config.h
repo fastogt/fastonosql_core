@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/config/config.h>
+#include <fastonosql/core/config/local_config.h>
 
 namespace fastonosql {
 namespace core {

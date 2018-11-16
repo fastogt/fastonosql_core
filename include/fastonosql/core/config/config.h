@@ -21,8 +21,6 @@
 #include <string>
 #include <vector>
 
-#include <common/net/types.h>
-
 #define ARGS_FROM_FIELD(x) "-" x
 
 #define DELIMITER_FIELD ARGS_FROM_FIELD("d")
@@ -56,52 +54,6 @@ inline bool operator==(const BaseConfig& r, const BaseConfig& l) {
 }
 
 inline bool operator!=(const BaseConfig& r, const BaseConfig& l) {
-  return !(r == l);
-}
-
-// -f -d
-struct LocalConfig : public BaseConfig {
-  typedef BaseConfig base_class;
-
-  LocalConfig();
-  explicit LocalConfig(const std::string& db_path);
-
-  void Init(const config_args_t& args);
-  config_args_t ToArgs() const;
-
-  bool Equals(const LocalConfig& other) const;
-
-  std::string db_path;
-};
-
-inline bool operator==(const LocalConfig& r, const LocalConfig& l) {
-  return r.Equals(l);
-}
-
-inline bool operator!=(const LocalConfig& r, const LocalConfig& l) {
-  return !(r == l);
-}
-
-// -h -p -d
-struct RemoteConfig : public BaseConfig {
-  typedef BaseConfig base_class;
-
-  RemoteConfig();
-  explicit RemoteConfig(const common::net::HostAndPort& host);
-
-  void Init(const config_args_t& args);
-  config_args_t ToArgs() const;
-
-  bool Equals(const RemoteConfig& other) const;
-
-  common::net::HostAndPort host;
-};
-
-inline bool operator==(const RemoteConfig& r, const RemoteConfig& l) {
-  return r.Equals(l);
-}
-
-inline bool operator!=(const RemoteConfig& r, const RemoteConfig& l) {
   return !(r == l);
 }
 

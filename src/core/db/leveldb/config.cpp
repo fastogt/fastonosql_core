@@ -19,6 +19,7 @@
 #include <fastonosql/core/db/leveldb/config.h>
 
 #include <common/file_system/types.h>  // for prepare_path
+#include <common/macros.h>
 
 #include <leveldb/options.h>  // for Options
 

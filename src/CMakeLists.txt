@@ -22,10 +22,14 @@ SET(INTERNAL_SOURCES
 
 SET(CONFIG_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/config/config.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/config/local_config.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/config/remote_config.h
 )
 
 SET(CONFIG_SOURCES
   ${CMAKE_SOURCE_DIR}/src/core/config/config.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/config/local_config.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/config/remote_config.cpp
 )
 
 SET(SERVER_HEADERS

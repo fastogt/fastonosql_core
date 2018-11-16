@@ -18,36 +18,38 @@
 
 #pragma once
 
-#include <string>
+#include <common/net/types.h>
 
-#include <fastonosql/core/config/remote_config.h>
+#include <fastonosql/core/config/config.h>
+
+#define HOST_FIELD ARGS_FROM_FIELD("h")
+#define PORT_FIELD ARGS_FROM_FIELD("p")
 
 namespace fastonosql {
 namespace core {
-namespace memcached {
 
-struct Config : public RemoteConfig {
-  typedef RemoteConfig base_class;
+// -h -p -d
+struct RemoteConfig : public BaseConfig {
+  typedef BaseConfig base_class;
 
-  Config();
+  RemoteConfig();
+  explicit RemoteConfig(const common::net::HostAndPort& host);
 
   void Init(const config_args_t& args);
   config_args_t ToArgs() const;
 
-  bool Equals(const Config& other) const;
+  bool Equals(const RemoteConfig& other) const;
 
-  std::string user;
-  std::string password;
+  common::net::HostAndPort host;
 };
 
-inline bool operator==(const Config& r, const Config& l) {
+inline bool operator==(const RemoteConfig& r, const RemoteConfig& l) {
   return r.Equals(l);
 }
 
-inline bool operator!=(const Config& r, const Config& l) {
+inline bool operator!=(const RemoteConfig& r, const RemoteConfig& l) {
   return !(r == l);
 }
 
-}  // namespace memcached
 }  // namespace core
 }  // namespace fastonosql

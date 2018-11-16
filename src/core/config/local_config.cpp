@@ -16,38 +16,40 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <string>
-
-#include <fastonosql/core/config/remote_config.h>
+#include <fastonosql/core/config/local_config.h>
 
 namespace fastonosql {
 namespace core {
-namespace memcached {
 
-struct Config : public RemoteConfig {
-  typedef RemoteConfig base_class;
+LocalConfig::LocalConfig() : LocalConfig(std::string()) {}
 
-  Config();
+LocalConfig::LocalConfig(const std::string& db_path) : base_class(), db_path(db_path) {}
 
-  void Init(const config_args_t& args);
-  config_args_t ToArgs() const;
-
-  bool Equals(const Config& other) const;
-
-  std::string user;
-  std::string password;
-};
-
-inline bool operator==(const Config& r, const Config& l) {
-  return r.Equals(l);
+void LocalConfig::Init(const config_args_t& args) {
+  base_class::Init(args);
+  for (size_t i = 0; i < args.size(); i++) {
+    const bool lastarg = i == args.size() - 1;
+    if (args[i] == DB_PATH_FIELD && !lastarg) {
+      db_path = args[++i];
+      break;
+    }
+  }
 }
 
-inline bool operator!=(const Config& r, const Config& l) {
-  return !(r == l);
+config_args_t LocalConfig::ToArgs() const {
+  config_args_t args = base_class::ToArgs();
+
+  if (!db_path.empty()) {
+    args.push_back(DB_PATH_FIELD);
+    args.push_back(db_path);
+  }
+
+  return args;
 }
 
-}  // namespace memcached
+bool LocalConfig::Equals(const LocalConfig& other) const {
+  return base_class::Equals(other) && db_path == other.db_path;
+}
+
 }  // namespace core
 }  // namespace fastonosql

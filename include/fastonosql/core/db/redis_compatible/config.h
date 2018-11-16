@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <fastonosql/core/config/config.h>  // for RemoteConfig
+#include <fastonosql/core/config/remote_config.h>
 
 namespace fastonosql {
 namespace core {

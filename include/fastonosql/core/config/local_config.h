@@ -20,34 +20,35 @@
 
 #include <string>
 
-#include <fastonosql/core/config/remote_config.h>
+#include <fastonosql/core/config/config.h>
+
+#define DB_PATH_FIELD ARGS_FROM_FIELD("f")
 
 namespace fastonosql {
 namespace core {
-namespace memcached {
 
-struct Config : public RemoteConfig {
-  typedef RemoteConfig base_class;
+// -f -d
+struct LocalConfig : public BaseConfig {
+  typedef BaseConfig base_class;
 
-  Config();
+  LocalConfig();
+  explicit LocalConfig(const std::string& db_path);
 
   void Init(const config_args_t& args);
   config_args_t ToArgs() const;
 
-  bool Equals(const Config& other) const;
+  bool Equals(const LocalConfig& other) const;
 
-  std::string user;
-  std::string password;
+  std::string db_path;
 };
 
-inline bool operator==(const Config& r, const Config& l) {
+inline bool operator==(const LocalConfig& r, const LocalConfig& l) {
   return r.Equals(l);
 }
 
-inline bool operator!=(const Config& r, const Config& l) {
+inline bool operator!=(const LocalConfig& r, const LocalConfig& l) {
   return !(r == l);
 }
 
-}  // namespace memcached
 }  // namespace core
 }  // namespace fastonosql
