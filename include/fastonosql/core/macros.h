@@ -44,3 +44,6 @@
 #define MARKER_STR "\r\n"
 #define COLON_CHAR ':'
 #define COLON_STR ":"
+
+#define END_COMMAND_CHAR END_LINE_CHAR
+#define END_COMMAND_STR END_LINE_STR

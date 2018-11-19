@@ -26,9 +26,6 @@
 #include <fastonosql/core/db_ps_channel.h>
 #include <fastonosql/core/types.h>
 
-#define END_COMMAND_CHAR END_LINE_CHAR
-#define END_COMMAND_STR END_LINE_STR
-
 #define DB_FLUSHDB_COMMAND "FLUSHDB"    // exist for all
 #define DB_SELECTDB_COMMAND "SELECT"    // exist for all
 #define DB_INFO_COMMAND "INFO"          // exist for all
