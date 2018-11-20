@@ -124,9 +124,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::BitPos),
     CommandHolder(GEN_CMD_STRING("BLPOP"),
                   "<key> [key ...] timeout",
-                  "Remove and get the first element in a "
-                  "list, or block until "
-                  "one is available",
+                  "Remove and get the first element in a list, or block until one is available",
                   UNDEFINED_SINCE,
                   "BLPOP list1 list2 0",
                   1,
@@ -135,9 +133,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::BlPop),
     CommandHolder(GEN_CMD_STRING("BRPOP"),
                   "<key> [key ...] timeout",
-                  "Remove and get the last element in a "
-                  "list, or block until "
-                  "one is available",
+                  "Remove and get the last element in a list, or block until one is available",
                   UNDEFINED_SINCE,
                   "BRPOP list1 list2 0",
                   1,
@@ -146,10 +142,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::BrPop),
     CommandHolder(GEN_CMD_STRING("BRPOPLPUSH"),
                   "<source> <destination> <timeout>",
-                  "Pop a value from a list, push it to "
-                  "another list and return "
-                  "it; or block until "
-                  "one is available",
+                  "Pop a value from a list, push it to another list and return it; or block until one is available",
                   UNDEFINED_SINCE,
                   "BRPOPLPUSH list otherlist 10",
                   3,
@@ -167,9 +160,7 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::ClientGetName),
     CommandHolder(GEN_CMD_STRING("CLIENT KILL"),
-                  "[ip:port] [ID client-id] [TYPE "
-                  "normal|master|slave|pubsub] "
-                  "[ADDR ip:port] [SKIPME yes/no]",
+                  "[ip:port] [ID client-id] [TYPE normal|master|slave|pubsub] [ADDR ip:port] [SKIPME yes/no]",
                   "Kill the connection of a client",
                   UNDEFINED_SINCE,
                   "CLIENT KILL 127.0.0.1:4444",
@@ -188,8 +179,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ClientList),
     CommandHolder(GEN_CMD_STRING("CLIENT PAUSE"),
                   "<timeout>",
-                  "Stop processing commands from clients "
-                  "for some time",
+                  "Stop processing commands from clients for some time",
                   UNDEFINED_SINCE,
                   "CLIENT PAUSE",
                   1,
@@ -197,10 +187,10 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::ClientPause),
     CommandHolder(GEN_CMD_STRING("CLIENT REPLY"),
-                  "ON|OFF|SKIP",
+                  "<ON|OFF|SKIP>",
                   "Instruct the server whether to reply to commands",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLIENT REPLY OFF",
                   1,
                   0,
                   CommandInfo::Native,
@@ -209,7 +199,7 @@ const ConstantCommandsArray kCommands = {
                   "<connection-name>",
                   "Set the current connection name",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLIENT SETNAME FastoRedis",
                   1,
                   0,
                   CommandInfo::Native,
@@ -219,27 +209,25 @@ const ConstantCommandsArray kCommands = {
                   "<slot> [slot ...]",
                   "Assign new hash slots to receiving node",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLUSTER ADDSLOTS slot",
                   1,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
                   &CommandsApi::ClusterAddSlots),
     CommandHolder(GEN_CMD_STRING("CLUSTER COUNT-FAILURE-REPORTS"),
                   "<node-id>",
-                  "Return the number of failure reports "
-                  "active for a given node",
+                  "Return the number of failure reports active for a given node",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLUSTER COUNT-FAILURE-REPORTS id",
                   1,
                   0,
                   CommandInfo::Native,
                   &CommandsApi::ClusterCountFailureReports),
     CommandHolder(GEN_CMD_STRING("CLUSTER COUNTKEYSINSLOT"),
                   "<slot>",
-                  "Return the number of local keys in the "
-                  "specified hash slot",
+                  "Return the number of local keys in the specified hash slot",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLUSTER COUNTKEYSINSLOT 123",
                   1,
                   0,
                   CommandInfo::Native,
@@ -248,17 +236,16 @@ const ConstantCommandsArray kCommands = {
                   "<slot> [slot ...]",
                   "Set hash slots as unbound in receiving node",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLUSTER DELSLOTS 123",
                   1,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
                   &CommandsApi::ClusterDelSlots),
     CommandHolder(GEN_CMD_STRING("CLUSTER FAILOVER"),
                   "[FORCE|TAKEOVER]",
-                  "Forces a slave to perform a manual "
-                  "failover osyncf its master.",
+                  "Forces a slave to perform a manual failover osyncf its master.",
                   UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
+                  "CLUSTER FAILOVER",
                   0,
                   1,
                   CommandInfo::Native,
@@ -301,8 +288,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ClusterKeySlot),
     CommandHolder(GEN_CMD_STRING("CLUSTER MEET"),
                   "<ip> <port>",
-                  "Force a node cluster to handshake with "
-                  "another node",
+                  "Force a node cluster to handshake with another node",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -320,8 +306,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ClusterNodes),
     CommandHolder(GEN_CMD_STRING("CLUSTER REPLICATE"),
                   "<node-id>",
-                  "Reconfigure a node as a slave of the "
-                  "specified master node",
+                  "Reconfigure a node as a slave of the specified master node",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -366,8 +351,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ClusterSetSlot),
     CommandHolder(GEN_CMD_STRING("CLUSTER SLAVES"),
                   "<node-id>",
-                  "Licommon_execst slave nodes of the "
-                  "specified master node",
+                  "Licommon_execst slave nodes of the specified master node",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -441,8 +425,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ConfigResetStat),
     CommandHolder(GEN_CMD_STRING("CONFIG REWRITE"),
                   "-",
-                  "Rewrite the configuration file with the "
-                  "in memory configuration",
+                  "Rewrite the configuration file with the in memory configuration",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -461,8 +444,7 @@ const ConstantCommandsArray kCommands = {
 
     CommandHolder(GEN_CMD_STRING(DB_DBKCOUNT_COMMAND),
                   "-",
-                  "Return the number of keys in the "
-                  "selected database",
+                  "Return the number of keys in the selected database",
                   UNDEFINED_SINCE,
                   DB_DBKCOUNT_COMMAND,
                   0,
@@ -471,8 +453,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::DBkcount),
     CommandHolder(GEN_CMD_STRING("DBSIZE"),
                   "-",
-                  "Return the number of keys in the "
-                  "selected database",
+                  "Return the number of keys in the selected database",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -538,8 +519,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Discard),
     CommandHolder(GEN_CMD_STRING("DUMP"),
                   "<key>",
-                  "Return a serialized version of the "
-                  "value stored at the specified key.",
+                  "Return a serialized version of the value stored at the specified key.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -629,9 +609,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::FlushDB),
     CommandHolder(GEN_CMD_STRING("GEOADD"),
                   "<key> <longitude> <latitude> <member> [<longitude> <latitude> <member> ...]",
-                  "Add one or more geospatial items in the "
-                  "geospatial index represented "
-                  "using a sorted set",
+                  "Add one or more geospatial items in the geospatial index represented using a sorted set",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   4,
@@ -640,8 +618,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GeoAdd),
     CommandHolder(GEN_CMD_STRING("GEODIST"),
                   "key member1 member2 [unit]",
-                  "Returns the distance between two "
-                  "members of a geospatial index",
+                  "Returns the distance between two members of a geospatial index",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -650,8 +627,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GeoDist),
     CommandHolder(GEN_CMD_STRING("GEOHASH"),
                   "key member [member ...]",
-                  "Returns members of a geospatial index "
-                  "as standard geohash strings",
+                  "Returns members of a geospatial index as standard geohash strings",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -660,8 +636,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GeoHash),
     CommandHolder(GEN_CMD_STRING("GEOPOS"),
                   "key member [member ...]",
-                  "Returns longitude and latitude of "
-                  "members of a geospatial index",
+                  "Returns longitude and latitude of members of a geospatial index",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -670,14 +645,9 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GeoPos),
 
     CommandHolder(GEN_CMD_STRING("GEORADIUS"),
-                  "key longitude latitude radius "
-                  "m|km|ft|mi [WITHCOORD] "
-                  "[WITHDIST] [WITHHASH] "
-                  "[COUNT count] [ASC|DESC]",
-                  "Query a sorted set representing a "
-                  "geospatial index to fetch "
-                  "members matching a "
-                  "given maximum distance from a point",
+                  "key longitude latitude radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count] [ASC|DESC]",
+                  "Query a sorted set representing a geospatial index to fetch members matching a given maximum "
+                  "distance from a point",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   5,
@@ -685,13 +655,9 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::GeoRadius),
     CommandHolder(GEN_CMD_STRING("GEORADIUSBYMEMBER"),
-                  "key member radius m|km|ft|mi "
-                  "[WITHCOORD] [WITHDIST] "
-                  "[WITHHASH] [COUNT count] [ASC|DESC]",
-                  "Query a sorted set representing a "
-                  "geospatial index to fetch "
-                  "members matching a given "
-                  "maximum distance from a member",
+                  "key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count] [ASC|DESC]",
+                  "Query a sorted set representing a geospatial index to fetch members matching a given maximum "
+                  "distance from a member",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   4,
@@ -718,8 +684,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GetUni),
     CommandHolder(GEN_CMD_STRING("GETBIT"),
                   "<key> <offset>",
-                  "Returns the bit value at offset in the "
-                  "string value stored at key",
+                  "Returns the bit value at offset in the string value stored at key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -737,8 +702,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GetRange),
     CommandHolder(GEN_CMD_STRING("GETSET"),
                   "<key> <value>",
-                  "Set the string value of a key and "
-                  "return its old value",
+                  "Set the string value of a key and return its old value",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -841,8 +805,7 @@ const ConstantCommandsArray kCommands = {
                   {&TestArgsInRange, &TestArgsModule2Equal1}),
     CommandHolder(GEN_CMD_STRING("HSCAN"),
                   "<key> <cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate hash fields and associated "
-                  "values",
+                  "Incrementally iterate hash fields and associated values",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -860,8 +823,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Hset),
     CommandHolder(GEN_CMD_STRING("HSETNX"),
                   "<key> <field> <value>",
-                  "Set the value of a hash field, only if "
-                  "the field does not exist",
+                  "Set the value of a hash field, only if the field does not exist",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -897,8 +859,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Incr),
     CommandHolder(GEN_CMD_STRING("INCRBY"),
                   "<key> <increment>",
-                  "Increment the integer value of a key by "
-                  "the given amount",
+                  "Increment the integer value of a key by the given amount",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -907,8 +868,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::IncrBy),
     CommandHolder(GEN_CMD_STRING("INCRBYFLOAT"),
                   "<key> <increment>",
-                  "Increment the float value of a key by "
-                  "the given amount",
+                  "Increment the float value of a key by the given amount",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -926,8 +886,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::RKeys),
     CommandHolder(GEN_CMD_STRING("LASTSAVE"),
                   "-",
-                  "Get the UNIX time stamp of the last "
-                  "successful save to disk",
+                  "Get the UNIX time stamp of the last successful save to disk",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -945,8 +904,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Lindex),
     CommandHolder(GEN_CMD_STRING("LINSERT"),
                   "<key> <BEFORE|AFTER> <pivot> <value>",
-                  "Insert an element before or after "
-                  "another element in a list",
+                  "Insert an element before or after another element in a list",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   4,
@@ -1037,10 +995,8 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::Mget),
     CommandHolder(GEN_CMD_STRING("MIGRATE"),
-                  "<host> <port> <key> <destination-db> <timeout> [COPY] "
-                  "[REPLACE] [KEYS key]",
-                  "Atomically transfer a key from a Redis instance "
-                  "to another one.",
+                  "<host> <port> <key> <destination-db> <timeout> [COPY] [REPLACE] [KEYS key]",
+                  "Atomically transfer a key from a Redis instance to another one.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   5,
@@ -1049,8 +1005,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Migrate),
     CommandHolder(GEN_CMD_STRING("MONITOR"),
                   "-",
-                  "Listen for all requests received by the "
-                  "server in real time",
+                  "Listen for all requests received by the server in real time",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -1077,8 +1032,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Mset),
     CommandHolder(GEN_CMD_STRING("MSETNX"),
                   "<key> <value> [key value ...]",
-                  "Set multiple keys to multiple values, "
-                  "only if none of the keys exist",
+                  "Set multiple keys to multiple values, only if none of the keys exist",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1123,9 +1077,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Pexpire),
     CommandHolder(GEN_CMD_STRING("PEXPIREAT"),
                   "<key> <milliseconds-timestamp>",
-                  "Set the expiration for a key as a UNIX "
-                  "timestamp specified "
-                  "in milliseconds",
+                  "Set the expiration for a key as a UNIX timestamp specified in milliseconds",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1134,8 +1086,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::PexpireAt),
     CommandHolder(GEN_CMD_STRING("PFADD"),
                   "<key> <element> [element ...]",
-                  "Adds the specified elements to the "
-                  "specified HyperLogLog.",
+                  "Adds the specified elements to the specified HyperLogLog.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1144,9 +1095,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Pfadd),
     CommandHolder(GEN_CMD_STRING("PFCOUNT"),
                   "<key> [key ...]",
-                  "Return the approximated cardinality of "
-                  "the set(s) observed "
-                  "by the HyperLogLog at key(s).",
+                  "Return the approximated cardinality of the set(s) observed by the HyperLogLog at key(s).",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -1173,8 +1122,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Ping),
     CommandHolder(GEN_CMD_STRING("PSETEX"),
                   "<key> <milliseconds> <value>",
-                  "Set the value and expiration in "
-                  "milliseconds of a key",
+                  "Set the value and expiration in milliseconds of a key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1183,8 +1131,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::PsetEx),
     CommandHolder(GEN_CMD_STRING("PSUBSCRIBE"),
                   "<pattern> [pattern ...]",
-                  "Listen for messages published to "
-                  "channels matching the given patterns",
+                  "Listen for messages published to channels matching the given patterns",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -1220,9 +1167,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::PubSub),
     CommandHolder(GEN_CMD_STRING("PUNSUBSCRIBE"),
                   "[pattern [pattern ...]]",
-                  "Stop listening for messages posted to "
-                  "channels matching the "
-                  "given patterns",
+                  "Stop listening for messages posted to channels matching the given patterns",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -1316,8 +1261,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Rpop),
     CommandHolder(GEN_CMD_STRING("RPOPLPUSH"),
                   "<source> <destination>",
-                  "Remove the last element in a list, prepend it to another "
-                  "list and return it",
+                  "Remove the last element in a list, prepend it to another list and return it",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1435,8 +1379,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ScriptKill),
     CommandHolder(GEN_CMD_STRING("SCRIPT LOAD"),
                   "<script>",
-                  "Load the specified Lua script into the "
-                  "script cache.",
+                  "Load the specified Lua script into the script cache.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -1455,8 +1398,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Sdiff),
     CommandHolder(GEN_CMD_STRING("SDIFFSTORE"),
                   "<destination> <key> [key ...]",
-                  "Subtract multiple sets and store the "
-                  "resulting set in a key",
+                  "Subtract multiple sets and store the resulting set in a key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1465,8 +1407,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SdiffStore),
     CommandHolder(GEN_CMD_STRING(DB_SELECTDB_COMMAND),
                   "<index>",
-                  "Change the selected database for the "
-                  "current connection",
+                  "Change the selected database for the current connection",
                   UNDEFINED_SINCE,
                   DB_SELECTDB_COMMAND " 0",
                   1,
@@ -1484,8 +1425,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Set),
     CommandHolder(GEN_CMD_STRING("SETBIT"),
                   "<key> <offset> <value>",
-                  "Sets or clears the bit at offset in the "
-                  "string value stored at key",
+                  "Sets or clears the bit at offset in the string value stored at key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1513,8 +1453,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SetNX),
     CommandHolder(GEN_CMD_STRING("SETRANGE"),
                   "<key> <offset> <value>",
-                  "Overwrite part of a string at key "
-                  "starting at the specified offset",
+                  "Overwrite part of a string at key starting at the specified offset",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1523,8 +1462,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SetRange),
     CommandHolder(GEN_CMD_STRING("SHUTDOWN"),
                   "[NOSAVE|SAVE]",
-                  "Synchronously save the dataset to disk "
-                  "and then shut down the server",
+                  "Synchronously save the dataset to disk and then shut down the server",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -1542,8 +1480,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Sinter),
     CommandHolder(GEN_CMD_STRING("SINTERSTORE"),
                   "<destination> <key> [key ...]",
-                  "Intersect multiple sets and store the "
-                  "resulting set in a key",
+                  "Intersect multiple sets and store the resulting set in a key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1561,8 +1498,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SisMember),
     CommandHolder(GEN_CMD_STRING("SLAVEOF"),
                   "<host> <port>",
-                  "Make the server a slave of another "
-                  "instance, or promote it as master",
+                  "Make the server a slave of another instance, or promote it as master",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1597,10 +1533,8 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::Smove),
     CommandHolder(GEN_CMD_STRING("SORT"),
-                  "<key> [BY pattern] [LIMIT offset count] [GET "
-                  "pattern [GET "
-                  "pattern ...]] "
-                  "[ASC|DESC] [ALPHA] [STORE destination]",
+                  "<key> [BY pattern] [LIMIT offset count] [GET pattern [GET pattern ...]] [ASC|DESC] [ALPHA] [STORE "
+                  "destination]",
                   "Sort the elements in a list, set or sorted set",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
@@ -1655,8 +1589,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::StrLen),
     CommandHolder(GEN_CMD_STRING(DB_SUBSCRIBE_COMMAND),
                   "<channel> [channel ...]",
-                  "Listen for messages published to the "
-                  "given channels",
+                  "Listen for messages published to the given channels",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -1674,8 +1607,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Sunion),
     CommandHolder(GEN_CMD_STRING("SUNIONSTORE"),
                   "<destination> <key> [key ...]",
-                  "Add multiple sets and store the "
-                  "resulting set in a key",
+                  "Add multiple sets and store the resulting set in a key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1729,8 +1661,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::GetType),
     CommandHolder(GEN_CMD_STRING("UNSUBSCRIBE"),
                   "[channel [channel ...]]",
-                  "Stop listening for messages posted to "
-                  "the given channels",
+                  "Stop listening for messages posted to the given channels",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   0,
@@ -1746,22 +1677,19 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::Unwatch),
-    CommandHolder(GEN_CMD_STRING("WAIT"),
-                  "<numslaves> <timeout>",
-                  "Wait for the synchronous replication of "
-                  "all the write "
-                  "commands sent in the "
-                  "context of the current connection",
-                  UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
-                  2,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::Wait),
+    CommandHolder(
+        GEN_CMD_STRING("WAIT"),
+        "<numslaves> <timeout>",
+        "Wait for the synchronous replication of all the write commands sent in the context of the current connection",
+        UNDEFINED_SINCE,
+        UNDEFINED_EXAMPLE_STR,
+        2,
+        0,
+        CommandInfo::Native,
+        &CommandsApi::Wait),
     CommandHolder(GEN_CMD_STRING("WATCH"),
                   "key [key ...]",
-                  "Watch the given keys to determine "
-                  "execution of the MULTI/EXEC block",
+                  "Watch the given keys to determine execution of the MULTI/EXEC block",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -1771,9 +1699,7 @@ const ConstantCommandsArray kCommands = {
     CommandHolder(GEN_CMD_STRING("ZADD"),
                   "<key> [NX|XX] [CH] [INCR] <score> "
                   "<member> [score member ...]",
-                  "Add one or more members to a sorted "
-                  "set, or update its score if it "
-                  "already exists",
+                  "Add one or more members to a sorted set, or update its score if it already exists",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1791,8 +1717,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Zcard),
     CommandHolder(GEN_CMD_STRING("ZCOUNT"),
                   "<key> <min> <max>",
-                  "Count the members in a sorted set with "
-                  "scores within the given values",
+                  "Count the members in a sorted set with scores within the given values",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1809,12 +1734,8 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::ZincrBy),
     CommandHolder(GEN_CMD_STRING("ZINTERSTORE"),
-                  "<destination> <numkeys> <key> [key ...] "
-                  "[WEIGHTS weight] "
-                  "[AGGREGATE SUM|MIN|MAX]",
-                  "Intersect multiple sorted sets and "
-                  "store the resulting "
-                  "sorted set in a new key",
+                  "<destination> <numkeys> <key> [key ...] [WEIGHTS weight] [AGGREGATE SUM|MIN|MAX]",
+                  "Intersect multiple sorted sets and store the resulting sorted set in a new key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1823,9 +1744,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZincrStore),
     CommandHolder(GEN_CMD_STRING("ZLEXCOUNT"),
                   "<key> <min> <max>",
-                  "Count the number of members in a sorted "
-                  "set between a given "
-                  "lexicographical range",
+                  "Count the number of members in a sorted set between a given lexicographical range",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1834,8 +1753,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZlexCount),
     CommandHolder(GEN_CMD_STRING("ZRANGE"),
                   "<key> <start> <stop> [WITHSCORES]",
-                  "Return a range of members in a sorted "
-                  "set, by index",
+                  "Return a range of members in a sorted set, by index",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1844,8 +1762,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Zrange),
     CommandHolder(GEN_CMD_STRING("ZRANGEBYLEX"),
                   "<key> <min> <max> [LIMIT offset count]",
-                  "Return a range of members in a sorted "
-                  "set, by lexicographical range",
+                  "Return a range of members in a sorted set, by lexicographical range",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1853,10 +1770,8 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::ZrangeByLex),
     CommandHolder(GEN_CMD_STRING("ZRANGEBYSCORE"),
-                  "<key> <min> <max> [WITHSCORES] [LIMIT "
-                  "offset count]",
-                  "Return a range of members in a sorted "
-                  "set, by score",
+                  "<key> <min> <max> [WITHSCORES] [LIMIT offset count]",
+                  "Return a range of members in a sorted set, by score",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1883,9 +1798,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Zrem),
     CommandHolder(GEN_CMD_STRING("ZREMRANGEBYLEX"),
                   "<key> <min> <max>",
-                  "Remove all members in a sorted set "
-                  "between the given "
-                  "lexicographical range",
+                  "Remove all members in a sorted set between the given lexicographical range",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1894,8 +1807,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZremRangeByLex),
     CommandHolder(GEN_CMD_STRING("ZREMRANGEBYRANK"),
                   "<key> <start> <stop>",
-                  "Remove all members in a sorted set "
-                  "within the given indexes",
+                  "Remove all members in a sorted set within the given indexes",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1904,8 +1816,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZremRangeByRank),
     CommandHolder(GEN_CMD_STRING("ZREMRANGEBYSCORE"),
                   "<key> <min> <max>",
-                  "Remove all members in a sorted set "
-                  "within the given scores",
+                  "Remove all members in a sorted set within the given scores",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1914,32 +1825,26 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZremRangeByScore),
     CommandHolder(GEN_CMD_STRING("ZREVRANGE"),
                   "<key> <start> <stop> [WITHSCORES]",
-                  "Return a range of members in a sorted "
-                  "set, by index, with "
-                  "scores ordered from high to low",
+                  "Return a range of members in a sorted set, by index, with scores ordered from high to low",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
                   1,
                   CommandInfo::Native,
                   &CommandsApi::ZrevRange),
-    CommandHolder(GEN_CMD_STRING("ZREVRANGEBYLEX"),
-                  "<key> <max> <min> [LIMIT offset count]",
-                  "Return a range of members in a sorted set, by "
-                  "lexicographical range, ordered "
-                  "from higher to lower strings.",
-                  UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
-                  3,
-                  3,
-                  CommandInfo::Native,
-                  &CommandsApi::ZrevRangeByLex),
+    CommandHolder(
+        GEN_CMD_STRING("ZREVRANGEBYLEX"),
+        "<key> <max> <min> [LIMIT offset count]",
+        "Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings.",
+        UNDEFINED_SINCE,
+        UNDEFINED_EXAMPLE_STR,
+        3,
+        3,
+        CommandInfo::Native,
+        &CommandsApi::ZrevRangeByLex),
     CommandHolder(GEN_CMD_STRING("ZREVRANGEBYSCORE"),
-                  "<key> <max> <min> [WITHSCORES] [LIMIT "
-                  "offset count]",
-                  "Return a range of members in a sorted "
-                  "set, by score, with "
-                  "scores ordered from high to low",
+                  "<key> <max> <min> [WITHSCORES] [LIMIT offset count]",
+                  "Return a range of members in a sorted set, by score, with scores ordered from high to low",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -1948,9 +1853,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZrevRangeByScore),
     CommandHolder(GEN_CMD_STRING("ZREVRANK"),
                   "<key> <member>",
-                  "Determine the index of a member in a "
-                  "sorted set, with "
-                  "scores ordered from high to low",
+                  "Determine the index of a member in a sorted set, with scores ordered from high to low",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1959,8 +1862,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::ZrevRank),
     CommandHolder(GEN_CMD_STRING("ZSCAN"),
                   "<key> <cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate sorted sets elements and "
-                  "associated scores",
+                  "Incrementally iterate sorted sets elements and associated scores",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1969,8 +1871,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Zscan),
     CommandHolder(GEN_CMD_STRING("ZSCORE"),
                   "<key> <member>",
-                  "Get the score associated with the given "
-                  "member in a sorted set",
+                  "Get the score associated with the given member in a sorted set",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   2,
@@ -1978,12 +1879,8 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::Zscore),
     CommandHolder(GEN_CMD_STRING("ZUNIONSTORE"),
-                  "<destination> <numkeys> <key> [key ...] "
-                  "[WEIGHTS weight] "
-                  "[AGGREGATE SUM|MIN|MAX]",
-                  "Add multiple sorted sets and store the "
-                  "resulting sorted set "
-                  "in a new key",
+                  "<destination> <numkeys> <key> [key ...] [WEIGHTS weight] [AGGREGATE SUM|MIN|MAX]",
+                  "Add multiple sorted sets and store the resulting sorted set in a new key",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
@@ -2030,8 +1927,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelSlaves),
     CommandHolder(GEN_CMD_STRING("SENTINEL SENTINELS"),
                   "<master name>",
-                  "Show a list of sentinel instances for "
-                  "this master, and their state.",
+                  "Show a list of sentinel instances for this master, and their state.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -2040,13 +1936,8 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelSentinels),
     CommandHolder(GEN_CMD_STRING("SENTINEL GET-MASTER-ADDR-BY-NAME"),
                   "<master name>",
-                  "Return the ip and port number of the "
-                  "master with that name.\n"
-                  "If a failover is in progress or "
-                  "terminated successfully for this "
-                  "master "
-                  "it returns the address and port of the "
-                  "promoted slave.",
+                  "Return the ip and port number of the master with that name.\nIf a failover is in progress or "
+                  "terminated successfully for this master it returns the address and port of the promoted slave.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -2055,16 +1946,9 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelGetMasterAddrByName),
     CommandHolder(GEN_CMD_STRING("SENTINEL RESET"),
                   "<pattern>",
-                  "This command will reset all the masters with "
-                  "matching name.\n"
-                  "The pattern argument is a glob-style pattern.\n"
-                  "The reset process clears any previous state in a "
-                  "master (including a "
-                  "failover in "
-                  "progress), "
-                  "and removes every slave and sentinel already "
-                  "discovered and "
-                  "associated with the master.",
+                  "This command will reset all the masters with matching name.\nThe pattern argument is a glob-style "
+                  "pattern.\nThe reset process clears any previous state in a master (including a failover in "
+                  "progress), and removes every slave and sentinel already discovered and associated with the master.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
@@ -2073,13 +1957,8 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelReset),
     CommandHolder(GEN_CMD_STRING("SENTINEL FAILOVER"),
                   "<master name>",
-                  "Force a failover as if the master was not "
-                  "reachable, "
-                  "and without asking for agreement to other "
-                  "GetSentinels "
-                  "(however a new version of the configuration will "
-                  "be "
-                  "published so that the other "
+                  "Force a failover as if the master was not reachable, and without asking for agreement to other "
+                  "GetSentinels (however a new version of the configuration will be published so that the other "
                   "GetSentinels will update their configurations).",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
@@ -2089,79 +1968,46 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelFailover),
     CommandHolder(GEN_CMD_STRING("SENTINEL CKQUORUM"),
                   "<master name>",
-                  "Check if the current Sentinel "
-                  "configuration is able to "
-                  "reach the quorum needed "
-                  "to failover a master, "
-                  "and the majority needed to authorize "
-                  "the failover.\n"
-                  "This command should be used in "
-                  "monitoring systems to check "
-                  "if a Sentinel "
-                  "deployment is ok.",
+                  "Check if the current Sentinel configuration is able to reach the quorum needed to failover a "
+                  "master, and the majority needed to authorize the failover.\nThis command should be used in "
+                  "monitoring systems to check if a Sentinel deployment is ok.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   1,
                   0,
                   CommandInfo::Native,
                   &CommandsApi::SentinelCkquorum),
-    CommandHolder(GEN_CMD_STRING("SENTINEL FLUSHCONFIG"),
-                  "-",
-                  "Force Sentinel to rewrite its "
-                  "configuration on disk, including the "
-                  "current Sentinel "
-                  "state.\n"
-                  "Normally Sentinel rewrites the "
-                  "configuration every time something "
-                  "changes in its state "
-                  "(in the context of the subset of the "
-                  "state which is persisted on disk "
-                  "across restart).\n"
-                  "However sometimes it is possible that "
-                  "the configuration file is lost "
-                  "because of operation "
-                  "errors, "
-                  "disk failures, package upgrade scripts "
-                  "or configuration managers.\n"
-                  "In those cases a way to to force "
-                  "Sentinel to rewrite the "
-                  "configuration file is handy.\n"
-                  "This command works even if the previous "
-                  "configuration file is "
-                  "completely missing.",
-                  UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::SentinelFlushConfig),
-    CommandHolder(GEN_CMD_STRING("SENTINEL MONITOR"),
-                  "<name> <ip> <port> <quorum>",
-                  "This command tells the Sentinel to "
-                  "start monitoring a new master with "
-                  "the "
-                  "specified name, ip, port, and quorum.\n"
-                  "It is identical to the sentinel monitor "
-                  "configuration directive in "
-                  "sentinel.conf configuration file, "
-                  "with the difference that you can't use "
-                  "an hostname in as ip, but you "
-                  "need to "
-                  "provide an IPv4 or IPv6 address.",
-                  UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
-                  4,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::SentinelMonitor),
+    CommandHolder(
+        GEN_CMD_STRING("SENTINEL FLUSHCONFIG"),
+        "-",
+        "Force Sentinel to rewrite its configuration on disk, including the current Sentinel state.\nNormally Sentinel "
+        "rewrites the configuration every time something changes in its state (in the context of the subset of the "
+        "state which is persisted on disk across restart).\nHowever sometimes it is possible that the configuration "
+        "file is lost because of operation errors, disk failures, package upgrade scripts or configuration "
+        "managers.\nIn those cases a way to to force Sentinel to rewrite the configuration file is handy.\nThis "
+        "command works even if the previous configuration file is completely missing.",
+        UNDEFINED_SINCE,
+        UNDEFINED_EXAMPLE_STR,
+        0,
+        0,
+        CommandInfo::Native,
+        &CommandsApi::SentinelFlushConfig),
+    CommandHolder(
+        GEN_CMD_STRING("SENTINEL MONITOR"),
+        "<name> <ip> <port> <quorum>",
+        "This command tells the Sentinel to start monitoring a new master with the specified name, ip, port, and "
+        "quorum.\nIt is identical to the sentinel monitor configuration directive in sentinel.conf configuration file, "
+        "with the difference that you can't use an hostname in as ip, but you need to provide an IPv4 or IPv6 address.",
+        UNDEFINED_SINCE,
+        UNDEFINED_EXAMPLE_STR,
+        4,
+        0,
+        CommandInfo::Native,
+        &CommandsApi::SentinelMonitor),
     CommandHolder(GEN_CMD_STRING("SENTINEL REMOVE"),
                   "<name>",
-                  "Used in order to remove the specified "
-                  "master: the master will no "
-                  "longer be monitored, "
-                  "and will totally be removed from the "
-                  "internal state of the Sentinel, "
-                  "so it will no longer listed by SENTINEL "
+                  "Used in order to remove the specified master: the master will no longer be monitored, and will "
+                  "totally be removed from the internal state of the Sentinel, so it will no longer listed by SENTINEL "
                   "masters and so forth.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
@@ -2171,17 +2017,10 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::SentinelRemove),
     CommandHolder(GEN_CMD_STRING("SENTINEL SET"),
                   "<name> <option> <value>",
-                  "The SET command is very similar to the "
-                  "CONFIG SET command of Redis, "
-                  "and is used in order to change "
-                  "configuration parameters of a specific "
-                  "master.\n"
-                  "Multiple option / value pairs can be "
-                  "specified (or none at all).\n"
-                  "All the configuration parameters that "
-                  "can be configured via "
-                  "sentinel.conf are also configurable "
-                  "using the SET command.",
+                  "The SET command is very similar to the CONFIG SET command of Redis, and is used in order to change "
+                  "configuration parameters of a specific master.\nMultiple option / value pairs can be specified (or "
+                  "none at all).\nAll the configuration parameters that can be configured via sentinel.conf are also "
+                  "configurable using the SET command.",
                   UNDEFINED_SINCE,
                   UNDEFINED_EXAMPLE_STR,
                   3,
