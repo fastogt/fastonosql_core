@@ -27,7 +27,7 @@ namespace fastonosql {
 namespace core {
 namespace rocksdb {
 
-enum ComparatorType : uint8_t { COMP_BYTEWISE, COMP_REVERSE_BYTEWISE };
+enum ComparatorType : uint8_t { COMP_BYTEWISE = 0, COMP_REVERSE_BYTEWISE };
 extern const std::vector<const char*> g_comparator_types;
 
 enum CompressionType : uint8_t {
@@ -42,6 +42,18 @@ enum CompressionType : uint8_t {
 };
 extern const std::vector<const char*> g_compression_types;
 
+enum MergeOperatorType : uint8_t {
+  kNone = 0,
+  kPut,
+  kPutV1,
+  kUint64Add,
+  kStringAppend,
+  kStringAppendTest,
+  kMax,
+  kBytesXor
+};
+extern const std::vector<const char*> g_merge_operator_types;
+
 struct Config : public LocalConfig {
   typedef LocalConfig base_class;
 
@@ -55,6 +67,7 @@ struct Config : public LocalConfig {
   bool create_if_missing;
   ComparatorType comparator;
   CompressionType compression;
+  MergeOperatorType merge_operator;
 };
 
 inline bool operator==(const Config& r, const Config& l) {
@@ -75,4 +88,7 @@ bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::Compa
 
 std::string ConvertToString(fastonosql::core::rocksdb::CompressionType comp);
 bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::CompressionType* out);
+
+std::string ConvertToString(fastonosql::core::rocksdb::MergeOperatorType mo);
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::MergeOperatorType* out);
 }  // namespace common

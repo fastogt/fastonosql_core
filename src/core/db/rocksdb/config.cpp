@@ -24,6 +24,7 @@
 #define ROCKSDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
 #define ROCKSDB_COMPRESSION_FIELD ARGS_FROM_FIELD("compression")
 #define ROCKSDB_CIM_FIELD ARGS_FROM_FIELD("c")
+#define ROCKSDB_MO_FIELD ARGS_FROM_FIELD("mo")
 
 namespace fastonosql {
 namespace core {
@@ -35,6 +36,9 @@ const std::vector<const char*> g_compression_types = {
     "NoCompression",  "SnappyCompression", "ZlibCompression",   "BZip2Compression",
     "LZ4Compression", "LZ4HCCompression",  "XpressCompression", "ZSTD"};
 
+const std::vector<const char*> g_merge_operator_types = {
+    "None", "Put", "PutV1", "Uint64Add", "StringAppend", "StringAppendTest", "Max", "BytesXor"};
+
 namespace {
 
 const char kDefaultPath[] = "~/test.rocksdb";
@@ -45,7 +49,8 @@ Config::Config()
     : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
       comparator(COMP_BYTEWISE),
-      compression(kNoCompression) {}
+      compression(kNoCompression),
+      merge_operator(kNone) {}
 
 void Config::Init(const config_args_t& args) {
   base_class::Init(args);
@@ -63,6 +68,11 @@ void Config::Init(const config_args_t& args) {
       }
     } else if (args[i] == ROCKSDB_CIM_FIELD) {
       create_if_missing = true;
+    } else if (args[i] == ROCKSDB_MO_FIELD) {
+      MergeOperatorType lmerge_operator;
+      if (common::ConvertFromString(args[++i], &lmerge_operator)) {
+        merge_operator = lmerge_operator;
+      }
     }
   }
 }
@@ -80,12 +90,15 @@ config_args_t Config::ToArgs() const {
   args.push_back(ROCKSDB_COMPRESSION_FIELD);
   args.push_back(common::ConvertToString(compression));
 
+  args.push_back(ROCKSDB_MO_FIELD);
+  args.push_back(common::ConvertToString(merge_operator));
+
   return args;
 }
 
 bool Config::Equals(const Config& other) const {
   return base_class::Equals(other) && create_if_missing == other.create_if_missing && comparator == other.comparator &&
-         compression == other.compression;
+         compression == other.compression && merge_operator == other.merge_operator;
 }
 
 }  // namespace rocksdb
@@ -126,6 +139,26 @@ bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::Compr
   for (size_t i = 0; i < fastonosql::core::rocksdb::g_compression_types.size(); ++i) {
     if (from == fastonosql::core::rocksdb::g_compression_types[i]) {
       *out = static_cast<fastonosql::core::rocksdb::CompressionType>(i);
+      return true;
+    }
+  }
+
+  NOTREACHED();
+  return false;
+}
+
+std::string ConvertToString(fastonosql::core::rocksdb::MergeOperatorType mo) {
+  return fastonosql::core::rocksdb::g_merge_operator_types[mo];
+}
+
+bool ConvertFromString(const std::string& from, fastonosql::core::rocksdb::MergeOperatorType* out) {
+  if (!out || from.empty()) {
+    return false;
+  }
+
+  for (size_t i = 0; i < fastonosql::core::rocksdb::g_compression_types.size(); ++i) {
+    if (from == fastonosql::core::rocksdb::g_merge_operator_types[i]) {
+      *out = static_cast<fastonosql::core::rocksdb::MergeOperatorType>(i);
       return true;
     }
   }

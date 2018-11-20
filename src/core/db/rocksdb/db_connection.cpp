@@ -33,6 +33,23 @@
   "KeyDrop\n---------------------------------------------------------------------------------------------------------" \
   "-------------------------------------------------\n"
 
+// hacked
+namespace rocksdb {
+
+class MergeOperators {
+ public:
+  static std::shared_ptr<MergeOperator> CreatePutOperator();
+  static std::shared_ptr<MergeOperator> CreateDeprecatedPutOperator();
+  static std::shared_ptr<MergeOperator> CreateUInt64AddOperator();
+  static std::shared_ptr<MergeOperator> CreateStringAppendOperator();
+  static std::shared_ptr<MergeOperator> CreateStringAppendOperator(char delim_char);
+  static std::shared_ptr<MergeOperator> CreateStringAppendTESTOperator();
+  static std::shared_ptr<MergeOperator> CreateMaxOperator();
+  static std::shared_ptr<MergeOperator> CreateBytesXOROperator();
+};
+
+}  // namespace rocksdb
+
 namespace fastonosql {
 namespace core {
 
@@ -452,6 +469,24 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     rs.compression = ::rocksdb::kXpressCompression;
   } else if (config.compression == kZSTD) {
     rs.compression = ::rocksdb::kZSTD;
+  }
+
+  if (config.merge_operator == kNone) {
+    rs.merge_operator = nullptr;
+  } else if (config.merge_operator == kPut) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreatePutOperator();
+  } else if (config.merge_operator == kPutV1) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateDeprecatedPutOperator();
+  } else if (config.merge_operator == kUint64Add) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateUInt64AddOperator();
+  } else if (config.merge_operator == kStringAppend) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateStringAppendOperator();
+  } else if (config.merge_operator == kStringAppendTest) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateStringAppendTESTOperator();
+  } else if (config.merge_operator == kMax) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateMaxOperator();
+  } else if (config.merge_operator == kBytesXor) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateBytesXOROperator();
   }
 
   std::vector<std::string> column_families_str;
