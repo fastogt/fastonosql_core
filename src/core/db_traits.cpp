@@ -18,34 +18,34 @@
 
 #include <fastonosql/core/db_traits.h>
 
-#ifdef BUILD_WITH_REDIS
+#if defined(BUILD_WITH_REDIS)
 #include <fastonosql/core/db/redis/server_info.h>
 #endif
-#ifdef BUILD_WITH_MEMCACHED
+#if defined(BUILD_WITH_MEMCACHED)
 #include <fastonosql/core/db/memcached/server_info.h>
 #endif
-#ifdef BUILD_WITH_SSDB
+#if defined(BUILD_WITH_SSDB)
 #include <fastonosql/core/db/ssdb/server_info.h>
 #endif
-#ifdef BUILD_WITH_LEVELDB
+#if defined(BUILD_WITH_LEVELDB)
 #include <fastonosql/core/db/leveldb/server_info.h>
 #endif
-#ifdef BUILD_WITH_ROCKSDB
+#if defined(BUILD_WITH_ROCKSDB)
 #include <fastonosql/core/db/rocksdb/server_info.h>
 #endif
-#ifdef BUILD_WITH_UNQLITE
+#if defined(BUILD_WITH_UNQLITE)
 #include <fastonosql/core/db/unqlite/server_info.h>
 #endif
-#ifdef BUILD_WITH_LMDB
+#if defined(BUILD_WITH_LMDB)
 #include <fastonosql/core/db/lmdb/server_info.h>
 #endif
-#ifdef BUILD_WITH_UPSCALEDB
+#if defined(BUILD_WITH_UPSCALEDB)
 #include <fastonosql/core/db/upscaledb/server_info.h>
 #endif
-#ifdef BUILD_WITH_FORESTDB
+#if defined(BUILD_WITH_FORESTDB)
 #include <fastonosql/core/db/forestdb/server_info.h>
 #endif
-#ifdef BUILD_WITH_PIKA
+#if defined(BUILD_WITH_PIKA)
 #include <fastonosql/core/db/pika/server_info.h>
 #endif
 
@@ -59,52 +59,52 @@ bool Field::IsIntegral() const {
 }
 
 std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type) {
-#ifdef BUILD_WITH_REDIS
+#if defined(BUILD_WITH_REDIS)
   if (type == REDIS) {
     return redis::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_MEMCACHED
+#if defined(BUILD_WITH_MEMCACHED)
   if (type == MEMCACHED) {
     return memcached::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_SSDB
+#if defined(BUILD_WITH_SSDB)
   if (type == SSDB) {
     return ssdb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_LEVELDB
+#if defined(BUILD_WITH_LEVELDB)
   if (type == LEVELDB) {
     return leveldb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_ROCKSDB
+#if defined(BUILD_WITH_ROCKSDB)
   if (type == ROCKSDB) {
     return rocksdb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_UNQLITE
+#if defined(BUILD_WITH_UNQLITE)
   if (type == UNQLITE) {
     return unqlite::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_LMDB
+#if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
     return lmdb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_UPSCALEDB
+#if defined(BUILD_WITH_UPSCALEDB)
   if (type == UPSCALEDB) {
     return upscaledb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_FORESTDB
+#if defined(BUILD_WITH_FORESTDB)
   if (type == FORESTDB) {
     return forestdb::GetSupportedValueTypes();
   }
 #endif
-#ifdef BUILD_WITH_PIKA
+#if defined(BUILD_WITH_PIKA)
   if (type == PIKA) {
     return pika::GetSupportedValueTypes();
   }

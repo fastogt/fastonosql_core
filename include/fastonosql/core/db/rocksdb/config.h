@@ -48,6 +48,7 @@ enum MergeOperatorType : uint8_t {
   kPutV1,
   kUint64Add,
   kStringAppend,
+  kStringAppendIota,
   kStringAppendTest,
   kMax,
   kBytesXor

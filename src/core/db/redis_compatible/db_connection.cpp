@@ -2349,10 +2349,10 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
-#ifdef BUILD_WITH_REDIS
+#if defined(BUILD_WITH_REDIS)
 template class DBConnection<redis::RConfig, REDIS>;
 #endif
-#ifdef BUILD_WITH_PIKA
+#if defined(BUILD_WITH_PIKA)
 template class DBConnection<pika::RConfig, PIKA>;
 #endif
 }  // namespace redis_compatible

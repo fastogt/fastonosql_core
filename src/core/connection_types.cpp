@@ -45,7 +45,26 @@ bool IsSupportTTLKeys(ConnectionType type) {
 }
 
 bool IsLocalType(ConnectionType type) {
-  return type == ROCKSDB || type == LEVELDB || type == LMDB || type == UPSCALEDB || type == UNQLITE || type == FORESTDB;
+  return false
+#if defined(BUILD_WITH_ROCKSDB)
+         || type == ROCKSDB
+#endif
+#if defined(BUILD_WITH_LEVELDB)
+         || type == LEVELDB
+#endif
+#if defined(BUILD_WITH_LMDB)
+         || type == LMDB
+#endif
+#if defined(BUILD_WITH_UPSCALEDB)
+         || type == UPSCALEDB
+#endif
+#if defined(BUILD_WITH_UNQLITE)
+         || type == UNQLITE
+#endif
+#if defined(BUILD_WITH_FORESTDB)
+         || type == FORESTDB
+#endif
+      ;
 }
 
 bool IsCanSSHConnection(ConnectionType type) {

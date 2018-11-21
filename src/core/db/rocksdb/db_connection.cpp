@@ -451,6 +451,8 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     rs.comparator = ::rocksdb::BytewiseComparator();
   } else if (config.comparator == COMP_REVERSE_BYTEWISE) {
     rs.comparator = ::rocksdb::ReverseBytewiseComparator();
+  } else {
+    NOTREACHED() << "Not handled comparator: " << config.comparator;
   }
 
   if (config.compression == kNoCompression) {
@@ -469,6 +471,8 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     rs.compression = ::rocksdb::kXpressCompression;
   } else if (config.compression == kZSTD) {
     rs.compression = ::rocksdb::kZSTD;
+  } else {
+    NOTREACHED() << "Not handled compression: " << config.compression;
   }
 
   if (config.merge_operator == kNone) {
@@ -481,12 +485,16 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     rs.merge_operator = ::rocksdb::MergeOperators::CreateUInt64AddOperator();
   } else if (config.merge_operator == kStringAppend) {
     rs.merge_operator = ::rocksdb::MergeOperators::CreateStringAppendOperator();
+  } else if (config.merge_operator == kStringAppendIota) {
+    rs.merge_operator = ::rocksdb::MergeOperators::CreateStringAppendOperator(',');
   } else if (config.merge_operator == kStringAppendTest) {
     rs.merge_operator = ::rocksdb::MergeOperators::CreateStringAppendTESTOperator();
   } else if (config.merge_operator == kMax) {
     rs.merge_operator = ::rocksdb::MergeOperators::CreateMaxOperator();
   } else if (config.merge_operator == kBytesXor) {
     rs.merge_operator = ::rocksdb::MergeOperators::CreateBytesXOROperator();
+  } else {
+    NOTREACHED() << "Not handled merge_operator: " << config.merge_operator;
   }
 
   std::vector<std::string> column_families_str;

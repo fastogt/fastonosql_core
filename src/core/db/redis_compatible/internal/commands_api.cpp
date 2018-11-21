@@ -508,10 +508,10 @@ common::Error CommandsApi<DBConnection>::Persist(internal::CommandHandler* handl
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
-#ifdef BUILD_WITH_REDIS
+#if defined(BUILD_WITH_REDIS)
 template class CommandsApi<redis::DBConnection>;
 #endif
-#ifdef BUILD_WITH_PIKA
+#if defined(BUILD_WITH_PIKA)
 template class CommandsApi<pika::DBConnection>;
 #endif
 }  // namespace redis_compatible

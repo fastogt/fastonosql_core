@@ -37,7 +37,7 @@ const std::vector<const char*> g_compression_types = {
     "LZ4Compression", "LZ4HCCompression",  "XpressCompression", "ZSTD"};
 
 const std::vector<const char*> g_merge_operator_types = {
-    "None", "Put", "PutV1", "Uint64Add", "StringAppend", "StringAppendTest", "Max", "BytesXor"};
+    "None", "Put", "PutV1", "Uint64Add", "StringAppend", "StringAppendIota", "StringAppendTest", "Max", "BytesXor"};
 
 namespace {
 
