@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <fastonosql/config.h>
+
 #include <string>  // for string
 #include <vector>
 
@@ -25,24 +27,42 @@ namespace fastonosql {
 namespace core {
 
 enum ConnectionType : uint8_t {
+#if defined(HAVE_REDIS)
   REDIS = 0,
+#endif
+#if defined(HAVE_MEMCACHED)
   MEMCACHED = 1,
+#endif
+#if defined(HAVE_SSDB)
   SSDB = 2,
+#endif
+#if defined(HAVE_LEVELDB)
   LEVELDB = 3,
+#endif
+#if defined(HAVE_ROCKSDB)
   ROCKSDB = 4,
+#endif
+#if defined(HAVE_UNQLITE)
   UNQLITE = 5,
+#endif
+#if defined(HAVE_LMDB)
   LMDB = 6,
+#endif
+#if defined(HAVE_UPSCALEDB)
   UPSCALEDB = 7,
+#endif
+#if defined(HAVE_FORESTDB)
   FORESTDB = 8,
+#endif
+#if defined(HAVE_PIKA)
   PIKA = 9
+#endif
 };  // supported types
 
 enum ServerType : uint8_t { MASTER = 0, SLAVE };
 enum ServerState : uint8_t { SUP = 0, SDOWN };
 enum ServerConnectionState : uint8_t { SCONNECTED = 0, SDISCONNECTED };
 enum ServerMode : uint8_t { STANDALONE = 0, SENTINEL, CLUSTER };
-
-extern const std::vector<ConnectionType> g_compiled_types;
 
 enum ConnectionMode : uint8_t { InteractiveMode = 0 };
 

@@ -109,7 +109,8 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type) {
     return pika::GetSupportedValueTypes();
   }
 #endif
-  NOTREACHED();
+
+  NOTREACHED() << "Unhandled type: " << type;
   return std::vector<common::Value::Type>();
 }
 
@@ -164,7 +165,8 @@ std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
     return pika::GetInfoFields();
   }
 #endif
-  NOTREACHED() << "Unknown type: " << type;
+
+  NOTREACHED() << "Unhandled type: " << type;
   return std::vector<info_field_t>();
 }
 

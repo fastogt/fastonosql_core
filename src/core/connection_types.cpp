@@ -32,39 +32,6 @@ const char* kServerModes[] = {"Standalone", "Sentinel", "Cluster"};
 namespace fastonosql {
 namespace core {
 
-const std::vector<ConnectionType> g_compiled_types = {
-#ifdef BUILD_WITH_REDIS
-    REDIS,
-#endif
-#ifdef BUILD_WITH_MEMCACHED
-    MEMCACHED,
-#endif
-#ifdef BUILD_WITH_SSDB
-    SSDB,
-#endif
-#ifdef BUILD_WITH_LEVELDB
-    LEVELDB,
-#endif
-#ifdef BUILD_WITH_ROCKSDB
-    ROCKSDB,
-#endif
-#ifdef BUILD_WITH_UNQLITE
-    UNQLITE,
-#endif
-#ifdef BUILD_WITH_LMDB
-    LMDB,
-#endif
-#ifdef BUILD_WITH_UPSCALEDB
-    UPSCALEDB,
-#endif
-#ifdef BUILD_WITH_FORESTDB
-    FORESTDB,
-#endif
-#ifdef BUILD_WITH_PIKA
-    PIKA
-#endif
-};
-
 bool IsRedisCompatible(ConnectionType type) {
   return type == REDIS || type == PIKA;
 }
