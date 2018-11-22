@@ -111,12 +111,6 @@ common::Error CommandsApi::ClientReply(internal::CommandHandler* handler, comman
                          out);
 }
 
-common::Error CommandsApi::ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("SETNAME")}, argv),
-                         out);
-}
-
 common::Error CommandsApi::ClusterAddSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("ADDSLOTS")}, argv),

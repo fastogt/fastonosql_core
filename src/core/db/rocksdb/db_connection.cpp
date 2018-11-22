@@ -33,6 +33,8 @@
   "KeyDrop\n---------------------------------------------------------------------------------------------------------" \
   "-------------------------------------------------\n"
 
+#define KEYS_COUNT_PROPERTY "rocksdb.estimate-num-keys"
+
 // hacked
 namespace rocksdb {
 
@@ -516,15 +518,24 @@ common::Error CreateConnection(const Config& config, NativeConnection** context)
     column_families = {::rocksdb::ColumnFamilyDescriptor()};
   }
 
-  ::rocksdb::DB* lcontext = nullptr;
+  ::rocksdb::DB* ldbcontext = nullptr;
   std::vector<::rocksdb::ColumnFamilyHandle*> lhandles;
-  st = ::rocksdb::DB::Open(rs, folder, column_families, &lhandles, &lcontext);
+  st = ::rocksdb::DB::Open(rs, folder, column_families, &lhandles, &ldbcontext);
   if (!st.ok()) {
     std::string buff = common::MemSPrintf("Fail open database: %s!", st.ToString());
     return common::make_error(buff);
   }
 
-  *context = new rocksdb_handle(lcontext, lhandles);
+  const std::string db_name = config.db_name;
+  rocksdb_handle* lcontext = new rocksdb_handle(ldbcontext, lhandles);
+  st = lcontext->Select(db_name);
+  if (!st.ok()) {
+    delete lcontext;
+    std::string buff = common::MemSPrintf("Failed select database: %s", st.ToString());
+    return common::make_error(buff);
+  }
+
+  *context = lcontext;
   return common::Error();
 }
 
@@ -810,19 +821,22 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
 }
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
-  ::rocksdb::ReadOptions ro;
-  ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
   keys_limit_t sz = 0;
-  for (it->SeekToFirst(); it->Valid(); it->Next()) {
-    sz++;
-  }
+  std::string ret;
+  if (!(connection_.handle_->GetProperty(KEYS_COUNT_PROPERTY, &ret) && common::ConvertFromString(ret, &sz))) {
+    ::rocksdb::ReadOptions ro;
+    ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      sz++;
+    }
 
-  auto st = it->status();
-  delete it;
+    auto st = it->status();
+    delete it;
 
-  common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, st);
-  if (err) {
-    return err;
+    common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, st);
+    if (err) {
+      return err;
+    }
   }
 
   *size = sz;

@@ -671,6 +671,31 @@ common::Error DBConnection<Config, ContType>::Auth(const command_buffer_t& passw
 }
 
 template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::SetClientName(const std::string& name) {
+  if (name.empty()) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  command_buffer_writer_t wr;
+  wr << "CLIENT SETNAME " << name;
+
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
+  if (err) {
+    return err;
+  }
+
+  freeReplyObject(reply);
+  return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
 common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr, redis_int_t* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();

@@ -66,6 +66,7 @@ struct Config : public LocalConfig {
   bool Equals(const Config& other) const;
 
   bool create_if_missing;
+  std::string db_name;
   ComparatorType comparator;
   CompressionType compression;
   MergeOperatorType merge_operator;

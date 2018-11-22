@@ -23,6 +23,7 @@
 
 #define ROCKSDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
 #define ROCKSDB_COMPRESSION_FIELD ARGS_FROM_FIELD("compression")
+#define ROCKSDB_DB_NAME_FIELD ARGS_FROM_FIELD("n")
 #define ROCKSDB_CIM_FIELD ARGS_FROM_FIELD("c")
 #define ROCKSDB_MO_FIELD ARGS_FROM_FIELD("mo")
 
@@ -42,12 +43,14 @@ const std::vector<const char*> g_merge_operator_types = {
 namespace {
 
 const char kDefaultPath[] = "~/test.rocksdb";
+const char kDefaultDbName[] = "default";
 
 }  // namespace
 
 Config::Config()
     : LocalConfig(common::file_system::prepare_path(kDefaultPath)),
       create_if_missing(true),
+      db_name(kDefaultDbName),
       comparator(COMP_BYTEWISE),
       compression(kNoCompression),
       merge_operator(kNone) {}
@@ -56,7 +59,9 @@ void Config::Init(const config_args_t& args) {
   base_class::Init(args);
   for (size_t i = 0; i < args.size(); i++) {
     const bool lastarg = i == args.size() - 1;
-    if (args[i] == ROCKSDB_COMPARATOR_FIELD && !lastarg) {
+    if (args[i] == ROCKSDB_DB_NAME_FIELD && !lastarg) {
+      db_name = args[++i];
+    } else if (args[i] == ROCKSDB_COMPARATOR_FIELD && !lastarg) {
       ComparatorType lcomparator;
       if (common::ConvertFromString(args[++i], &lcomparator)) {
         comparator = lcomparator;
@@ -84,6 +89,11 @@ config_args_t Config::ToArgs() const {
     args.push_back(ROCKSDB_CIM_FIELD);
   }
 
+  if (!db_name.empty()) {
+    args.push_back(ROCKSDB_DB_NAME_FIELD);
+    args.push_back(db_name);
+  }
+
   args.push_back(ROCKSDB_COMPARATOR_FIELD);
   args.push_back(common::ConvertToString(comparator));
 
@@ -97,8 +107,8 @@ config_args_t Config::ToArgs() const {
 }
 
 bool Config::Equals(const Config& other) const {
-  return base_class::Equals(other) && create_if_missing == other.create_if_missing && comparator == other.comparator &&
-         compression == other.compression && merge_operator == other.merge_operator;
+  return base_class::Equals(other) && create_if_missing == other.create_if_missing && db_name == other.db_name &&
+         comparator == other.comparator && compression == other.compression && merge_operator == other.merge_operator;
 }
 
 }  // namespace rocksdb

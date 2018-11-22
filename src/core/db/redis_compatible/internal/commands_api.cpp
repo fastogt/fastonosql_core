@@ -18,6 +18,8 @@
 
 #include "core/db/redis_compatible/internal/commands_api.h"
 
+#include <string>
+
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
 #include <fastonosql/core/value.h>
@@ -494,6 +496,24 @@ common::Error CommandsApi<DBConnection>::Persist(internal::CommandHandler* handl
 
   common::FundamentalValue* val = common::Value::CreateUIntegerValue(1);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+template <typename DBConnection>
+common::Error CommandsApi<DBConnection>::ClientSetName(internal::CommandHandler* handler,
+                                                       commands_args_t argv,
+                                                       FastoObject* out) {
+  const std::string name = argv[0].as_string();
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  common::Error err = redis->SetClientName(name);
+  if (err) {
+    return err;
+  }
+
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }

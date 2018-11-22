@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <common/convert2string.h>
@@ -87,6 +88,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   db_name_t GetCurrentDBName() const override;
 
   bool IsAuthenticated() const override;
+
+  common::Error SetClientName(const std::string& name) WARN_UNUSED_RESULT;
 
   common::Error CommonExec(const commands_args_t& argv, FastoObject* out) WARN_UNUSED_RESULT;
 
