@@ -2,6 +2,7 @@
 [Alexandr Topilski]
 - [Redis] Set client name
 - [RocksDB] DBKCOUNT optimization
+- [Memcached] Fixed info args command
 
 1.4.3 / November 22, 2018
 [Alexandr Topilski]

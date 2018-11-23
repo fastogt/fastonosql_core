@@ -579,9 +579,13 @@ common::Error DBConnection::Info(const std::string& args, ServerInfo::Stats* sta
     return err;
   }
 
-  const std::string stabled_args = args.empty() ? std::string() : common::ConvertToString(args);
+  const char* stabled_args = nullptr;
+  if (!args.empty()) {
+    stabled_args = args.c_str();
+  }
+
   memcached_return_t error;
-  memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args.c_str()), &error);
+  memcached_stat_st* st = memcached_stat(connection_.handle_, const_cast<char*>(stabled_args), &error);
   err = CheckResultCommand(DB_INFO_COMMAND, error);
   if (err) {
     return err;
