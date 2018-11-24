@@ -35,6 +35,8 @@
   "Level  Files Size(MB) Time(sec) Read(MB) Write(MB)\n" \
   "--------------------------------------------------\n"
 
+#define LEVELDB_STATS_PROPERTY "leveldb.stats"
+
 namespace fastonosql {
 namespace core {
 namespace leveldb {
@@ -309,7 +311,7 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   }
 
   std::string rets;
-  bool isok = connection_.handle_->GetProperty("leveldb.stats", &rets);
+  bool isok = connection_.handle_->GetProperty(LEVELDB_STATS_PROPERTY, &rets);
   if (!isok) {
     return common::make_error("info function failed");
   }

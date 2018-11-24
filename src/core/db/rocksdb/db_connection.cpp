@@ -33,7 +33,8 @@
   "KeyDrop\n---------------------------------------------------------------------------------------------------------" \
   "-------------------------------------------------\n"
 
-#define KEYS_COUNT_PROPERTY "rocksdb.estimate-num-keys"
+#define ROCKSDB_KEYS_COUNT_PROPERTY "rocksdb.estimate-num-keys"
+#define ROCKSDB_STATS_PROPERTY "rocksdb.stats"
 
 // hacked
 namespace rocksdb {
@@ -566,7 +567,7 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   }
 
   std::string rets;
-  bool isok = connection_.handle_->GetProperty("rocksdb.stats", &rets);
+  bool isok = connection_.handle_->GetProperty(ROCKSDB_STATS_PROPERTY, &rets);
   if (!isok) {
     return common::make_error("info function failed");
   }
@@ -823,7 +824,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   keys_limit_t sz = 0;
   std::string ret;
-  if (!(connection_.handle_->GetProperty(KEYS_COUNT_PROPERTY, &ret) && common::ConvertFromString(ret, &sz))) {
+  if (!(connection_.handle_->GetProperty(ROCKSDB_KEYS_COUNT_PROPERTY, &ret) && common::ConvertFromString(ret, &sz))) {
     ::rocksdb::ReadOptions ro;
     ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
