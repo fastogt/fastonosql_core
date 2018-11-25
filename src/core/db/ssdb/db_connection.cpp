@@ -596,13 +596,13 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        CommandInfo::Native,
                                                        &CommandsApi::MultiZdel),
                                          CommandHolder(GEN_CMD_STRING("QPUSH"),
-                                                       "<name> <item>",
+                                                       "<name> <item> [items...]",
                                                        "Adds an or more than one element to the "
                                                        "end of the queue.",
                                                        UNDEFINED_SINCE,
                                                        UNDEFINED_EXAMPLE_STR,
                                                        2,
-                                                       0,
+                                                       INFINITE_COMMAND_ARGS,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qpush),
                                          CommandHolder(GEN_CMD_STRING("QPOP"),
@@ -615,6 +615,15 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        CommandInfo::Native,
                                                        &CommandsApi::Qpop),
+                                         CommandHolder(GEN_CMD_STRING("QRANGE"),
+                                                       "<key> <start> <stop>",
+                                                       "Get a range of elements from a list",
+                                                       PROJECT_VERSION_GENERATE(1, 0, 0),
+                                                       UNDEFINED_EXAMPLE_STR,
+                                                       3,
+                                                       0,
+                                                       CommandInfo::Native,
+                                                       &CommandsApi::Qrange),
                                          CommandHolder(GEN_CMD_STRING("QSLICE"),
                                                        "<name> <begin> <end>",
                                                        "Returns a portion of elements from the "
@@ -1600,8 +1609,8 @@ common::Error DBConnection::MultiZdel(const raw_key_t& name, const raw_keys_t& k
   return CheckResultCommand("MULTIZDEL", connection_.handle_->multi_zdel(common::ConvertToString(name), skeys));
 }
 
-common::Error DBConnection::Qpush(const raw_key_t& name, const raw_key_t& item) {
-  if (name.empty() || item.empty()) {
+common::Error DBConnection::Qpush(const NKey& key, NValue arr, int64_t* list_len) {
+  if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
   }
@@ -1611,8 +1620,36 @@ common::Error DBConnection::Qpush(const raw_key_t& name, const raw_key_t& item) 
     return err;
   }
 
-  return CheckResultCommand("QPUSH",
-                            connection_.handle_->qpush(common::ConvertToString(name), common::ConvertToString(item)));
+  const auto key_str = key.GetKey();
+
+  common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+  std::vector<std::string> sitems;
+  for (size_t i = 0; i < carr->GetSize(); ++i) {
+    common::char_buffer_t item;
+    if (carr->GetString(i, &item)) {
+      sitems.push_back(item.as_string());
+    }
+  }
+
+  int64_t res;
+  err = CheckResultCommand("QPUSH", connection_.handle_->qpush(key_str.GetData().as_string(), sitems, &res));
+  if (err) {
+    return err;
+  }
+
+  NDbKValue rarr;
+  rarr.SetKey(key);
+  if (base_class::client_) {
+    if (carr->GetSize() == static_cast<size_t>(res)) {
+      rarr.SetValue(arr);
+    } else {
+      rarr.SetValue(NValue(common::Value::CreateArrayValue()));
+    }
+    base_class::client_->OnAddedKey(rarr);
+  }
+
+  *list_len = res;
+  return common::Error();
 }
 
 common::Error DBConnection::Qpop(const raw_key_t& name, raw_value_t* out) {
@@ -1633,6 +1670,29 @@ common::Error DBConnection::Qpop(const raw_key_t& name, raw_value_t* out) {
   }
 
   *out = common::ConvertToCharBytes(value);
+  return common::Error();
+}
+
+common::Error DBConnection::Qrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) {
+  if (!loaded_key) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  err = QrangeImpl(key, start, stop, loaded_key);
+  if (err) {
+    return err;
+  }
+
+  if (base_class::client_) {
+    base_class::client_->OnLoadedKey(*loaded_key);
+  }
+
   return common::Error();
 }
 
@@ -1855,6 +1915,24 @@ common::Error DBConnection::SetImpl(const NDbKValue& key) {
   return common::Error();
 }
 
+common::Error DBConnection::QrangeImpl(const NKey& key, int start, int stop, NDbKValue* loaded_key) {
+  const auto key_str = key.GetKey();
+
+  std::vector<std::string> res;
+  common::Error err =
+      CheckResultCommand("QRANGE", connection_.handle_->qrange(key_str.GetData().as_string(), start, stop, &res));
+  if (err) {
+    return err;
+  }
+
+  common::ArrayValue* arr = common::Value::CreateArrayValue();
+  for (auto item : res) {
+    arr->AppendBasicString(item);
+  }
+  *loaded_key = NDbKValue(key, NValue(arr));
+  return common::Error();
+}
+
 common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   const auto key_str = key.GetKey();
 
@@ -1868,6 +1946,20 @@ common::Error DBConnection::GetImpl(const NKey& key, NDbKValue* loaded_key) {
   *loaded_key = NDbKValue(key, val);
   return common::Error();
 }
+
+#if 0
+common::Error DBConnection::GetTypeImpl(const NKey& key, readable_string_t* type) {
+  const auto key_str = key.GetKey();
+  std::string res;
+  common::Error err = CheckResultCommand("TYPE", connection_.handle_->type(key_str.GetData().as_string(), &res));
+  if (err) {
+    return err;
+  }
+
+  *type = common::ConvertToCharBytes(res);
+  return common::Error();
+}
+#endif
 
 common::Error DBConnection::SetTTLImpl(const NKey& key, ttl_t ttl) {
   const auto key_str = key.GetKey();

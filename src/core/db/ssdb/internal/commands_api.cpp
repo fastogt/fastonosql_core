@@ -726,13 +726,22 @@ common::Error CommandsApi::MultiZdel(internal::CommandHandler* handler, commands
 }
 
 common::Error CommandsApi::Qpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
+  common::ArrayValue* arr = common::Value::CreateArrayValue();
+  for (size_t i = 1; i < argv.size(); ++i) {
+    arr->AppendString(argv[i]);
+  }
+
   DBConnection* ssdb = static_cast<DBConnection*>(handler);
-  common::Error err = ssdb->Qpush(argv[0], argv[1]);
+  int64_t list_len = 0;
+  common::Error err = ssdb->Qpush(key, NValue(arr), &list_len);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
+  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -748,6 +757,33 @@ common::Error CommandsApi::Qpop(internal::CommandHandler* handler, commands_args
 
   common::StringValue* val = common::Value::CreateStringValue(ret);
   FastoObject* child = new FastoObject(out, val, ssdb->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+common::Error CommandsApi::Qrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
+  int start;
+  if (!common::ConvertFromBytes(argv[1], &start)) {
+    return common::make_error_inval();
+  }
+
+  int stop;
+  if (!common::ConvertFromBytes(argv[2], &stop)) {
+    return common::make_error_inval();
+  }
+  DBConnection* ssdb = static_cast<DBConnection*>(handler);
+  NDbKValue key_loaded;
+  common::Error err = ssdb->Qrange(key, start, stop, &key_loaded);
+  if (err) {
+    return err;
+  }
+
+  NValue val = key_loaded.GetValue();
+  common::Value* copy = val->DeepCopy();
+  FastoObject* child = new FastoObject(out, copy, ssdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
 }

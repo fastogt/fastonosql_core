@@ -66,6 +66,7 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error MultiZdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Qpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Qpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Qrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Qslice(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Qclear(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error DBsize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

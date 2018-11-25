@@ -117,8 +117,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error MultiZget(const raw_key_t& name, const raw_keys_t& keys, raw_values_t* out) WARN_UNUSED_RESULT;
   common::Error MultiZset(const raw_key_t& name, const std::map<raw_key_t, int64_t>& kss);
   common::Error MultiZdel(const raw_key_t& name, const std::vector<raw_key_t>& keys) WARN_UNUSED_RESULT;
-  common::Error Qpush(const raw_key_t& name, const raw_value_t& item) WARN_UNUSED_RESULT;
+  common::Error Qpush(const NKey& key, NValue arr, int64_t* list_len) WARN_UNUSED_RESULT;
   common::Error Qpop(const raw_key_t& name, raw_value_t* out) WARN_UNUSED_RESULT;
+  common::Error Qrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
   common::Error Qslice(const raw_key_t& name, int64_t begin, int64_t end, raw_values_t* out) WARN_UNUSED_RESULT;
   common::Error Qclear(const raw_key_t& name, int64_t* ret) WARN_UNUSED_RESULT;
   common::Error DBsize(int64_t* size) WARN_UNUSED_RESULT;
@@ -146,6 +147,10 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   common::Error SetImpl(const NDbKValue& key) override;
   common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
+  common::Error QrangeImpl(const NKey& key, int start, int stop, NDbKValue* loaded_key);
+#if 0
+  common::Error GetTypeImpl(const NKey& key, readable_string_t* type) override;
+#endif
   common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
   common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
   common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
