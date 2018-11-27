@@ -16,35 +16,21 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <fastonosql/core/db/pika/command_translator.h>
 
-#include <vector>
-
-#include <fastonosql/core/db/redis_compatible/command_translator.h>
-
-#if defined(PRO_VERSION)
-#include <fastonosql/core/module_info.h>
-#endif
+#include <fastonosql/core/connection_types.h>
 
 namespace fastonosql {
 namespace core {
-namespace redis {
+namespace pika {
 
-class CommandTranslator : public redis_compatible::CommandTranslator {
- public:
-  typedef redis_compatible::CommandTranslator base_class;
+CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : base_class(commands) {}
 
-  explicit CommandTranslator(const std::vector<CommandHolder>& commands);
-  const char* GetDBName() const override;
+const char* CommandTranslator::GetDBName() const {
+  typedef ConnectionTraits<PIKA> connection_traits_class;
+  return connection_traits_class::GetDBName();
+}
 
-#if defined(PRO_VERSION)
-  common::Error ModuleLoad(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
-  common::Error ModuleUnload(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
-#endif
-
-  common::Error Xadd(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
-};
-
-}  // namespace redis
+}  // namespace pika
 }  // namespace core
 }  // namespace fastonosql

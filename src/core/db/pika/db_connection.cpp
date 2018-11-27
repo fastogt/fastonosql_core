@@ -21,7 +21,9 @@
 #include <hiredis/hiredis.h>
 
 #include <fastonosql/core/constant_commands_array.h>
+#include <fastonosql/core/db/pika/command_translator.h>
 #include <fastonosql/core/db/pika/server_info.h>
+
 #include "core/db/pika/internal/commands_api.h"
 
 #define DBSIZE "INFO KEYSPACE"
@@ -2104,7 +2106,8 @@ common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<Ser
 }
 #endif
 
-DBConnection::DBConnection(CDBConnectionClient* client) : base_class(client) {}
+DBConnection::DBConnection(CDBConnectionClient* client)
+    : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
 common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));

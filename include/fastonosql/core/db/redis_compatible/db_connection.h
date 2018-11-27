@@ -27,7 +27,6 @@
 
 #include <fastonosql/core/server/iserver_info.h>
 
-#include <fastonosql/core/db/redis_compatible/command_translator.h>
 #include <fastonosql/core/db/redis_compatible/config.h>
 
 #include <fastonosql/core/global.h>
@@ -39,6 +38,8 @@ struct redisReply;
 namespace fastonosql {
 namespace core {
 namespace redis_compatible {
+
+class CommandTranslator;
 
 typedef redisContext NativeConnection;
 
@@ -79,8 +80,6 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   typedef typename base_class::config_t config_t;
 
   enum { invalid_db_num = -1 };
-  explicit DBConnection(CDBConnectionClient* client)
-      : DBConnection(client, new CommandTranslator(base_class::GetCommands())) {}
 
   common::Error Connect(const config_t& config) override WARN_UNUSED_RESULT;
   common::Error Disconnect() override WARN_UNUSED_RESULT;

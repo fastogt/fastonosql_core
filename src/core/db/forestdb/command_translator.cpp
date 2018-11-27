@@ -78,7 +78,8 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
 }
 
 const char* CommandTranslator::GetDBName() const {
-  return ConnectionTraits<FORESTDB>::GetDBName();
+  typedef ConnectionTraits<FORESTDB> connection_traits_class;
+  return connection_traits_class::GetDBName();
 }
 
 }  // namespace forestdb

@@ -33,7 +33,6 @@ namespace redis_compatible {
 class CommandTranslator : public ICommandTranslator {
  public:
   explicit CommandTranslator(const std::vector<CommandHolder>& commands);
-  const char* GetDBName() const override;
 
   common::Error Zrange(const NKey& key, int start, int stop, bool withscores, command_buffer_t* cmdstring)
       WARN_UNUSED_RESULT;

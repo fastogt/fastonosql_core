@@ -22,13 +22,9 @@
 
 #include <fastonosql/core/db/redis_compatible/command_translator.h>
 
-#if defined(PRO_VERSION)
-#include <fastonosql/core/module_info.h>
-#endif
-
 namespace fastonosql {
 namespace core {
-namespace redis {
+namespace pika {
 
 class CommandTranslator : public redis_compatible::CommandTranslator {
  public:
@@ -36,15 +32,8 @@ class CommandTranslator : public redis_compatible::CommandTranslator {
 
   explicit CommandTranslator(const std::vector<CommandHolder>& commands);
   const char* GetDBName() const override;
-
-#if defined(PRO_VERSION)
-  common::Error ModuleLoad(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
-  common::Error ModuleUnload(const ModuleInfo& module, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
-#endif
-
-  common::Error Xadd(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 };
 
-}  // namespace redis
+}  // namespace pika
 }  // namespace core
 }  // namespace fastonosql

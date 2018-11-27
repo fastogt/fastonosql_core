@@ -29,6 +29,7 @@ extern "C" {
 #include <fastonosql/core/db/redis_compatible/sentinel_info.h>
 #endif
 
+#include <fastonosql/core/db/redis_compatible/command_translator.h>
 #include <fastonosql/core/db/redis_compatible/database_info.h>
 
 #include <fastonosql/core/value.h>

@@ -20,6 +20,8 @@
 
 #include <fastonosql/core/value.h>
 
+#include <fastonosql/core/connection_types.h>
+
 #define REDIS_XADD_COMMAND "XADD"
 
 #if defined(PRO_VERSION)
@@ -32,6 +34,11 @@ namespace core {
 namespace redis {
 
 CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : base_class(commands) {}
+
+const char* CommandTranslator::GetDBName() const {
+  typedef ConnectionTraits<REDIS> connection_traits_class;
+  return connection_traits_class::GetDBName();
+}
 
 #if defined(PRO_VERSION)
 common::Error CommandTranslator::ModuleLoad(const ModuleInfo& module, command_buffer_t* cmdstring) {

@@ -86,10 +86,6 @@ namespace redis_compatible {
 
 CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : ICommandTranslator(commands) {}
 
-const char* CommandTranslator::GetDBName() const {
-  return ConnectionTraits<REDIS>::GetDBName();
-}
-
 common::Error CommandTranslator::Zrange(const NKey& key,
                                         int start,
                                         int stop,
