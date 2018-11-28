@@ -26,8 +26,8 @@ namespace rocksdb {
 
 class DataBaseInfo : public IDataBaseInfo {
  public:
-  DataBaseInfo(const db_name_t& name, bool isDefault, size_t size, const keys_container_t& keys = keys_container_t());
-  virtual DataBaseInfo* Clone() const override;
+  DataBaseInfo(const db_name_t& name, bool is_default, size_t size, const keys_container_t& keys = keys_container_t());
+  DataBaseInfo* Clone() const override;
 };
 
 }  // namespace rocksdb

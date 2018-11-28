@@ -132,7 +132,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -394,8 +394,8 @@ void lmdb_close(lmdb** context) {
 }  // namespace lmdb
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Connect(const lmdb::Config& config,
-                                                                                       lmdb::NativeConnection** hout) {
+common::Error Connection<lmdb::NativeConnection, lmdb::Config>::Connect(const lmdb::Config& config,
+                                                                        lmdb::NativeConnection** hout) {
   lmdb::NativeConnection* context = nullptr;
   common::Error err = lmdb::CreateConnection(config, &context);
   if (err) {
@@ -407,15 +407,14 @@ common::Error ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::C
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::Disconnect(
-    lmdb::NativeConnection** handle) {
+common::Error Connection<lmdb::NativeConnection, lmdb::Config>::Disconnect(lmdb::NativeConnection** handle) {
   lmdb::lmdb_close(handle);
   *handle = nullptr;
   return common::Error();
 }
 
 template <>
-bool ConnectionAllocatorTraits<lmdb::NativeConnection, lmdb::Config>::IsConnected(lmdb::NativeConnection* handle) {
+bool Connection<lmdb::NativeConnection, lmdb::Config>::IsConnected(lmdb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -516,8 +515,7 @@ db_name_t DBConnection::GetCurrentDBName() const {
   return base_class::GetCurrentDBName();
 }
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -706,7 +704,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   MDB_cursor* cursor = nullptr;
   MDB_txn* txn = nullptr;
   common::Error err =
@@ -814,7 +812,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 
   connection_.config_->db_name = db_name;
   keys_limit_t kcount = 0;
-  err = DBkcount(&kcount);
+  err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

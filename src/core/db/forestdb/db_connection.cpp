@@ -137,7 +137,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -336,9 +336,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<FORESTDB>::GetCommands() {
 
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<forestdb::NativeConnection, forestdb::Config>::Connect(
-    const forestdb::Config& config,
-    forestdb::NativeConnection** hout) {
+common::Error Connection<forestdb::NativeConnection, forestdb::Config>::Connect(const forestdb::Config& config,
+                                                                                forestdb::NativeConnection** hout) {
   forestdb::NativeConnection* context = nullptr;
   common::Error err = forestdb::CreateConnection(config, &context);
   if (err) {
@@ -350,7 +349,7 @@ common::Error ConnectionAllocatorTraits<forestdb::NativeConnection, forestdb::Co
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<forestdb::NativeConnection, forestdb::Config>::Disconnect(
+common::Error Connection<forestdb::NativeConnection, forestdb::Config>::Disconnect(
     forestdb::NativeConnection** handle) {
   forestdb::forestdb_close(handle);
   *handle = nullptr;
@@ -358,8 +357,7 @@ common::Error ConnectionAllocatorTraits<forestdb::NativeConnection, forestdb::Co
 }
 
 template <>
-bool ConnectionAllocatorTraits<forestdb::NativeConnection, forestdb::Config>::IsConnected(
-    forestdb::NativeConnection* handle) {
+bool Connection<forestdb::NativeConnection, forestdb::Config>::IsConnected(forestdb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -426,8 +424,7 @@ db_name_t DBConnection::GetCurrentDBName() const {
   return base_class::GetCurrentDBName();
 }
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -563,7 +560,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   fdb_iterator* it = nullptr;
   fdb_iterator_opt_t opt = FDB_ITR_NONE;
 
@@ -657,7 +654,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 
   connection_.config_->db_name = db_name;
   keys_limit_t kcount = 0;
-  err = DBkcount(&kcount);
+  err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

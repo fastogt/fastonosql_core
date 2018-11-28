@@ -25,9 +25,11 @@ namespace core {
 namespace upscaledb {
 
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  UNUSED(argv);
+
   DBConnection* mdb = static_cast<DBConnection*>(handler);
   ServerInfo::Stats statsout;
-  common::Error err = mdb->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
+  common::Error err = mdb->Info(&statsout);
   if (err) {
     return err;
   }

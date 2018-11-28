@@ -73,7 +73,6 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error ConfigResetStat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ConfigRewrite(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ConfigSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error DebugSegFault(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Discard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

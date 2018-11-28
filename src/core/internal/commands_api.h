@@ -36,9 +36,9 @@ struct ApiTraits {
 
   static common::Error Help(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // string
 
-  static common::Error Scan(CommandHandler* handler, commands_args_t argv, FastoObject* out);      // complex array
-  static common::Error Keys(CommandHandler* handler, commands_args_t argv, FastoObject* out);      // array of keys
-  static common::Error DBkcount(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // keys_limit_t
+  static common::Error Scan(CommandHandler* handler, commands_args_t argv, FastoObject* out);         // complex array
+  static common::Error Keys(CommandHandler* handler, commands_args_t argv, FastoObject* out);         // array of keys
+  static common::Error DBKeysCount(CommandHandler* handler, commands_args_t argv, FastoObject* out);  // keys_limit_t
   static common::Error CreateDatabase(CommandHandler* handler,
                                       commands_args_t argv,
                                       FastoObject* out);  // GEN_CMD_STRING(OK_RESULT)
@@ -161,15 +161,15 @@ common::Error ApiTraits<CDBConnection>::Keys(internal::CommandHandler* handler,
 }
 
 template <class CDBConnection>
-common::Error ApiTraits<CDBConnection>::DBkcount(internal::CommandHandler* handler,
-                                                 commands_args_t argv,
-                                                 FastoObject* out) {
+common::Error ApiTraits<CDBConnection>::DBKeysCount(internal::CommandHandler* handler,
+                                                    commands_args_t argv,
+                                                    FastoObject* out) {
   UNUSED(argv);
 
   CDBConnection* cdb = static_cast<CDBConnection*>(handler);
 
   keys_limit_t dbkcount = 0;
-  common::Error err = cdb->DBkcount(&dbkcount);
+  common::Error err = cdb->DBKeysCount(&dbkcount);
   if (err) {
     return err;
   }

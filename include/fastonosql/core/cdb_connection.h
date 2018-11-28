@@ -70,8 +70,8 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                      keys_limit_t limit,
                      raw_keys_t* ret) WARN_UNUSED_RESULT;  // nvi
 
-  common::Error DBkcount(keys_limit_t* size) WARN_UNUSED_RESULT;  // nvi
-  common::Error FlushDB() WARN_UNUSED_RESULT;                     // nvi
+  common::Error DBKeysCount(keys_limit_t* size) WARN_UNUSED_RESULT;  // nvi
+  common::Error FlushDB() WARN_UNUSED_RESULT;                        // nvi
   common::Error Select(const db_name_t& name,
                        IDataBaseInfo** info) WARN_UNUSED_RESULT;         // nvi, select + dblcount
   common::Error CreateDB(const db_name_t& name) WARN_UNUSED_RESULT;      // nvi
@@ -114,7 +114,7 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                                  const raw_key_t& key_end,
                                  keys_limit_t limit,
                                  raw_keys_t* ret) = 0;
-  virtual common::Error DBkcountImpl(keys_limit_t* size) = 0;
+  virtual common::Error DBKeysCountImpl(keys_limit_t* size) = 0;
   virtual common::Error FlushDBImpl() = 0;
 
   virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) = 0;
@@ -235,7 +235,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::Keys(const raw_key_t
 }
 
 template <typename NConnection, typename Config, ConnectionType ContType>
-common::Error CDBConnection<NConnection, Config, ContType>::DBkcount(keys_limit_t* size) {
+common::Error CDBConnection<NConnection, Config, ContType>::DBKeysCount(keys_limit_t* size) {
   if (!size) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -246,7 +246,7 @@ common::Error CDBConnection<NConnection, Config, ContType>::DBkcount(keys_limit_
     return err;
   }
 
-  err = DBkcountImpl(size);
+  err = DBKeysCountImpl(size);
   if (err) {
     return err;
   }

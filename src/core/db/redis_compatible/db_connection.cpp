@@ -1987,7 +1987,7 @@ common::Error DBConnection<Config, ContType>::KeysImpl(const raw_key_t& key_star
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection<Config, ContType>::DBKeysCountImpl(keys_limit_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
   if (!reply || reply->type != REDIS_REPLY_INTEGER) {
@@ -2034,7 +2034,7 @@ common::Error DBConnection<Config, ContType>::SelectImpl(const db_name_t& name, 
   base_class::connection_.config_->db_num = num;
   cur_db_ = num;
   keys_limit_t sz = 0;
-  err = base_class::DBkcount(&sz);
+  err = base_class::DBKeysCount(&sz);
   DCHECK(!err);
   DataBaseInfo* linfo = new DataBaseInfo(name, true, sz);
   *info = linfo;
@@ -2301,6 +2301,16 @@ common::Error DBConnection<Config, ContType>::ConfigGetDatabasesImpl(db_names_t*
   *dbs = {GetCurrentDBName()};
   freeReplyObject(reply);
   return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::DBSize(keys_limit_t* size) {
+  if (!size) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  return base_class::DBKeysCount(size);
 }
 
 template <typename Config, ConnectionType ContType>

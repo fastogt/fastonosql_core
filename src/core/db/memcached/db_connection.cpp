@@ -347,7 +347,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -457,9 +457,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<MEMCACHED>::GetCommands() 
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::Connect(
-    const memcached::Config& config,
-    memcached::NativeConnection** hout) {
+common::Error Connection<memcached::NativeConnection, memcached::Config>::Connect(const memcached::Config& config,
+                                                                                  memcached::NativeConnection** hout) {
   memcached::NativeConnection* context = nullptr;
   common::Error err = memcached::CreateConnection(config, &context);
   if (err) {
@@ -471,7 +470,7 @@ common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::Disconnect(
+common::Error Connection<memcached::NativeConnection, memcached::Config>::Disconnect(
     memcached::NativeConnection** handle) {
   memcached::NativeConnection* lhandle = *handle;
   if (lhandle) {
@@ -482,8 +481,7 @@ common::Error ConnectionAllocatorTraits<memcached::NativeConnection, memcached::
 }
 
 template <>
-bool ConnectionAllocatorTraits<memcached::NativeConnection, memcached::Config>::IsConnected(
-    memcached::NativeConnection* handle) {
+bool Connection<memcached::NativeConnection, memcached::Config>::IsConnected(memcached::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -891,7 +889,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   KeysHolder hld(kRangeKeyStart, kRangeKeyEnd, NO_KEYS_LIMIT);
   memcached_dump_fn func[1] = {memcached_dump_keys_callback};
   common::Error err =
@@ -914,7 +912,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  common::Error err = DBkcount(&kcount);
+  common::Error err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

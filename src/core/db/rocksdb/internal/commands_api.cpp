@@ -28,14 +28,16 @@ namespace core {
 namespace rocksdb {
 
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  UNUSED(argv);
+
   DBConnection* rocks = static_cast<DBConnection*>(handler);
-  ServerInfo::Stats statsout;
-  common::Error err = rocks->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
+  std::string statsout;
+  common::Error err = rocks->Info(&statsout);
   if (err) {
     return err;
   }
 
-  common::StringValue* val = common::Value::CreateStringValueFromBasicString(ServerInfo(statsout).ToString());
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(statsout);
   FastoObject* child = new FastoObject(out, val, rocks->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

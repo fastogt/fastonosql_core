@@ -148,7 +148,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -270,9 +270,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<ROCKSDB>::GetCommands() {
 
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<rocksdb::NativeConnection, rocksdb::Config>::Connect(
-    const rocksdb::Config& config,
-    rocksdb::NativeConnection** hout) {
+common::Error Connection<rocksdb::NativeConnection, rocksdb::Config>::Connect(const rocksdb::Config& config,
+                                                                              rocksdb::NativeConnection** hout) {
   rocksdb::NativeConnection* context = nullptr;
   common::Error err = rocksdb::CreateConnection(config, &context);
   if (err) {
@@ -284,15 +283,13 @@ common::Error ConnectionAllocatorTraits<rocksdb::NativeConnection, rocksdb::Conf
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<rocksdb::NativeConnection, rocksdb::Config>::Disconnect(
-    rocksdb::NativeConnection** handle) {
+common::Error Connection<rocksdb::NativeConnection, rocksdb::Config>::Disconnect(rocksdb::NativeConnection** handle) {
   destroy(handle);
   return common::Error();
 }
 
 template <>
-bool ConnectionAllocatorTraits<rocksdb::NativeConnection, rocksdb::Config>::IsConnected(
-    rocksdb::NativeConnection* handle) {
+bool Connection<rocksdb::NativeConnection, rocksdb::Config>::IsConnected(rocksdb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -554,8 +551,32 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::Info(std::string* statsout) {
+  if (!statsout) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  return GetProperty(ROCKSDB_STATS_PROPERTY, statsout);
+}
+
+common::Error DBConnection::GetProperty(const std::string& property, std::string* out) {
+  if (!out) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  std::string rets;
+  bool isok = connection_.handle_->GetProperty(property, &rets);
+  if (!isok) {
+    return common::make_error("GetProperty function failed!");
+  }
+
+  *out = rets;
+  return common::Error();
+}
+
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -567,9 +588,9 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   }
 
   std::string rets;
-  bool isok = connection_.handle_->GetProperty(ROCKSDB_STATS_PROPERTY, &rets);
-  if (!isok) {
-    return common::make_error("info function failed");
+  err = GetProperty(ROCKSDB_STATS_PROPERTY, &rets);
+  if (err) {
+    return err;
   }
 
   ServerInfo::Stats lstats;
@@ -821,23 +842,30 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return CheckResultCommand(DB_KEYS_COMMAND, st);
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   keys_limit_t sz = 0;
   std::string ret;
-  if (!(connection_.handle_->GetProperty(ROCKSDB_KEYS_COUNT_PROPERTY, &ret) && common::ConvertFromString(ret, &sz))) {
-    ::rocksdb::ReadOptions ro;
-    ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      sz++;
+  common::Error err = GetProperty(ROCKSDB_KEYS_COUNT_PROPERTY, &ret);
+  if (!err) {
+    if (common::ConvertFromString(ret, &sz)) {
+      *size = sz;
+      return common::Error();
     }
+  }
 
-    auto st = it->status();
-    delete it;
+  // old calc
+  ::rocksdb::ReadOptions ro;
+  ::rocksdb::Iterator* it = connection_.handle_->NewIterator(ro);
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    sz++;
+  }
 
-    common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, st);
-    if (err) {
-      return err;
-    }
+  auto st = it->status();
+  delete it;
+
+  err = CheckResultCommand(DB_DBKCOUNT_COMMAND, st);
+  if (err) {
+    return err;
   }
 
   *size = sz;
@@ -892,7 +920,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  err = DBkcount(&kcount);
+  err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

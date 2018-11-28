@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
 #include <fastonosql/core/db/pika/config.h>
@@ -41,7 +43,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, PIKA> {
   explicit DBConnection(CDBConnectionClient* client);
 
  private:
-  virtual common::Error DBkcountImpl(keys_limit_t* size) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
 };
 
 }  // namespace pika

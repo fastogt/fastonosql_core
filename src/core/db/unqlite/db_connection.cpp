@@ -189,7 +189,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -282,9 +282,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<UNQLITE>::GetCommands() {
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Connect(
-    const unqlite::Config& config,
-    unqlite::NativeConnection** hout) {
+common::Error Connection<unqlite::NativeConnection, unqlite::Config>::Connect(const unqlite::Config& config,
+                                                                              unqlite::NativeConnection** hout) {
   unqlite::NativeConnection* context = nullptr;
   common::Error err = unqlite::CreateConnection(config, &context);
   if (err) {
@@ -295,15 +294,13 @@ common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Conf
   return common::Error();
 }
 template <>
-common::Error ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::Disconnect(
-    unqlite::NativeConnection** handle) {
+common::Error Connection<unqlite::NativeConnection, unqlite::Config>::Disconnect(unqlite::NativeConnection** handle) {
   unqlite_close(*handle);
   *handle = nullptr;
   return common::Error();
 }
 template <>
-bool ConnectionAllocatorTraits<unqlite::NativeConnection, unqlite::Config>::IsConnected(
-    unqlite::NativeConnection* handle) {
+bool Connection<unqlite::NativeConnection, unqlite::Config>::IsConnected(unqlite::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -355,8 +352,7 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -469,7 +465,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   /* Allocate a new cursor instance */
   unqlite_kv_cursor* cursor; /* Cursor handle */
   common::Error err = CheckResultCommand(DB_DBKCOUNT_COMMAND, unqlite_kv_cursor_init(connection_.handle_, &cursor));
@@ -525,7 +521,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  common::Error err = DBkcount(&kcount);
+  common::Error err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

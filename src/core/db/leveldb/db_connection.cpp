@@ -122,7 +122,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -215,9 +215,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<LEVELDB>::GetCommands() {
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<leveldb::NativeConnection, leveldb::Config>::Connect(
-    const leveldb::Config& config,
-    leveldb::NativeConnection** hout) {
+common::Error Connection<leveldb::NativeConnection, leveldb::Config>::Connect(const leveldb::Config& config,
+                                                                              leveldb::NativeConnection** hout) {
   leveldb::NativeConnection* context = nullptr;
   common::Error err = leveldb::CreateConnection(config, &context);
   if (err) {
@@ -229,15 +228,13 @@ common::Error ConnectionAllocatorTraits<leveldb::NativeConnection, leveldb::Conf
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<leveldb::NativeConnection, leveldb::Config>::Disconnect(
-    leveldb::NativeConnection** handle) {
+common::Error Connection<leveldb::NativeConnection, leveldb::Config>::Disconnect(leveldb::NativeConnection** handle) {
   destroy(handle);
   return common::Error();
 }
 
 template <>
-bool ConnectionAllocatorTraits<leveldb::NativeConnection, leveldb::Config>::IsConnected(
-    leveldb::NativeConnection* handle) {
+bool Connection<leveldb::NativeConnection, leveldb::Config>::IsConnected(leveldb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -297,9 +294,32 @@ common::Error TestConnection(const Config& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::GetProperty(const std::string& property, std::string* out) {
+  if (!out) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
 
+  std::string rets;
+  bool isok = connection_.handle_->GetProperty(property, &rets);
+  if (!isok) {
+    return common::make_error("GetProperty function failed!");
+  }
+
+  *out = rets;
+  return common::Error();
+}
+
+common::Error DBConnection::Info(std::string* statsout) {
+  if (!statsout) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  return GetProperty(LEVELDB_STATS_PROPERTY, statsout);
+}
+
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -311,9 +331,9 @@ common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats
   }
 
   std::string rets;
-  bool isok = connection_.handle_->GetProperty(LEVELDB_STATS_PROPERTY, &rets);
-  if (!isok) {
-    return common::make_error("info function failed");
+  err = GetProperty(LEVELDB_STATS_PROPERTY, &rets);
+  if (err) {
+    return err;
   }
 
   ServerInfo::Stats lstats;
@@ -454,7 +474,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return CheckResultCommand(DB_KEYS_COMMAND, st);
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   ::leveldb::ReadOptions ro;
   ::leveldb::Iterator* it = connection_.handle_->NewIterator(ro);
   keys_limit_t sz = 0;
@@ -499,7 +519,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  common::Error err = DBkcount(&kcount);
+  common::Error err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

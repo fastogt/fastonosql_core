@@ -129,7 +129,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -290,9 +290,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<UPSCALEDB>::GetCommands() 
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<upscaledb::NativeConnection, upscaledb::Config>::Connect(
-    const upscaledb::Config& config,
-    upscaledb::NativeConnection** hout) {
+common::Error Connection<upscaledb::NativeConnection, upscaledb::Config>::Connect(const upscaledb::Config& config,
+                                                                                  upscaledb::NativeConnection** hout) {
   upscaledb::NativeConnection* context = nullptr;
   common::Error err = upscaledb::CreateConnection(config, &context);
   if (err) {
@@ -304,7 +303,7 @@ common::Error ConnectionAllocatorTraits<upscaledb::NativeConnection, upscaledb::
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<upscaledb::NativeConnection, upscaledb::Config>::Disconnect(
+common::Error Connection<upscaledb::NativeConnection, upscaledb::Config>::Disconnect(
     upscaledb::NativeConnection** handle) {
   upscaledb::upscaledb_close(handle);
   *handle = nullptr;
@@ -312,8 +311,7 @@ common::Error ConnectionAllocatorTraits<upscaledb::NativeConnection, upscaledb::
 }
 
 template <>
-bool ConnectionAllocatorTraits<upscaledb::NativeConnection, upscaledb::Config>::IsConnected(
-    upscaledb::NativeConnection* handle) {
+bool Connection<upscaledb::NativeConnection, upscaledb::Config>::IsConnected(upscaledb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -389,8 +387,7 @@ common::Error DBConnection::Disconnect() {
   return base_class::Disconnect();
 }
 
-common::Error DBConnection::Info(const command_buffer_t& args, ServerInfo::Stats* statsout) {
-  UNUSED(args);
+common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -529,7 +526,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   uint64_t sz = 0;
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND, ups_db_count(connection_.handle_->db, NULL, UPS_SKIP_DUPLICATES, &sz));
@@ -586,7 +583,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  common::Error err = DBkcount(&kcount);
+  common::Error err = DBKeysCount(&kcount);
   DCHECK(!err);
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

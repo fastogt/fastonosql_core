@@ -31,16 +31,14 @@ namespace internal {
 template <typename NConnection, typename Config, ConnectionType connection_type>
 class DBConnection {
  public:
-  typedef ConnectionAllocatorTraits<NConnection, Config> ConnectionAllocatorTrait;
-  typedef Connection<ConnectionAllocatorTrait> dbconnection_t;
+  typedef Connection<NConnection, Config> dbconnection_t;
   typedef typename dbconnection_t::config_t config_t;
   typedef typename dbconnection_t::handle_t nconnection_t;
-  static constexpr ConnectionType connection_t = connection_type;
 
   DBConnection() : connection_(), interrupted_(false) {}
   virtual ~DBConnection() {}
 
-  static ConnectionType GetConnectionType() { return connection_t; }
+  static constexpr ConnectionType GetConnectionType() { return connection_type; }
 
   virtual common::Error Connect(const config_t& config) WARN_UNUSED_RESULT { return connection_.Connect(config); }
   virtual common::Error Disconnect() WARN_UNUSED_RESULT { return connection_.Disconnect(); }
@@ -86,6 +84,8 @@ class DBConnection {
   config_t GetConfig() const { return connection_.config_; }
 
   dbconnection_t connection_;
+
+ private:
   bool interrupted_;
 };
 

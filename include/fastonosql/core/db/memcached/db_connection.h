@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
 #include <fastonosql/core/db/memcached/config.h>
@@ -62,26 +64,26 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   common::Error SetInner(const raw_key_t& key, const raw_value_t& value, time_t expiration, uint32_t flags)
       WARN_UNUSED_RESULT;
 
-  virtual common::Error ScanImpl(cursor_t cursor_in,
-                                 const pattern_t& pattern,
-                                 keys_limit_t count_keys,
-                                 raw_keys_t* keys_out,
-                                 cursor_t* cursor_out) override;
-  virtual common::Error KeysImpl(const raw_key_t& key_start,
-                                 const raw_key_t& key_end,
-                                 keys_limit_t limit,
-                                 raw_keys_t* ret) override;
-  virtual common::Error DBkcountImpl(keys_limit_t* size) override;
-  virtual common::Error FlushDBImpl() override;
-  virtual common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
-  virtual common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
-  virtual common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
-  virtual common::Error SetImpl(const NDbKValue& key) override;
-  virtual common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
-  virtual common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
-  virtual common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
-  virtual common::Error QuitImpl() override;
-  virtual common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
+  common::Error ScanImpl(cursor_t cursor_in,
+                         const pattern_t& pattern,
+                         keys_limit_t count_keys,
+                         raw_keys_t* keys_out,
+                         cursor_t* cursor_out) override;
+  common::Error KeysImpl(const raw_key_t& key_start,
+                         const raw_key_t& key_end,
+                         keys_limit_t limit,
+                         raw_keys_t* ret) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
+  common::Error FlushDBImpl() override;
+  common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
+  common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;
+  common::Error GetImpl(const NKey& key, NDbKValue* loaded_key) override;
+  common::Error SetImpl(const NDbKValue& key) override;
+  common::Error RenameImpl(const NKey& key, const nkey_t& new_key) override;
+  common::Error SetTTLImpl(const NKey& key, ttl_t ttl) override;
+  common::Error GetTTLImpl(const NKey& key, ttl_t* ttl) override;
+  common::Error QuitImpl() override;
+  common::Error ConfigGetDatabasesImpl(db_names_t* dbs) override;
 
   ServerInfo::Stats current_info_;
 };

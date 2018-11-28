@@ -451,7 +451,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::DBkcount),
+                  &CommandsApi::DBKeysCount),
     CommandHolder(GEN_CMD_STRING("DBSIZE"),
                   "-",
                   "Return the number of keys in the selected database",
@@ -460,7 +460,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::DbSize),
+                  &CommandsApi::DBSize),
 
     CommandHolder(GEN_CMD_STRING("DEBUG OBJECT"),
                   "<key>",
@@ -3007,9 +3007,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<REDIS>::GetCommands() {
 
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<redis::NativeConnection, redis::RConfig>::Connect(
-    const redis::RConfig& config,
-    redis::NativeConnection** hout) {
+common::Error Connection<redis::NativeConnection, redis::RConfig>::Connect(const redis::RConfig& config,
+                                                                           redis::NativeConnection** hout) {
   redis::NativeConnection* context = nullptr;
   common::Error err = redis::CreateConnection(config, &context);
   if (err) {
@@ -3022,8 +3021,7 @@ common::Error ConnectionAllocatorTraits<redis::NativeConnection, redis::RConfig>
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<redis::NativeConnection, redis::RConfig>::Disconnect(
-    redis::NativeConnection** handle) {
+common::Error Connection<redis::NativeConnection, redis::RConfig>::Disconnect(redis::NativeConnection** handle) {
   redis::NativeConnection* lhandle = *handle;
   if (lhandle) {
     redisFree(lhandle);
@@ -3033,7 +3031,7 @@ common::Error ConnectionAllocatorTraits<redis::NativeConnection, redis::RConfig>
 }
 
 template <>
-bool ConnectionAllocatorTraits<redis::NativeConnection, redis::RConfig>::IsConnected(redis::NativeConnection* handle) {
+bool Connection<redis::NativeConnection, redis::RConfig>::IsConnected(redis::NativeConnection* handle) {
   if (!handle) {
     return false;
   }

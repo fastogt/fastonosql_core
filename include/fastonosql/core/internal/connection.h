@@ -25,22 +25,10 @@ namespace core {
 namespace internal {
 
 template <typename H, typename C>
-struct ConnectionAllocatorTraits {
-  typedef H handle_t;
-  typedef C config_t;
-
-  static common::Error Connect(const config_t& config,
-                               handle_t** hout);       // allocate handle
-  static common::Error Disconnect(handle_t** handle);  // deallocate handle
-  static bool IsConnected(handle_t* handle);
-};
-
-template <typename ConnectionAllocatorTraits>
 class Connection {
  public:
-  typedef ConnectionAllocatorTraits traits_t;
-  typedef typename common::Optional<typename traits_t::config_t> config_t;
-  typedef typename traits_t::handle_t handle_t;
+  typedef common::Optional<C> config_t;
+  typedef H handle_t;
 
   Connection() : config_(), handle_(nullptr) {}
 
@@ -50,7 +38,7 @@ class Connection {
     DCHECK(!handle_) << "Handle should be cleared!";
   }
 
-  bool IsConnected() const { return traits_t::IsConnected(handle_); }
+  bool IsConnected() const { return IsConnected(handle_); }
 
   common::Error Connect(const config_t& config) WARN_UNUSED_RESULT {
     if (!config) {
@@ -62,7 +50,7 @@ class Connection {
     }
 
     handle_t* handle = nullptr;
-    common::Error err = traits_t::Connect(*config, &handle);
+    common::Error err = Connect(*config, &handle);
     if (err) {
       return err;
     }
@@ -77,7 +65,7 @@ class Connection {
       return common::Error();
     }
 
-    common::Error err = traits_t::Disconnect(&handle_);
+    common::Error err = Disconnect(&handle_);
     if (err) {
       return err;
     }
@@ -89,6 +77,11 @@ class Connection {
 
   config_t config_;
   handle_t* handle_;
+
+ private:
+  static common::Error Connect(const C& config, handle_t** hout);  // allocate handle
+  static common::Error Disconnect(handle_t** handle);              // deallocate handle
+  static bool IsConnected(handle_t* handle);
 };
 
 }  // namespace internal

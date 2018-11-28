@@ -135,6 +135,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   common::Error Hmset(const NKey& key, NValue hash) WARN_UNUSED_RESULT;
   common::Error Hgetall(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
+  common::Error DBSize(keys_limit_t* size) WARN_UNUSED_RESULT;
+
   common::Error ExecuteAsPipeline(const std::vector<FastoObjectCommandIPtr>& cmds,
                                   void (*log_command_cb)(FastoObjectCommandIPtr)) WARN_UNUSED_RESULT;
 
@@ -163,7 +165,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
                          const raw_key_t& key_end,
                          keys_limit_t limit,
                          raw_keys_t* ret) override;
-  common::Error DBkcountImpl(keys_limit_t* size) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
   common::Error FlushDBImpl() override;
   common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   common::Error DeleteImpl(const NKeys& keys, NKeys* deleted_keys) override;

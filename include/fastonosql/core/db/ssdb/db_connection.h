@@ -142,7 +142,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
                          const raw_key_t& key_end,
                          keys_limit_t limit,
                          raw_keys_t* ret) override;
-  common::Error DBkcountImpl(keys_limit_t* size) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
   common::Error FlushDBImpl() override;
   common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   common::Error SetImpl(const NDbKValue& key) override;

@@ -124,7 +124,7 @@ const ConstantCommandsArray kCommands = {CommandHolder(GEN_CMD_STRING(DB_HELP_CO
                                                        0,
                                                        0,
                                                        CommandInfo::Native,
-                                                       &CommandsApi::DBkcount),
+                                                       &CommandsApi::DBKeysCount),
                                          CommandHolder(GEN_CMD_STRING(DB_FLUSHDB_COMMAND),
                                                        "-",
                                                        "Remove all keys from the current database",
@@ -675,8 +675,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<SSDB>::GetCommands() {
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<ssdb::NativeConnection, ssdb::Config>::Connect(const ssdb::Config& config,
-                                                                                       ssdb::NativeConnection** hout) {
+common::Error Connection<ssdb::NativeConnection, ssdb::Config>::Connect(const ssdb::Config& config,
+                                                                        ssdb::NativeConnection** hout) {
   ssdb::NativeConnection* context = nullptr;
   common::Error err = ssdb::CreateConnection(config, &context);
   if (err) {
@@ -688,14 +688,13 @@ common::Error ConnectionAllocatorTraits<ssdb::NativeConnection, ssdb::Config>::C
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<ssdb::NativeConnection, ssdb::Config>::Disconnect(
-    ssdb::NativeConnection** handle) {
+common::Error Connection<ssdb::NativeConnection, ssdb::Config>::Disconnect(ssdb::NativeConnection** handle) {
   destroy(handle);
   return common::Error();
 }
 
 template <>
-bool ConnectionAllocatorTraits<ssdb::NativeConnection, ssdb::Config>::IsConnected(ssdb::NativeConnection* handle) {
+bool Connection<ssdb::NativeConnection, ssdb::Config>::IsConnected(ssdb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -1824,7 +1823,7 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
   return common::Error();
 }
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   std::vector<std::string> ret;
   common::Error err =
       CheckResultCommand(DB_DBKCOUNT_COMMAND,
@@ -1862,7 +1861,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   }
 
   keys_limit_t kcount = 0;
-  common::Error err = DBkcount(&kcount);
+  common::Error err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
   *info = new DataBaseInfo(name, true, kcount);
   return common::Error();

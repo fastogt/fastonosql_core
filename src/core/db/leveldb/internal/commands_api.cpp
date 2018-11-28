@@ -18,6 +18,8 @@
 
 #include "core/db/leveldb/internal/commands_api.h"
 
+#include <string>
+
 #include <fastonosql/core/db/leveldb/db_connection.h>
 
 namespace fastonosql {
@@ -25,16 +27,17 @@ namespace core {
 namespace leveldb {
 
 common::Error CommandsApi::Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  UNUSED(argv);
+
   DBConnection* level = static_cast<DBConnection*>(handler);
 
-  ServerInfo::Stats statsout;
-  common::Error err = level->Info(argv.size() == 1 ? argv[0] : command_buffer_t(), &statsout);
+  std::string statsout;
+  common::Error err = level->Info(&statsout);
   if (err) {
     return err;
   }
 
-  ServerInfo linf(statsout);
-  common::StringValue* val = common::Value::CreateStringValueFromBasicString(linf.ToString());
+  common::StringValue* val = common::Value::CreateStringValueFromBasicString(statsout);
   FastoObject* child = new FastoObject(out, val, level->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

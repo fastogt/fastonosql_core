@@ -284,11 +284,6 @@ common::Error CommandsApi::ConfigSet(internal::CommandHandler* handler, commands
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("SET")}, argv), out);
 }
 
-common::Error CommandsApi::DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("DBSIZE")}, argv), out);
-}
-
 common::Error CommandsApi::DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("DEBUG"), GEN_CMD_STRING("OBJECT")}, argv),
@@ -1169,7 +1164,6 @@ common::Error CommandsApi::Substr(internal::CommandHandler* handler, commands_ar
 
 #if defined(PRO_VERSION)
 common::Error CommandsApi::ModuleList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("MODULE"), GEN_CMD_STRING("LIST")}, argv),
                          out);
@@ -1177,28 +1171,24 @@ common::Error CommandsApi::ModuleList(internal::CommandHandler* handler, command
 #endif
 
 common::Error CommandsApi::MemoryDoctor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("MEMORY"), GEN_CMD_STRING("DOCTOR")}, argv),
                          out);
 }
 
 common::Error CommandsApi::MemoryUsage(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("MEMORY"), GEN_CMD_STRING("USAGE")}, argv),
                          out);
 }
 
 common::Error CommandsApi::MemoryStats(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("MEMORY"), GEN_CMD_STRING("STATS")}, argv),
                          out);
 }
 
 common::Error CommandsApi::MemoryPurge(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("MEMORY"), GEN_CMD_STRING("PURGE")}, argv),
                          out);
@@ -1207,32 +1197,27 @@ common::Error CommandsApi::MemoryPurge(internal::CommandHandler* handler, comman
 common::Error CommandsApi::MemoryMallocStats(internal::CommandHandler* handler,
                                              commands_args_t argv,
                                              FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(
       redis_compatible::ExpandCommand({GEN_CMD_STRING("MEMORY"), GEN_CMD_STRING("MALLOC-STATS")}, argv), out);
 }
 
 common::Error CommandsApi::SwapDB(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("SWAPDB")}, argv), out);
 }
 
 common::Error CommandsApi::Unlink(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("UNLINK")}, argv), out);
 }
 
 common::Error CommandsApi::Touch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("TOUCH")}, argv), out);
 }
 
 common::Error CommandsApi::Xlen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("XLEN")}, argv), out);
 }
@@ -1251,13 +1236,11 @@ common::Error CommandsApi::Xrange(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::Xrevrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("XREVRANGE")}, argv), out);
 }
 
 common::Error CommandsApi::Xread(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  UNUSED(argv);
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("XREAD")}, argv), out);
 }

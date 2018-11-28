@@ -289,11 +289,6 @@ common::Error CommandsApi::ConfigSet(internal::CommandHandler* handler, commands
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CONFIG"), GEN_CMD_STRING("SET")}, argv), out);
 }
 
-common::Error CommandsApi::DbSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("DBSIZE")}, argv), out);
-}
-
 common::Error CommandsApi::DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("DEBUG"), GEN_CMD_STRING("OBJECT")}, argv),

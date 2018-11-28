@@ -28,6 +28,8 @@ commands_args_t ExpandCommand(std::initializer_list<command_buffer_t> list, comm
 
 template <typename DBConnection>
 struct CommandsApi : public internal::ApiTraits<DBConnection> {
+  typedef internal::ApiTraits<DBConnection> base_class;
+
   // db
   static common::Error Auth(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Info(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
@@ -67,6 +69,7 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
 
   //
   static common::Error ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error DBSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 
 }  // namespace redis_compatible

@@ -518,6 +518,26 @@ common::Error CommandsApi<DBConnection>::ClientSetName(internal::CommandHandler*
   return common::Error();
 }
 
+template <typename DBConnection>
+common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handler,
+                                                commands_args_t argv,
+                                                FastoObject* out) {
+  UNUSED(argv);
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+
+  keys_limit_t dbkcount = 0;
+  common::Error err = redis->DBSize(&dbkcount);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateUIntegerValue(dbkcount);
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
 }  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

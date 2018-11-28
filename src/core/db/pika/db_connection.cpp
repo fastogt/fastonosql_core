@@ -452,7 +452,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::DBkcount),
+                  &CommandsApi::DBKeysCount),
     CommandHolder(GEN_CMD_STRING("DBSIZE"),
                   "-",
                   "Return the number of keys in the selected database",
@@ -461,7 +461,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::DbSize),
+                  &CommandsApi::DBSize),
 
     CommandHolder(GEN_CMD_STRING("DEBUG OBJECT"),
                   "<key>",
@@ -2051,8 +2051,8 @@ const ConstantCommandsArray& ConnectionCommandsTraits<PIKA>::GetCommands() {
 }
 namespace internal {
 template <>
-common::Error ConnectionAllocatorTraits<pika::NativeConnection, pika::RConfig>::Connect(const pika::RConfig& config,
-                                                                                        pika::NativeConnection** hout) {
+common::Error Connection<pika::NativeConnection, pika::RConfig>::Connect(const pika::RConfig& config,
+                                                                         pika::NativeConnection** hout) {
   pika::NativeConnection* context = nullptr;
   common::Error err = pika::CreateConnection(config, &context);
   if (err) {
@@ -2065,8 +2065,7 @@ common::Error ConnectionAllocatorTraits<pika::NativeConnection, pika::RConfig>::
 }
 
 template <>
-common::Error ConnectionAllocatorTraits<pika::NativeConnection, pika::RConfig>::Disconnect(
-    pika::NativeConnection** handle) {
+common::Error Connection<pika::NativeConnection, pika::RConfig>::Disconnect(pika::NativeConnection** handle) {
   pika::NativeConnection* lhandle = *handle;
   if (lhandle) {
     redisFree(lhandle);
@@ -2076,7 +2075,7 @@ common::Error ConnectionAllocatorTraits<pika::NativeConnection, pika::RConfig>::
 }
 
 template <>
-bool ConnectionAllocatorTraits<pika::NativeConnection, pika::RConfig>::IsConnected(pika::NativeConnection* handle) {
+bool Connection<pika::NativeConnection, pika::RConfig>::IsConnected(pika::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -2109,7 +2108,7 @@ common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<Ser
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::DBkcountImpl(keys_limit_t* size) {
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
 
   if (!reply || reply->type != REDIS_REPLY_STRING) {
