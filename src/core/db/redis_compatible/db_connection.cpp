@@ -68,7 +68,7 @@ bool ConvertFromString(const readable_string_t& value, common::Value::Type* out)
     lout = core::StreamValue::TYPE_STREAM;
   } else if (value == GEN_CMD_STRING("ReJSON-RL")) {
     lout = core::JsonValue::TYPE_JSON;
-  } else if (value == GEN_CMD_STRING("trietype1")) {
+  } else if (value == GEN_CMD_STRING("raxtype01")) {
     lout = core::GraphValue::TYPE_GRAPH;
   } else if (value == GEN_CMD_STRING("MBbloom--")) {
     lout = core::BloomValue::TYPE_BLOOM;
@@ -103,7 +103,7 @@ bool ConvertFromType(common::Value::Type type, readable_string_t* out) {
   } else if (type == core::JsonValue::TYPE_JSON) {
     lout = GEN_CMD_STRING("ReJSON-RL");
   } else if (type == core::GraphValue::TYPE_GRAPH) {
-    lout = GEN_CMD_STRING("trietype1");
+    lout = GEN_CMD_STRING("raxtype01");
   } else if (type == core::BloomValue::TYPE_BLOOM) {
     lout = GEN_CMD_STRING("MBbloom--");
   } else if (type == core::SearchValue::TYPE_FT_TERM) {
