@@ -48,7 +48,5 @@ class Logger : public common::patterns::LazySingleton<Logger> {
 
 void SET_LOG_WATCHER(fastonosql::core::LogWatcher* watcher);
 
-template <typename T>
-inline void LOG_CORE_MSG(T mess, common::logging::LOG_LEVEL level, bool notify) {
-  return fastonosql::core::Logger::GetInstance().print(mess, level, notify);
-}
+void LOG_CORE_MSG(const char* mess, common::logging::LOG_LEVEL level, bool notify);
+void LOG_CORE_MSG(const std::string& mess, common::logging::LOG_LEVEL level, bool notify);

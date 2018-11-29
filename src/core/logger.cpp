@@ -50,3 +50,11 @@ void Logger::SetWathcer(LogWatcher* watcher) {
 void SET_LOG_WATCHER(fastonosql::core::LogWatcher* watcher) {
   fastonosql::core::Logger::GetInstance().SetWathcer(watcher);
 }
+
+void LOG_CORE_MSG(const char* mess, common::logging::LOG_LEVEL level, bool notify) {
+  return fastonosql::core::Logger::GetInstance().print(mess, level, notify);
+}
+
+void LOG_CORE_MSG(const std::string& mess, common::logging::LOG_LEVEL level, bool notify) {
+  return fastonosql::core::Logger::GetInstance().print(mess, level, notify);
+}

@@ -115,52 +115,52 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type) {
 }
 
 std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
-#ifdef BUILD_WITH_REDIS
+#if defined(BUILD_WITH_REDIS)
   if (type == REDIS) {
     return redis::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_MEMCACHED
+#if defined(BUILD_WITH_MEMCACHED)
   if (type == MEMCACHED) {
     return memcached::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_SSDB
+#if defined(BUILD_WITH_SSDB)
   if (type == SSDB) {
     return ssdb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_LEVELDB
+#if defined(BUILD_WITH_LEVELDB)
   if (type == LEVELDB) {
     return leveldb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_ROCKSDB
+#if defined(BUILD_WITH_ROCKSDB)
   if (type == ROCKSDB) {
     return rocksdb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_UNQLITE
+#if defined(BUILD_WITH_UNQLITE)
   if (type == UNQLITE) {
     return unqlite::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_LMDB
+#if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
     return lmdb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_UPSCALEDB
+#if defined(BUILD_WITH_UPSCALEDB)
   if (type == UPSCALEDB) {
     return upscaledb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_FORESTDB
+#if defined(BUILD_WITH_FORESTDB)
   if (type == FORESTDB) {
     return forestdb::GetInfoFields();
   }
 #endif
-#ifdef BUILD_WITH_PIKA
+#if defined(BUILD_WITH_PIKA)
   if (type == PIKA) {
     return pika::GetInfoFields();
   }
