@@ -41,28 +41,7 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error ClientList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientPause(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientReply(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterAddSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterCountFailureReports(internal::CommandHandler* handler,
-                                                  commands_args_t argv,
-                                                  FastoObject* out);
-  static common::Error ClusterCountKeysSinSlot(internal::CommandHandler* handler,
-                                               commands_args_t argv,
-                                               FastoObject* out);
-  static common::Error ClusterDelSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterFailover(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterForget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterGetKeySinSlot(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterInfo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterKeySlot(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterMeet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterNodes(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterReplicate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterReset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterSaveConfig(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterSetConfigEpoch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterSetSlot(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterSlaves(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error ClusterSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+
   static common::Error CommandCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error CommandGetKeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error CommandInfo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
@@ -195,20 +174,6 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error Zscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Zscore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ZunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelMasters(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelMaster(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelSlaves(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelSentinels(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelGetMasterAddrByName(internal::CommandHandler* handler,
-                                                   commands_args_t argv,
-                                                   FastoObject* out);
-  static common::Error SentinelReset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelFailover(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelCkquorum(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelFlushConfig(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelMonitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelRemove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error SentinelSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   static common::Error Monitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Subscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

@@ -61,14 +61,14 @@ common::Error DiscoverySentinelConnection(const Config& rconfig,
 #endif
 
 common::Error PrintRedisContextError(NativeConnection* context);
-common::Error ValueFromReplay(redisReply* r, common::Value** out);
-common::Error ExecRedisCommand(NativeConnection* c,
+common::Error ValueFromReplay(redisReply* reply, common::Value** out);
+common::Error ExecRedisCommand(NativeConnection* context,
                                size_t argc,
                                const char** argv,
                                const size_t* argvlen,
                                redisReply** out_reply);
-common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv, redisReply** out_reply);
-common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& command, redisReply** out_reply);
+common::Error ExecRedisCommand(NativeConnection* context, const commands_args_t& argv, redisReply** out_reply);
+common::Error ExecRedisCommand(NativeConnection* context, const command_buffer_t& command, redisReply** out_reply);
 common::Error AuthContext(NativeConnection* context, const command_buffer_t& password);
 
 template <typename Config, ConnectionType connection_type>

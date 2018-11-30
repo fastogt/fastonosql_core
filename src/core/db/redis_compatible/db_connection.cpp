@@ -360,38 +360,38 @@ common::Error PrintRedisContextError(NativeConnection* context) {
   return common::make_error(common::MemSPrintf("Error: %s", context->errstr));
 }
 
-common::Error ValueFromReplay(redisReply* r, common::Value** out) {
-  if (!out || !r) {
+common::Error ValueFromReplay(redisReply* reply, common::Value** out) {
+  if (!out || !reply) {
     DNOTREACHED();
     return common::make_error_inval();
   }
 
-  switch (r->type) {
+  switch (reply->type) {
     case REDIS_REPLY_NIL: {
       *out = common::Value::CreateNullValue();
       break;
     }
     case REDIS_REPLY_ERROR: {
-      if (common::strcasestr(r->str, "NOAUTH")) {  // "NOAUTH Authentication
-                                                   // required."
+      if (common::strcasestr(reply->str, "NOAUTH")) {  // "NOAUTH Authentication
+                                                       // required."
       }
-      std::string str(r->str, r->len);
+      std::string str(reply->str, reply->len);
       return common::make_error(str);
     }
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING: {
-      *out = common::Value::CreateStringValue(GEN_CMD_STRING_SIZE(r->str, r->len));
+      *out = common::Value::CreateStringValue(GEN_CMD_STRING_SIZE(reply->str, reply->len));
       break;
     }
     case REDIS_REPLY_INTEGER: {
-      *out = common::Value::CreateLongLongIntegerValue(r->integer);
+      *out = common::Value::CreateLongLongIntegerValue(reply->integer);
       break;
     }
     case REDIS_REPLY_ARRAY: {
       common::ArrayValue* arv = common::Value::CreateArrayValue();
-      for (size_t i = 0; i < r->elements; ++i) {
+      for (size_t i = 0; i < reply->elements; ++i) {
         common::Value* val = nullptr;
-        common::Error err = ValueFromReplay(r->element[i], &val);
+        common::Error err = ValueFromReplay(reply->element[i], &val);
         if (err) {
           delete arv;
           return err;
@@ -401,18 +401,18 @@ common::Error ValueFromReplay(redisReply* r, common::Value** out) {
       *out = arv;
       break;
     }
-    default: { return common::make_error(common::MemSPrintf("Unknown reply type: %d", r->type)); }
+    default: { return common::make_error(common::MemSPrintf("Unknown reply type: %d", reply->type)); }
   }
 
   return common::Error();
 }
 
-common::Error ExecRedisCommand(NativeConnection* c,
+common::Error ExecRedisCommand(NativeConnection* context,
                                size_t argc,
                                const char** argv,
                                const size_t* argvlen,
                                redisReply** out_reply) {
-  if (!c) {
+  if (!context) {
     DNOTREACHED();
     return common::make_error("Not connected");
   }
@@ -422,24 +422,24 @@ common::Error ExecRedisCommand(NativeConnection* c,
     return common::make_error_inval();
   }
 
-  int res = redisAppendCommandArgv(c, argc, argv, argvlen);
+  int res = redisAppendCommandArgv(context, argc, argv, argvlen);
   if (res == REDIS_ERR) {
     DNOTREACHED();
-    return PrintRedisContextError(c);
+    return PrintRedisContextError(context);
   }
 
   void* reply = nullptr;
-  res = redisGetReply(c, &reply);
+  res = redisGetReply(context, &reply);
   if (res == REDIS_ERR) {
     /* Filter cases where we should reconnect */
-    if (c->err == REDIS_ERR_IO && errno == ECONNRESET) {
+    if (context->err == REDIS_ERR_IO && errno == ECONNRESET) {
       return common::make_error("Needed reconnect.");
     }
-    if (c->err == REDIS_ERR_EOF) {
+    if (context->err == REDIS_ERR_EOF) {
       return common::make_error("Needed reconnect.");
     }
 
-    return PrintRedisContextError(c);
+    return PrintRedisContextError(context);
   }
 
   redisReply* rreply = static_cast<redisReply*>(reply);
@@ -469,7 +469,7 @@ common::Error ExecRedisCommand(NativeConnection* c,
   return common::Error();
 }
 
-common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv, redisReply** out_reply) {
+common::Error ExecRedisCommand(NativeConnection* context, const commands_args_t& argv, redisReply** out_reply) {
   if (argv.empty() || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -484,13 +484,13 @@ common::Error ExecRedisCommand(NativeConnection* c, const commands_args_t& argv,
     argcc++;
   }
 
-  common::Error err = ExecRedisCommand(c, argcc, argvc, argvlen, out_reply);
+  common::Error err = ExecRedisCommand(context, argcc, argvc, argvlen, out_reply);
   free(argvlen);
   free(argvc);
   return err;
 }
 
-common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& command, redisReply** out_reply) {
+common::Error ExecRedisCommand(NativeConnection* context, const command_buffer_t& command, redisReply** out_reply) {
   if (command.empty() || !out_reply) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -512,7 +512,7 @@ common::Error ExecRedisCommand(NativeConnection* c, const command_buffer_t& comm
     argvlen[i] = standart_argv[i].size();
   }
 
-  common::Error err = ExecRedisCommand(c, argc, argv, argvlen, out_reply);
+  common::Error err = ExecRedisCommand(context, argc, argv, argvlen, out_reply);
   free(raw_argv_ptr);
   free(raw_argvlen_ptr);
   return err;
