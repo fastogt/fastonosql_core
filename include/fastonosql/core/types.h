@@ -20,6 +20,9 @@
 
 #include <fastonosql/core/basic_types.h>
 
+#define UNDEFINED_SINCE 0x00000000U
+#define UNDEFINED_SINCE_STR "Undefined"
+
 namespace fastonosql {
 namespace core {
 

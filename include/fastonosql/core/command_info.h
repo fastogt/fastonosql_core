@@ -22,10 +22,8 @@
 
 #include <fastonosql/core/types.h>
 
-#define UNDEFINED_SINCE 0x00000000U
 #define UNDEFINED_ARGS "Undefined"
 #define UNDEFINED_SUMMARY "Undefined"
-#define UNDEFINED_SINCE_STR "Undefined"
 #define UNDEFINED_EXAMPLE_STR "Unspecified"
 #define INFINITE_COMMAND_ARGS UINT16_MAX
 

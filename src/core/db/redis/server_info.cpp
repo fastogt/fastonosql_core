@@ -24,6 +24,7 @@
 #include <fastonosql/core/value.h>
 
 #include <fastonosql/core/macros.h>
+#include <fastonosql/core/types.h>
 
 #define REDIS_INFO_MARKER MARKER_STR
 
@@ -123,12 +124,12 @@ std::vector<common::Value::Type> GetSupportedValueTypes(uint32_t server_version)
                                              common::Value::TYPE_SET, common::Value::TYPE_ZSET,
                                              common::Value::TYPE_HASH};
 #if defined(PRO_VERSION)
-  if (server_version >= PROJECT_VERSION_CHECK(4, 0, 0)) {
+  if (server_version == UNDEFINED_SINCE || server_version >= PROJECT_VERSION_CHECK(4, 0, 0)) {
     static const auto json_type = JsonValue::TYPE_JSON;  // #FIXME
     result.push_back(json_type);
   }
 #endif
-  if (server_version >= PROJECT_VERSION_CHECK(5, 0, 0)) {
+  if (server_version == UNDEFINED_SINCE || server_version >= PROJECT_VERSION_CHECK(5, 0, 0)) {
     static const auto stream_type = StreamValue::TYPE_STREAM;  // #FIXME
     result.push_back(stream_type);
   }
