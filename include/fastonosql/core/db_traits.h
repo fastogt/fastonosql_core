@@ -39,7 +39,7 @@ struct Field {
 
 typedef std::pair<std::string, std::vector<Field>> info_field_t;
 
-std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type);
+std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uint32_t server_version);
 std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type);
 
 }  // namespace core

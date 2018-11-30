@@ -58,10 +58,10 @@ bool Field::IsIntegral() const {
   return common::Value::IsIntegral(type);
 }
 
-std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type) {
+std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uint32_t server_version) {
 #if defined(BUILD_WITH_REDIS)
   if (type == REDIS) {
-    return redis::GetSupportedValueTypes();
+    return redis::GetSupportedValueTypes(server_version);
   }
 #endif
 #if defined(BUILD_WITH_MEMCACHED)

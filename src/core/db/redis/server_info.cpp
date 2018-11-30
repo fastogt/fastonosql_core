@@ -118,15 +118,22 @@ const std::vector<Field> kRedisKeyspaceFields = {};
 
 namespace redis {
 
-std::vector<common::Value::Type> GetSupportedValueTypes() {
-  return {
-    common::Value::TYPE_STRING, common::Value::TYPE_ARRAY, common::Value::TYPE_SET, common::Value::TYPE_ZSET,
-        common::Value::TYPE_HASH,
+std::vector<common::Value::Type> GetSupportedValueTypes(uint32_t server_version) {
+  std::vector<common::Value::Type> result = {common::Value::TYPE_STRING, common::Value::TYPE_ARRAY,
+                                             common::Value::TYPE_SET, common::Value::TYPE_ZSET,
+                                             common::Value::TYPE_HASH};
 #if defined(PRO_VERSION)
-        JsonValue::TYPE_JSON,
+  if (server_version >= PROJECT_VERSION_CHECK(4, 0, 0)) {
+    static const auto json_type = JsonValue::TYPE_JSON;  // #FIXME
+    result.push_back(json_type);
+  }
 #endif
-        StreamValue::TYPE_STREAM
-  };
+  if (server_version >= PROJECT_VERSION_CHECK(5, 0, 0)) {
+    static const auto stream_type = StreamValue::TYPE_STREAM;  // #FIXME
+    result.push_back(stream_type);
+  }
+
+  return result;
 }
 
 std::vector<info_field_t> GetInfoFields() {
