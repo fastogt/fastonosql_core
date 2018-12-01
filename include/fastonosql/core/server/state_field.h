@@ -18,26 +18,17 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-
-#include <common/error.h>  // for Error
-
-#include <fastonosql/core/cluster/cluster_discovery_info.h>
+namespace common {
+class Value;
+}
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
 
-class DiscoveryClusterInfo : public ServerDiscoveryClusterInfo {
- public:
-  DiscoveryClusterInfo(const ServerCommonInfo& info, bool self);
+struct IStateField {
+  virtual common::Value* GetValueByIndex(unsigned char index) const = 0;
+  virtual ~IStateField();
 };
 
-common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHost,
-                                       const std::string& text,
-                                       std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
-
-}  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

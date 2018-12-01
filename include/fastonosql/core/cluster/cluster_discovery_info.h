@@ -18,26 +18,26 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <memory>
 
-#include <common/error.h>  // for Error
-
-#include <fastonosql/core/cluster/cluster_discovery_info.h>
+#include <fastonosql/core/server/server_discovery_info.h>
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
 
-class DiscoveryClusterInfo : public ServerDiscoveryClusterInfo {
+class ServerDiscoveryClusterInfo : public ServerDiscoveryInfoBase {
  public:
-  DiscoveryClusterInfo(const ServerCommonInfo& info, bool self);
+  bool Self() const;
+  virtual ~ServerDiscoveryClusterInfo();
+
+ protected:
+  ServerDiscoveryClusterInfo(ConnectionType ctype, const ServerCommonInfo& info, bool self);
+
+ private:
+  const bool self_;
 };
 
-common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHost,
-                                       const std::string& text,
-                                       std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
+typedef std::shared_ptr<ServerDiscoveryClusterInfo> ServerDiscoveryClusterInfoSPtr;
 
-}  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

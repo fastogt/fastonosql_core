@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <fastonosql/core/server/iserver_info.h>
+#include <fastonosql/core/server/state_field.h>
 
 #include <fastonosql/core/db_traits.h>
 

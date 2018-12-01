@@ -21,59 +21,6 @@
 namespace fastonosql {
 namespace core {
 
-ServerCommonInfo::ServerCommonInfo() : name(), type(MASTER), state(SUP), cstate(SCONNECTED), host() {}
-
-ServerCommonInfo::ServerCommonInfo(const std::string& name,
-                                   ServerType type,
-                                   ServerState state,
-                                   ServerConnectionState cstate)
-    : name(name), type(type), state(state), cstate(cstate) {}
-
-ServerDiscoveryInfoBase::ServerDiscoveryInfoBase(ConnectionType ctype, const ServerCommonInfo& info)
-    : ctype_(ctype), info_(info) {}
-
-ConnectionType ServerDiscoveryInfoBase::GetConnectionType() const {
-  return ctype_;
-}
-
-ServerCommonInfo ServerDiscoveryInfoBase::GetInfo() const {
-  return info_;
-}
-
-std::string ServerDiscoveryInfoBase::GetName() const {
-  return info_.name;
-}
-
-void ServerDiscoveryInfoBase::SetName(const std::string& name) {
-  info_.name = name;
-}
-
-common::net::HostAndPortAndSlot ServerDiscoveryInfoBase::GetHost() const {
-  return info_.host;
-}
-
-void ServerDiscoveryInfoBase::SetHost(const common::net::HostAndPortAndSlot& host) {
-  info_.host = host;
-}
-
-ServerDiscoveryInfoBase::~ServerDiscoveryInfoBase() {}
-
-ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(ConnectionType ctype, const ServerCommonInfo& info)
-    : ServerDiscoveryInfoBase(ctype, info) {}
-
-ServerDiscoverySentinelInfo::~ServerDiscoverySentinelInfo() {}
-
-ServerDiscoveryClusterInfo::ServerDiscoveryClusterInfo(ConnectionType ctype, const ServerCommonInfo& info, bool self)
-    : ServerDiscoveryInfoBase(ctype, info), self_(self) {}
-
-ServerDiscoveryClusterInfo::~ServerDiscoveryClusterInfo() {}
-
-bool ServerDiscoveryClusterInfo::Self() const {
-  return self_;
-}
-
-IStateField::~IStateField() {}
-
 IServerInfo::~IServerInfo() {}
 
 ConnectionType IServerInfo::GetType() const {

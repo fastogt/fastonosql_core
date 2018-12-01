@@ -20,7 +20,7 @@
 
 #include <common/error.h>  // for Error
 
-#include <fastonosql/core/server/iserver_info.h>  // for ServerCommonInfo (ptr only), etc
+#include <fastonosql/core/sentinel/sentinel_discovery_info.h>
 
 struct redisReply;
 

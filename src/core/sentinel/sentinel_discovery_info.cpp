@@ -16,28 +16,15 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <string>
-#include <vector>
-
-#include <common/error.h>  // for Error
-
-#include <fastonosql/core/cluster/cluster_discovery_info.h>
+#include <fastonosql/core/sentinel/sentinel_discovery_info.h>
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
 
-class DiscoveryClusterInfo : public ServerDiscoveryClusterInfo {
- public:
-  DiscoveryClusterInfo(const ServerCommonInfo& info, bool self);
-};
+ServerDiscoverySentinelInfo::ServerDiscoverySentinelInfo(ConnectionType ctype, const ServerCommonInfo& info)
+    : ServerDiscoveryInfoBase(ctype, info) {}
 
-common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHost,
-                                       const std::string& text,
-                                       std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
+ServerDiscoverySentinelInfo::~ServerDiscoverySentinelInfo() {}
 
-}  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

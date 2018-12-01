@@ -34,10 +34,30 @@ SET(CONFIG_SOURCES
 
 SET(SERVER_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/server/iserver_info.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/server/server_discovery_info.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/server/state_field.h
 )
 
 SET(SERVER_SOURCES
   ${CMAKE_SOURCE_DIR}/src/core/server/iserver_info.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/server/server_discovery_info.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/server/state_field.cpp
+)
+
+SET(SENTINEL_HEADERS
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/sentinel/sentinel_discovery_info.h
+)
+
+SET(SENTINEL_SOURCES
+  ${CMAKE_SOURCE_DIR}/src/core/sentinel/sentinel_discovery_info.cpp
+)
+
+SET(CLUSTER_HEADERS
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/cluster/cluster_discovery_info.h
+)
+
+SET(CLUSTER_SOURCES
+  ${CMAKE_SOURCE_DIR}/src/core/cluster/cluster_discovery_info.cpp
 )
 
 SET(DATABASE_HEADERS
@@ -431,6 +451,8 @@ SET(CORE_HEADERS
   ${INTERNAL_HEADERS}
   ${CONFIG_HEADERS}
   ${SERVER_HEADERS}
+  ${SENTINEL_HEADERS}
+  ${CLUSTER_HEADERS}
   ${DATABASE_HEADERS}
 
   ${HEADERS_CORE_DB_REDIS_COMPATIBLE}
@@ -472,6 +494,8 @@ SET(CORE_SOURCES
   ${INTERNAL_SOURCES}
   ${CONFIG_SOURCES}
   ${SERVER_SOURCES}
+  ${SENTINEL_SOURCES}
+  ${CLUSTER_SOURCES}
   ${DATABASE_SOURCES}
 
   ${SOURCES_CORE_DB_REDIS_COMPATIBLE}

@@ -32,6 +32,11 @@
 #include <fastonosql/core/global.h>
 #include <fastonosql/core/ssh_info.h>
 
+#if defined(PRO_VERSION)
+#include <fastonosql/core/cluster/cluster_discovery_info.h>
+#include <fastonosql/core/sentinel/sentinel_discovery_info.h>
+#endif
+
 struct redisContext;
 struct redisReply;
 

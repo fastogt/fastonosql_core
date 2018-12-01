@@ -18,7 +18,11 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <fastonosql/core/server/iserver_info.h>  // for IStateField, IServerInfo
+#include <fastonosql/core/server/state_field.h>
 
 #include <fastonosql/core/db_traits.h>
 
@@ -291,16 +295,16 @@ class ServerInfo : public IServerInfo {
              const Data& data,
              const Log& log,
              const Clients& clients,
-             struct Hub& hub,
+             const Hub& hub,
              const Stats& stats,
              const Cpu& cpu,
              const Replication& repl,
              const KeySpace& key_space,
              const DoubleMaster& double_master);
 
-  virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
-  virtual std::string ToString() const override;
-  virtual uint32_t GetVersion() const override;
+  common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
+  std::string ToString() const override;
+  uint32_t GetVersion() const override;
 };
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
