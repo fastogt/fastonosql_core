@@ -2,6 +2,7 @@
 [Alexandr Topilski]
 - Get value types by versions
 - [Redis] UNLINK command
+- [Redis] SFASTOSET, ZFASTOSET, HFASTOSET commands
 
 1.4.4 / November 26, 2018
 [Alexandr Topilski]

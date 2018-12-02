@@ -67,6 +67,8 @@ class CommandTranslator : public ICommandTranslator {
   common::Error Lpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error Rpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error Sadd(const NKey& key, const NValue& set, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error Zadd(const NKey& key, const NValue& zset, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error Hmset(const NKey& key, const NValue& hash, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
  private:
   common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;

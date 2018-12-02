@@ -46,10 +46,12 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
 
   // zset
   static common::Error Zadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error ZFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Zrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   // hash
   static common::Error Hmset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error HFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Hgetall(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   // string

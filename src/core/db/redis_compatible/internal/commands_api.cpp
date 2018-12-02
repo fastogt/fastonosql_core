@@ -242,6 +242,37 @@ common::Error CommandsApi<DBConnection>::Zadd(internal::CommandHandler* handler,
 }
 
 template <typename DBConnection>
+common::Error CommandsApi<DBConnection>::ZFastoSet(internal::CommandHandler* handler,
+                                                   commands_args_t argv,
+                                                   FastoObject* out) {
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
+  common::ZSetValue* zset = common::Value::CreateZSetValue();
+  for (size_t i = 1; i < argv.size(); i += 2) {
+    command_buffer_t score = argv[i];
+    double score_value;
+    if (!common::ConvertFromBytes(score, &score_value)) {
+      return common::make_error("Score must be floating point number.");
+    }
+    command_buffer_t member = argv[i + 1];
+    zset->Insert(score, member);
+  }
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  long long added_items = 0;
+  common::Error err = redis->ZFastoSet(key, NValue(zset), &added_items);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(added_items);
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+template <typename DBConnection>
 common::Error CommandsApi<DBConnection>::Zrange(internal::CommandHandler* handler,
                                                 commands_args_t argv,
                                                 FastoObject* out) {
@@ -288,6 +319,32 @@ common::Error CommandsApi<DBConnection>::Hmset(internal::CommandHandler* handler
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
   common::Error err = redis->Hmset(key, NValue(hmset));
+  if (err) {
+    return err;
+  }
+
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+template <typename DBConnection>
+common::Error CommandsApi<DBConnection>::HFastoSet(internal::CommandHandler* handler,
+                                                   commands_args_t argv,
+                                                   FastoObject* out) {
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
+  common::HashValue* hmset = common::Value::CreateHashValue();
+  for (size_t i = 1; i < argv.size(); i += 2) {
+    command_buffer_t key = argv[i];
+    command_buffer_t val = argv[i + 1];
+    hmset->Insert(key, val);
+  }
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  common::Error err = redis->HFastoSet(key, NValue(hmset));
   if (err) {
     return err;
   }

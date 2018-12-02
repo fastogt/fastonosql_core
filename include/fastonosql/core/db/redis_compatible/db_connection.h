@@ -132,13 +132,15 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   common::Error PTTL(const NKey& key, pttl_t* ttl) WARN_UNUSED_RESULT;
 
   common::Error Sadd(const NKey& key, NValue set, redis_int_t* added) WARN_UNUSED_RESULT;
-  common::Error SFastoSet(const NKey& key, NValue set, redis_int_t* list_len) WARN_UNUSED_RESULT;
+  common::Error SFastoSet(const NKey& key, NValue set, redis_int_t* set_added_len) WARN_UNUSED_RESULT;
   common::Error Smembers(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Zadd(const NKey& key, NValue scores, redis_int_t* added) WARN_UNUSED_RESULT;
+  common::Error ZFastoSet(const NKey& key, NValue set, redis_int_t* score_added_len) WARN_UNUSED_RESULT;
   common::Error Zrange(const NKey& key, int start, int stop, bool withscores, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Hmset(const NKey& key, NValue hash) WARN_UNUSED_RESULT;
+  common::Error HFastoSet(const NKey& key, NValue set) WARN_UNUSED_RESULT;
   common::Error Hgetall(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error DBSize(keys_limit_t* size) WARN_UNUSED_RESULT;

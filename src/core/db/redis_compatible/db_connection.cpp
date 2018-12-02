@@ -1402,8 +1402,8 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, 
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::SFastoSet(const NKey& key, NValue set, redis_int_t* list_len) {
-  if (!set || set->GetType() != common::Value::TYPE_SET || !list_len) {
+common::Error DBConnection<Config, ContType>::SFastoSet(const NKey& key, NValue set, redis_int_t* set_added_len) {
+  if (!set || set->GetType() != common::Value::TYPE_SET || !set_added_len) {
     DNOTREACHED();
     return common::make_error_inval();
   }
@@ -1425,7 +1425,7 @@ common::Error DBConnection<Config, ContType>::SFastoSet(const NKey& key, NValue 
     return err;
   }
 
-  err = Sadd(key, set, list_len);
+  err = Sadd(key, set, set_added_len);
   if (err) {
     return err;
   }
@@ -1472,10 +1472,9 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue score
     return err;
   }
 
-  NDbKValue rzset(key, scores);
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t zadd_cmd;
-  err = tran->CreateKeyCommand(rzset, &zadd_cmd);
+  err = tran->Zadd(key, scores, &zadd_cmd);
   if (err) {
     return err;
   }
@@ -1493,11 +1492,48 @@ common::Error DBConnection<Config, ContType>::Zadd(const NKey& key, NValue score
   }
 
   if (base_class::client_) {
+    NDbKValue rzset(key, scores);
     base_class::client_->OnAddedKey(rzset);
   }
   *added = reply->integer;
   freeReplyObject(reply);
   return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::ZFastoSet(const NKey& key, NValue set, redis_int_t* score_added_len) {
+  if (!set || set->GetType() != common::Value::TYPE_ZSET || !score_added_len) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  ttl_t ttl;
+  err = base_class::GetTTL(key, &ttl);
+  if (err) {
+    return err;
+  }
+
+  NKeys keys;
+  err = base_class::Delete({key}, &keys);
+  if (err) {
+    return err;
+  }
+
+  err = Zadd(key, set, score_added_len);
+  if (err) {
+    return err;
+  }
+
+  if (ttl == NO_TTL || ttl == EXPIRED_TTL) {
+    return common::Error();
+  }
+
+  return base_class::SetTTL(key, ttl);
 }
 
 template <typename Config, ConnectionType ContType>
@@ -1539,10 +1575,9 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash
     return err;
   }
 
-  NDbKValue rhash(key, hash);
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t hmset_cmd;
-  err = tran->CreateKeyCommand(rhash, &hmset_cmd);
+  err = tran->Hmset(key, hash, &hmset_cmd);
   if (err) {
     return err;
   }
@@ -1560,9 +1595,46 @@ common::Error DBConnection<Config, ContType>::Hmset(const NKey& key, NValue hash
   }
 
   if (base_class::client_) {
+    NDbKValue rhash(key, hash);
     base_class::client_->OnAddedKey(rhash);
   }
   return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::HFastoSet(const NKey& key, NValue hash) {
+  if (!hash || hash->GetType() != common::Value::TYPE_HASH) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  ttl_t ttl;
+  err = base_class::GetTTL(key, &ttl);
+  if (err) {
+    return err;
+  }
+
+  NKeys keys;
+  err = base_class::Delete({key}, &keys);
+  if (err) {
+    return err;
+  }
+
+  err = Hmset(key, hash);
+  if (err) {
+    return err;
+  }
+
+  if (ttl == NO_TTL || ttl == EXPIRED_TTL) {
+    return common::Error();
+  }
+
+  return base_class::SetTTL(key, ttl);
 }
 
 template <typename Config, ConnectionType ContType>
