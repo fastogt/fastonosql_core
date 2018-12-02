@@ -1290,7 +1290,7 @@ common::Error CommandsApi::Xadd(internal::CommandHandler* handler, commands_args
   return common::Error();
 }
 
-common::Error CommandsApi::XfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+common::Error CommandsApi::XFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   if (argv.size() == 1 || argv.size() % 3 != 1) {
     return common::make_error_inval();
   }
@@ -1320,7 +1320,7 @@ common::Error CommandsApi::XfastoSet(internal::CommandHandler* handler, commands
   stream->SetStreams(streams);
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
-  common::Error err = redis->XfastoSet(key, NValue(stream));
+  common::Error err = redis->XFastoSet(key, NValue(stream));
   if (err) {
     return err;
   }

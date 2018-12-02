@@ -242,7 +242,7 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error Xrevrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xread(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error XfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error XFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Xack(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error XreadGroup(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error XGroup(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

@@ -36,11 +36,12 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
 
   // array
   static common::Error Lpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
-  static common::Error LfastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error LFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Lrange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   // set
   static common::Error Sadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error SFastoSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error Smembers(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   // zset

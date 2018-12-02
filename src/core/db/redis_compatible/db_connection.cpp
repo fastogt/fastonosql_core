@@ -708,19 +708,18 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
     return err;
   }
 
-  const auto key_str = key.GetKey();
-
-  command_buffer_writer_t wr;
-  wr << "LPUSH " << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
-
-  redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t lpush_cmd;
+  err = tran->Lpush(key, arr, &lpush_cmd);
   if (err) {
     return err;
   }
 
-  NDbKValue rarr;
-  rarr.SetKey(key);
+  redisReply* reply = nullptr;
+  err = ExecRedisCommand(base_class::connection_.handle_, lpush_cmd, &reply);
+  if (err) {
+    return err;
+  }
 
   if (reply->type != REDIS_REPLY_INTEGER) {
     DNOTREACHED() << "Unexpected type: " << reply->type;
@@ -730,6 +729,8 @@ common::Error DBConnection<Config, ContType>::Lpush(const NKey& key, NValue arr,
 
   if (base_class::client_) {
     common::ArrayValue* carr = static_cast<common::ArrayValue*>(arr.get());
+    NDbKValue rarr;
+    rarr.SetKey(key);
     if (carr->GetSize() == static_cast<size_t>(reply->integer)) {
       rarr.SetValue(arr);
     } else {
@@ -754,13 +755,15 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
     return err;
   }
 
-  const auto key_str = key.GetKey();
-
-  command_buffer_writer_t wr;
-  wr << "RPUSH " << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
+  redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
+  command_buffer_t rpush_cmd;
+  err = tran->Rpush(key, arr, &rpush_cmd);
+  if (err) {
+    return err;
+  }
 
   redisReply* reply = nullptr;
-  err = ExecRedisCommand(base_class::connection_.handle_, wr.str(), &reply);
+  err = ExecRedisCommand(base_class::connection_.handle_, rpush_cmd, &reply);
   if (err) {
     return err;
   }
@@ -789,7 +792,7 @@ common::Error DBConnection<Config, ContType>::Rpush(const NKey& key, NValue arr,
 }
 
 template <typename Config, ConnectionType ContType>
-common::Error DBConnection<Config, ContType>::LfastoSet(const NKey& key, NValue arr, redis_int_t* list_len) {
+common::Error DBConnection<Config, ContType>::LFastoSet(const NKey& key, NValue arr, redis_int_t* list_len) {
   if (!arr || arr->GetType() != common::Value::TYPE_ARRAY || !list_len) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -1370,10 +1373,9 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, 
     return err;
   }
 
-  NDbKValue rset(key, set);
   redis_translator_t tran = base_class::template GetSpecificTranslator<CommandTranslator>();
   command_buffer_t sadd_cmd;
-  err = tran->CreateKeyCommand(rset, &sadd_cmd);
+  err = tran->Sadd(key, set, &sadd_cmd);
   if (err) {
     return err;
   }
@@ -1391,11 +1393,48 @@ common::Error DBConnection<Config, ContType>::Sadd(const NKey& key, NValue set, 
   }
 
   if (base_class::client_) {
+    NDbKValue rset(key, set);
     base_class::client_->OnAddedKey(rset);
   }
   *added = reply->integer;
   freeReplyObject(reply);
   return common::Error();
+}
+
+template <typename Config, ConnectionType ContType>
+common::Error DBConnection<Config, ContType>::SFastoSet(const NKey& key, NValue set, redis_int_t* list_len) {
+  if (!set || set->GetType() != common::Value::TYPE_SET || !list_len) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = base_class::TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  ttl_t ttl;
+  err = base_class::GetTTL(key, &ttl);
+  if (err) {
+    return err;
+  }
+
+  NKeys keys;
+  err = base_class::Delete({key}, &keys);
+  if (err) {
+    return err;
+  }
+
+  err = Sadd(key, set, list_len);
+  if (err) {
+    return err;
+  }
+
+  if (ttl == NO_TTL || ttl == EXPIRED_TTL) {
+    return common::Error();
+  }
+
+  return base_class::SetTTL(key, ttl);
 }
 
 template <typename Config, ConnectionType ContType>

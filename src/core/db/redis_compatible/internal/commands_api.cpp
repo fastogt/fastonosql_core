@@ -85,7 +85,7 @@ common::Error CommandsApi<DBConnection>::Lpush(internal::CommandHandler* handler
 }
 
 template <typename DBConnection>
-common::Error CommandsApi<DBConnection>::LfastoSet(internal::CommandHandler* handler,
+common::Error CommandsApi<DBConnection>::LFastoSet(internal::CommandHandler* handler,
                                                    commands_args_t argv,
                                                    FastoObject* out) {
   const nkey_t key_str(argv[0]);
@@ -98,7 +98,7 @@ common::Error CommandsApi<DBConnection>::LfastoSet(internal::CommandHandler* han
 
   DBConnection* redis = static_cast<DBConnection*>(handler);
   long long list_len = 0;
-  common::Error err = redis->LfastoSet(key, NValue(arr), &list_len);
+  common::Error err = redis->LFastoSet(key, NValue(arr), &list_len);
   if (err) {
     return err;
   }
@@ -159,6 +159,31 @@ common::Error CommandsApi<DBConnection>::Sadd(internal::CommandHandler* handler,
   }
 
   common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(added_items);
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
+}
+
+template <typename DBConnection>
+common::Error CommandsApi<DBConnection>::SFastoSet(internal::CommandHandler* handler,
+                                                   commands_args_t argv,
+                                                   FastoObject* out) {
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+
+  common::SetValue* set = common::Value::CreateSetValue();
+  for (size_t i = 1; i < argv.size(); ++i) {
+    set->Insert(argv[i]);
+  }
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  long long list_len = 0;
+  common::Error err = redis->SFastoSet(key, NValue(set), &list_len);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

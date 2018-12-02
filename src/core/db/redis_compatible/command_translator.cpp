@@ -27,7 +27,7 @@
 
 #define REDIS_SET_KEY_COMMAND DB_SET_KEY_COMMAND
 #define REDIS_SET_KEY_ARRAY_COMMAND "LFASTOSET"
-#define REDIS_SET_KEY_SET_COMMAND "SADD"
+#define REDIS_SET_KEY_SET_COMMAND "SFASTOSET"
 #define REDIS_SET_KEY_ZSET_COMMAND "ZADD"
 #define REDIS_SET_KEY_HASH_COMMAND "HMSET"
 #define REDIS_SET_KEY_STREAM_COMMAND "XFASTOSET"
@@ -40,6 +40,11 @@
 #define REDIS_GET_KEY_HASH_COMMAND "HGETALL"
 #define REDIS_GET_KEY_STREAM_COMMAND "XRANGE"
 #define REDIS_GET_KEY_JSON_COMMAND REDIS_JSON_MODULE_COMMAND("GET")
+
+//
+#define REDIS_SADD_KEY_COMMAND "SADD"
+#define REDIS_LPUSH_KEY_COMMAND "LPUSH"
+#define REDIS_RPUSH_KEY_COMMAND "RPUSH"
 
 //
 #define REDIS_INCR_KEY_COMMAND "INCR"
@@ -325,6 +330,33 @@ common::Error CommandTranslator::PTTL(const NKey& key, command_buffer_t* cmdstri
 
   command_buffer_writer_t wr;
   wr << REDIS_GET_PTTL_COMMAND SPACE_STR << key_str.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::Lpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const {
+  const auto key_str = key.GetKey();
+
+  command_buffer_writer_t wr;
+  wr << REDIS_LPUSH_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::Rpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const {
+  const auto key_str = key.GetKey();
+
+  command_buffer_writer_t wr;
+  wr << REDIS_RPUSH_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << arr.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::Sadd(const NKey& key, const NValue& set, command_buffer_t* cmdstring) const {
+  const auto key_str = key.GetKey();
+
+  command_buffer_writer_t wr;
+  wr << REDIS_SADD_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << set.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

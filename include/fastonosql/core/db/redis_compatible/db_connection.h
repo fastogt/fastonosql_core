@@ -108,7 +108,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
   common::Error Lpush(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
   common::Error Rpush(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
-  common::Error LfastoSet(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
+  common::Error LFastoSet(const NKey& key, NValue arr, redis_int_t* list_len) WARN_UNUSED_RESULT;
   common::Error Lrange(const NKey& key, int start, int stop, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Mget(const std::vector<NKey>& keys, std::vector<NDbKValue>* loaded_keys) WARN_UNUSED_RESULT;
@@ -132,6 +132,7 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
   common::Error PTTL(const NKey& key, pttl_t* ttl) WARN_UNUSED_RESULT;
 
   common::Error Sadd(const NKey& key, NValue set, redis_int_t* added) WARN_UNUSED_RESULT;
+  common::Error SFastoSet(const NKey& key, NValue set, redis_int_t* list_len) WARN_UNUSED_RESULT;
   common::Error Smembers(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
 
   common::Error Zadd(const NKey& key, NValue scores, redis_int_t* added) WARN_UNUSED_RESULT;

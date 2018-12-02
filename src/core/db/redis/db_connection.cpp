@@ -2205,7 +2205,16 @@ const ConstantCommandsArray kCommands = {
                   2,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
-                  &CommandsApi::LfastoSet),
+                  &CommandsApi::LFastoSet),
+    CommandHolder(GEN_CMD_STRING("SFASTOSET"),
+                  "<key> <value> [value ...]",
+                  "Create set with one or multiple values",
+                  PROJECT_VERSION_GENERATE(1, 0, 0),
+                  "SFASTOSET list val1 val2",
+                  2,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Extended,
+                  &CommandsApi::SFastoSet),
     CommandHolder(GEN_CMD_STRING("XFASTOSET"),
                   "<sid ><key> <value> [sid key value ...]",
                   "Create stream with one or multiple values",
@@ -2214,7 +2223,7 @@ const ConstantCommandsArray kCommands = {
                   3,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
-                  &CommandsApi::XfastoSet),
+                  &CommandsApi::XFastoSet),
     CommandHolder(GEN_CMD_STRING("LATENCY"),
                   "<arg> <arg>  [options ...]",
                   UNDEFINED_SUMMARY,
@@ -3529,7 +3538,7 @@ common::Error DBConnection::XRange(const NKey& key, NDbKValue* loaded_key, Fasto
   return common::Error();
 }
 
-common::Error DBConnection::XfastoSet(const NKey& key, NValue stream) {
+common::Error DBConnection::XFastoSet(const NKey& key, NValue stream) {
   if (!stream || stream->GetType() != StreamValue::TYPE_STREAM) {
     DNOTREACHED();
     return common::make_error_inval();

@@ -1734,7 +1734,16 @@ const ConstantCommandsArray kCommands = {
                   2,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
-                  &CommandsApi::LfastoSet)};
+                  &CommandsApi::LFastoSet),
+    CommandHolder(GEN_CMD_STRING("SFASTOSET"),
+                  "<key> <value> [value ...]",
+                  "Create set with one or multiple values",
+                  PROJECT_VERSION_GENERATE(1, 0, 0),
+                  "SFASTOSET test pest alex malec",
+                  2,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Extended,
+                  &CommandsApi::LFastoSet)};
 
 }  // namespace
 }  // namespace pika

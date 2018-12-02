@@ -62,7 +62,7 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   // stream
   common::Error XAdd(const NDbKValue& key, readable_string_t* gen_id) WARN_UNUSED_RESULT;
   common::Error XRange(const NKey& key, NDbKValue* loaded_key, FastoObject* out) WARN_UNUSED_RESULT;
-  common::Error XfastoSet(const NKey& key, NValue stream) WARN_UNUSED_RESULT;
+  common::Error XFastoSet(const NKey& key, NValue stream) WARN_UNUSED_RESULT;
 
   bool IsInternalCommand(const command_buffer_t& command_name);
 #if defined(PRO_VERSION)

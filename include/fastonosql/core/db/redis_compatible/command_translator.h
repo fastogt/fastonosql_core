@@ -64,6 +64,10 @@ class CommandTranslator : public ICommandTranslator {
   common::Error PExpire(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
   common::Error PTTL(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
+  common::Error Lpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error Rpush(const NKey& key, const NValue& arr, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error Sadd(const NKey& key, const NValue& set, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+
  private:
   common::Error CreateKeyCommandImpl(const NDbKValue& key, command_buffer_t* cmdstring) const override;
   common::Error LoadKeyCommandImpl(const NKey& key,
