@@ -43,6 +43,7 @@ class CommandTranslator : public redis_compatible::CommandTranslator {
 #endif
 
   common::Error Xadd(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error Unlink(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 };
 
 }  // namespace redis

@@ -1208,8 +1208,25 @@ common::Error CommandsApi::SwapDB(internal::CommandHandler* handler, commands_ar
 }
 
 common::Error CommandsApi::Unlink(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  NKeys keysdel;
+  for (size_t i = 0; i < argv.size(); ++i) {
+    const nkey_t key_str(argv[i]);
+    const NKey key(key_str);
+
+    keysdel.push_back(key);
+  }
+
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("UNLINK")}, argv), out);
+  NKeys keys_deleted;
+  common::Error err = red->Unlink(keysdel, &keys_deleted);
+  if (err) {
+    return err;
+  }
+
+  common::FundamentalValue* val = common::Value::CreateUIntegerValue(keys_deleted.size());
+  FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
 }
 
 common::Error CommandsApi::Touch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {

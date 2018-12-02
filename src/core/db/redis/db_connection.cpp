@@ -2353,11 +2353,11 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Extended,
                   &CommandsApi::SwapDB),
     CommandHolder(GEN_CMD_STRING("UNLINK"),
-                  "<key> <arg> [options...]",
-                  UNDEFINED_SUMMARY,
-                  UNDEFINED_SINCE,
-                  UNDEFINED_EXAMPLE_STR,
-                  2,
+                  "<key> [key ...]",
+                  "Delete a key",
+                  PROJECT_VERSION_GENERATE(4, 0, 0),
+                  "UNLINK key",
+                  1,
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Extended,
                   &CommandsApi::Unlink),
@@ -2923,6 +2923,24 @@ const ConstantCommandsArray kCommands = {
 
 const ConstantCommandsArray kInternalCommands = {
 #if defined(PRO_VERSION)
+    CommandHolder(GEN_CMD_STRING(REDIS_JSON_MODULE_COMMAND("_cacheinit")),
+                  UNDEFINED_ARGS,
+                  UNDEFINED_SUMMARY,
+                  PROJECT_VERSION_GENERATE(4, 0, 0),
+                  UNDEFINED_EXAMPLE_STR,
+                  INFINITE_COMMAND_ARGS,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Internal,
+                  nullptr),
+    CommandHolder(GEN_CMD_STRING(REDIS_JSON_MODULE_COMMAND("_cacheinfo")),
+                  UNDEFINED_ARGS,
+                  UNDEFINED_SUMMARY,
+                  PROJECT_VERSION_GENERATE(4, 0, 0),
+                  UNDEFINED_EXAMPLE_STR,
+                  INFINITE_COMMAND_ARGS,
+                  INFINITE_COMMAND_ARGS,
+                  CommandInfo::Internal,
+                  nullptr),
     CommandHolder(GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SETPAYLOAD")),
                   UNDEFINED_ARGS,
                   UNDEFINED_SUMMARY,
@@ -3594,6 +3612,53 @@ common::Error DBConnection::ModuleUnLoad(const ModuleInfo& module) {
   return common::Error();
 }
 #endif
+
+common::Error DBConnection::Unlink(const NKeys& keys, NKeys* deleted_keys) {
+  if (keys.empty() || !deleted_keys) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  NKeys ldeleted_keys;
+  for (size_t i = 0; i < keys.size(); ++i) {
+    NKey key = keys[i];
+    command_buffer_t unlink_cmd;
+    redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
+    common::Error err = tran->Unlink(key, &unlink_cmd);
+    if (err) {
+      return err;
+    }
+
+    redisReply* reply = nullptr;
+    err = redis_compatible::ExecRedisCommand(base_class::connection_.handle_, unlink_cmd, &reply);
+    if (err) {
+      return err;
+    }
+
+    if (reply->type != REDIS_REPLY_INTEGER) {
+      DNOTREACHED() << "Unexpected type: " << reply->type;
+      freeReplyObject(reply);
+      return common::make_error("I/O error");
+    }
+
+    if (reply->integer == 1) {
+      ldeleted_keys.push_back(key);
+    }
+    freeReplyObject(reply);
+  }
+
+  if (base_class::client_ && !ldeleted_keys.empty()) {
+    base_class::client_->OnRemovedKeys(ldeleted_keys);
+  }
+
+  *deleted_keys = ldeleted_keys;
+  return common::Error();
+}
 
 bool DBConnection::IsInternalCommand(const command_buffer_t& command_name) {
   if (command_name.empty()) {

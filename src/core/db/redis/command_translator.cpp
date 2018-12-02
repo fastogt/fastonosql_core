@@ -23,6 +23,7 @@
 #include <fastonosql/core/connection_types.h>
 
 #define REDIS_XADD_COMMAND "XADD"
+#define REDIS_UNLINK_COMMAND "UNLINK"
 
 #if defined(PRO_VERSION)
 #define REDIS_MODULE_LOAD "MODULE LOAD"
@@ -82,6 +83,14 @@ common::Error CommandTranslator::Xadd(const NDbKValue& key, command_buffer_t* cm
     }
   }
 
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::Unlink(const NKey& key, command_buffer_t* cmdstring) {
+  const auto key_str = key.GetKey();
+  command_buffer_writer_t wr;
+  wr << REDIS_UNLINK_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

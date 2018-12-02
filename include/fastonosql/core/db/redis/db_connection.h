@@ -70,6 +70,8 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error ModuleUnLoad(const ModuleInfo& module) WARN_UNUSED_RESULT;  // nvi
 #endif
 
+  common::Error Unlink(const NKeys& keys, NKeys* deleted_keys) WARN_UNUSED_RESULT;
+
  private:
   common::Error JsonSetImpl(const NDbKValue& key);
   common::Error JsonGetImpl(const NKey& key, NDbKValue* loaded_key);
