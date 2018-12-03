@@ -16,33 +16,21 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <fastonosql/core/db/dynomitedb/command_translator.h>
 
-#include <vector>
-
-#include <fastonosql/core/db/redis_compatible/db_connection.h>
-
-#include <fastonosql/core/db/dynomite_redis/config.h>
+#include <fastonosql/core/connection_types.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 
-typedef redis_compatible::NativeConnection NativeConnection;
+CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : base_class(commands) {}
 
-common::Error CreateConnection(const RConfig& config, NativeConnection** context);
-common::Error TestConnection(const RConfig& config);
+const char* CommandTranslator::GetDBName() const {
+  typedef ConnectionTraits<DYNOMITEDB> connection_traits_class;
+  return connection_traits_class::GetDBName();
+}
 
-class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITE_REDIS> {
- public:
-  typedef redis_compatible::DBConnection<RConfig, DYNOMITE_REDIS> base_class;
-  explicit DBConnection(CDBConnectionClient* client);
-
- private:
-  common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
-  common::Error DBKeysCountImpl(keys_limit_t* size) override;
-};
-
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

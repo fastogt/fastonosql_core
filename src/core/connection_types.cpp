@@ -21,8 +21,8 @@
 #include <common/macros.h>  // for NOTREACHED, SIZEOFMASS
 
 namespace {
-const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB",     "LevelDB", "RocksDB",       "UnQLite",
-                                  "LMDB",  "UpscaleDB", "ForestDB", "Pika",    "Dynomite Redis"};
+const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB",     "LevelDB", "RocksDB",   "UnQLite",
+                                  "LMDB",  "UpscaleDB", "ForestDB", "Pika",    "DynomiteDB"};
 const char* kConnnectionMode[] = {"Interactive mode"};
 const char* kServerType[] = {"Master", "Slave"};
 const char* kServerState[] = {"Up", "Down"};
@@ -33,15 +33,15 @@ namespace fastonosql {
 namespace core {
 
 bool IsRedisCompatible(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITE_REDIS;
+  return type == REDIS || type == PIKA || type == DYNOMITEDB;
 }
 
 bool IsRemoteType(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITE_REDIS || type == MEMCACHED || type == SSDB;
+  return type == REDIS || type == PIKA || type == DYNOMITEDB || type == MEMCACHED || type == SSDB;
 }
 
 bool IsSupportTTLKeys(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITE_REDIS || type == MEMCACHED || type == SSDB;
+  return type == REDIS || type == PIKA || type == DYNOMITEDB || type == MEMCACHED || type == SSDB;
 }
 
 bool IsLocalType(ConnectionType type) {

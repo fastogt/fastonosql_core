@@ -606,7 +606,7 @@ common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handle
 }  // namespace core
 }  // namespace fastonosql
 
-#include <fastonosql/core/db/dynomite_redis/db_connection.h>
+#include <fastonosql/core/db/dynomitedb/db_connection.h>
 #include <fastonosql/core/db/pika/db_connection.h>
 #include <fastonosql/core/db/redis/db_connection.h>
 
@@ -619,8 +619,8 @@ template class CommandsApi<redis::DBConnection>;
 #if defined(BUILD_WITH_PIKA)
 template class CommandsApi<pika::DBConnection>;
 #endif
-#if defined(BUILD_WITH_DYNOMITE_REDIS)
-template class CommandsApi<dynomite_redis::DBConnection>;
+#if defined(BUILD_WITH_DYNOMITEDB)
+template class CommandsApi<dynomitedb::DBConnection>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

@@ -25,7 +25,7 @@
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes();
 std::vector<info_field_t> GetInfoFields();
@@ -50,6 +50,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 
 ServerInfo* MakeDynomiteRedisServerInfo(const std::string& content);
 
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

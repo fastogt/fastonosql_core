@@ -18,35 +18,31 @@
 
 #pragma once
 
-#include <fastonosql/core/db/redis_compatible/config.h>
+#include <vector>
 
-#include <fastonosql/core/ssh_info.h>
+#include <fastonosql/core/db/redis_compatible/db_connection.h>
+
+#include <fastonosql/core/db/dynomitedb/config.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 
-struct Config : public redis_compatible::Config {
-  typedef redis_compatible::Config base_class;
-  Config();
+typedef redis_compatible::NativeConnection NativeConnection;
 
-  bool Equals(const Config& other) const;
+common::Error CreateConnection(const RConfig& config, NativeConnection** context);
+common::Error TestConnection(const RConfig& config);
+
+class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITEDB> {
+ public:
+  typedef redis_compatible::DBConnection<RConfig, DYNOMITEDB> base_class;
+  explicit DBConnection(CDBConnectionClient* client);
+
+ private:
+  common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
 };
 
-struct RConfig : public Config {
-  RConfig(const Config& config, const SSHInfo& sinfo);
-
-  SSHInfo ssh_info;
-};
-
-inline bool operator==(const Config& r, const Config& l) {
-  return r.Equals(l);
-}
-
-inline bool operator!=(const Config& r, const Config& l) {
-  return !(r == l);
-}
-
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

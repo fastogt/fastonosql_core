@@ -16,20 +16,20 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "core/db/dynomite_redis/internal/commands_api.h"
+#include "core/db/dynomitedb/internal/commands_api.h"
 
 #include <string>
 #include <vector>
 
 #include <common/string_util.h>
 
-#include <fastonosql/core/db/dynomite_redis/db_connection.h>
+#include <fastonosql/core/db/dynomitedb/db_connection.h>
 
 #include <fastonosql/core/value.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 
 common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
@@ -770,6 +770,6 @@ common::Error CommandsApi::Sync(internal::CommandHandler* handler, commands_args
   return red->SlaveMode(out);
 }
 
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

@@ -22,7 +22,7 @@
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 
 class DBConnection;
 struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
@@ -174,6 +174,6 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error Sync(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
 };
 
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

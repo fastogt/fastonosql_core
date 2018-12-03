@@ -34,8 +34,8 @@
 #include <fastonosql/core/db/pika/config.h>
 #endif
 
-#ifdef BUILD_WITH_DYNOMITE_REDIS
-#include <fastonosql/core/db/dynomite_redis/config.h>
+#ifdef BUILD_WITH_DYNOMITEDB
+#include <fastonosql/core/db/dynomitedb/config.h>
 #endif
 
 #ifdef BUILD_WITH_LEVELDB
@@ -150,9 +150,9 @@ TEST(Connection, pika) {
 }
 #endif
 
-#ifdef BUILD_WITH_DYNOMITE_REDIS
-TEST(Connection, dynomite_redis) {
-  fastonosql::core::dynomite_redis::Config conf;
+#ifdef BUILD_WITH_DYNOMITEDB
+TEST(Connection, dynomitedb) {
+  fastonosql::core::dynomitedb::Config conf;
   Checker(conf);
 
   conf.hostsocket = "/tmp/sock1";

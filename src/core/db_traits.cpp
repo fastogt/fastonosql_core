@@ -48,8 +48,8 @@
 #if defined(BUILD_WITH_PIKA)
 #include <fastonosql/core/db/pika/server_info.h>
 #endif
-#if defined(BUILD_WITH_DYNOMITE_REDIS)
-#include <fastonosql/core/db/dynomite_redis/server_info.h>
+#if defined(BUILD_WITH_DYNOMITEDB)
+#include <fastonosql/core/db/dynomitedb/server_info.h>
 #endif
 
 namespace fastonosql {
@@ -112,9 +112,9 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uin
     return pika::GetSupportedValueTypes();
   }
 #endif
-#if defined(BUILD_WITH_DYNOMITE_REDIS)
-  if (type == DYNOMITE_REDIS) {
-    return dynomite_redis::GetSupportedValueTypes();
+#if defined(BUILD_WITH_DYNOMITEDB)
+  if (type == DYNOMITEDB) {
+    return dynomitedb::GetSupportedValueTypes();
   }
 #endif
 
@@ -173,9 +173,9 @@ std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
     return pika::GetInfoFields();
   }
 #endif
-#if defined(BUILD_WITH_DYNOMITE_REDIS)
-  if (type == DYNOMITE_REDIS) {
-    return dynomite_redis::GetInfoFields();
+#if defined(BUILD_WITH_DYNOMITEDB)
+  if (type == DYNOMITEDB) {
+    return dynomitedb::GetInfoFields();
   }
 #endif
 

@@ -2490,7 +2490,7 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
 }  // namespace core
 }  // namespace fastonosql
 
-#include <fastonosql/core/db/dynomite_redis/config.h>
+#include <fastonosql/core/db/dynomitedb/config.h>
 #include <fastonosql/core/db/pika/config.h>
 #include <fastonosql/core/db/redis/config.h>
 
@@ -2503,8 +2503,8 @@ template class DBConnection<redis::RConfig, REDIS>;
 #if defined(BUILD_WITH_PIKA)
 template class DBConnection<pika::RConfig, PIKA>;
 #endif
-#if defined(BUILD_WITH_DYNOMITE_REDIS)
-template class DBConnection<dynomite_redis::RConfig, DYNOMITE_REDIS>;
+#if defined(BUILD_WITH_DYNOMITEDB)
+template class DBConnection<dynomitedb::RConfig, DYNOMITEDB>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

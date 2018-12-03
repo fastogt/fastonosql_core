@@ -16,24 +16,26 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <fastonosql/core/db/dynomitedb/config.h>
 
-#include <vector>
-
-#include <fastonosql/core/db/redis_compatible/command_translator.h>
+#define DEFAULT_DYNOMITE_REDIS_SERVER_PORT 8102
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
+namespace {
+const common::net::HostAndPort kDefaultHost =
+    common::net::HostAndPort::CreateLocalHost(DEFAULT_DYNOMITE_REDIS_SERVER_PORT);
+}
 
-class CommandTranslator : public redis_compatible::CommandTranslator {
- public:
-  typedef redis_compatible::CommandTranslator base_class;
+Config::Config() : base_class(kDefaultHost) {}
 
-  explicit CommandTranslator(const std::vector<CommandHolder>& commands);
-  const char* GetDBName() const override;
-};
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other);
+}
 
-}  // namespace dynomite_redis
+RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
+
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

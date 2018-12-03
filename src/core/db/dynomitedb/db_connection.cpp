@@ -16,20 +16,20 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/dynomite_redis/db_connection.h>
+#include <fastonosql/core/db/dynomitedb/db_connection.h>
 
 #include <hiredis/hiredis.h>
 
 #include <fastonosql/core/constant_commands_array.h>
-#include <fastonosql/core/db/dynomite_redis/command_translator.h>
-#include <fastonosql/core/db/dynomite_redis/server_info.h>
+#include <fastonosql/core/db/dynomitedb/command_translator.h>
+#include <fastonosql/core/db/dynomitedb/server_info.h>
 #include <fastonosql/core/db/redis_compatible/database_info.h>
 
-#include "core/db/dynomite_redis/internal/commands_api.h"
+#include "core/db/dynomitedb/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {
-namespace dynomite_redis {
+namespace dynomitedb {
 namespace {
 const ConstantCommandsArray kCommands = {
     CommandHolder(GEN_CMD_STRING(DB_HELP_COMMAND),
@@ -1539,28 +1539,28 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::HFastoSet)};
 
 }  // namespace
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 template <>
-const char* ConnectionTraits<DYNOMITE_REDIS>::GetBasedOn() {
+const char* ConnectionTraits<DYNOMITEDB>::GetBasedOn() {
   return "hiredis";
 }
 
 template <>
-const char* ConnectionTraits<DYNOMITE_REDIS>::GetVersionApi() {
+const char* ConnectionTraits<DYNOMITEDB>::GetVersionApi() {
   return redis_compatible::GetHiredisVersion();
 }
 
 template <>
-const ConstantCommandsArray& ConnectionCommandsTraits<DYNOMITE_REDIS>::GetCommands() {
-  return dynomite_redis::kCommands;
+const ConstantCommandsArray& ConnectionCommandsTraits<DYNOMITEDB>::GetCommands() {
+  return dynomitedb::kCommands;
 }
 namespace internal {
 template <>
-common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::Connect(
-    const dynomite_redis::RConfig& config,
-    dynomite_redis::NativeConnection** hout) {
-  dynomite_redis::NativeConnection* context = nullptr;
-  common::Error err = dynomite_redis::CreateConnection(config, &context);
+common::Error Connection<dynomitedb::NativeConnection, dynomitedb::RConfig>::Connect(
+    const dynomitedb::RConfig& config,
+    dynomitedb::NativeConnection** hout) {
+  dynomitedb::NativeConnection* context = nullptr;
+  common::Error err = dynomitedb::CreateConnection(config, &context);
   if (err) {
     return err;
   }
@@ -1571,9 +1571,9 @@ common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConf
 }
 
 template <>
-common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::Disconnect(
-    dynomite_redis::NativeConnection** handle) {
-  dynomite_redis::NativeConnection* lhandle = *handle;
+common::Error Connection<dynomitedb::NativeConnection, dynomitedb::RConfig>::Disconnect(
+    dynomitedb::NativeConnection** handle) {
+  dynomitedb::NativeConnection* lhandle = *handle;
   if (lhandle) {
     redisFree(lhandle);
   }
@@ -1582,8 +1582,7 @@ common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConf
 }
 
 template <>
-bool Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::IsConnected(
-    dynomite_redis::NativeConnection* handle) {
+bool Connection<dynomitedb::NativeConnection, dynomitedb::RConfig>::IsConnected(dynomitedb::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -1593,7 +1592,7 @@ bool Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::IsCo
 
 }  // namespace internal
 
-namespace dynomite_redis {
+namespace dynomitedb {
 
 common::Error CreateConnection(const RConfig& config, NativeConnection** context) {
   return redis_compatible::CreateConnection(config, config.ssh_info, context);
@@ -1623,6 +1622,6 @@ common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   return common::Error();
 }
 
-}  // namespace dynomite_redis
+}  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql
