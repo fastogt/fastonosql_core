@@ -406,6 +406,14 @@ common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   return common::Error();
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeUpscaleDBServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
   ups_key_t key_slice = ConvertToUpscaleDBSlice(key);
   ups_record_t rec;
