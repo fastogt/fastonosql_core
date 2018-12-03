@@ -2504,7 +2504,7 @@ template class DBConnection<redis::RConfig, REDIS>;
 template class DBConnection<pika::RConfig, PIKA>;
 #endif
 #if defined(BUILD_WITH_DYNOMITE_REDIS)
-template class DBConnection<pika::RConfig, DYNOMITE_REDIS>;
+template class DBConnection<dynomite_redis::RConfig, DYNOMITE_REDIS>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

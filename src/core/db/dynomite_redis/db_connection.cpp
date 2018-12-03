@@ -1540,17 +1540,17 @@ const ConstantCommandsArray kCommands = {
 }  // namespace
 }  // namespace dynomite_redis
 template <>
-const char* ConnectionTraits<PIKA>::GetBasedOn() {
+const char* ConnectionTraits<DYNOMITE_REDIS>::GetBasedOn() {
   return "hiredis";
 }
 
 template <>
-const char* ConnectionTraits<PIKA>::GetVersionApi() {
+const char* ConnectionTraits<DYNOMITE_REDIS>::GetVersionApi() {
   return redis_compatible::GetHiredisVersion();
 }
 
 template <>
-const ConstantCommandsArray& ConnectionCommandsTraits<PIKA>::GetCommands() {
+const ConstantCommandsArray& ConnectionCommandsTraits<DYNOMITE_REDIS>::GetCommands() {
   return dynomite_redis::kCommands;
 }
 namespace internal {
