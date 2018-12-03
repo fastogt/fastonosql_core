@@ -23,6 +23,7 @@
 #include <fastonosql/core/constant_commands_array.h>
 #include <fastonosql/core/db/dynomite_redis/command_translator.h>
 #include <fastonosql/core/db/dynomite_redis/server_info.h>
+#include <fastonosql/core/db/redis_compatible/database_info.h>
 
 #include "core/db/dynomite_redis/internal/commands_api.h"
 
@@ -58,7 +59,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::Append),
-    CommandHolder(GEN_CMD_STRING("AUTH"),
+    /*CommandHolder(GEN_CMD_STRING("AUTH"),
                   "<password>",
                   "Authenticate to the server",
                   UNDEFINED_SINCE,
@@ -66,7 +67,7 @@ const ConstantCommandsArray kCommands = {
                   1,
                   0,
                   CommandInfo::Native,
-                  &CommandsApi::Auth),
+                  &CommandsApi::Auth),*/
     CommandHolder(GEN_CMD_STRING("BGREWRITEAOF"),
                   "-",
                   "Asynchronously rewrite the append-only file",
@@ -1604,6 +1605,23 @@ common::Error TestConnection(const RConfig& config) {
 
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
+
+common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** info) {
+  if (name != GetCurrentDBName()) {
+    return ICommandTranslator::InvalidInputArguments(GEN_CMD_STRING(DB_SELECTDB_COMMAND));
+  }
+
+  keys_limit_t kcount = 0;
+  common::Error err = DBKeysCount(&kcount);
+  DCHECK(!err) << err->GetDescription();
+  *info = new redis_compatible::DataBaseInfo(name, true, kcount);
+  return common::Error();
+}
+
+common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
+  *size = 0;
+  return common::Error();
+}
 
 }  // namespace dynomite_redis
 }  // namespace core

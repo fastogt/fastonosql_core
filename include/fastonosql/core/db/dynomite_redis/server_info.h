@@ -30,7 +30,21 @@ namespace dynomite_redis {
 std::vector<common::Value::Type> GetSupportedValueTypes();
 std::vector<info_field_t> GetInfoFields();
 
-typedef redis::ServerInfo ServerInfo;
+class ServerInfo : public redis::ServerInfo {
+ public:
+  typedef redis::ServerInfo base_class;
+
+  ServerInfo() : base_class() {}
+  ServerInfo(const Server& serv,
+             const Clients& clients,
+             const Memory& memory,
+             const Persistence& pers,
+             const Stats& stats,
+             const Replication& repl,
+             const Cpu& cpu,
+             const Keyspace& key)
+      : base_class(serv, clients, memory, pers, stats, repl, cpu, key) {}
+};
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
 

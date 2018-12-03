@@ -37,6 +37,10 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITE_RED
  public:
   typedef redis_compatible::DBConnection<RConfig, DYNOMITE_REDIS> base_class;
   explicit DBConnection(CDBConnectionClient* client);
+
+ private:
+  common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
+  common::Error DBKeysCountImpl(keys_limit_t* size) override;
 };
 
 }  // namespace dynomite_redis
