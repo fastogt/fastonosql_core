@@ -48,6 +48,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, LEVELDB> {
   common::Error Info(std::string* statsout) WARN_UNUSED_RESULT;
   common::Error GetProperty(const std::string& property, std::string* out) WARN_UNUSED_RESULT;
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
+
  private:
   common::Error CheckResultCommand(const std::string& cmd, const ::leveldb::Status& err) WARN_UNUSED_RESULT;
 

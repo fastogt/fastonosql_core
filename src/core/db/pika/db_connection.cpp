@@ -1824,6 +1824,10 @@ common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   return common::Error();
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakePikaServerInfo(content);
+}
+
 }  // namespace pika
 }  // namespace core
 }  // namespace fastonosql

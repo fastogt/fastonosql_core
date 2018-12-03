@@ -307,8 +307,6 @@ class ServerInfo : public IServerInfo {
   uint32_t GetVersion() const override;
 };
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
-
 ServerInfo* MakePikaServerInfo(const std::string& content);
 
 }  // namespace pika

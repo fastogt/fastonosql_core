@@ -26,7 +26,7 @@ struct redisReply;
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
+namespace redis {
 
 class DiscoverySentinelInfo : public ServerDiscoverySentinelInfo {
  public:
@@ -35,6 +35,6 @@ class DiscoverySentinelInfo : public ServerDiscoverySentinelInfo {
 
 common::Error MakeServerCommonInfo(struct redisReply* repl_info, ServerCommonInfo* info);
 
-}  // namespace redis_compatible
+}  // namespace redis
 }  // namespace core
 }  // namespace fastonosql

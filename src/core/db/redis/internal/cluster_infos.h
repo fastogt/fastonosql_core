@@ -27,7 +27,7 @@
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
+namespace redis {
 
 class DiscoveryClusterInfo : public ServerDiscoveryClusterInfo {
  public:
@@ -38,6 +38,6 @@ common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHos
                                        const std::string& text,
                                        std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
 
-}  // namespace redis_compatible
+}  // namespace redis
 }  // namespace core
 }  // namespace fastonosql

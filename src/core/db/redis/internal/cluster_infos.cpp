@@ -16,7 +16,7 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/redis_compatible/cluster_infos.h>
+#include "core/db/redis/internal/cluster_infos.h"
 
 #include <stddef.h>  // for size_t
 #include <memory>    // for __shared_ptr
@@ -31,7 +31,7 @@
 
 namespace fastonosql {
 namespace core {
-namespace redis_compatible {
+namespace redis {
 
 DiscoveryClusterInfo::DiscoveryClusterInfo(const ServerCommonInfo& info, bool self)
     : ServerDiscoveryClusterInfo(REDIS, info, self) {}
@@ -156,6 +156,6 @@ common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHos
   return common::Error();
 }
 
-}  // namespace redis_compatible
+}  // namespace redis
 }  // namespace core
 }  // namespace fastonosql

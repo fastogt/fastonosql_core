@@ -558,6 +558,14 @@ common::Error DBConnection::DropDatabase() {
   return CheckResultCommand(LMDB_DROPDB_COMMAND, mdb_txn_commit(txn));
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeLmdbServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::SetInner(const raw_value_t& key, const raw_value_t& value) {
   MDB_val key_slice = ConvertToLMDBSlice(key.data(), key.size());
   MDB_val val_slice = ConvertToLMDBSlice(value.data(), value.size());

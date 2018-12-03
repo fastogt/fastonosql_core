@@ -124,6 +124,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, SSDB> {
   common::Error Qclear(const raw_key_t& name, int64_t* ret) WARN_UNUSED_RESULT;
   common::Error DBsize(int64_t* size) WARN_UNUSED_RESULT;
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
+
  private:
   common::Error ExpireInner(const raw_key_t& key, ttl_t ttl) WARN_UNUSED_RESULT;
   common::Error TTLInner(const raw_key_t& key, ttl_t* ttl) WARN_UNUSED_RESULT;

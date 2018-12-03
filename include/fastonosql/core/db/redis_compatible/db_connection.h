@@ -56,15 +56,6 @@ const char* GetHiredisVersion();
 common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, NativeConnection** context);
 common::Error TestConnection(const Config& config, const SSHInfo& sinfo);
 
-#if defined(PRO_VERSION)
-common::Error DiscoveryClusterConnection(const Config& rconfig,
-                                         const SSHInfo& sinfo,
-                                         std::vector<ServerDiscoveryClusterInfoSPtr>* infos);
-common::Error DiscoverySentinelConnection(const Config& rconfig,
-                                          const SSHInfo& sinfo,
-                                          std::vector<ServerDiscoverySentinelInfoSPtr>* infos);
-#endif
-
 common::Error PrintRedisContextError(NativeConnection* context);
 common::Error ValueFromReplay(redisReply* reply, common::Value** out);
 common::Error ExecRedisCommand(NativeConnection* context,
@@ -147,6 +138,8 @@ class DBConnection : public CDBConnection<NativeConnection, Config, connection_t
 
   common::Error ExecuteAsPipeline(const std::vector<FastoObjectCommandIPtr>& cmds,
                                   void (*log_command_cb)(FastoObjectCommandIPtr)) WARN_UNUSED_RESULT;
+
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
 
  protected:
   DBConnection(CDBConnectionClient* client, ICommandTranslator* translator)

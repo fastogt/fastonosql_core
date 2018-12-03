@@ -54,6 +54,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, ROCKSDB> {
   common::Error Mget(const std::vector<command_buffer_t>& keys, std::vector<command_buffer_t>* ret);
   common::Error Merge(const command_buffer_t& key, const command_buffer_t& value) WARN_UNUSED_RESULT;
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
+
  private:
   common::Error CheckResultCommand(const std::string& cmd, const ::rocksdb::Status& err) WARN_UNUSED_RESULT;
 

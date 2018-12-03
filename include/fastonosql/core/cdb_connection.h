@@ -30,6 +30,7 @@
 #include <fastonosql/core/internal/db_connection.h>    // for DBConnection
 
 #include <fastonosql/core/database/idatabase_info.h>
+#include <fastonosql/core/server/iserver_info.h>
 
 namespace fastonosql {
 namespace core {
@@ -96,6 +97,9 @@ class CDBConnection : public internal::DBConnection<NConnection, Config, connect
                          const common::file_system::ascii_file_string_path& path,
                          cursor_t* cursor_out) WARN_UNUSED_RESULT;
   common::Error StoreValue(const NKey& key, const common::file_system::ascii_file_string_path& path) WARN_UNUSED_RESULT;
+
+  virtual IServerInfo* MakeServerInfo(const std::string& content) const = 0;
+  virtual IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const = 0;
 
  protected:
   common::Error GenerateError(const std::string& cmd, const std::string& descr) WARN_UNUSED_RESULT {

@@ -81,8 +81,6 @@ IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITEDB)
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/db_connection.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/command_translator.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/database_info.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/cluster_infos.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis_compatible/sentinel_info.h
   )
   SET(SOURCES_CORE_DB_REDIS_COMPATIBLE
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/internal/commands_api.h
@@ -92,8 +90,6 @@ IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITEDB)
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/db_connection.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/command_translator.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/database_info.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/cluster_infos.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/redis_compatible/sentinel_info.cpp
   )
 
   SET(DB_INCLUDE_DIRS ${DB_INCLUDE_DIRS} $<TARGET_PROPERTY:Libssh2::libssh2,INTERFACE_INCLUDE_DIRECTORIES> ${OPENSSL_INCLUDE_DIR} ${HIREDIS_INCLUDE_DIR})
@@ -117,6 +113,10 @@ IF(BUILD_WITH_REDIS)
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/modules.h
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/commands_api.h
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/commands_api.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/cluster_infos.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/sentinel_info.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/cluster_infos.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/redis/internal/sentinel_info.cpp
 
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/config.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/redis/server_info.cpp

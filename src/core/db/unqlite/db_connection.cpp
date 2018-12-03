@@ -376,6 +376,14 @@ common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   return common::Error();
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeUnqliteServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
   return CheckResultCommand(DB_SET_KEY_COMMAND,
                             unqlite_kv_store(connection_.handle_, key.data(), key.size(), value.data(), value.size()));

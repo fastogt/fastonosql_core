@@ -759,6 +759,14 @@ common::Error DBConnection::Merge(const command_buffer_t& key, const command_buf
   return CheckResultCommand("MERGE", connection_.handle_->Merge(wo, key_str, value_str));
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeRocksdbServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::SetInner(const raw_key_t& key, const raw_value_t& value) {
   ::rocksdb::WriteOptions wo;
   const ::rocksdb::Slice key_slice(key.data(), key.size());

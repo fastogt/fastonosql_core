@@ -123,10 +123,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << value.binlogs << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeSsdbServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

@@ -38,6 +38,8 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, PIKA> {
   typedef redis_compatible::DBConnection<RConfig, PIKA> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+
  private:
   common::Error DBKeysCountImpl(keys_limit_t* size) override;
 };

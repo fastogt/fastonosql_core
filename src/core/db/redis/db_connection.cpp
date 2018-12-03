@@ -20,11 +20,21 @@
 
 #include <hiredis/hiredis.h>
 
+#include <fastonosql/core/db/redis/server_info.h>
 #include <fastonosql/core/imodule_connection_client.h>
-
 #include <fastonosql/core/value.h>
+
 #include "core/db/redis/internal/commands_api.h"
 #include "core/db/redis/internal/modules.h"
+
+#if defined(PRO_VERSION)
+#include "core/db/redis/internal/cluster_infos.h"
+#include "core/db/redis/internal/sentinel_info.h"
+#endif
+
+#define GET_SERVER_TYPE "CLUSTER NODES"
+#define GET_SENTINEL_MASTERS "SENTINEL MASTERS"
+#define GET_SENTINEL_SLAVES_PATTERN_1ARGS_S "SENTINEL SLAVES %s"
 
 namespace fastonosql {
 namespace core {
@@ -3097,11 +3107,114 @@ common::Error TestConnection(const RConfig& config) {
 
 #if defined(PRO_VERSION)
 common::Error DiscoveryClusterConnection(const RConfig& config, std::vector<ServerDiscoveryClusterInfoSPtr>* infos) {
-  return redis_compatible::DiscoveryClusterConnection(config, config.ssh_info, infos);
+  if (!infos) {
+    return common::make_error_inval();
+  }
+
+  redisContext* context = nullptr;
+  common::Error err = CreateConnection(config, config.ssh_info, &context);
+  if (err) {
+    return err;
+  }
+
+  err = redis_compatible::AuthContext(
+      context, common::ConvertToCharBytes(config.auth));  // convert from std::string to char bytes
+  if (err) {
+    redisFree(context);
+    return err;
+  }
+
+  /* Send the GET CLUSTER command. */
+  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SERVER_TYPE));
+  if (!reply) {
+    err = common::make_error("I/O error");
+    redisFree(context);
+    return err;
+  }
+
+  if (reply->type == REDIS_REPLY_STRING) {
+    err = MakeDiscoveryClusterInfo(config.host, std::string(reply->str, reply->len), infos);
+  } else if (reply->type == REDIS_REPLY_ERROR) {
+    err = common::make_error(std::string(reply->str, reply->len));
+  } else {
+    DNOTREACHED();
+  }
+
+  freeReplyObject(reply);
+  redisFree(context);
+  return err;
 }
 
 common::Error DiscoverySentinelConnection(const RConfig& config, std::vector<ServerDiscoverySentinelInfoSPtr>* infos) {
-  return redis_compatible::DiscoverySentinelConnection(config, config.ssh_info, infos);
+  if (!infos) {
+    return common::make_error_inval();
+  }
+
+  redisContext* context = nullptr;
+  common::Error err = CreateConnection(config, config.ssh_info, &context);
+  if (err) {
+    return err;
+  }
+
+  err = redis_compatible::AuthContext(
+      context, common::ConvertToCharBytes(config.auth));  // convert from std::string to char bytes
+  if (err) {
+    redisFree(context);
+    return err;
+  }
+
+  /* Send the GET MASTERS command. */
+  redisReply* masters_reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_MASTERS));
+  if (!masters_reply) {
+    redisFree(context);
+    return common::make_error("I/O error");
+  }
+
+  for (size_t i = 0; i < masters_reply->elements; ++i) {
+    redisReply* master_info = masters_reply->element[i];
+    ServerCommonInfo sinf;
+    common::Error lerr = MakeServerCommonInfo(master_info, &sinf);
+    if (lerr) {
+      continue;
+    }
+
+    const char* master_name = sinf.name.c_str();
+    ServerDiscoverySentinelInfoSPtr sent(new DiscoverySentinelInfo(sinf));
+    infos->push_back(sent);
+    /* Send the GET SLAVES command. */
+    redisReply* reply =
+        reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_SLAVES_PATTERN_1ARGS_S, master_name));
+    if (!reply) {
+      freeReplyObject(masters_reply);
+      redisFree(context);
+      return common::make_error("I/O error");
+    }
+
+    if (reply->type == REDIS_REPLY_ARRAY) {
+      for (size_t j = 0; j < reply->elements; ++j) {
+        redisReply* server_info = reply->element[j];
+        ServerCommonInfo slsinf;
+        lerr = MakeServerCommonInfo(server_info, &slsinf);
+        if (lerr) {
+          continue;
+        }
+        ServerDiscoverySentinelInfoSPtr lsent(new DiscoverySentinelInfo(slsinf));
+        infos->push_back(lsent);
+      }
+    } else if (reply->type == REDIS_REPLY_ERROR) {
+      freeReplyObject(reply);
+      freeReplyObject(masters_reply);
+      redisFree(context);
+      return common::make_error(std::string(reply->str, reply->len));
+    } else {
+      DNOTREACHED();
+    }
+    freeReplyObject(reply);
+  }
+
+  freeReplyObject(masters_reply);
+  redisFree(context);
+  return common::Error();
 }
 #endif
 
@@ -3700,6 +3813,10 @@ bool DBConnection::IsInternalCommand(const command_buffer_t& command_name) {
   }
 
   return false;
+}
+
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeRedisServerInfo(content);
 }
 
 }  // namespace redis

@@ -247,10 +247,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << MARKER_STR ROCKSDB_STATS_KEY_DROP_LABEL COLON_STR << value.key_drop << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeRocksdbServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

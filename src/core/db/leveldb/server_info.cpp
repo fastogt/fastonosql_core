@@ -138,10 +138,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << LEVELDB_STATS_WRITE_MB_LABEL COLON_STR << value.write_mb << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeLeveldbServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

@@ -319,6 +319,14 @@ common::Error DBConnection::Info(std::string* statsout) {
   return GetProperty(LEVELDB_STATS_PROPERTY, statsout);
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeLeveldbServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::Info(ServerInfo::Stats* statsout) {
   if (!statsout) {
     DNOTREACHED();

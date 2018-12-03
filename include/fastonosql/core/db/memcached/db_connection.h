@@ -53,6 +53,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, MEMCACHED> {
   common::Error Incr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
   common::Error Decr(const NKey& key, uint32_t value, uint64_t* result) WARN_UNUSED_RESULT;
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
+
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 

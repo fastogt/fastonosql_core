@@ -100,10 +100,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << UNQLITE_STATS_DB_FILE_SIZE_LABEL COLON_STR << value.db_size << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeUnqliteServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

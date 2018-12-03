@@ -1024,14 +1024,6 @@ uint32_t ServerInfo::GetVersion() const {
   return common::ConvertVersionNumberFromString(server_.redis_version_);
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  // "# Server", "# Clients", "# Memory", "# Persistence",
-  // "# Stats", "#
-  // Replication", "# CPU", "#
-  // Keyspace"
-  return out << value.ToString();
-}
-
 ServerInfo* MakeRedisServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

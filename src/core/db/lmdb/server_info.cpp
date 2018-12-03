@@ -90,10 +90,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
   return out << LMDB_STATS_FILE_NAME_LABEL COLON_STR << value.db_path << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeLmdbServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

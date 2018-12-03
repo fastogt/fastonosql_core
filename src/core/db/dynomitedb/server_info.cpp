@@ -31,14 +31,6 @@ std::vector<info_field_t> GetInfoFields() {
   return redis::GetInfoFields();
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  // "# Server", "# Clients", "# Memory", "# Persistence",
-  // "# Stats", "#
-  // Replication", "# CPU", "#
-  // Keyspace"
-  return out << value.ToString();
-}
-
 ServerInfo* MakeDynomiteRedisServerInfo(const std::string& content) {
   redis::ServerInfo* redis = redis::MakeRedisServerInfo(content);
   ServerInfo* serv = new ServerInfo(redis->server_, redis->clients_, redis->memory_, redis->persistence_, redis->stats_,

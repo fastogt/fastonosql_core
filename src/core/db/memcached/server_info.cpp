@@ -279,10 +279,6 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << MEMCACHED_COMMON_THREADS_LABEL COLON_STR << value.threads << MARKER_STR;
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

@@ -777,6 +777,14 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
   return common::Error();
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeMemcachedServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::DelInner(const raw_key_t& key, time_t expiration) {
   return CheckResultCommand(DB_DELETE_KEY_COMMAND,
                             memcached_delete(connection_.handle_, key.data(), key.size(), expiration));

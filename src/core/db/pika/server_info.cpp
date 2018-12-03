@@ -797,10 +797,6 @@ uint32_t ServerInfo::GetVersion() const {
   return common::ConvertVersionNumberFromString(server_.pika_version_);
 }
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value) {
-  return out << value.ToString();
-}
-
 ServerInfo* MakePikaServerInfo(const std::string& content) {
   if (content.empty()) {
     return nullptr;

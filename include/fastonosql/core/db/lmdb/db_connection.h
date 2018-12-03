@@ -46,6 +46,9 @@ class DBConnection : public CDBConnection<NativeConnection, Config, LMDB> {
   common::Error Info(ServerInfo::Stats* statsout) WARN_UNUSED_RESULT;
   common::Error DropDatabase() WARN_UNUSED_RESULT;
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+  IDataBaseInfo* MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const override;
+
  private:
   common::Error CheckResultCommand(const std::string& cmd, int err) WARN_UNUSED_RESULT;
 

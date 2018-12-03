@@ -849,6 +849,14 @@ common::Error DBConnection::DBsize(int64_t* size) {
   return common::Error();
 }
 
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeSsdbServerInfo(content);
+}
+
+IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 common::Error DBConnection::Auth(const std::string& password) {
   common::Error err = TestIsConnected();
   if (err) {

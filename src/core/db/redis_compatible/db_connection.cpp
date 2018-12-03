@@ -24,19 +24,10 @@ extern "C" {
 
 #include <common/file_system/string_path_utils.h>
 
-#if defined(PRO_VERSION)
-#include <fastonosql/core/db/redis_compatible/cluster_infos.h>
-#include <fastonosql/core/db/redis_compatible/sentinel_info.h>
-#endif
-
 #include <fastonosql/core/db/redis_compatible/command_translator.h>
 #include <fastonosql/core/db/redis_compatible/database_info.h>
 
 #include <fastonosql/core/value.h>
-
-#define GET_SERVER_TYPE "CLUSTER NODES"
-#define GET_SENTINEL_MASTERS "SENTINEL MASTERS"
-#define GET_SENTINEL_SLAVES_PATTERN_1ARGS_S "SENTINEL SLAVES %s"
 
 #define DBSIZE "DBSIZE"
 
@@ -235,121 +226,6 @@ common::Error TestConnection(const Config& config, const SSHInfo& sinfo) {
   redisFree(context);
   return common::Error();
 }
-
-#if defined(PRO_VERSION)
-common::Error DiscoveryClusterConnection(const Config& rconfig,
-                                         const SSHInfo& sinfo,
-                                         std::vector<ServerDiscoveryClusterInfoSPtr>* infos) {
-  if (!infos) {
-    return common::make_error_inval();
-  }
-
-  redisContext* context = nullptr;
-  common::Error err = CreateConnection(rconfig, sinfo, &context);
-  if (err) {
-    return err;
-  }
-
-  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));  // convert from std::string to char bytes
-  if (err) {
-    redisFree(context);
-    return err;
-  }
-
-  /* Send the GET CLUSTER command. */
-  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SERVER_TYPE));
-  if (!reply) {
-    err = common::make_error("I/O error");
-    redisFree(context);
-    return err;
-  }
-
-  if (reply->type == REDIS_REPLY_STRING) {
-    err = MakeDiscoveryClusterInfo(rconfig.host, std::string(reply->str, reply->len), infos);
-  } else if (reply->type == REDIS_REPLY_ERROR) {
-    err = common::make_error(std::string(reply->str, reply->len));
-  } else {
-    DNOTREACHED();
-  }
-
-  freeReplyObject(reply);
-  redisFree(context);
-  return err;
-}
-
-common::Error DiscoverySentinelConnection(const Config& rconfig,
-                                          const SSHInfo& sinfo,
-                                          std::vector<ServerDiscoverySentinelInfoSPtr>* infos) {
-  if (!infos) {
-    return common::make_error_inval();
-  }
-
-  redisContext* context = nullptr;
-  common::Error err = CreateConnection(rconfig, sinfo, &context);
-  if (err) {
-    return err;
-  }
-
-  err = AuthContext(context, common::ConvertToCharBytes(rconfig.auth));  // convert from std::string to char bytes
-  if (err) {
-    redisFree(context);
-    return err;
-  }
-
-  /* Send the GET MASTERS command. */
-  redisReply* masters_reply = reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_MASTERS));
-  if (!masters_reply) {
-    redisFree(context);
-    return common::make_error("I/O error");
-  }
-
-  for (size_t i = 0; i < masters_reply->elements; ++i) {
-    redisReply* master_info = masters_reply->element[i];
-    ServerCommonInfo sinf;
-    common::Error lerr = MakeServerCommonInfo(master_info, &sinf);
-    if (lerr) {
-      continue;
-    }
-
-    const char* master_name = sinf.name.c_str();
-    ServerDiscoverySentinelInfoSPtr sent(new DiscoverySentinelInfo(sinf));
-    infos->push_back(sent);
-    /* Send the GET SLAVES command. */
-    redisReply* reply =
-        reinterpret_cast<redisReply*>(redisCommand(context, GET_SENTINEL_SLAVES_PATTERN_1ARGS_S, master_name));
-    if (!reply) {
-      freeReplyObject(masters_reply);
-      redisFree(context);
-      return common::make_error("I/O error");
-    }
-
-    if (reply->type == REDIS_REPLY_ARRAY) {
-      for (size_t j = 0; j < reply->elements; ++j) {
-        redisReply* server_info = reply->element[j];
-        ServerCommonInfo slsinf;
-        lerr = MakeServerCommonInfo(server_info, &slsinf);
-        if (lerr) {
-          continue;
-        }
-        ServerDiscoverySentinelInfoSPtr lsent(new DiscoverySentinelInfo(slsinf));
-        infos->push_back(lsent);
-      }
-    } else if (reply->type == REDIS_REPLY_ERROR) {
-      freeReplyObject(reply);
-      freeReplyObject(masters_reply);
-      redisFree(context);
-      return common::make_error(std::string(reply->str, reply->len));
-    } else {
-      DNOTREACHED();
-    }
-    freeReplyObject(reply);
-  }
-
-  freeReplyObject(masters_reply);
-  redisFree(context);
-  return common::Error();
-}
-#endif
 
 common::Error PrintRedisContextError(NativeConnection* context) {
   if (!context) {
@@ -2147,7 +2023,7 @@ common::Error DBConnection<Config, ContType>::SelectImpl(const db_name_t& name, 
   keys_limit_t sz = 0;
   err = base_class::DBKeysCount(&sz);
   DCHECK(!err);
-  DataBaseInfo* linfo = new DataBaseInfo(name, true, sz);
+  IDataBaseInfo* linfo = MakeDatabaseInfo(name, true, sz);
   *info = linfo;
   freeReplyObject(reply);
   return common::Error();
@@ -2486,6 +2362,14 @@ common::Error DBConnection<Config, ContType>::ExecuteAsPipeline(
 
   return common::Error();
 }
+
+template <typename Config, ConnectionType ContType>
+IDataBaseInfo* DBConnection<Config, ContType>::MakeDatabaseInfo(const db_name_t& name,
+                                                                bool is_default,
+                                                                size_t size) const {
+  return new DataBaseInfo(name, is_default, size);
+}
+
 }  // namespace redis_compatible
 }  // namespace core
 }  // namespace fastonosql

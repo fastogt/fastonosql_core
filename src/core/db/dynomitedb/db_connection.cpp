@@ -23,7 +23,6 @@
 #include <fastonosql/core/constant_commands_array.h>
 #include <fastonosql/core/db/dynomitedb/command_translator.h>
 #include <fastonosql/core/db/dynomitedb/server_info.h>
-#include <fastonosql/core/db/redis_compatible/database_info.h>
 
 #include "core/db/dynomitedb/internal/commands_api.h"
 
@@ -1613,8 +1612,12 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
   keys_limit_t kcount = 0;
   common::Error err = DBKeysCount(&kcount);
   DCHECK(!err) << err->GetDescription();
-  *info = new redis_compatible::DataBaseInfo(name, true, kcount);
+  *info = base_class::MakeDatabaseInfo(name, true, kcount);
   return common::Error();
+}
+
+IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
+  return MakeDynomiteRedisServerInfo(content);
 }
 
 common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {

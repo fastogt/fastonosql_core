@@ -38,6 +38,8 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITEDB> 
   typedef redis_compatible::DBConnection<RConfig, DYNOMITEDB> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
+  IServerInfo* MakeServerInfo(const std::string& content) const override;
+
  private:
   common::Error SelectImpl(const db_name_t& name, IDataBaseInfo** info) override;
   common::Error DBKeysCountImpl(keys_limit_t* size) override;

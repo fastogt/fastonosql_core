@@ -57,8 +57,6 @@ class ServerInfo : public IServerInfo {
   uint32_t GetVersion() const override;
 };
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
-
 ServerInfo* MakeLmdbServerInfo(const std::string& content);
 
 }  // namespace lmdb

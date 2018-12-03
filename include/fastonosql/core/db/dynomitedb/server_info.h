@@ -46,8 +46,6 @@ class ServerInfo : public redis::ServerInfo {
       : base_class(serv, clients, memory, pers, stats, repl, cpu, key) {}
 };
 
-std::ostream& operator<<(std::ostream& out, const ServerInfo& value);
-
 ServerInfo* MakeDynomiteRedisServerInfo(const std::string& content);
 
 }  // namespace dynomitedb
