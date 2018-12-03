@@ -18,6 +18,7 @@
 
 #include "core/db/redis/internal/commands_api.h"
 
+#include <string>
 #include <vector>
 
 #include <common/string_util.h>
@@ -1791,6 +1792,21 @@ common::Error CommandsApi::BfReserve(internal::CommandHandler* handler, commands
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_BLOOM_MODULE_COMMAND("RESERVE"))}, argv),
                          out);
+}
+
+common::Error CommandsApi::ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  const std::string name = argv[0].as_string();
+
+  DBConnection* redis = static_cast<DBConnection*>(handler);
+  common::Error err = redis->SetClientName(name);
+  if (err) {
+    return err;
+  }
+
+  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
+  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
 }
 
 }  // namespace redis

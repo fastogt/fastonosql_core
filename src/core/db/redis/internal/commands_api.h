@@ -35,11 +35,14 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error BlPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error BrPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error BrPopLpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+
   static common::Error ClientGetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientKill(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientPause(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClientReply(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+
   static common::Error ClusterAddSlots(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error ClusterCountFailureReports(internal::CommandHandler* handler,
                                                   commands_args_t argv,

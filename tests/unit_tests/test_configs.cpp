@@ -34,6 +34,10 @@
 #include <fastonosql/core/db/pika/config.h>
 #endif
 
+#ifdef BUILD_WITH_DYNOMITE_REDIS
+#include <fastonosql/core/db/dynomite_redis/config.h>
+#endif
+
 #ifdef BUILD_WITH_LEVELDB
 #include <fastonosql/core/db/leveldb/config.h>
 #endif
@@ -136,6 +140,19 @@ TEST(Connection, ssdb) {
 #ifdef BUILD_WITH_PIKA
 TEST(Connection, pika) {
   fastonosql::core::pika::Config conf;
+  Checker(conf);
+
+  conf.hostsocket = "/tmp/sock1";
+  conf.db_num = 33;
+  conf.auth = "pass1";
+  conf.is_ssl = true;
+  Checker(conf);
+}
+#endif
+
+#ifdef BUILD_WITH_DYNOMITE_REDIS
+TEST(Connection, dynomite_redis) {
+  fastonosql::core::dynomite_redis::Config conf;
   Checker(conf);
 
   conf.hostsocket = "/tmp/sock1";

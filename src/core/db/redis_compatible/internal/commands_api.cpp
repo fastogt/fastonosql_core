@@ -583,24 +583,6 @@ common::Error CommandsApi<DBConnection>::Persist(internal::CommandHandler* handl
 }
 
 template <typename DBConnection>
-common::Error CommandsApi<DBConnection>::ClientSetName(internal::CommandHandler* handler,
-                                                       commands_args_t argv,
-                                                       FastoObject* out) {
-  const std::string name = argv[0].as_string();
-
-  DBConnection* redis = static_cast<DBConnection*>(handler);
-  common::Error err = redis->SetClientName(name);
-  if (err) {
-    return err;
-  }
-
-  common::StringValue* val = common::Value::CreateStringValue(GEN_CMD_STRING(OK_RESULT));
-  FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
-  out->AddChildren(child);
-  return common::Error();
-}
-
-template <typename DBConnection>
 common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handler,
                                                 commands_args_t argv,
                                                 FastoObject* out) {
@@ -624,6 +606,7 @@ common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handle
 }  // namespace core
 }  // namespace fastonosql
 
+#include <fastonosql/core/db/dynomite_redis/db_connection.h>
 #include <fastonosql/core/db/pika/db_connection.h>
 #include <fastonosql/core/db/redis/db_connection.h>
 
@@ -635,6 +618,9 @@ template class CommandsApi<redis::DBConnection>;
 #endif
 #if defined(BUILD_WITH_PIKA)
 template class CommandsApi<pika::DBConnection>;
+#endif
+#if defined(BUILD_WITH_DYNOMITE_REDIS)
+template class CommandsApi<dynomite_redis::DBConnection>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

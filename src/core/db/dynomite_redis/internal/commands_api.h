@@ -1,0 +1,179 @@
+/*  Copyright (C) 2014-2018 FastoGT. All right reserved.
+
+    This file is part of FastoNoSQL.
+
+    FastoNoSQL is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    FastoNoSQL is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+
+#include "core/db/redis_compatible/internal/commands_api.h"
+
+namespace fastonosql {
+namespace core {
+namespace dynomite_redis {
+
+class DBConnection;
+struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
+  static common::Error Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // +
+  static common::Error BgRewriteAof(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error BgSave(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // -
+  static common::Error BitCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error BitOp(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
+  static common::Error BlPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
+  static common::Error BrPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
+  static common::Error BrPopLpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error ClientKill(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error ClientList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+
+  static common::Error ConfigGet(internal::CommandHandler* handler,
+                                 commands_args_t argv,
+                                 FastoObject* out);  // CONFIG GET works differently than in redis
+                                                     // protocol (only databases)
+  static common::Error ConfigResetStat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error ConfigRewrite(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error ConfigSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // -
+
+  static common::Error DebugObject(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error DebugSegFault(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+
+  static common::Error Discard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // -
+  static common::Error Dump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error Echo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error Eval(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error EvalSha(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // -
+  static common::Error Exec(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error Exists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error ExpireAt(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error FlushALL(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error GetBit(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error GetRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error GetSet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+
+  static common::Error Hdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // +
+  static common::Error Hexists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error Hget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // +
+  static common::Error HincrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error HincrByFloat(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error Hkeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // +
+  static common::Error Hlen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // +
+  static common::Error Hmget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         //+
+  static common::Error Hset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // +
+  static common::Error HsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // +
+  static common::Error Hvals(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // +
+
+  static common::Error RKeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // -
+  static common::Error LastSave(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+
+  static common::Error Lindex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // +
+  static common::Error Linsert(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error Llen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+  static common::Error Lpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+  static common::Error LpushX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // +
+  static common::Error Lrem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+  static common::Error Lset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+  static common::Error Ltrim(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+
+  static common::Error Mget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error Migrate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error Move(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // -
+  static common::Error Mset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // -
+  static common::Error MsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // -
+  static common::Error Multi(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error Object(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // -
+  static common::Error Pexpire(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error PexpireAt(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+
+  static common::Error Pfadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error Pfcount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error Pfmerge(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+
+  static common::Error Ping(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error PsetEx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error Pttl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+
+  static common::Error Publish(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // -
+  static common::Error PunSubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+
+  static common::Error RandomKey(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error RenameNx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // -
+  static common::Error Restore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error Rpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error RpopLpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error Rpush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error RpushX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+
+  static common::Error Save(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+
+  static common::Error Scard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+
+  static common::Error ScriptExists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // -
+  static common::Error ScriptFlush(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // -
+  static common::Error ScriptKill(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error ScriptLoad(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+
+  static common::Error Sdiff(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // +
+  static common::Error SdiffStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error SetBit(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);           // +
+  static common::Error SetRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // +
+  static common::Error Shutdown(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
+  static common::Error Sinter(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);           // +
+  static common::Error SinterStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error SisMember(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // +
+  static common::Error SlaveOf(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // -
+  static common::Error SlowLog(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // -
+  static common::Error Smove(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // +
+  static common::Error Sort(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);             // -
+  static common::Error Spop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);             // +
+  static common::Error SRandMember(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      //+
+  static common::Error Srem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);             // +
+  static common::Error Sscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // +
+  static common::Error StrLen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);           // +
+  static common::Error Sunion(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);           // +
+  static common::Error SunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error Time(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);             // -
+  static common::Error Unsubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error Unwatch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // -
+  static common::Error Watch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // -
+  static common::Error Zcard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // +
+  static common::Error Zcount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);           // +
+  static common::Error ZincrBy(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);          // +
+  static common::Error ZincrStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error ZlexCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // +
+  static common::Error ZrangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // +
+  static common::Error ZrangeByScore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // +
+  static common::Error Zrank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);            // +
+  static common::Error Zrem(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);             // +
+  static common::Error ZremRangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);   // +
+  static common::Error ZremRangeByRank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error ZremRangeByScore(internal::CommandHandler* handler,
+                                        commands_args_t argv,
+                                        FastoObject* out);                                                         // +
+  static common::Error ZrevRange(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error ZrevRangeByLex(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error ZrevRangeByScore(internal::CommandHandler* handler,
+                                        commands_args_t argv,
+                                        FastoObject* out);                                                      // +
+  static common::Error ZrevRank(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);     // +
+  static common::Error Zscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);        // +
+  static common::Error Zscore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);       // +
+  static common::Error ZunionStore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);  // +
+  static common::Error Monitor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);      // -
+  static common::Error Subscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);    // -
+  static common::Error Sync(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);         // -
+};
+
+}  // namespace dynomite_redis
+}  // namespace core
+}  // namespace fastonosql

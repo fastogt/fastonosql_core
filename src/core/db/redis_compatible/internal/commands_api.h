@@ -71,7 +71,6 @@ struct CommandsApi : public internal::ApiTraits<DBConnection> {
   static common::Error Persist(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   //
-  static common::Error ClientSetName(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error DBSize(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 };
 

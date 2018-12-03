@@ -16,20 +16,20 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "core/db/pika/internal/commands_api.h"
+#include "core/db/dynomite_redis/internal/commands_api.h"
 
 #include <string>
 #include <vector>
 
 #include <common/string_util.h>
 
-#include <fastonosql/core/db/pika/db_connection.h>
+#include <fastonosql/core/db/dynomite_redis/db_connection.h>
 
 #include <fastonosql/core/value.h>
 
 namespace fastonosql {
 namespace core {
-namespace pika {
+namespace dynomite_redis {
 
 common::Error CommandsApi::Append(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
@@ -51,19 +51,9 @@ common::Error CommandsApi::BitCount(internal::CommandHandler* handler, commands_
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("BITCOUNT")}, argv), out);
 }
 
-common::Error CommandsApi::BitField(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("BITFIELD")}, argv), out);
-}
-
 common::Error CommandsApi::BitOp(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("BITOP")}, argv), out);
-}
-
-common::Error CommandsApi::BitPos(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("BITPOS")}, argv), out);
 }
 
 common::Error CommandsApi::BlPop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -91,41 +81,6 @@ common::Error CommandsApi::ClientList(internal::CommandHandler* handler, command
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("LIST")}, argv),
                          out);
-}
-
-common::Error CommandsApi::ClientPause(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("PAUSE")}, argv),
-                         out);
-}
-
-common::Error CommandsApi::ClientReply(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("CLIENT"), GEN_CMD_STRING("REPLY")}, argv),
-                         out);
-}
-
-common::Error CommandsApi::CommandCount(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("COUNT")}, argv),
-                         out);
-}
-
-common::Error CommandsApi::CommandGetKeys(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("GETKEYS")}, argv),
-                         out);
-}
-
-common::Error CommandsApi::CommandInfo(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("COMMAND"), GEN_CMD_STRING("INFO")}, argv),
-                         out);
-}
-
-common::Error CommandsApi::Command(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("COMMAND")}, argv), out);
 }
 
 common::Error CommandsApi::ConfigGet(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -223,38 +178,6 @@ common::Error CommandsApi::FlushALL(internal::CommandHandler* handler, commands_
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("FLUSHALL")}, argv), out);
 }
 
-common::Error CommandsApi::GeoAdd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEOADD")}, argv), out);
-}
-
-common::Error CommandsApi::GeoDist(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEODIST")}, argv), out);
-}
-
-common::Error CommandsApi::GeoHash(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEOHASH")}, argv), out);
-}
-
-common::Error CommandsApi::GeoPos(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEOPOS")}, argv), out);
-}
-
-common::Error CommandsApi::GeoRadius(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEORADIUS")}, argv), out);
-}
-
-common::Error CommandsApi::GeoRadiusByMember(internal::CommandHandler* handler,
-                                             commands_args_t argv,
-                                             FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GEORADIUSBYMEMBER")}, argv), out);
-}
-
 common::Error CommandsApi::GetBit(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("GETBIT")}, argv), out);
@@ -310,11 +233,6 @@ common::Error CommandsApi::Hmget(internal::CommandHandler* handler, commands_arg
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HMGET")}, argv), out);
 }
 
-common::Error CommandsApi::Hscan(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HSCAN")}, argv), out);
-}
-
 common::Error CommandsApi::Hset(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HSET")}, argv), out);
@@ -323,11 +241,6 @@ common::Error CommandsApi::Hset(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::HsetNX(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HSETNX")}, argv), out);
-}
-
-common::Error CommandsApi::Hstrlen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HSTRLEN")}, argv), out);
 }
 
 common::Error CommandsApi::Hvals(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -555,11 +468,6 @@ common::Error CommandsApi::Publish(internal::CommandHandler* handler, commands_a
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(DB_PUBLISH_COMMAND)}, argv), out);
 }
 
-common::Error CommandsApi::PubSub(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("PUBSUB")}, argv), out);
-}
-
 common::Error CommandsApi::PunSubscribe(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("PUNSUBSCRIBE")}, argv), out);
@@ -570,16 +478,6 @@ common::Error CommandsApi::RandomKey(internal::CommandHandler* handler, commands
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("RANDOMKEY")}, argv), out);
 }
 
-common::Error CommandsApi::ReadOnly(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("READONLY")}, argv), out);
-}
-
-common::Error CommandsApi::ReadWrite(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("READWRITE")}, argv), out);
-}
-
 common::Error CommandsApi::RenameNx(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("RENAMENX")}, argv), out);
@@ -588,11 +486,6 @@ common::Error CommandsApi::RenameNx(internal::CommandHandler* handler, commands_
 common::Error CommandsApi::Restore(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("RESTORE")}, argv), out);
-}
-
-common::Error CommandsApi::Role(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("ROLE")}, argv), out);
 }
 
 common::Error CommandsApi::Rpop(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -623,12 +516,6 @@ common::Error CommandsApi::Save(internal::CommandHandler* handler, commands_args
 common::Error CommandsApi::Scard(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("SCARD")}, argv), out);
-}
-
-common::Error CommandsApi::ScriptDebug(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("SCRIPT"), GEN_CMD_STRING("DEBUG")}, argv),
-                         out);
 }
 
 common::Error CommandsApi::ScriptExists(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -765,11 +652,6 @@ common::Error CommandsApi::Unwatch(internal::CommandHandler* handler, commands_a
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("UNWATCH")}, argv), out);
 }
 
-common::Error CommandsApi::Wait(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
-  DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("WAIT")}, argv), out);
-}
-
 common::Error CommandsApi::Watch(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("WATCH")}, argv), out);
@@ -888,6 +770,6 @@ common::Error CommandsApi::Sync(internal::CommandHandler* handler, commands_args
   return red->SlaveMode(out);
 }
 
-}  // namespace pika
+}  // namespace dynomite_redis
 }  // namespace core
 }  // namespace fastonosql

@@ -28,6 +28,7 @@
 
 namespace fastonosql {
 namespace core {
+namespace pika {
 namespace {
 
 const std::vector<Field> kPikaServerFields = {Field(PIKA_SERVER_VERSION_LABEL, common::Value::TYPE_STRING),
@@ -90,8 +91,6 @@ const std::vector<Field> kPikaKeySpaceFields = {};
 const std::vector<Field> kPikaDoubleMasterFields = {};
 
 }  // namespace
-
-namespace pika {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING, common::Value::TYPE_ARRAY, common::Value::TYPE_SET, common::Value::TYPE_ZSET,

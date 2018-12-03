@@ -55,7 +55,10 @@ enum ConnectionType : uint8_t {
   FORESTDB = 8,
 #endif
 #if defined(HAVE_PIKA)
-  PIKA = 9
+  PIKA = 9,
+#endif
+#if defined(HAVE_DYNOMITE_REDIS)
+  DYNOMITE_REDIS = 10
 #endif
 };  // supported types
 

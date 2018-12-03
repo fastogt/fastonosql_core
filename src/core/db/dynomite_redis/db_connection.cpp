@@ -16,21 +16,19 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/pika/db_connection.h>
+#include <fastonosql/core/db/dynomite_redis/db_connection.h>
 
 #include <hiredis/hiredis.h>
 
 #include <fastonosql/core/constant_commands_array.h>
-#include <fastonosql/core/db/pika/command_translator.h>
-#include <fastonosql/core/db/pika/server_info.h>
+#include <fastonosql/core/db/dynomite_redis/command_translator.h>
+#include <fastonosql/core/db/dynomite_redis/server_info.h>
 
-#include "core/db/pika/internal/commands_api.h"
-
-#define DBSIZE "INFO KEYSPACE"
+#include "core/db/dynomite_redis/internal/commands_api.h"
 
 namespace fastonosql {
 namespace core {
-namespace pika {
+namespace dynomite_redis {
 namespace {
 const ConstantCommandsArray kCommands = {
     CommandHolder(GEN_CMD_STRING(DB_HELP_COMMAND),
@@ -96,16 +94,6 @@ const ConstantCommandsArray kCommands = {
                   2,
                   CommandInfo::Native,
                   &CommandsApi::BitCount),
-    CommandHolder(
-        GEN_CMD_STRING("BITFIELD"),
-        "<key> [GET type offset] [SET type offset value] [INCRBY type offset increment] [OVERFLOW WRAP|SAT|FAIL]",
-        "Perform arbitrary bitfield integer operations on strings",
-        UNDEFINED_SINCE,
-        "BITFIELD mykey incrby u2 100 1 OVERFLOW SAT incrby u2 102 1",
-        1,
-        8,
-        CommandInfo::Native,
-        &CommandsApi::BitField),
     CommandHolder(GEN_CMD_STRING("BITOP"),
                   "<operation> <destkey> <key> [key ...]",
                   "Perform bitwise operations between strings",
@@ -115,15 +103,6 @@ const ConstantCommandsArray kCommands = {
                   INFINITE_COMMAND_ARGS,
                   CommandInfo::Native,
                   &CommandsApi::BitOp),
-    CommandHolder(GEN_CMD_STRING("BITPOS"),
-                  "<key> <bit> [start] [end]",
-                  "Find first bit set or clear in a string",
-                  UNDEFINED_SINCE,
-                  "BITPOS mykey 0",
-                  2,
-                  2,
-                  CommandInfo::Native,
-                  &CommandsApi::BitPos),
     CommandHolder(GEN_CMD_STRING("BLPOP"),
                   "<key> [key ...] timeout",
                   "Remove and get the first element in a list, or block until one is available",
@@ -170,60 +149,6 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::ClientList),
-    CommandHolder(GEN_CMD_STRING("CLIENT PAUSE"),
-                  "<timeout>",
-                  "Stop processing commands from clients for some time",
-                  UNDEFINED_SINCE,
-                  "CLIENT PAUSE",
-                  1,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::ClientPause),
-    CommandHolder(GEN_CMD_STRING("CLIENT REPLY"),
-                  "<ON|OFF|SKIP>",
-                  "Instruct the server whether to reply to commands",
-                  UNDEFINED_SINCE,
-                  "CLIENT REPLY OFF",
-                  1,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::ClientReply),
-    CommandHolder(GEN_CMD_STRING("COMMAND COUNT"),
-                  "-",
-                  "Get total number of Redis commands",
-                  UNDEFINED_SINCE,
-                  "COMMAND COUNT",
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::CommandCount),
-    CommandHolder(GEN_CMD_STRING("COMMAND GETKEYS"),
-                  "<command> [args]",
-                  "Extract keys given a full Redis command",
-                  UNDEFINED_SINCE,
-                  "COMMAND GETKEYS MSET a b c d e f",
-                  1,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::CommandGetKeys),
-    CommandHolder(GEN_CMD_STRING("COMMAND INFO"),
-                  "<command-name> [command-name ...]",
-                  "Get array of specific Redis command details",
-                  UNDEFINED_SINCE,
-                  "COMMAND INFO GET",
-                  1,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::CommandInfo),
-    CommandHolder(GEN_CMD_STRING("COMMAND"),
-                  "-",
-                  "Get array of Redis command details",
-                  UNDEFINED_SINCE,
-                  "COMMAND",
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::Command),
 
     CommandHolder(GEN_CMD_STRING(DB_GET_CONFIG_COMMAND),
                   "<parameter>",
@@ -427,64 +352,7 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::FlushDB),
-    CommandHolder(GEN_CMD_STRING("GEOADD"),
-                  "<key> <longitude> <latitude> <member> [<longitude> <latitude> <member> ...]",
-                  "Add one or more geospatial items in the geospatial index represented using a sorted set",
-                  UNDEFINED_SINCE,
-                  "GEOADD Sicily 13.361389 38.115556 \"Palermo\" 15.087269 37.502669 \"Catania\"",
-                  4,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::GeoAdd),
-    CommandHolder(GEN_CMD_STRING("GEODIST"),
-                  "<key> <member1> <member2> [unit]",
-                  "Returns the distance between two members of a geospatial index",
-                  UNDEFINED_SINCE,
-                  "GEODIST Sicily Palermo Catania",
-                  3,
-                  1,
-                  CommandInfo::Native,
-                  &CommandsApi::GeoDist),
-    CommandHolder(GEN_CMD_STRING("GEOHASH"),
-                  "<key> <member> [member ...]",
-                  "Returns members of a geospatial index as standard geohash strings",
-                  UNDEFINED_SINCE,
-                  "GEOHASH Sicily Palermo Catania",
-                  2,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::GeoHash),
-    CommandHolder(GEN_CMD_STRING("GEOPOS"),
-                  "<key> <member> [member ...]",
-                  "Returns longitude and latitude of members of a geospatial index",
-                  UNDEFINED_SINCE,
-                  "GEOPOS Sicily Palermo Catania NonExisting",
-                  2,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::GeoPos),
 
-    CommandHolder(
-        GEN_CMD_STRING("GEORADIUS"),
-        "<key> <longitude> <latitude> <radius> m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count] [ASC|DESC]",
-        "Query a sorted set representing a geospatial index to fetch members matching a given maximum "
-        "distance from a point",
-        UNDEFINED_SINCE,
-        "GEORADIUS Sicily 15 37 200 km WITHDIST",
-        5,
-        6,
-        CommandInfo::Native,
-        &CommandsApi::GeoRadius),
-    CommandHolder(GEN_CMD_STRING("GEORADIUSBYMEMBER"),
-                  "<key> <member> <radius> m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count] [ASC|DESC]",
-                  "Query a sorted set representing a geospatial index to fetch members matching a given maximum "
-                  "distance from a member",
-                  UNDEFINED_SINCE,
-                  "GEORADIUSBYMEMBER Sicily Agrigento 100 km",
-                  4,
-                  6,
-                  CommandInfo::Native,
-                  &CommandsApi::GeoRadiusByMember),
     CommandHolder(GEN_CMD_STRING(DB_GET_KEY_COMMAND),
                   "<key>",
                   "Gecommon_exect the value of a key",
@@ -624,15 +492,6 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::Hmset,
 
                   {&TestArgsInRange, &TestArgsModule2Equal1}),
-    CommandHolder(GEN_CMD_STRING("HSCAN"),
-                  "<key> <cursor> [MATCH pattern] [COUNT count]",
-                  "Incrementally iterate hash fields and associated values",
-                  UNDEFINED_SINCE,
-                  "HSCAN hash 0 MATCH * COUNT 10",
-                  2,
-                  4,
-                  CommandInfo::Native,
-                  &CommandsApi::Hscan),
     CommandHolder(GEN_CMD_STRING("HSET"),
                   "<key> <field> <value>",
                   "Set the string value of a hash field",
@@ -651,15 +510,6 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::HsetNX),
-    CommandHolder(GEN_CMD_STRING("HSTRLEN"),
-                  "<key> <field>",
-                  "Get the length of the value of a hash field",
-                  UNDEFINED_SINCE,
-                  "HSTRLEN myhash f1",
-                  2,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::Hstrlen),
     CommandHolder(GEN_CMD_STRING("HVALS"),
                   "<key>",
                   "Get all the values in a hash",
@@ -977,15 +827,6 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::Publish),
-    CommandHolder(GEN_CMD_STRING("PUBSUB"),
-                  "<subcommand> [argument [argument ...]]",
-                  "Inspect the state of the Pub/Sub subsystem",
-                  UNDEFINED_SINCE,
-                  "PUBSUB NUMSUB",
-                  1,
-                  INFINITE_COMMAND_ARGS,
-                  CommandInfo::Native,
-                  &CommandsApi::PubSub),
     CommandHolder(GEN_CMD_STRING("PUNSUBSCRIBE"),
                   "[pattern [pattern ...]]",
                   "Stop listening for messages posted to channels matching the given patterns",
@@ -1013,26 +854,6 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::RandomKey),
-    CommandHolder(GEN_CMD_STRING("READONLY"),
-                  "-",
-                  "Enables read queries for a connection "
-                  "to a cluster slave node",
-                  UNDEFINED_SINCE,
-                  "READONLY",
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::ReadOnly),
-    CommandHolder(GEN_CMD_STRING("READWRITE"),
-                  "-",
-                  "Disables read queries for a connection "
-                  "to a cluster slave node",
-                  UNDEFINED_SINCE,
-                  "READWRITE",
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::ReadWrite),
     CommandHolder(GEN_CMD_STRING(DB_RENAME_KEY_COMMAND),
                   "<key> <newkey>",
                   "Rename a key",
@@ -1061,16 +882,6 @@ const ConstantCommandsArray kCommands = {
                   1,
                   CommandInfo::Native,
                   &CommandsApi::Restore),
-    CommandHolder(GEN_CMD_STRING("ROLE"),
-                  "-",
-                  "Return the role of the instance in the "
-                  "context of replication",
-                  UNDEFINED_SINCE,
-                  "ROLE",
-                  0,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::Role),
     CommandHolder(GEN_CMD_STRING("RPOP"),
                   "<key>",
                   "Remove and get the last element in a list",
@@ -1162,15 +973,6 @@ const ConstantCommandsArray kCommands = {
                   CommandInfo::Native,
                   &CommandsApi::Scard),
 
-    CommandHolder(GEN_CMD_STRING("SCRIPT DEBUG"),
-                  "<YES|SYNC|NO>",
-                  "Set the debug mode for executed scripts.",
-                  UNDEFINED_SINCE,
-                  "SCRIPT DEBUG YES",
-                  1,
-                  0,
-                  CommandInfo::Native,
-                  &CommandsApi::ScriptDebug),
     CommandHolder(GEN_CMD_STRING("SCRIPT EXISTS"),
                   "<script> [script ...]",
                   "Check existence of scripts in the script cache.",
@@ -1498,16 +1300,6 @@ const ConstantCommandsArray kCommands = {
                   0,
                   CommandInfo::Native,
                   &CommandsApi::Unwatch),
-    CommandHolder(
-        GEN_CMD_STRING("WAIT"),
-        "<numslaves> <timeout>",
-        "Wait for the synchronous replication of all the write commands sent in the context of the current connection",
-        UNDEFINED_SINCE,
-        "WAIT 1 0",
-        2,
-        0,
-        CommandInfo::Native,
-        &CommandsApi::Wait),
     CommandHolder(GEN_CMD_STRING("WATCH"),
                   "<key> [key ...]",
                   "Watch the given keys to determine execution of the MULTI/EXEC block",
@@ -1746,7 +1538,7 @@ const ConstantCommandsArray kCommands = {
                   &CommandsApi::HFastoSet)};
 
 }  // namespace
-}  // namespace pika
+}  // namespace dynomite_redis
 template <>
 const char* ConnectionTraits<PIKA>::GetBasedOn() {
   return "hiredis";
@@ -1759,14 +1551,15 @@ const char* ConnectionTraits<PIKA>::GetVersionApi() {
 
 template <>
 const ConstantCommandsArray& ConnectionCommandsTraits<PIKA>::GetCommands() {
-  return pika::kCommands;
+  return dynomite_redis::kCommands;
 }
 namespace internal {
 template <>
-common::Error Connection<pika::NativeConnection, pika::RConfig>::Connect(const pika::RConfig& config,
-                                                                         pika::NativeConnection** hout) {
-  pika::NativeConnection* context = nullptr;
-  common::Error err = pika::CreateConnection(config, &context);
+common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::Connect(
+    const dynomite_redis::RConfig& config,
+    dynomite_redis::NativeConnection** hout) {
+  dynomite_redis::NativeConnection* context = nullptr;
+  common::Error err = dynomite_redis::CreateConnection(config, &context);
   if (err) {
     return err;
   }
@@ -1777,8 +1570,9 @@ common::Error Connection<pika::NativeConnection, pika::RConfig>::Connect(const p
 }
 
 template <>
-common::Error Connection<pika::NativeConnection, pika::RConfig>::Disconnect(pika::NativeConnection** handle) {
-  pika::NativeConnection* lhandle = *handle;
+common::Error Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::Disconnect(
+    dynomite_redis::NativeConnection** handle) {
+  dynomite_redis::NativeConnection* lhandle = *handle;
   if (lhandle) {
     redisFree(lhandle);
   }
@@ -1787,7 +1581,8 @@ common::Error Connection<pika::NativeConnection, pika::RConfig>::Disconnect(pika
 }
 
 template <>
-bool Connection<pika::NativeConnection, pika::RConfig>::IsConnected(pika::NativeConnection* handle) {
+bool Connection<dynomite_redis::NativeConnection, dynomite_redis::RConfig>::IsConnected(
+    dynomite_redis::NativeConnection* handle) {
   if (!handle) {
     return false;
   }
@@ -1797,7 +1592,7 @@ bool Connection<pika::NativeConnection, pika::RConfig>::IsConnected(pika::Native
 
 }  // namespace internal
 
-namespace pika {
+namespace dynomite_redis {
 
 common::Error CreateConnection(const RConfig& config, NativeConnection** context) {
   return redis_compatible::CreateConnection(config, config.ssh_info, context);
@@ -1810,20 +1605,6 @@ common::Error TestConnection(const RConfig& config) {
 DBConnection::DBConnection(CDBConnectionClient* client)
     : base_class(client, new CommandTranslator(base_class::GetCommands())) {}
 
-common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
-  redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(base_class::connection_.handle_, DBSIZE));
-
-  if (!reply || reply->type != REDIS_REPLY_STRING) {
-    return common::make_error("Couldn't determine " DB_DBKCOUNT_COMMAND "!");
-  }
-
-  ServerInfo::KeySpace ks(reply->str);
-  /* Grab the number of keys and free our reply */
-  *size = ks.kv_ + ks.hash_ + ks.list_ + ks.set_ + ks.zset_;
-  freeReplyObject(reply);
-  return common::Error();
-}
-
-}  // namespace pika
+}  // namespace dynomite_redis
 }  // namespace core
 }  // namespace fastonosql
