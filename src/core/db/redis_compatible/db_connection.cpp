@@ -2374,9 +2374,15 @@ IDataBaseInfo* DBConnection<Config, ContType>::MakeDatabaseInfo(const db_name_t&
 }  // namespace core
 }  // namespace fastonosql
 
-#include <fastonosql/core/db/dynomitedb/config.h>
-#include <fastonosql/core/db/pika/config.h>
+#if defined(BUILD_WITH_REDIS)
 #include <fastonosql/core/db/redis/config.h>
+#endif
+#if defined(BUILD_WITH_PIKA)
+#include <fastonosql/core/db/pika/config.h>
+#endif
+#if defined(BUILD_WITH_DYNOMITEDB)
+#include <fastonosql/core/db/dynomitedb/config.h>
+#endif
 
 namespace fastonosql {
 namespace core {

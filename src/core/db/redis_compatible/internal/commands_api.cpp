@@ -606,9 +606,15 @@ common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handle
 }  // namespace core
 }  // namespace fastonosql
 
-#include <fastonosql/core/db/dynomitedb/db_connection.h>
-#include <fastonosql/core/db/pika/db_connection.h>
+#if defined(BUILD_WITH_REDIS)
 #include <fastonosql/core/db/redis/db_connection.h>
+#endif
+#if defined(BUILD_WITH_PIKA)
+#include <fastonosql/core/db/pika/db_connection.h>
+#endif
+#if defined(BUILD_WITH_DYNOMITEDB)
+#include <fastonosql/core/db/dynomitedb/db_connection.h>
+#endif
 
 namespace fastonosql {
 namespace core {

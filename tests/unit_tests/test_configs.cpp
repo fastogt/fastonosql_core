@@ -18,6 +18,9 @@
 
 #include <gtest/gtest.h>
 
+#include <fastonosql/core/config/local_config.h>
+#include <fastonosql/core/config/remote_config.h>
+
 #ifdef BUILD_WITH_REDIS
 #include <fastonosql/core/db/redis/config.h>
 #endif

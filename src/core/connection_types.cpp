@@ -33,38 +33,104 @@ namespace fastonosql {
 namespace core {
 
 bool IsRedisCompatible(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITEDB;
+#if defined(BUILD_WITH_REDIS)
+  if (type == REDIS) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_PIKA)
+  if (type == PIKA) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_DYNOMITEDB)
+  if (type == DYNOMITEDB) {
+    return true;
+  }
+#endif
+  return false;
 }
 
 bool IsRemoteType(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITEDB || type == MEMCACHED || type == SSDB;
+#if defined(BUILD_WITH_REDIS)
+  if (type == REDIS) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_PIKA)
+  if (type == PIKA) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_DYNOMITEDB)
+  if (type == DYNOMITEDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_SSDB)
+  if (type == SSDB) {
+    return true;
+  }
+#endif
+  return false;
 }
 
 bool IsSupportTTLKeys(ConnectionType type) {
-  return type == REDIS || type == PIKA || type == DYNOMITEDB || type == MEMCACHED || type == SSDB;
+#if defined(BUILD_WITH_REDIS)
+  if (type == REDIS) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_PIKA)
+  if (type == PIKA) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_DYNOMITEDB)
+  if (type == DYNOMITEDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_SSDB)
+  if (type == SSDB) {
+    return true;
+  }
+#endif
+  return false;
 }
 
 bool IsLocalType(ConnectionType type) {
-  return false
 #if defined(BUILD_WITH_ROCKSDB)
-         || type == ROCKSDB
+  if (type == ROCKSDB) {
+    return true;
+  }
 #endif
 #if defined(BUILD_WITH_LEVELDB)
-         || type == LEVELDB
+  if (type == LEVELDB) {
+    return true;
+  }
 #endif
 #if defined(BUILD_WITH_LMDB)
-         || type == LMDB
+  if (type == LMDB) {
+    return true;
+  }
 #endif
 #if defined(BUILD_WITH_UPSCALEDB)
-         || type == UPSCALEDB
+  if (type == UPSCALEDB) {
+    return true;
+  }
 #endif
 #if defined(BUILD_WITH_UNQLITE)
-         || type == UNQLITE
+  if (type == UNQLITE) {
+    return true;
+  }
 #endif
 #if defined(BUILD_WITH_FORESTDB)
-         || type == FORESTDB
+  if (type == FORESTDB) {
+    return true;
+  }
 #endif
-      ;
+  return false;
 }
 
 bool IsCanSSHConnection(ConnectionType type) {
@@ -72,11 +138,41 @@ bool IsCanSSHConnection(ConnectionType type) {
 }
 
 bool IsCanCreateDatabase(ConnectionType type) {
-  return type == LMDB || type == FORESTDB || type == ROCKSDB;
+#if defined(BUILD_WITH_ROCKSDB)
+  if (type == ROCKSDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_LMDB)
+  if (type == LMDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_FORESTDB)
+  if (type == FORESTDB) {
+    return true;
+  }
+#endif
+  return false;
 }
 
 bool IsCanRemoveDatabase(ConnectionType type) {
-  return type == LMDB || type == FORESTDB || type == ROCKSDB;
+#if defined(BUILD_WITH_ROCKSDB)
+  if (type == ROCKSDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_LMDB)
+  if (type == LMDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_FORESTDB)
+  if (type == FORESTDB) {
+    return true;
+  }
+#endif
+  return false;
 }
 
 const char* ConnectionTypeToString(ConnectionType t) {
