@@ -24,13 +24,14 @@
 
 namespace fastonosql {
 namespace core {
+namespace lmdb {
 namespace {
-
 const std::vector<Field> lmdb_common_fields = {Field(LMDB_STATS_FILE_NAME_LABEL, common::Value::TYPE_STRING)};
 
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << LMDB_STATS_FILE_NAME_LABEL COLON_STR << value.db_path << MARKER_STR;
+}
 }  // namespace
-
-namespace lmdb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING};
@@ -70,9 +71,24 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(LMDB) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(LMDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(), stats_(stats) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  static const std::vector<info_field_t> fields = GetInfoFields();
+  std::string word;
+  DCHECK_EQ(fields.size(), 1);
+
+  for (size_t i = 0; i < content.size(); ++i) {
+    word += content[i];
+    if (word == fields[0].first) {
+      std::string part = content.substr(i + 1);
+      stats_ = ServerInfo::Stats(part);
+      break;
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -84,32 +100,6 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 
   NOTREACHED();
   return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << LMDB_STATS_FILE_NAME_LABEL COLON_STR << value.db_path << MARKER_STR;
-}
-
-ServerInfo* MakeLmdbServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = GetInfoFields();
-  std::string word;
-  DCHECK_EQ(fields.size(), 1);
-
-  for (size_t i = 0; i < content.size(); ++i) {
-    word += content[i];
-    if (word == fields[0].first) {
-      std::string part = content.substr(i + 1);
-      result->stats_ = ServerInfo::Stats(part);
-      break;
-    }
-  }
-
-  return result;
 }
 
 std::string ServerInfo::ToString() const {

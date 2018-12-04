@@ -31,14 +31,6 @@ std::vector<info_field_t> GetInfoFields() {
   return redis::GetInfoFields();
 }
 
-ServerInfo* MakeDynomiteRedisServerInfo(const std::string& content) {
-  redis::ServerInfo* redis = redis::MakeRedisServerInfo(content);
-  ServerInfo* serv = new ServerInfo(redis->server_, redis->clients_, redis->memory_, redis->persistence_, redis->stats_,
-                                    redis->replication_, redis->cpu_, redis->keySp_);
-  delete redis;
-  return serv;
-}
-
 }  // namespace dynomitedb
 }  // namespace core
 }  // namespace fastonosql

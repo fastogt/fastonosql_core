@@ -3816,7 +3816,7 @@ bool DBConnection::IsInternalCommand(const command_buffer_t& command_name) {
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeRedisServerInfo(content);
+  return new ServerInfo(content);
 }
 
 }  // namespace redis

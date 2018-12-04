@@ -646,7 +646,7 @@ common::Value* ServerInfo::DoubleMaster::GetValueByIndex(unsigned char index) co
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(PIKA) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
 ServerInfo::ServerInfo(const Server& serv,
                        const Data& data,
@@ -658,7 +658,7 @@ ServerInfo::ServerInfo(const Server& serv,
                        const Replication& repl,
                        const KeySpace& key_space,
                        const DoubleMaster& double_master)
-    : IServerInfo(PIKA),
+    : IServerInfo(),
       server_(serv),
       data_(data),
       log_(log),
@@ -669,6 +669,65 @@ ServerInfo::ServerInfo(const Server& serv,
       replication_(repl),
       key_space_(key_space),
       double_master_(double_master) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  size_t j = 0;
+  std::string word;
+  size_t pos = 0;
+  static const std::vector<core::info_field_t> fields = GetInfoFields();
+  for (size_t i = 0; i < content.size(); ++i) {
+    char ch = content[i];
+    word += ch;
+    if (word == fields[j].first) {
+      if (j + 1 != fields.size()) {
+        pos = content.find(fields[j + 1].first, pos);
+      } else {
+        break;
+      }
+
+      if (pos != std::string::npos) {
+        std::string part = content.substr(i + 1, pos - i - 1);
+        switch (j) {
+          case 0:
+            server_ = ServerInfo::Server(part);
+            break;
+          case 1:
+            data_ = ServerInfo::Data(part);
+            break;
+          case 2:
+            log_ = ServerInfo::Log(part);
+            break;
+          case 3:
+            clients_ = ServerInfo::Clients(part);
+            break;
+          case 4:
+            hub_ = ServerInfo::Hub(part);
+            break;
+          case 5:
+            stats_ = ServerInfo::Stats(part);
+            break;
+          case 6:
+            cpu_ = ServerInfo::Cpu(part);
+            break;
+          case 7:
+            replication_ = ServerInfo::Replication(part);
+            break;
+          case 8:
+            key_space_ = ServerInfo::KeySpace(part);
+            break;
+          case 9:
+            double_master_ = ServerInfo::DoubleMaster(part);
+            break;
+          default:
+            break;
+        }
+        i = pos - 1;
+        ++j;
+      }
+      word.clear();
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -795,72 +854,6 @@ std::string ServerInfo::ToString() const {
 
 uint32_t ServerInfo::GetVersion() const {
   return common::ConvertVersionNumberFromString(server_.pika_version_);
-}
-
-ServerInfo* MakePikaServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  size_t j = 0;
-  std::string word;
-  size_t pos = 0;
-  static const std::vector<core::info_field_t> fields = GetInfoFields();
-  for (size_t i = 0; i < content.size(); ++i) {
-    char ch = content[i];
-    word += ch;
-    if (word == fields[j].first) {
-      if (j + 1 != fields.size()) {
-        pos = content.find(fields[j + 1].first, pos);
-      } else {
-        break;
-      }
-
-      if (pos != std::string::npos) {
-        std::string part = content.substr(i + 1, pos - i - 1);
-        switch (j) {
-          case 0:
-            result->server_ = ServerInfo::Server(part);
-            break;
-          case 1:
-            result->data_ = ServerInfo::Data(part);
-            break;
-          case 2:
-            result->log_ = ServerInfo::Log(part);
-            break;
-          case 3:
-            result->clients_ = ServerInfo::Clients(part);
-            break;
-          case 4:
-            result->hub_ = ServerInfo::Hub(part);
-            break;
-          case 5:
-            result->stats_ = ServerInfo::Stats(part);
-            break;
-          case 6:
-            result->cpu_ = ServerInfo::Cpu(part);
-            break;
-          case 7:
-            result->replication_ = ServerInfo::Replication(part);
-            break;
-          case 8:
-            result->key_space_ = ServerInfo::KeySpace(part);
-            break;
-          case 9:
-            result->double_master_ = ServerInfo::DoubleMaster(part);
-            break;
-          default:
-            break;
-        }
-        i = pos - 1;
-        ++j;
-      }
-      word.clear();
-    }
-  }
-
-  return result;
 }
 
 }  // namespace pika

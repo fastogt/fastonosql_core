@@ -24,8 +24,8 @@
 
 namespace fastonosql {
 namespace core {
+namespace rocksdb {
 namespace {
-
 const std::vector<Field> kRocksdbCommonFields = {Field(ROCKSDB_STATS_LEVEL_LABEL, common::Value::TYPE_STRING),
                                                  Field(ROCKSDB_STATS_FILES_LABEL, common::Value::TYPE_STRING),
                                                  Field(ROCKSDB_STATS_SIZE_LABEL, common::Value::TYPE_DOUBLE),
@@ -45,9 +45,26 @@ const std::vector<Field> kRocksdbCommonFields = {Field(ROCKSDB_STATS_LEVEL_LABEL
                                                  Field(ROCKSDB_STATS_KEY_IN_LABEL, common::Value::TYPE_DOUBLE),
                                                  Field(ROCKSDB_STATS_KEY_DROP_LABEL, common::Value::TYPE_DOUBLE)};
 
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << ROCKSDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR ROCKSDB_STATS_FILES_LABEL COLON_STR
+             << value.files << MARKER_STR ROCKSDB_STATS_SIZE_LABEL COLON_STR << value.size
+             << MARKER_STR ROCKSDB_STATS_SCORE_LABEL COLON_STR << value.score
+             << MARKER_STR ROCKSDB_STATS_READ_GB_LABEL COLON_STR << value.read_gb
+             << MARKER_STR ROCKSDB_STATS_RN_GB_LABEL COLON_STR << value.rn_gb
+             << MARKER_STR ROCKSDB_STATS_RNP1_GB_LABEL COLON_STR << value.rn_p1
+             << MARKER_STR ROCKSDB_STATS_WRITE_GB_LABEL COLON_STR << value.write_gb
+             << MARKER_STR ROCKSDB_STATS_WNEW_GB_LABEL COLON_STR << value.wnew_gb
+             << MARKER_STR ROCKSDB_STATS_MOVED_GB_LABEL COLON_STR << value.moved_gb
+             << MARKER_STR ROCKSDB_STATS_WAMP_LABEL COLON_STR << value.wamp
+             << MARKER_STR ROCKSDB_STATS_RD_MBS_LABEL COLON_STR << value.rd_mbs
+             << MARKER_STR ROCKSDB_STATS_WR_MBS_LABEL COLON_STR << value.wr_mbs
+             << MARKER_STR ROCKSDB_STATS_COMP_SEC_LABEL COLON_STR << value.comp_sec
+             << MARKER_STR ROCKSDB_STATS_COMP_CNT_LABEL COLON_STR << value.comp_cnt
+             << MARKER_STR ROCKSDB_STATS_AVG_SEC_LABEL COLON_STR << value.avg_sec
+             << MARKER_STR ROCKSDB_STATS_KEY_IN_LABEL COLON_STR << value.key_in
+             << MARKER_STR ROCKSDB_STATS_KEY_DROP_LABEL COLON_STR << value.key_drop << MARKER_STR;
+}
 }  // namespace
-
-namespace rocksdb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING};
@@ -211,9 +228,24 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(ROCKSDB) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(ROCKSDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(), stats_(stats) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  static const std::vector<info_field_t> fields = GetInfoFields();
+  DCHECK_EQ(fields.size(), 1);
+
+  std::string word;
+  for (size_t i = 0; i < content.size(); ++i) {
+    word += content[i];
+    if (word == fields[0].first) {
+      std::string part = content.substr(i + 1);
+      stats_ = ServerInfo::Stats(part);
+      break;
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -225,48 +257,6 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 
   NOTREACHED();
   return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << ROCKSDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR ROCKSDB_STATS_FILES_LABEL COLON_STR
-             << value.files << MARKER_STR ROCKSDB_STATS_SIZE_LABEL COLON_STR << value.size
-             << MARKER_STR ROCKSDB_STATS_SCORE_LABEL COLON_STR << value.score
-             << MARKER_STR ROCKSDB_STATS_READ_GB_LABEL COLON_STR << value.read_gb
-             << MARKER_STR ROCKSDB_STATS_RN_GB_LABEL COLON_STR << value.rn_gb
-             << MARKER_STR ROCKSDB_STATS_RNP1_GB_LABEL COLON_STR << value.rn_p1
-             << MARKER_STR ROCKSDB_STATS_WRITE_GB_LABEL COLON_STR << value.write_gb
-             << MARKER_STR ROCKSDB_STATS_WNEW_GB_LABEL COLON_STR << value.wnew_gb
-             << MARKER_STR ROCKSDB_STATS_MOVED_GB_LABEL COLON_STR << value.moved_gb
-             << MARKER_STR ROCKSDB_STATS_WAMP_LABEL COLON_STR << value.wamp
-             << MARKER_STR ROCKSDB_STATS_RD_MBS_LABEL COLON_STR << value.rd_mbs
-             << MARKER_STR ROCKSDB_STATS_WR_MBS_LABEL COLON_STR << value.wr_mbs
-             << MARKER_STR ROCKSDB_STATS_COMP_SEC_LABEL COLON_STR << value.comp_sec
-             << MARKER_STR ROCKSDB_STATS_COMP_CNT_LABEL COLON_STR << value.comp_cnt
-             << MARKER_STR ROCKSDB_STATS_AVG_SEC_LABEL COLON_STR << value.avg_sec
-             << MARKER_STR ROCKSDB_STATS_KEY_IN_LABEL COLON_STR << value.key_in
-             << MARKER_STR ROCKSDB_STATS_KEY_DROP_LABEL COLON_STR << value.key_drop << MARKER_STR;
-}
-
-ServerInfo* MakeRocksdbServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = GetInfoFields();
-  std::string word;
-  DCHECK_EQ(fields.size(), 1);
-
-  for (size_t i = 0; i < content.size(); ++i) {
-    word += content[i];
-    if (word == fields[0].first) {
-      std::string part = content.substr(i + 1);
-      result->stats_ = ServerInfo::Stats(part);
-      break;
-    }
-  }
-
-  return result;
 }
 
 std::string ServerInfo::ToString() const {

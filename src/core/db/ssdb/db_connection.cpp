@@ -850,7 +850,7 @@ common::Error DBConnection::DBsize(int64_t* size) {
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeSsdbServerInfo(content);
+  return new ServerInfo(content);
 }
 
 IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {

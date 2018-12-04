@@ -24,15 +24,17 @@
 
 namespace fastonosql {
 namespace core {
+namespace forestdb {
 namespace {
-
 const std::vector<Field> kForestdbCommonFields = {
     Field(FORESTDB_STATS_DB_FILE_PATH_LABEL, common::Value::TYPE_STRING),
     Field(FORESTDB_STATS_DB_FILE_SIZE_LABEL, common::Value::TYPE_ULONG_INTEGER)};
 
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << FORESTDB_STATS_DB_FILE_PATH_LABEL COLON_STR << value.db_path << MARKER_STR
+             << FORESTDB_STATS_DB_FILE_SIZE_LABEL COLON_STR << value.db_size << MARKER_STR;
+}
 }  // namespace
-
-namespace forestdb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING};
@@ -79,9 +81,24 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(FORESTDB) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(FORESTDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(), stats_(stats) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  static const std::vector<info_field_t> fields = GetInfoFields();
+  std::string word;
+  DCHECK_EQ(fields.size(), 1);
+
+  for (size_t i = 0; i < content.size(); ++i) {
+    word += content[i];
+    if (word == fields[0].first) {
+      std::string part = content.substr(i + 1);
+      stats_ = ServerInfo::Stats(part);
+      break;
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -95,33 +112,6 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 
   NOTREACHED();
   return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << FORESTDB_STATS_DB_FILE_PATH_LABEL COLON_STR << value.db_path << MARKER_STR
-             << FORESTDB_STATS_DB_FILE_SIZE_LABEL COLON_STR << value.db_size << MARKER_STR;
-}
-
-ServerInfo* MakeForestDBServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = GetInfoFields();
-  std::string word;
-  DCHECK_EQ(fields.size(), 1);
-
-  for (size_t i = 0; i < content.size(); ++i) {
-    word += content[i];
-    if (word == fields[0].first) {
-      std::string part = content.substr(i + 1);
-      result->stats_ = ServerInfo::Stats(part);
-      break;
-    }
-  }
-
-  return result;
 }
 
 std::string ServerInfo::ToString() const {

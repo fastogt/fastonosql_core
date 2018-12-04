@@ -320,7 +320,7 @@ common::Error DBConnection::Info(std::string* statsout) {
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeLeveldbServerInfo(content);
+  return new ServerInfo(content);
 }
 
 IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {

@@ -301,13 +301,12 @@ class ServerInfo : public IServerInfo {
              const Replication& repl,
              const KeySpace& key_space,
              const DoubleMaster& double_master);
+  explicit ServerInfo(const std::string& content);
 
   common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   std::string ToString() const override;
   uint32_t GetVersion() const override;
 };
-
-ServerInfo* MakePikaServerInfo(const std::string& content);
 
 }  // namespace pika
 }  // namespace core

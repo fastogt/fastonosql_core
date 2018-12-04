@@ -559,7 +559,7 @@ common::Error DBConnection::DropDatabase() {
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeLmdbServerInfo(content);
+  return new ServerInfo(content);
 }
 
 IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {

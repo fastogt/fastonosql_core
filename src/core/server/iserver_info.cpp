@@ -23,11 +23,7 @@ namespace core {
 
 IServerInfo::~IServerInfo() {}
 
-ConnectionType IServerInfo::GetType() const {
-  return type_;
-}
-
-IServerInfo::IServerInfo(ConnectionType type) : type_(type) {}
+IServerInfo::IServerInfo() {}
 
 ServerInfoSnapShoot::ServerInfoSnapShoot() : msec(0), info() {}
 

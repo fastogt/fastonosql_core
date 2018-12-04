@@ -24,7 +24,7 @@
 
 namespace fastonosql {
 namespace core {
-
+namespace memcached {
 namespace {
 const std::vector<Field> kMemcachedCommonFields = {
     Field(MEMCACHED_COMMON_PID_LABEL, common::Value::TYPE_UINTEGER),
@@ -49,9 +49,32 @@ const std::vector<Field> kMemcachedCommonFields = {
     Field(MEMCACHED_COMMON_BYTES_WRITTEN_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL, common::Value::TYPE_UINTEGER),
     Field(MEMCACHED_COMMON_THREADS_LABEL, common::Value::TYPE_UINTEGER)};
-}  // namespace
 
-namespace memcached {
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << MEMCACHED_COMMON_PID_LABEL COLON_STR << value.pid << MARKER_STR
+             << MEMCACHED_COMMON_UPTIME_LABEL COLON_STR << value.uptime << MARKER_STR
+             << MEMCACHED_COMMON_TIME_LABEL COLON_STR << value.time << MARKER_STR
+             << MEMCACHED_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR
+             << MEMCACHED_COMMON_POINTER_SIZE_LABEL COLON_STR << value.pointer_size << MARKER_STR
+             << MEMCACHED_COMMON_RUSAGE_USER_LABEL COLON_STR << value.rusage_user << MARKER_STR
+             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL COLON_STR << value.rusage_system << MARKER_STR
+             << MEMCACHED_COMMON_CURR_ITEMS_LABEL COLON_STR << value.curr_items << MARKER_STR
+             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL COLON_STR << value.total_items << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_LABEL COLON_STR << value.bytes << MARKER_STR
+             << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL COLON_STR << value.curr_connections << MARKER_STR
+             << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL COLON_STR << value.total_connections << MARKER_STR
+             << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL COLON_STR << value.connection_structures << MARKER_STR
+             << MEMCACHED_COMMON_CMD_GET_LABEL COLON_STR << value.cmd_get << MARKER_STR
+             << MEMCACHED_COMMON_CMD_SET_LABEL COLON_STR << value.cmd_set << MARKER_STR
+             << MEMCACHED_COMMON_GET_HITS_LABEL COLON_STR << value.get_hits << MARKER_STR
+             << MEMCACHED_COMMON_GET_MISSES_LABEL COLON_STR << value.get_misses << MARKER_STR
+             << MEMCACHED_COMMON_EVICTIONS_LABEL COLON_STR << value.evictions << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_READ_LABEL COLON_STR << value.bytes_read << MARKER_STR
+             << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL COLON_STR << value.bytes_written << MARKER_STR
+             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL COLON_STR << value.limit_maxbytes << MARKER_STR
+             << MEMCACHED_COMMON_THREADS_LABEL COLON_STR << value.threads << MARKER_STR;
+}
+}  // namespace
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING};
@@ -238,53 +261,11 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(MEMCACHED) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& common) : IServerInfo(MEMCACHED), stats_(common) {}
+ServerInfo::ServerInfo(const Stats& common) : IServerInfo(), stats_(common) {}
 
-common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
-  switch (property) {
-    case 0:
-      return stats_.GetValueByIndex(field);
-    default:
-      break;
-  }
-
-  NOTREACHED();
-  return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << MEMCACHED_COMMON_PID_LABEL COLON_STR << value.pid << MARKER_STR
-             << MEMCACHED_COMMON_UPTIME_LABEL COLON_STR << value.uptime << MARKER_STR
-             << MEMCACHED_COMMON_TIME_LABEL COLON_STR << value.time << MARKER_STR
-             << MEMCACHED_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR
-             << MEMCACHED_COMMON_POINTER_SIZE_LABEL COLON_STR << value.pointer_size << MARKER_STR
-             << MEMCACHED_COMMON_RUSAGE_USER_LABEL COLON_STR << value.rusage_user << MARKER_STR
-             << MEMCACHED_COMMON_RUSAGE_SYSTEM_LABEL COLON_STR << value.rusage_system << MARKER_STR
-             << MEMCACHED_COMMON_CURR_ITEMS_LABEL COLON_STR << value.curr_items << MARKER_STR
-             << MEMCACHED_COMMON_TOTAL_ITEMS_LABEL COLON_STR << value.total_items << MARKER_STR
-             << MEMCACHED_COMMON_BYTES_LABEL COLON_STR << value.bytes << MARKER_STR
-             << MEMCACHED_COMMON_CURR_CONNECTIONS_LABEL COLON_STR << value.curr_connections << MARKER_STR
-             << MEMCACHED_COMMON_TOTAL_CONNECTIONS_LABEL COLON_STR << value.total_connections << MARKER_STR
-             << MEMCACHED_COMMON_CONNECTION_STRUCTURES_LABEL COLON_STR << value.connection_structures << MARKER_STR
-             << MEMCACHED_COMMON_CMD_GET_LABEL COLON_STR << value.cmd_get << MARKER_STR
-             << MEMCACHED_COMMON_CMD_SET_LABEL COLON_STR << value.cmd_set << MARKER_STR
-             << MEMCACHED_COMMON_GET_HITS_LABEL COLON_STR << value.get_hits << MARKER_STR
-             << MEMCACHED_COMMON_GET_MISSES_LABEL COLON_STR << value.get_misses << MARKER_STR
-             << MEMCACHED_COMMON_EVICTIONS_LABEL COLON_STR << value.evictions << MARKER_STR
-             << MEMCACHED_COMMON_BYTES_READ_LABEL COLON_STR << value.bytes_read << MARKER_STR
-             << MEMCACHED_COMMON_BYTES_WRITTEN_LABEL COLON_STR << value.bytes_written << MARKER_STR
-             << MEMCACHED_COMMON_LIMIT_MAXBYTES_LABEL COLON_STR << value.limit_maxbytes << MARKER_STR
-             << MEMCACHED_COMMON_THREADS_LABEL COLON_STR << value.threads << MARKER_STR;
-}
-
-ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
+ServerInfo::ServerInfo(const std::string& content) {
   size_t j = 0;
   std::string word;
   size_t pos = 0;
@@ -303,7 +284,7 @@ ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
         std::string part = content.substr(i + 1, pos - i - 1);
         switch (j) {
           case 0:
-            result->stats_ = ServerInfo::Stats(part);
+            stats_ = ServerInfo::Stats(part);
             break;
           default:
             break;
@@ -314,8 +295,18 @@ ServerInfo* MakeMemcachedServerInfo(const std::string& content) {
       word.clear();
     }
   }
+}
 
-  return result;
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
+  switch (property) {
+    case 0:
+      return stats_.GetValueByIndex(field);
+    default:
+      break;
+  }
+
+  NOTREACHED();
+  return nullptr;
 }
 
 std::string ServerInfo::ToString() const {

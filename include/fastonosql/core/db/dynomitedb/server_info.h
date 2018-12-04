@@ -44,9 +44,8 @@ class ServerInfo : public redis::ServerInfo {
              const Cpu& cpu,
              const Keyspace& key)
       : base_class(serv, clients, memory, pers, stats, repl, cpu, key) {}
+  explicit ServerInfo(const std::string& content) : base_class(content) {}
 };
-
-ServerInfo* MakeDynomiteRedisServerInfo(const std::string& content);
 
 }  // namespace dynomitedb
 }  // namespace core

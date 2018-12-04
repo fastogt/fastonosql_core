@@ -243,7 +243,7 @@ class ServerInfo : public IServerInfo {
 
   struct Keyspace : IStateField {
     common::Value* GetValueByIndex(unsigned char index) const override;
-  } keySp_;
+  } keysp_;
 
   ServerInfo();
   ServerInfo(const Server& serv,
@@ -254,13 +254,12 @@ class ServerInfo : public IServerInfo {
              const Replication& repl,
              const Cpu& cpu,
              const Keyspace& key);
+  explicit ServerInfo(const std::string& content);
 
   common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   std::string ToString() const override;
   uint32_t GetVersion() const override;
 };
-
-ServerInfo* MakeRedisServerInfo(const std::string& content);
 
 }  // namespace redis
 }  // namespace core

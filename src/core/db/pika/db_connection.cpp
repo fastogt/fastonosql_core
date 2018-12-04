@@ -1825,7 +1825,7 @@ common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakePikaServerInfo(content);
+  return new ServerInfo(content);
 }
 
 }  // namespace pika

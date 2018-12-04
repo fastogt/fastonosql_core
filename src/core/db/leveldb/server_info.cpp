@@ -24,9 +24,8 @@
 
 namespace fastonosql {
 namespace core {
-
+namespace leveldb {
 namespace {
-
 const std::vector<Field> kLeveldbCommonFields = {Field(LEVELDB_STATS_LEVEL_LABEL, common::Value::TYPE_UINTEGER),
                                                  Field(LEVELDB_STATS_FILES_LABEL, common::Value::TYPE_UINTEGER),
                                                  Field(LEVELDB_STATS_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER),
@@ -34,9 +33,14 @@ const std::vector<Field> kLeveldbCommonFields = {Field(LEVELDB_STATS_LEVEL_LABEL
                                                  Field(LEVELDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER),
                                                  Field(LEVELDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER)};
 
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << LEVELDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR << LEVELDB_STATS_FILES_LABEL COLON_STR
+             << value.files << MARKER_STR << LEVELDB_STATS_SIZE_MB_LABEL COLON_STR << value.size_mb << MARKER_STR
+             << LEVELDB_STATS_TIME_SEC_LABEL COLON_STR << value.time_sec << MARKER_STR
+             << LEVELDB_STATS_READ_MB_LABEL COLON_STR << value.read_mb << MARKER_STR
+             << LEVELDB_STATS_WRITE_MB_LABEL COLON_STR << value.write_mb << MARKER_STR;
+}
 }  // namespace
-
-namespace leveldb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING};
@@ -114,9 +118,24 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(LEVELDB) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(LEVELDB), stats_(stats) {}
+ServerInfo::ServerInfo(const Stats& stats) : IServerInfo(), stats_(stats) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  static const std::vector<info_field_t> fields = GetInfoFields();
+  std::string word;
+  DCHECK_EQ(fields.size(), 1);
+
+  for (size_t i = 0; i < content.size(); ++i) {
+    word += content[i];
+    if (word == fields[0].first) {
+      std::string part = content.substr(i + 1);
+      stats_ = ServerInfo::Stats(part);
+      break;
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -128,36 +147,6 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 
   NOTREACHED();
   return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << LEVELDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR << LEVELDB_STATS_FILES_LABEL COLON_STR
-             << value.files << MARKER_STR << LEVELDB_STATS_SIZE_MB_LABEL COLON_STR << value.size_mb << MARKER_STR
-             << LEVELDB_STATS_TIME_SEC_LABEL COLON_STR << value.time_sec << MARKER_STR
-             << LEVELDB_STATS_READ_MB_LABEL COLON_STR << value.read_mb << MARKER_STR
-             << LEVELDB_STATS_WRITE_MB_LABEL COLON_STR << value.write_mb << MARKER_STR;
-}
-
-ServerInfo* MakeLeveldbServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = GetInfoFields();
-  std::string word;
-  DCHECK_EQ(fields.size(), 1);
-
-  for (size_t i = 0; i < content.size(); ++i) {
-    word += content[i];
-    if (word == fields[0].first) {
-      std::string part = content.substr(i + 1);
-      result->stats_ = ServerInfo::Stats(part);
-      break;
-    }
-  }
-
-  return result;
 }
 
 std::string ServerInfo::ToString() const {

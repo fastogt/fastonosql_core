@@ -778,7 +778,7 @@ common::Error DBConnection::Decr(const NKey& key, uint32_t value, uint64_t* resu
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeMemcachedServerInfo(content);
+  return new ServerInfo(content);
 }
 
 IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {

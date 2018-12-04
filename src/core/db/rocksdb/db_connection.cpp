@@ -760,7 +760,7 @@ common::Error DBConnection::Merge(const command_buffer_t& key, const command_buf
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeRocksdbServerInfo(content);
+  return new ServerInfo(content);
 }
 
 IDataBaseInfo* DBConnection::MakeDatabaseInfo(const db_name_t& name, bool is_default, size_t size) const {

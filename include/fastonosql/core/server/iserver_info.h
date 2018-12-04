@@ -24,8 +24,6 @@
 #include <common/net/types.h>  // for HostAndPortAndSlot
 #include <common/types.h>      // for time64_t
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionType, etc
-
 namespace common {
 class Value;
 }
@@ -35,16 +33,12 @@ namespace core {
 
 class IServerInfo {
  public:
-  explicit IServerInfo(ConnectionType type);
+  IServerInfo();
   virtual ~IServerInfo();
 
-  ConnectionType GetType() const;
   virtual std::string ToString() const = 0;
   virtual uint32_t GetVersion() const = 0;
   virtual common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const = 0;
-
- private:
-  const ConnectionType type_;
 };
 
 typedef std::shared_ptr<IServerInfo> IServerInfoSPtr;

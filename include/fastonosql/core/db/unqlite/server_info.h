@@ -52,13 +52,12 @@ class ServerInfo : public IServerInfo {
 
   ServerInfo();
   explicit ServerInfo(const Stats& stats);
+  explicit ServerInfo(const std::string& content);
 
   common::Value* GetValueByIndexes(unsigned char property, unsigned char field) const override;
   std::string ToString() const override;
   uint32_t GetVersion() const override;
 };
-
-ServerInfo* MakeUnqliteServerInfo(const std::string& content);
 
 }  // namespace unqlite
 }  // namespace core

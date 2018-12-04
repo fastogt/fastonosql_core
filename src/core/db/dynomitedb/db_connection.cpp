@@ -1617,7 +1617,7 @@ common::Error DBConnection::SelectImpl(const db_name_t& name, IDataBaseInfo** in
 }
 
 IServerInfo* DBConnection::MakeServerInfo(const std::string& content) const {
-  return MakeDynomiteRedisServerInfo(content);
+  return new ServerInfo(content);
 }
 
 common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {

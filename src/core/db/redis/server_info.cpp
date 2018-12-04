@@ -30,6 +30,7 @@
 
 namespace fastonosql {
 namespace core {
+namespace redis {
 namespace {
 
 const std::vector<Field> kRedisServerFields = {
@@ -115,9 +116,104 @@ const std::vector<Field> kRedisCpuFields = {
 
 const std::vector<Field> kRedisKeyspaceFields = {};
 
-}  // namespace
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Server& value) {
+  return out << REDIS_SERVER_VERSION_LABEL COLON_STR << value.redis_version_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_GIT_SHA1_LABEL COLON_STR << value.redis_git_sha1_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_GIT_DIRTY_LABEL COLON_STR << value.redis_git_dirty_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_MODE_LABEL COLON_STR << value.redis_mode_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_OS_LABEL COLON_STR << value.os_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_ARCH_BITS_LABEL COLON_STR << value.arch_bits_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_MULTIPLEXING_API_LABEL COLON_STR << value.multiplexing_api_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_GCC_VERSION_LABEL COLON_STR << value.gcc_version_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_PROCESS_ID_LABEL COLON_STR << value.process_id_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_RUN_ID_LABEL COLON_STR << value.run_id_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_TCP_PORT_LABEL COLON_STR << value.tcp_port_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_UPTIME_IN_SECONDS_LABEL COLON_STR << value.uptime_in_seconds_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_UPTIME_IN_DAYS_LABEL COLON_STR << value.uptime_in_days_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_HZ_LABEL COLON_STR << value.hz_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << REDIS_INFO_MARKER;
+}
 
-namespace redis {
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
+  return out << REDIS_CLIENTS_CONNECTED_CLIENTS_LABEL COLON_STR << value.connected_clients_ << REDIS_INFO_MARKER
+             << REDIS_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL COLON_STR << value.client_longest_output_list_
+             << REDIS_INFO_MARKER << REDIS_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL COLON_STR
+             << value.client_biggest_input_buf_ << REDIS_INFO_MARKER << REDIS_CLIENTS_BLOCKED_CLIENTS_LABEL COLON_STR
+             << value.blocked_clients_ << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Memory& value) {
+  return out << REDIS_MEMORY_USED_MEMORY_LABEL COLON_STR << value.used_memory_ << REDIS_INFO_MARKER
+             << REDIS_MEMORY_USED_MEMORY_HUMAN_LABEL COLON_STR << value.used_memory_human_ << REDIS_INFO_MARKER
+             << REDIS_MEMORY_USED_MEMORY_RSS_LABEL COLON_STR << value.used_memory_rss_ << REDIS_INFO_MARKER
+             << REDIS_MEMORY_USED_MEMORY_PEAK_LABEL COLON_STR << value.used_memory_peak_ << REDIS_INFO_MARKER
+             << REDIS_MEMORY_USED_MEMORY_PEAK_HUMAN_LABEL COLON_STR << value.used_memory_peak_human_
+             << REDIS_INFO_MARKER << REDIS_MEMORY_USED_MEMORY_LUA_LABEL COLON_STR << value.used_memory_lua_
+             << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL COLON_STR
+             << value.mem_fragmentation_ratio_ << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_ALLOCATOR_LABEL COLON_STR
+             << value.mem_allocator_ << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Persistence& value) {
+  return out << REDIS_PERSISTENCE_LOADING_LABEL COLON_STR << value.loading_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_RDB_CHANGES_SINCE_LAST_SAVE_LABEL COLON_STR << value.rdb_changes_since_last_save_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_RDB_DGSAVE_IN_PROGRESS_LABEL COLON_STR
+             << value.rdb_bgsave_in_progress_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_RDB_LAST_SAVE_TIME_LABEL COLON_STR << value.rdb_last_save_time_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_RDB_LAST_DGSAVE_STATUS_LABEL COLON_STR << value.rdb_last_bgsave_status_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_RDB_LAST_DGSAVE_TIME_SEC_LABEL COLON_STR
+             << value.rdb_last_bgsave_time_sec_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_RDB_CURRENT_DGSAVE_TIME_SEC_LABEL COLON_STR << value.rdb_current_bgsave_time_sec_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_ENABLED_LABEL COLON_STR << value.aof_enabled_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_REWRITE_IN_PROGRESS_LABEL COLON_STR
+             << value.aof_rewrite_in_progress_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_AOF_REWRITE_SHEDULED_LABEL COLON_STR << value.aof_rewrite_scheduled_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_LAST_REWRITE_TIME_SEC_LABEL COLON_STR
+             << value.aof_last_rewrite_time_sec_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_AOF_CURRENT_REWRITE_TIME_SEC_LABEL COLON_STR << value.aof_current_rewrite_time_sec_
+             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_LAST_DGREWRITE_STATUS_LABEL COLON_STR
+             << value.aof_last_bgrewrite_status_ << REDIS_INFO_MARKER
+             << REDIS_PERSISTENCE_AOF_LAST_WRITE_STATUS_LABEL COLON_STR << value.aof_last_write_status_
+             << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << REDIS_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL COLON_STR << value.total_connections_received_
+             << REDIS_INFO_MARKER << REDIS_STATS_TOTAL_COMMANDS_PROCESSED_LABEL COLON_STR
+             << value.total_commands_processed_ << REDIS_INFO_MARKER
+             << REDIS_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL COLON_STR << value.instantaneous_ops_per_sec_
+             << REDIS_INFO_MARKER << REDIS_STATS_REJECTED_CONNECTIONS_LABEL COLON_STR << value.rejected_connections_
+             << REDIS_INFO_MARKER << REDIS_STATS_SYNC_FULL_LABEL COLON_STR << value.sync_full_ << REDIS_INFO_MARKER
+             << REDIS_STATS_SYNC_PARTIAL_OK_LABEL COLON_STR << value.sync_partial_ok_ << REDIS_INFO_MARKER
+             << REDIS_STATS_SYNC_PARTIAL_ERR_LABEL COLON_STR << value.sync_partial_err_ << REDIS_INFO_MARKER
+             << REDIS_STATS_EXPIRED_KEYS_LABEL COLON_STR << value.expired_keys_ << REDIS_INFO_MARKER
+             << REDIS_STATS_EVICTED_KEYS_LABEL COLON_STR << value.evicted_keys_ << REDIS_INFO_MARKER
+             << REDIS_STATS_KEYSPACE_HITS_LABEL COLON_STR << value.keyspace_hits_ << REDIS_INFO_MARKER
+             << REDIS_STATS_KEYSPACE_MISSES_LABEL COLON_STR << value.keyspace_misses_ << REDIS_INFO_MARKER
+             << REDIS_STATS_PUBSUB_CHANNELS_LABEL COLON_STR << value.pubsub_channels_ << REDIS_INFO_MARKER
+             << REDIS_STATS_PUBSUB_PATTERNS_LABEL COLON_STR << value.pubsub_patterns_ << REDIS_INFO_MARKER
+             << REDIS_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Replication& value) {
+  return out << REDIS_REPLICATION_ROLE_LABEL COLON_STR << value.role_ << REDIS_INFO_MARKER
+             << REDIS_REPLICATION_CONNECTED_SLAVES_LABEL COLON_STR << value.connected_slaves_ << REDIS_INFO_MARKER
+             << REDIS_REPLICATION_MASTER_REPL_OFFSET_LABEL COLON_STR << value.master_repl_offset_ << REDIS_INFO_MARKER
+             << REDIS_REPLICATION_BACKLOG_ACTIVE_LABEL COLON_STR << value.backlog_active_ << REDIS_INFO_MARKER
+             << REDIS_REPLICATION_BACKLOG_SIZE_LABEL COLON_STR << value.backlog_size_ << REDIS_INFO_MARKER
+             << REDIS_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL COLON_STR << value.backlog_first_byte_offset_
+             << REDIS_INFO_MARKER << REDIS_REPLICATION_BACKLOG_HISTEN_LABEL COLON_STR << value.backlog_histen_
+             << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Cpu& value) {
+  return out << REDIS_CPU_USED_CPU_SYS_LABEL COLON_STR << value.used_cpu_sys_ << REDIS_INFO_MARKER
+             << REDIS_CPU_USED_CPU_USER_LABEL COLON_STR << value.used_cpu_user_ << REDIS_INFO_MARKER
+             << REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL COLON_STR << value.used_cpu_sys_children_ << REDIS_INFO_MARKER
+             << REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL COLON_STR << value.used_cpu_user_children_ << REDIS_INFO_MARKER;
+}
+
+}  // namespace
 
 std::vector<common::Value::Type> GetSupportedValueTypes(uint32_t server_version) {
   std::vector<common::Value::Type> result = {common::Value::TYPE_STRING, common::Value::TYPE_ARRAY,
@@ -868,7 +964,7 @@ common::Value* ServerInfo::Keyspace::GetValueByIndex(unsigned char index) const 
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(REDIS) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
 ServerInfo::ServerInfo(const Server& serv,
                        const Clients& clients,
@@ -878,7 +974,7 @@ ServerInfo::ServerInfo(const Server& serv,
                        const Replication& repl,
                        const Cpu& cpu,
                        const Keyspace& key)
-    : IServerInfo(REDIS),
+    : IServerInfo(),
       server_(serv),
       clients_(clients),
       memory_(memory),
@@ -886,150 +982,9 @@ ServerInfo::ServerInfo(const Server& serv,
       stats_(stats),
       replication_(repl),
       cpu_(cpu),
-      keySp_(key) {}
+      keysp_(key) {}
 
-common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
-  switch (property) {
-    case 0:
-      return server_.GetValueByIndex(field);
-    case 1:
-      return clients_.GetValueByIndex(field);
-    case 2:
-      return memory_.GetValueByIndex(field);
-    case 3:
-      return persistence_.GetValueByIndex(field);
-    case 4:
-      return stats_.GetValueByIndex(field);
-    case 5:
-      return replication_.GetValueByIndex(field);
-    case 6:
-      return cpu_.GetValueByIndex(field);
-    case 7:
-      return keySp_.GetValueByIndex(field);
-    default:
-      break;
-  }
-
-  NOTREACHED();
-  return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Server& value) {
-  return out << REDIS_SERVER_VERSION_LABEL COLON_STR << value.redis_version_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_GIT_SHA1_LABEL COLON_STR << value.redis_git_sha1_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_GIT_DIRTY_LABEL COLON_STR << value.redis_git_dirty_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_MODE_LABEL COLON_STR << value.redis_mode_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_OS_LABEL COLON_STR << value.os_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_ARCH_BITS_LABEL COLON_STR << value.arch_bits_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_MULTIPLEXING_API_LABEL COLON_STR << value.multiplexing_api_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_GCC_VERSION_LABEL COLON_STR << value.gcc_version_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_PROCESS_ID_LABEL COLON_STR << value.process_id_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_RUN_ID_LABEL COLON_STR << value.run_id_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_TCP_PORT_LABEL COLON_STR << value.tcp_port_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_UPTIME_IN_SECONDS_LABEL COLON_STR << value.uptime_in_seconds_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_UPTIME_IN_DAYS_LABEL COLON_STR << value.uptime_in_days_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_HZ_LABEL COLON_STR << value.hz_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
-  return out << REDIS_CLIENTS_CONNECTED_CLIENTS_LABEL COLON_STR << value.connected_clients_ << REDIS_INFO_MARKER
-             << REDIS_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL COLON_STR << value.client_longest_output_list_
-             << REDIS_INFO_MARKER << REDIS_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL COLON_STR
-             << value.client_biggest_input_buf_ << REDIS_INFO_MARKER << REDIS_CLIENTS_BLOCKED_CLIENTS_LABEL COLON_STR
-             << value.blocked_clients_ << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Memory& value) {
-  return out << REDIS_MEMORY_USED_MEMORY_LABEL COLON_STR << value.used_memory_ << REDIS_INFO_MARKER
-             << REDIS_MEMORY_USED_MEMORY_HUMAN_LABEL COLON_STR << value.used_memory_human_ << REDIS_INFO_MARKER
-             << REDIS_MEMORY_USED_MEMORY_RSS_LABEL COLON_STR << value.used_memory_rss_ << REDIS_INFO_MARKER
-             << REDIS_MEMORY_USED_MEMORY_PEAK_LABEL COLON_STR << value.used_memory_peak_ << REDIS_INFO_MARKER
-             << REDIS_MEMORY_USED_MEMORY_PEAK_HUMAN_LABEL COLON_STR << value.used_memory_peak_human_
-             << REDIS_INFO_MARKER << REDIS_MEMORY_USED_MEMORY_LUA_LABEL COLON_STR << value.used_memory_lua_
-             << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL COLON_STR
-             << value.mem_fragmentation_ratio_ << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_ALLOCATOR_LABEL COLON_STR
-             << value.mem_allocator_ << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Persistence& value) {
-  return out << REDIS_PERSISTENCE_LOADING_LABEL COLON_STR << value.loading_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_RDB_CHANGES_SINCE_LAST_SAVE_LABEL COLON_STR << value.rdb_changes_since_last_save_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_RDB_DGSAVE_IN_PROGRESS_LABEL COLON_STR
-             << value.rdb_bgsave_in_progress_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_RDB_LAST_SAVE_TIME_LABEL COLON_STR << value.rdb_last_save_time_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_RDB_LAST_DGSAVE_STATUS_LABEL COLON_STR << value.rdb_last_bgsave_status_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_RDB_LAST_DGSAVE_TIME_SEC_LABEL COLON_STR
-             << value.rdb_last_bgsave_time_sec_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_RDB_CURRENT_DGSAVE_TIME_SEC_LABEL COLON_STR << value.rdb_current_bgsave_time_sec_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_ENABLED_LABEL COLON_STR << value.aof_enabled_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_REWRITE_IN_PROGRESS_LABEL COLON_STR
-             << value.aof_rewrite_in_progress_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_AOF_REWRITE_SHEDULED_LABEL COLON_STR << value.aof_rewrite_scheduled_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_LAST_REWRITE_TIME_SEC_LABEL COLON_STR
-             << value.aof_last_rewrite_time_sec_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_AOF_CURRENT_REWRITE_TIME_SEC_LABEL COLON_STR << value.aof_current_rewrite_time_sec_
-             << REDIS_INFO_MARKER << REDIS_PERSISTENCE_AOF_LAST_DGREWRITE_STATUS_LABEL COLON_STR
-             << value.aof_last_bgrewrite_status_ << REDIS_INFO_MARKER
-             << REDIS_PERSISTENCE_AOF_LAST_WRITE_STATUS_LABEL COLON_STR << value.aof_last_write_status_
-             << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << REDIS_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL COLON_STR << value.total_connections_received_
-             << REDIS_INFO_MARKER << REDIS_STATS_TOTAL_COMMANDS_PROCESSED_LABEL COLON_STR
-             << value.total_commands_processed_ << REDIS_INFO_MARKER
-             << REDIS_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL COLON_STR << value.instantaneous_ops_per_sec_
-             << REDIS_INFO_MARKER << REDIS_STATS_REJECTED_CONNECTIONS_LABEL COLON_STR << value.rejected_connections_
-             << REDIS_INFO_MARKER << REDIS_STATS_SYNC_FULL_LABEL COLON_STR << value.sync_full_ << REDIS_INFO_MARKER
-             << REDIS_STATS_SYNC_PARTIAL_OK_LABEL COLON_STR << value.sync_partial_ok_ << REDIS_INFO_MARKER
-             << REDIS_STATS_SYNC_PARTIAL_ERR_LABEL COLON_STR << value.sync_partial_err_ << REDIS_INFO_MARKER
-             << REDIS_STATS_EXPIRED_KEYS_LABEL COLON_STR << value.expired_keys_ << REDIS_INFO_MARKER
-             << REDIS_STATS_EVICTED_KEYS_LABEL COLON_STR << value.evicted_keys_ << REDIS_INFO_MARKER
-             << REDIS_STATS_KEYSPACE_HITS_LABEL COLON_STR << value.keyspace_hits_ << REDIS_INFO_MARKER
-             << REDIS_STATS_KEYSPACE_MISSES_LABEL COLON_STR << value.keyspace_misses_ << REDIS_INFO_MARKER
-             << REDIS_STATS_PUBSUB_CHANNELS_LABEL COLON_STR << value.pubsub_channels_ << REDIS_INFO_MARKER
-             << REDIS_STATS_PUBSUB_PATTERNS_LABEL COLON_STR << value.pubsub_patterns_ << REDIS_INFO_MARKER
-             << REDIS_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Replication& value) {
-  return out << REDIS_REPLICATION_ROLE_LABEL COLON_STR << value.role_ << REDIS_INFO_MARKER
-             << REDIS_REPLICATION_CONNECTED_SLAVES_LABEL COLON_STR << value.connected_slaves_ << REDIS_INFO_MARKER
-             << REDIS_REPLICATION_MASTER_REPL_OFFSET_LABEL COLON_STR << value.master_repl_offset_ << REDIS_INFO_MARKER
-             << REDIS_REPLICATION_BACKLOG_ACTIVE_LABEL COLON_STR << value.backlog_active_ << REDIS_INFO_MARKER
-             << REDIS_REPLICATION_BACKLOG_SIZE_LABEL COLON_STR << value.backlog_size_ << REDIS_INFO_MARKER
-             << REDIS_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL COLON_STR << value.backlog_first_byte_offset_
-             << REDIS_INFO_MARKER << REDIS_REPLICATION_BACKLOG_HISTEN_LABEL COLON_STR << value.backlog_histen_
-             << REDIS_INFO_MARKER;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Cpu& value) {
-  return out << REDIS_CPU_USED_CPU_SYS_LABEL COLON_STR << value.used_cpu_sys_ << REDIS_INFO_MARKER
-             << REDIS_CPU_USED_CPU_USER_LABEL COLON_STR << value.used_cpu_user_ << REDIS_INFO_MARKER
-             << REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL COLON_STR << value.used_cpu_sys_children_ << REDIS_INFO_MARKER
-             << REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL COLON_STR << value.used_cpu_user_children_ << REDIS_INFO_MARKER;
-}
-
-std::string ServerInfo::ToString() const {
-  std::stringstream str;
-  str << REDIS_SERVER_LABEL REDIS_INFO_MARKER << server_ << REDIS_CLIENTS_LABEL REDIS_INFO_MARKER << clients_
-      << REDIS_MEMORY_LABEL REDIS_INFO_MARKER << memory_ << REDIS_PERSISTENCE_LABEL REDIS_INFO_MARKER << persistence_
-      << REDIS_STATS_LABEL REDIS_INFO_MARKER << stats_ << REDIS_REPLICATION_LABEL REDIS_INFO_MARKER << replication_
-      << REDIS_CPU_LABEL REDIS_INFO_MARKER << cpu_ << REDIS_KEYSPACE_LABEL REDIS_INFO_MARKER;
-  return str.str();
-}
-
-uint32_t ServerInfo::GetVersion() const {
-  return common::ConvertVersionNumberFromString(server_.redis_version_);
-}
-
-ServerInfo* MakeRedisServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
+ServerInfo::ServerInfo(const std::string& content) {
   size_t j = 0;
   std::string word;
   size_t pos = 0;
@@ -1048,25 +1003,25 @@ ServerInfo* MakeRedisServerInfo(const std::string& content) {
         std::string part = content.substr(i + 1, pos - i - 1);
         switch (j) {
           case 0:
-            result->server_ = ServerInfo::Server(part);
+            server_ = ServerInfo::Server(part);
             break;
           case 1:
-            result->clients_ = ServerInfo::Clients(part);
+            clients_ = ServerInfo::Clients(part);
             break;
           case 2:
-            result->memory_ = ServerInfo::Memory(part);
+            memory_ = ServerInfo::Memory(part);
             break;
           case 3:
-            result->persistence_ = ServerInfo::Persistence(part);
+            persistence_ = ServerInfo::Persistence(part);
             break;
           case 4:
-            result->stats_ = ServerInfo::Stats(part);
+            stats_ = ServerInfo::Stats(part);
             break;
           case 5:
-            result->replication_ = ServerInfo::Replication(part);
+            replication_ = ServerInfo::Replication(part);
             break;
           case 6:
-            result->cpu_ = ServerInfo::Cpu(part);
+            cpu_ = ServerInfo::Cpu(part);
             break;
           default:
             break;
@@ -1077,8 +1032,45 @@ ServerInfo* MakeRedisServerInfo(const std::string& content) {
       word.clear();
     }
   }
+}
 
-  return result;
+common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
+  switch (property) {
+    case 0:
+      return server_.GetValueByIndex(field);
+    case 1:
+      return clients_.GetValueByIndex(field);
+    case 2:
+      return memory_.GetValueByIndex(field);
+    case 3:
+      return persistence_.GetValueByIndex(field);
+    case 4:
+      return stats_.GetValueByIndex(field);
+    case 5:
+      return replication_.GetValueByIndex(field);
+    case 6:
+      return cpu_.GetValueByIndex(field);
+    case 7:
+      return keysp_.GetValueByIndex(field);
+    default:
+      break;
+  }
+
+  NOTREACHED();
+  return nullptr;
+}
+
+std::string ServerInfo::ToString() const {
+  std::stringstream str;
+  str << REDIS_SERVER_LABEL REDIS_INFO_MARKER << server_ << REDIS_CLIENTS_LABEL REDIS_INFO_MARKER << clients_
+      << REDIS_MEMORY_LABEL REDIS_INFO_MARKER << memory_ << REDIS_PERSISTENCE_LABEL REDIS_INFO_MARKER << persistence_
+      << REDIS_STATS_LABEL REDIS_INFO_MARKER << stats_ << REDIS_REPLICATION_LABEL REDIS_INFO_MARKER << replication_
+      << REDIS_CPU_LABEL REDIS_INFO_MARKER << cpu_ << REDIS_KEYSPACE_LABEL REDIS_INFO_MARKER;
+  return str.str();
+}
+
+uint32_t ServerInfo::GetVersion() const {
+  return common::ConvertVersionNumberFromString(server_.redis_version_);
 }
 
 }  // namespace redis

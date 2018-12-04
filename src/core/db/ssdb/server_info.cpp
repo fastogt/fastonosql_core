@@ -24,17 +24,21 @@
 
 namespace fastonosql {
 namespace core {
+namespace ssdb {
 namespace {
-
 const std::vector<Field> kSsdbCommonFields = {Field(SSDB_COMMON_VERSION_LABEL, common::Value::TYPE_STRING),
                                               Field(SSDB_COMMON_LINKS_LABEL, common::Value::TYPE_UINTEGER),
                                               Field(SSDB_COMMON_TOTAL_CALLS_LABEL, common::Value::TYPE_UINTEGER),
                                               Field(SSDB_COMMON_DBSIZE_LABEL, common::Value::TYPE_UINTEGER),
                                               Field(SSDB_COMMON_BINLOGS_LABEL, common::Value::TYPE_STRING)};
 
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
+  return out << SSDB_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR << SSDB_COMMON_LINKS_LABEL COLON_STR
+             << value.links << MARKER_STR << SSDB_COMMON_TOTAL_CALLS_LABEL COLON_STR << value.total_calls << MARKER_STR
+             << SSDB_COMMON_DBSIZE_LABEL COLON_STR << value.dbsize << MARKER_STR << SSDB_COMMON_BINLOGS_LABEL COLON_STR
+             << value.binlogs << MARKER_STR;
+}
 }  // namespace
-
-namespace ssdb {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING, common::Value::TYPE_ARRAY, common::Value::TYPE_SET, common::Value::TYPE_ZSET,
@@ -100,9 +104,24 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
-ServerInfo::ServerInfo() : IServerInfo(SSDB) {}
+ServerInfo::ServerInfo() : IServerInfo() {}
 
-ServerInfo::ServerInfo(const Stats& common) : IServerInfo(SSDB), stats_(common) {}
+ServerInfo::ServerInfo(const Stats& common) : IServerInfo(), stats_(common) {}
+
+ServerInfo::ServerInfo(const std::string& content) {
+  static const std::vector<info_field_t> fields = GetInfoFields();
+  std::string word;
+  DCHECK_EQ(fields.size(), 1);
+
+  for (size_t i = 0; i < content.size(); ++i) {
+    word += content[i];
+    if (word == fields[0].first) {
+      std::string part = content.substr(i + 1);
+      stats_ = ServerInfo::Stats(part);
+      break;
+    }
+  }
+}
 
 common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned char field) const {
   switch (property) {
@@ -114,35 +133,6 @@ common::Value* ServerInfo::GetValueByIndexes(unsigned char property, unsigned ch
 
   NOTREACHED();
   return nullptr;
-}
-
-std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
-  return out << SSDB_COMMON_VERSION_LABEL COLON_STR << value.version << MARKER_STR << SSDB_COMMON_LINKS_LABEL COLON_STR
-             << value.links << MARKER_STR << SSDB_COMMON_TOTAL_CALLS_LABEL COLON_STR << value.total_calls << MARKER_STR
-             << SSDB_COMMON_DBSIZE_LABEL COLON_STR << value.dbsize << MARKER_STR << SSDB_COMMON_BINLOGS_LABEL COLON_STR
-             << value.binlogs << MARKER_STR;
-}
-
-ServerInfo* MakeSsdbServerInfo(const std::string& content) {
-  if (content.empty()) {
-    return nullptr;
-  }
-
-  ServerInfo* result = new ServerInfo;
-  static const std::vector<info_field_t> fields = GetInfoFields();
-  std::string word;
-  DCHECK_EQ(fields.size(), 1);
-
-  for (size_t i = 0; i < content.size(); ++i) {
-    word += content[i];
-    if (word == fields[0].first) {
-      std::string part = content.substr(i + 1);
-      result->stats_ = ServerInfo::Stats(part);
-      break;
-    }
-  }
-
-  return result;
 }
 
 std::string ServerInfo::ToString() const {

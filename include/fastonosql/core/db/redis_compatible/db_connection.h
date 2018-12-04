@@ -25,8 +25,6 @@
 
 #include <fastonosql/core/cdb_connection.h>  // for CDBConnection
 
-#include <fastonosql/core/server/iserver_info.h>
-
 #include <fastonosql/core/db/redis_compatible/config.h>
 
 #include <fastonosql/core/global.h>
