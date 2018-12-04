@@ -2380,8 +2380,8 @@ IDataBaseInfo* DBConnection<Config, ContType>::MakeDatabaseInfo(const db_name_t&
 #if defined(BUILD_WITH_PIKA)
 #include <fastonosql/core/db/pika/config.h>
 #endif
-#if defined(BUILD_WITH_DYNOMITEDB)
-#include <fastonosql/core/db/dynomitedb/config.h>
+#if defined(BUILD_WITH_DYNOMITE)
+#include <fastonosql/core/db/dynomite/config.h>
 #endif
 
 namespace fastonosql {
@@ -2393,8 +2393,8 @@ template class DBConnection<redis::RConfig, REDIS>;
 #if defined(BUILD_WITH_PIKA)
 template class DBConnection<pika::RConfig, PIKA>;
 #endif
-#if defined(BUILD_WITH_DYNOMITEDB)
-template class DBConnection<dynomitedb::RConfig, DYNOMITEDB>;
+#if defined(BUILD_WITH_DYNOMITE)
+template class DBConnection<dynomite::RConfig, DYNOMITE>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

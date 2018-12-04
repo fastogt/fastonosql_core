@@ -16,11 +16,11 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/dynomitedb/server_info.h>
+#include <fastonosql/core/db/dynomite/server_info.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
+namespace dynomite {
 
 std::vector<common::Value::Type> GetSupportedValueTypes() {
   return {common::Value::TYPE_STRING, common::Value::TYPE_ARRAY, common::Value::TYPE_SET, common::Value::TYPE_ZSET,
@@ -31,6 +31,6 @@ std::vector<info_field_t> GetInfoFields() {
   return redis::GetInfoFields();
 }
 
-}  // namespace dynomitedb
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql

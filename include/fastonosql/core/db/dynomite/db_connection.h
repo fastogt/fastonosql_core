@@ -19,23 +19,24 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include <fastonosql/core/db/redis_compatible/db_connection.h>
 
-#include <fastonosql/core/db/dynomitedb/config.h>
+#include <fastonosql/core/db/dynomite/config.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
+namespace dynomite {
 
 typedef redis_compatible::NativeConnection NativeConnection;
 
 common::Error CreateConnection(const RConfig& config, NativeConnection** context);
 common::Error TestConnection(const RConfig& config);
 
-class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITEDB> {
+class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITE> {
  public:
-  typedef redis_compatible::DBConnection<RConfig, DYNOMITEDB> base_class;
+  typedef redis_compatible::DBConnection<RConfig, DYNOMITE> base_class;
   explicit DBConnection(CDBConnectionClient* client);
 
   IServerInfo* MakeServerInfo(const std::string& content) const override;
@@ -45,6 +46,6 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, DYNOMITEDB> 
   common::Error DBKeysCountImpl(keys_limit_t* size) override;
 };
 
-}  // namespace dynomitedb
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql

@@ -42,7 +42,7 @@
 // compiled modules
 #cmakedefine HAVE_REDIS
 #cmakedefine HAVE_PIKA
-#cmakedefine HAVE_DYNOMITEDB
+#cmakedefine HAVE_DYNOMITE
 #cmakedefine HAVE_MEMCACHED
 #cmakedefine HAVE_SSDB
 #cmakedefine HAVE_LEVELDB

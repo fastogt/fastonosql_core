@@ -24,7 +24,7 @@
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
+namespace dynomite {
 
 class CommandTranslator : public redis_compatible::CommandTranslator {
  public:
@@ -34,6 +34,6 @@ class CommandTranslator : public redis_compatible::CommandTranslator {
   const char* GetDBName() const override;
 };
 
-}  // namespace dynomitedb
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql

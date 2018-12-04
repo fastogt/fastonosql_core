@@ -21,8 +21,8 @@
 #include <common/macros.h>  // for NOTREACHED, SIZEOFMASS
 
 namespace {
-const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB",     "LevelDB", "RocksDB",   "UnQLite",
-                                  "LMDB",  "UpscaleDB", "ForestDB", "Pika",    "DynomiteDB"};
+const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB",     "LevelDB", "RocksDB", "UnQLite",
+                                  "LMDB",  "UpscaleDB", "ForestDB", "Pika",    "Dynomite"};
 const char* kConnnectionMode[] = {"Interactive mode"};
 const char* kServerType[] = {"Master", "Slave"};
 const char* kServerState[] = {"Up", "Down"};
@@ -43,8 +43,8 @@ bool IsRedisCompatible(ConnectionType type) {
     return true;
   }
 #endif
-#if defined(BUILD_WITH_DYNOMITEDB)
-  if (type == DYNOMITEDB) {
+#if defined(BUILD_WITH_DYNOMITE)
+  if (type == DYNOMITE) {
     return true;
   }
 #endif
@@ -62,8 +62,8 @@ bool IsRemoteType(ConnectionType type) {
     return true;
   }
 #endif
-#if defined(BUILD_WITH_DYNOMITEDB)
-  if (type == DYNOMITEDB) {
+#if defined(BUILD_WITH_DYNOMITE)
+  if (type == DYNOMITE) {
     return true;
   }
 #endif
@@ -86,8 +86,8 @@ bool IsSupportTTLKeys(ConnectionType type) {
     return true;
   }
 #endif
-#if defined(BUILD_WITH_DYNOMITEDB)
-  if (type == DYNOMITEDB) {
+#if defined(BUILD_WITH_DYNOMITE)
+  if (type == DYNOMITE) {
     return true;
   }
 #endif

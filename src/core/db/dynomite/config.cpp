@@ -16,37 +16,25 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <fastonosql/core/db/dynomite/config.h>
 
-#include <fastonosql/core/db/redis_compatible/config.h>
-
-#include <fastonosql/core/ssh_info.h>
+#define DEFAULT_DYNOMITE_SERVER_PORT 8102
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
-
-struct Config : public redis_compatible::Config {
-  typedef redis_compatible::Config base_class;
-  Config();
-
-  bool Equals(const Config& other) const;
-};
-
-struct RConfig : public Config {
-  RConfig(const Config& config, const SSHInfo& sinfo);
-
-  SSHInfo ssh_info;
-};
-
-inline bool operator==(const Config& r, const Config& l) {
-  return r.Equals(l);
+namespace dynomite {
+namespace {
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_DYNOMITE_SERVER_PORT);
 }
 
-inline bool operator!=(const Config& r, const Config& l) {
-  return !(r == l);
+Config::Config() : base_class(kDefaultHost) {}
+
+bool Config::Equals(const Config& other) const {
+  return base_class::Equals(other);
 }
 
-}  // namespace dynomitedb
+RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
+
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql

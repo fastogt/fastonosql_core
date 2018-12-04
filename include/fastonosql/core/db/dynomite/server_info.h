@@ -16,26 +16,37 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/dynomitedb/config.h>
+#pragma once
 
-#define DEFAULT_DYNOMITE_REDIS_SERVER_PORT 8102
+#include <string>
+#include <vector>
+
+#include <fastonosql/core/db/redis/server_info.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
-namespace {
-const common::net::HostAndPort kDefaultHost =
-    common::net::HostAndPort::CreateLocalHost(DEFAULT_DYNOMITE_REDIS_SERVER_PORT);
-}
+namespace dynomite {
 
-Config::Config() : base_class(kDefaultHost) {}
+std::vector<common::Value::Type> GetSupportedValueTypes();
+std::vector<info_field_t> GetInfoFields();
 
-bool Config::Equals(const Config& other) const {
-  return base_class::Equals(other);
-}
+class ServerInfo : public redis::ServerInfo {
+ public:
+  typedef redis::ServerInfo base_class;
 
-RConfig::RConfig(const Config& config, const SSHInfo& sinfo) : Config(config), ssh_info(sinfo) {}
+  ServerInfo() : base_class() {}
+  ServerInfo(const Server& serv,
+             const Clients& clients,
+             const Memory& memory,
+             const Persistence& pers,
+             const Stats& stats,
+             const Replication& repl,
+             const Cpu& cpu,
+             const Keyspace& key)
+      : base_class(serv, clients, memory, pers, stats, repl, cpu, key) {}
+  explicit ServerInfo(const std::string& content) : base_class(content) {}
+};
 
-}  // namespace dynomitedb
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql

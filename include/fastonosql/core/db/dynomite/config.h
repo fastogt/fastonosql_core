@@ -16,21 +16,37 @@
     along with FastoNoSQL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fastonosql/core/db/dynomitedb/command_translator.h>
+#pragma once
 
-#include <fastonosql/core/connection_types.h>
+#include <fastonosql/core/db/redis_compatible/config.h>
+
+#include <fastonosql/core/ssh_info.h>
 
 namespace fastonosql {
 namespace core {
-namespace dynomitedb {
+namespace dynomite {
 
-CommandTranslator::CommandTranslator(const std::vector<CommandHolder>& commands) : base_class(commands) {}
+struct Config : public redis_compatible::Config {
+  typedef redis_compatible::Config base_class;
+  Config();
 
-const char* CommandTranslator::GetDBName() const {
-  typedef ConnectionTraits<DYNOMITEDB> connection_traits_class;
-  return connection_traits_class::GetDBName();
+  bool Equals(const Config& other) const;
+};
+
+struct RConfig : public Config {
+  RConfig(const Config& config, const SSHInfo& sinfo);
+
+  SSHInfo ssh_info;
+};
+
+inline bool operator==(const Config& r, const Config& l) {
+  return r.Equals(l);
 }
 
-}  // namespace dynomitedb
+inline bool operator!=(const Config& r, const Config& l) {
+  return !(r == l);
+}
+
+}  // namespace dynomite
 }  // namespace core
 }  // namespace fastonosql
