@@ -2061,7 +2061,7 @@ const ConstantCommandsArray kCommands = {
                   UNDEFINED_SINCE,
                   "ZPOPMIN myzset",
                   1,
-                  INFINITE_COMMAND_ARGS,
+                  1,
                   CommandInfo::Native,
                   &CommandsApi::ZpopMin),
     CommandHolder(GEN_CMD_STRING("ZPOPMAX"),
@@ -2070,7 +2070,7 @@ const ConstantCommandsArray kCommands = {
                   UNDEFINED_SINCE,
                   "ZPOPMAX myzset",
                   1,
-                  INFINITE_COMMAND_ARGS,
+                  1,
                   CommandInfo::Native,
                   &CommandsApi::ZpopMax),
 #if defined(PRO_VERSION)
@@ -3620,6 +3620,122 @@ common::Error DBConnection::JsonDel(const NKey& key, long long* deleted) {
     client_->OnRemovedKeys({key});
   }
 
+  return common::Error();
+}
+
+common::Error DBConnection::ZpopMax(const NKey& key, size_t count, common::ArrayValue** poped) {
+  if (!poped) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  command_buffer_t zpopmax_cmd;
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
+  err = tran->ZpopMax(key, count, &zpopmax_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = redis_compatible::ExecRedisCommand(connection_.handle_, zpopmax_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type == REDIS_REPLY_NIL) {
+    // key_t key_str = key.GetKey();
+    return GenerateError("ZPOPMAX", "key not found.");
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = redis_compatible::ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error");
+  }
+
+  if (client_ && arr->IsEmpty()) {
+    client_->OnRemovedKeys({key});
+  }
+
+  *poped = arr;
+  return common::Error();
+}
+
+common::Error DBConnection::ZpopMin(const NKey& key, size_t count, common::ArrayValue** poped) {
+  if (!poped) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  common::Error err = TestIsAuthenticated();
+  if (err) {
+    return err;
+  }
+
+  command_buffer_t zpopmin_cmd;
+  redis_translator_t tran = GetSpecificTranslator<CommandTranslator>();
+  err = tran->ZpopMin(key, count, &zpopmin_cmd);
+  if (err) {
+    return err;
+  }
+
+  redisReply* reply = nullptr;
+  err = redis_compatible::ExecRedisCommand(connection_.handle_, zpopmin_cmd, &reply);
+  if (err) {
+    return err;
+  }
+
+  if (reply->type == REDIS_REPLY_NIL) {
+    // key_t key_str = key.GetKey();
+    return GenerateError("ZPOPMIN", "key not found.");
+  }
+
+  if (reply->type != REDIS_REPLY_ARRAY) {
+    DNOTREACHED() << "Unexpected type: " << reply->type;
+    freeReplyObject(reply);
+    return common::make_error("I/O error");
+  }
+
+  common::Value* val = nullptr;
+  err = redis_compatible::ValueFromReplay(reply, &val);
+  if (err) {
+    delete val;
+    freeReplyObject(reply);
+    return err;
+  }
+
+  common::ArrayValue* arr = nullptr;
+  if (!val->GetAsList(&arr)) {
+    delete val;
+    freeReplyObject(reply);
+    return common::make_error("Conversion error");
+  }
+
+  if (client_ && arr->IsEmpty()) {
+    client_->OnRemovedKeys({key});
+  }
+
+  *poped = arr;
   return common::Error();
 }
 

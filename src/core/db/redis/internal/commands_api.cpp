@@ -1383,13 +1383,45 @@ common::Error CommandsApi::BZpopMax(internal::CommandHandler* handler, commands_
 }
 
 common::Error CommandsApi::ZpopMin(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  CHECK_LE(argv.size(), 2) << "ZpopMin <key> [count].";
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+  size_t count = 1;
+  if (argv.size() == 2 && !common::ConvertFromBytes(argv[1], &count)) {
+    return common::make_error_inval();
+  }
+
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("ZPOPMIN")}, argv), out);
+  common::ArrayValue* arr = nullptr;
+  common::Error err = red->ZpopMin(key, count, &arr);
+  if (err) {
+    return err;
+  }
+
+  FastoObject* child = new FastoObject(out, arr, red->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
 }
 
 common::Error CommandsApi::ZpopMax(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  CHECK_LE(argv.size(), 2) << "ZpopMax <key> [count].";
+  const nkey_t key_str(argv[0]);
+  const NKey key(key_str);
+  size_t count = 1;
+  if (argv.size() == 2 && !common::ConvertFromBytes(argv[1], &count)) {
+    return common::make_error_inval();
+  }
+
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("ZPOPMAX")}, argv), out);
+  common::ArrayValue* arr = nullptr;
+  common::Error err = red->ZpopMax(key, count, &arr);
+  if (err) {
+    return err;
+  }
+
+  FastoObject* child = new FastoObject(out, arr, red->GetDelimiter());
+  out->AddChildren(child);
+  return common::Error();
 }
 
 common::Error CommandsApi::PFSelfTest(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {

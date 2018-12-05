@@ -44,6 +44,10 @@ class CommandTranslator : public redis_compatible::CommandTranslator {
 
   common::Error Xadd(const NDbKValue& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
   common::Error Unlink(const NKey& key, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+
+  // zset
+  common::Error ZpopMax(const NKey& key, size_t count, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
+  common::Error ZpopMin(const NKey& key, size_t count, command_buffer_t* cmdstring) WARN_UNUSED_RESULT;
 };
 
 }  // namespace redis

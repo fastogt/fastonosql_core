@@ -18,12 +18,16 @@
 
 #include <fastonosql/core/db/redis/command_translator.h>
 
+#include <common/convert2string.h>
+
 #include <fastonosql/core/value.h>
 
 #include <fastonosql/core/connection_types.h>
 
 #define REDIS_XADD_COMMAND "XADD"
 #define REDIS_UNLINK_COMMAND "UNLINK"
+#define REDIS_ZPOPMAX_COMMAND "ZPOPMAX"
+#define REDIS_ZPOPMIN_COMMAND "ZPOPMIN"
 
 #if defined(PRO_VERSION)
 #define REDIS_MODULE_LOAD "MODULE LOAD"
@@ -91,6 +95,22 @@ common::Error CommandTranslator::Unlink(const NKey& key, command_buffer_t* cmdst
   const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
   wr << REDIS_UNLINK_COMMAND SPACE_STR << key_str.GetForCommandLine();
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::ZpopMax(const NKey& key, size_t count, command_buffer_t* cmdstring) {
+  const auto key_str = key.GetKey();
+  command_buffer_writer_t wr;
+  wr << REDIS_ZPOPMAX_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToString(count);
+  *cmdstring = wr.str();
+  return common::Error();
+}
+
+common::Error CommandTranslator::ZpopMin(const NKey& key, size_t count, command_buffer_t* cmdstring) {
+  const auto key_str = key.GetKey();
+  command_buffer_writer_t wr;
+  wr << REDIS_ZPOPMIN_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << common::ConvertToString(count);
   *cmdstring = wr.str();
   return common::Error();
 }

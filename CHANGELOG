@@ -1,5 +1,6 @@
 1.5.0 /
 [Alexandr Topilski]
+- [Redis] ZPOPMAX, ZPOPMIN commands
 - [DynomiteDB] First implementation
 
 1.4.5 / December 2, 2018

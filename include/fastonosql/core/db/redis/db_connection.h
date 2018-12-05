@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <fastonosql/core/db/redis/command_translator.h>
@@ -58,6 +59,10 @@ class DBConnection : public redis_compatible::DBConnection<RConfig, REDIS> {
   common::Error JsonSet(const NDbKValue& key) WARN_UNUSED_RESULT;
   common::Error JsonGet(const NKey& key, NDbKValue* loaded_key) WARN_UNUSED_RESULT;
   common::Error JsonDel(const NKey& key, long long* deleted) WARN_UNUSED_RESULT;
+
+  // zset
+  common::Error ZpopMax(const NKey& key, size_t count, common::ArrayValue** poped) WARN_UNUSED_RESULT;
+  common::Error ZpopMin(const NKey& key, size_t count, common::ArrayValue** poped) WARN_UNUSED_RESULT;
 
   // stream
   common::Error XAdd(const NDbKValue& key, readable_string_t* gen_id) WARN_UNUSED_RESULT;

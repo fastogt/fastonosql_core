@@ -375,8 +375,7 @@ convert_to_t ConvertValue(common::Value* value, const std::string& delimiter) {
 }
 
 convert_to_t ConvertValue(common::ArrayValue* array, const std::string& delimiter) {
-  if (!array) {
-    DNOTREACHED();
+  if (!array || array->IsEmpty()) {
     return convert_to_t();
   }
 
@@ -399,13 +398,12 @@ convert_to_t ConvertValue(common::ArrayValue* array, const std::string& delimite
 }
 
 convert_to_t ConvertValue(common::SetValue* set, const std::string& delimiter) {
-  if (!set) {
-    DNOTREACHED();
+  if (!set || set->IsEmpty()) {
     return convert_to_t();
   }
 
   convert_to_t result;
-  auto lastIt = std::prev(set->end());
+  auto last_it = std::prev(set->end());
   for (auto it = set->begin(); it != set->end(); ++it) {
     convert_to_t val = ConvertValue((*it), delimiter);
     if (val.empty()) {
@@ -413,7 +411,7 @@ convert_to_t ConvertValue(common::SetValue* set, const std::string& delimiter) {
     }
 
     result += val;
-    if (lastIt != it) {
+    if (last_it != it) {
       result += delimiter;
     }
   }
@@ -423,13 +421,12 @@ convert_to_t ConvertValue(common::SetValue* set, const std::string& delimiter) {
 }
 
 convert_to_t ConvertValue(common::ZSetValue* zset, const std::string& delimiter) {
-  if (!zset) {
-    DNOTREACHED();
+  if (!zset || zset->IsEmpty()) {
     return convert_to_t();
   }
 
   convert_to_t result;
-  auto lastIt = std::prev(zset->end());
+  auto last_it = std::prev(zset->end());
   for (auto it = zset->begin(); it != zset->end(); ++it) {
     auto v = *it;
     convert_to_t key = ConvertValue(v.first, delimiter);
@@ -441,7 +438,7 @@ convert_to_t ConvertValue(common::ZSetValue* zset, const std::string& delimiter)
     result += key;
     result += SPACE_CHAR;
     result += val;
-    if (lastIt != it) {
+    if (last_it != it) {
       result += delimiter;
     }
   }
@@ -703,8 +700,7 @@ convert_to_t ConvertValueForCommandLine(common::Value* value, const std::string&
 }
 
 convert_to_t ConvertValueForCommandLine(common::ArrayValue* array, const std::string& delimiter) {
-  if (!array) {
-    DNOTREACHED();
+  if (!array || array->IsEmpty()) {
     return convert_to_t();
   }
 
@@ -727,8 +723,7 @@ convert_to_t ConvertValueForCommandLine(common::ArrayValue* array, const std::st
 }
 
 convert_to_t ConvertValueForCommandLine(common::SetValue* set, const std::string& delimiter) {
-  if (!set) {
-    DNOTREACHED();
+  if (!set || set->IsEmpty()) {
     return convert_to_t();
   }
 
@@ -751,8 +746,7 @@ convert_to_t ConvertValueForCommandLine(common::SetValue* set, const std::string
 }
 
 convert_to_t ConvertValueForCommandLine(common::ZSetValue* zset, const std::string& delimiter) {
-  if (!zset) {
-    DNOTREACHED();
+  if (!zset || zset->IsEmpty()) {
     return convert_to_t();
   }
 
