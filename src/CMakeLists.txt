@@ -457,6 +457,7 @@ SET(CORE_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/constant_commands_array.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db_key.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db_ps_channel.h
+  ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db_client.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db_traits.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/global.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/icommand_translator_base.h
@@ -502,6 +503,7 @@ SET(CORE_SOURCES
   ${CMAKE_SOURCE_DIR}/src/core/constant_commands_array.cpp
   ${CMAKE_SOURCE_DIR}/src/core/db_key.cpp
   ${CMAKE_SOURCE_DIR}/src/core/db_ps_channel.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/db_client.cpp
   ${CMAKE_SOURCE_DIR}/src/core/db_traits.cpp
   ${CMAKE_SOURCE_DIR}/src/core/global.cpp
   ${CMAKE_SOURCE_DIR}/src/core/icommand_translator_base.cpp
