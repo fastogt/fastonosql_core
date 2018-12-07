@@ -36,10 +36,10 @@ class ICommandTranslatorBase : public ICommandTranslator {
  private:
   common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const override;
   common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const override;
-  common::Error PublishCommandImpl(const NDbPSChannel& channel,
+  common::Error PublishCommandImpl(const trans_ps_channel_t& channel,
                                    const std::string& message,
                                    command_buffer_t* cmdstring) const override;
-  common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
+  common::Error SubscribeCommandImpl(const trans_ps_channel_t& channel, command_buffer_t* cmdstring) const override;
 };
 
 }  // namespace core

@@ -49,7 +49,7 @@ common::Error ICommandTranslatorBase::LoadKeyTTLCommandImpl(const NKey& key, com
   return common::make_error(error_msg);
 }
 
-common::Error ICommandTranslatorBase::PublishCommandImpl(const NDbPSChannel& channel,
+common::Error ICommandTranslatorBase::PublishCommandImpl(const trans_ps_channel_t& channel,
                                                          const std::string& message,
                                                          command_buffer_t* cmdstring) const {
   UNUSED(channel);
@@ -61,7 +61,7 @@ common::Error ICommandTranslatorBase::PublishCommandImpl(const NDbPSChannel& cha
   return common::make_error(error_msg);
 }
 
-common::Error ICommandTranslatorBase::SubscribeCommandImpl(const NDbPSChannel& channel,
+common::Error ICommandTranslatorBase::SubscribeCommandImpl(const trans_ps_channel_t& channel,
                                                            command_buffer_t* cmdstring) const {
   UNUSED(channel);
   UNUSED(cmdstring);

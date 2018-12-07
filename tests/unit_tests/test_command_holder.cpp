@@ -131,7 +131,7 @@ class FakeTranslator : public core::ICommandTranslator {
     return false;
   }
 
-  common::Error PublishCommandImpl(const core::NDbPSChannel& channel,
+  common::Error PublishCommandImpl(const trans_ps_channel_t& channel,
                                    const std::string& message,
                                    core::command_buffer_t* cmdstring) const override {
     UNUSED(channel);
@@ -139,7 +139,7 @@ class FakeTranslator : public core::ICommandTranslator {
     UNUSED(cmdstring);
     return common::Error();
   }
-  common::Error SubscribeCommandImpl(const core::NDbPSChannel& channel,
+  common::Error SubscribeCommandImpl(const trans_ps_channel_t& channel,
                                      core::command_buffer_t* cmdstring) const override {
     UNUSED(channel);
     UNUSED(cmdstring);

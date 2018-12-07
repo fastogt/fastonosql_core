@@ -84,10 +84,10 @@ class CommandTranslator : public ICommandTranslator {
 
   bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const override;
 
-  common::Error PublishCommandImpl(const NDbPSChannel& channel,
+  common::Error PublishCommandImpl(const trans_ps_channel_t& channel,
                                    const std::string& message,
                                    command_buffer_t* cmdstring) const override;
-  common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const override;
+  common::Error SubscribeCommandImpl(const trans_ps_channel_t& channel, command_buffer_t* cmdstring) const override;
 };
 
 }  // namespace redis_compatible

@@ -516,20 +516,18 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
          cmd.IsEqualName(GEN_CMD_STRING(DB_GETUNI_KEY_COMMAND));
 }
 
-common::Error CommandTranslator::PublishCommandImpl(const NDbPSChannel& channel,
-                                                    const std::string& message,
-                                                    command_buffer_t* cmdstring) const {
-  std::string channel_str = channel.GetName();
+common::Error CommandTranslator::PublishCommandImpl(const trans_ps_channel_t& channel,
+                                                const std::string& message,
+                                                command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
-  wr << REDIS_PUBLISH_COMMAND SPACE_STR << channel_str << SPACE_STR << message;
+  wr << REDIS_PUBLISH_COMMAND SPACE_STR << channel.GetForCommandLine() << SPACE_STR << message;
   *cmdstring = wr.str();
   return common::Error();
 }
 
-common::Error CommandTranslator::SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const {
-  std::string channel_str = channel.GetName();
+common::Error CommandTranslator::SubscribeCommandImpl(const trans_ps_channel_t& channel, command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
-  wr << REDIS_SUBSCRIBE_COMMAND SPACE_STR << channel_str;
+  wr << REDIS_SUBSCRIBE_COMMAND SPACE_STR << channel.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

@@ -23,7 +23,6 @@
 
 #include <fastonosql/core/command_holder.h>
 #include <fastonosql/core/db_key.h>  // for NKey, NDbKValue, ttl_t
-#include <fastonosql/core/db_ps_channel.h>
 #include <fastonosql/core/types.h>
 
 #define DB_FLUSHDB_COMMAND "FLUSHDB"    // exist for all
@@ -68,6 +67,7 @@ class ICommandTranslator {
  public:
   typedef nkey_t trans_key_t;
   typedef readable_string_t trans_value_t;
+  typedef ReadableString trans_ps_channel_t;
 
   explicit ICommandTranslator(const std::vector<CommandHolder>& commands);
   virtual ~ICommandTranslator();
@@ -95,11 +95,12 @@ class ICommandTranslator {
 
   common::Error GetTypeCommand(const NKey& key, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
-  common::Error PublishCommand(const NDbPSChannel& channel,
+  common::Error PublishCommand(const trans_ps_channel_t& channel,
                                const std::string& message,
                                command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
-  common::Error SubscribeCommand(const NDbPSChannel& channel, command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
+  common::Error SubscribeCommand(const trans_ps_channel_t& channel,
+                                 command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   std::vector<CommandInfo> GetCommands() const;
   common::Error FindCommand(const command_buffer_t& command_first_name,
@@ -128,10 +129,10 @@ class ICommandTranslator {
                                              command_buffer_t* cmdstring) const = 0;
   virtual common::Error ChangeKeyTTLCommandImpl(const NKey& key, ttl_t ttl, command_buffer_t* cmdstring) const = 0;
   virtual common::Error LoadKeyTTLCommandImpl(const NKey& key, command_buffer_t* cmdstring) const = 0;
-  virtual common::Error PublishCommandImpl(const NDbPSChannel& channel,
+  virtual common::Error PublishCommandImpl(const trans_ps_channel_t& channel,
                                            const std::string& message,
                                            command_buffer_t* cmdstring) const = 0;
-  virtual common::Error SubscribeCommandImpl(const NDbPSChannel& channel, command_buffer_t* cmdstring) const = 0;
+  virtual common::Error SubscribeCommandImpl(const trans_ps_channel_t& channel, command_buffer_t* cmdstring) const = 0;
 
   virtual bool IsLoadKeyCommandImpl(const CommandInfo& cmd) const = 0;
 

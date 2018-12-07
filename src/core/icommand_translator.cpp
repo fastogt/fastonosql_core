@@ -189,7 +189,7 @@ common::Error ICommandTranslator::GetTypeCommand(const NKey& key, command_buffer
   return common::Error();
 }
 
-common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
+common::Error ICommandTranslator::PublishCommand(const trans_ps_channel_t& channel,
                                                  const std::string& message,
                                                  command_buffer_t* cmdstring) const {
   if (!cmdstring || message.empty()) {
@@ -200,7 +200,8 @@ common::Error ICommandTranslator::PublishCommand(const NDbPSChannel& channel,
   return PublishCommandImpl(channel, message, cmdstring);
 }
 
-common::Error ICommandTranslator::SubscribeCommand(const NDbPSChannel& channel, command_buffer_t* cmdstring) const {
+common::Error ICommandTranslator::SubscribeCommand(const trans_ps_channel_t& channel,
+                                                   command_buffer_t* cmdstring) const {
   if (!cmdstring) {
     DNOTREACHED();
     return common::make_error_inval();
