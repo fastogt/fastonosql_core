@@ -50,6 +50,9 @@ class NDbClient {
   typedef std::string cmd_t;
 
   NDbClient();
+  explicit NDbClient(const std::string& text);
+
+  bool IsValid() const;
 
   void SetId(id_t iden);
   id_t GetId() const;

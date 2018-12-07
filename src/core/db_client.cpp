@@ -18,11 +18,37 @@
 
 #include <fastonosql/core/db_client.h>
 
+#include <common/convert2string.h>
+
+#define CLIENT_ID "id"
+#define CLIENT_ADDR "addr"
+#define CLIENT_FD "fd"
+#define CLIENT_NAME "name"
+#define CLIENT_AGE "age"
+#define CLIENT_IDLE "idle"
+#define CLIENT_FLAGS "flags"
+#define CLIENT_DB "db"
+#define CLIENT_SUB "sub"
+#define CLIENT_PSUB "psub"
+#define CLIENT_MULTI "multi"
+#define CLIENT_QBUF "qbuf"
+#define CLIENT_QBUF_FREE "qbuf-free"
+#define CLIENT_ODL "obl"
+#define CLIENT_OLL "oll"
+#define CLIENT_OMEM "omem"
+#define CLIENT_EVENTS "events"
+#define CLIENT_CMD "cmd"
+
+#define CLIENT_FIELDS_DELEMITER " "
+#define CLIENT_FIELD_VALUE_DELEMITER "="
+
+#define INVALID_ID -1
+
 namespace fastonosql {
 namespace core {
 
 NDbClient::NDbClient()
-    : id_(0),
+    : id_(INVALID_ID),
       addr_(),
       fd_(0),
       name_(),
@@ -40,6 +66,101 @@ NDbClient::NDbClient()
       omem_(0),
       events_(),
       cmd_() {}
+
+NDbClient::NDbClient(const std::string& text) : NDbClient() {
+  size_t pos = 0;
+  size_t start = 0;
+  while ((pos = text.find(CLIENT_FIELDS_DELEMITER, start)) != std::string::npos) {
+    std::string line = text.substr(start, pos - start);
+    size_t delem = line.find_first_of(CLIENT_FIELD_VALUE_DELEMITER);
+    std::string field = line.substr(0, delem);
+    std::string value = line.substr(delem + 1);
+    if (field == CLIENT_ID) {
+      id_t iden;
+      if (common::ConvertFromString(value, &iden)) {
+        id_ = iden;
+      }
+    } else if (field == CLIENT_ADDR) {
+      addr_t hs;
+      if (common::ConvertFromString(value, &hs)) {
+        addr_ = hs;
+      }
+    } else if (field == CLIENT_FD) {
+      fd_t fd;
+      if (common::ConvertFromString(value, &fd)) {
+        fd_ = fd;
+      }
+    } else if (field == CLIENT_NAME) {
+      name_ = value;
+    } else if (field == CLIENT_AGE) {
+      age_t age;
+      if (common::ConvertFromString(value, &age)) {
+        age_ = age;
+      }
+    } else if (field == CLIENT_IDLE) {
+      idle_t idle;
+      if (common::ConvertFromString(value, &idle)) {
+        idle_ = idle;
+      }
+    } else if (field == CLIENT_FLAGS) {
+      flags_ = value;
+    } else if (field == CLIENT_DB) {
+      db_t db;
+      if (common::ConvertFromString(value, &db)) {
+        db_ = db;
+      }
+    } else if (field == CLIENT_SUB) {
+      sub_t ps;
+      if (common::ConvertFromString(value, &ps)) {
+        sub_ = ps;
+      }
+    } else if (field == CLIENT_PSUB) {
+      psub_t ps;
+      if (common::ConvertFromString(value, &ps)) {
+        psub_ = ps;
+      }
+    } else if (field == CLIENT_MULTI) {
+      multi_t multi;
+      if (common::ConvertFromString(value, &multi)) {
+        multi_ = multi;
+      }
+    } else if (field == CLIENT_QBUF) {
+      qbuf_t qbuf;
+      if (common::ConvertFromString(value, &qbuf)) {
+        qbuf_ = qbuf;
+      }
+    } else if (field == CLIENT_QBUF_FREE) {
+      qbuf_free_t qbuf_free;
+      if (common::ConvertFromString(value, &qbuf_free)) {
+        qbuf_free_ = qbuf_free;
+      }
+    } else if (field == CLIENT_ODL) {
+      odl_t odl;
+      if (common::ConvertFromString(value, &odl)) {
+        odl_ = odl;
+      }
+    } else if (field == CLIENT_OLL) {
+      oll_t oll;
+      if (common::ConvertFromString(value, &oll)) {
+        oll_ = oll;
+      }
+    } else if (field == CLIENT_OMEM) {
+      omem_t omem;
+      if (common::ConvertFromString(value, &omem)) {
+        omem_ = omem;
+      }
+    } else if (field == CLIENT_EVENTS) {
+      events_ = value;
+    } else if (field == CLIENT_CMD) {
+      cmd_ = value;
+    }
+    start = pos + SIZEOFMASS(CLIENT_FIELDS_DELEMITER) - 1;
+  }
+}
+
+bool NDbClient::IsValid() const {
+  return id_ != INVALID_ID;
+}
 
 void NDbClient::SetId(id_t iden) {
   id_ = iden;
