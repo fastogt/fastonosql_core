@@ -57,6 +57,11 @@ bool IsRemoteType(ConnectionType type) {
     return true;
   }
 #endif
+#if defined(BUILD_WITH_MEMCACHED)
+  if (type == MEMCACHED) {
+    return true;
+  }
+#endif
 #if defined(BUILD_WITH_PIKA)
   if (type == PIKA) {
     return true;

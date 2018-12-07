@@ -517,15 +517,16 @@ bool CommandTranslator::IsLoadKeyCommandImpl(const CommandInfo& cmd) const {
 }
 
 common::Error CommandTranslator::PublishCommandImpl(const trans_ps_channel_t& channel,
-                                                const std::string& message,
-                                                command_buffer_t* cmdstring) const {
+                                                    const std::string& message,
+                                                    command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
   wr << REDIS_PUBLISH_COMMAND SPACE_STR << channel.GetForCommandLine() << SPACE_STR << message;
   *cmdstring = wr.str();
   return common::Error();
 }
 
-common::Error CommandTranslator::SubscribeCommandImpl(const trans_ps_channel_t& channel, command_buffer_t* cmdstring) const {
+common::Error CommandTranslator::SubscribeCommandImpl(const trans_ps_channel_t& channel,
+                                                      command_buffer_t* cmdstring) const {
   command_buffer_writer_t wr;
   wr << REDIS_SUBSCRIBE_COMMAND SPACE_STR << channel.GetForCommandLine();
   *cmdstring = wr.str();
