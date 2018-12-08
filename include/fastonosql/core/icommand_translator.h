@@ -103,9 +103,15 @@ class ICommandTranslator {
                                  command_buffer_t* cmdstring) const WARN_UNUSED_RESULT;
 
   std::vector<CommandInfo> GetCommands() const;
-  common::Error FindCommand(const command_buffer_t& command_first_name,
-                            const CommandHolder** info) const WARN_UNUSED_RESULT;
-  common::Error FindCommand(commands_args_t argv, const CommandHolder** info, size_t* off) const WARN_UNUSED_RESULT;
+  common::Error FindCommandFirstName(const command_buffer_t& command_first_name,
+                                     const CommandHolder** info) const WARN_UNUSED_RESULT;
+  common::Error FindCommand(const command_buffer_t& command,
+                            const CommandHolder** info,
+                            commands_args_t* argv = nullptr,
+                            size_t* off = nullptr) const WARN_UNUSED_RESULT;
+  common::Error FindCommand(commands_args_t argv,
+                            const CommandHolder** info,
+                            size_t* off = nullptr) const WARN_UNUSED_RESULT;
 
   common::Error TestCommandArgs(const CommandHolder* cmd, commands_args_t argv) const WARN_UNUSED_RESULT;
   common::Error TestCommandLine(const command_buffer_t& cmd) const WARN_UNUSED_RESULT;

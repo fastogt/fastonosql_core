@@ -246,8 +246,8 @@ std::vector<CommandInfo> ICommandTranslator::GetCommands() const {
   return cmds;
 }
 
-common::Error ICommandTranslator::FindCommand(const command_buffer_t& command_first_name,
-                                              const CommandHolder** info) const {
+common::Error ICommandTranslator::FindCommandFirstName(const command_buffer_t& command_first_name,
+                                                       const CommandHolder** info) const {
   if (!info || command_first_name.empty()) {
     DNOTREACHED();
     return common::make_error_inval();
@@ -264,8 +264,33 @@ common::Error ICommandTranslator::FindCommand(const command_buffer_t& command_fi
   return UnknownCommand(command_first_name);
 }
 
+common::Error ICommandTranslator::FindCommand(const command_buffer_t& command,
+                                              const CommandHolder** info,
+                                              commands_args_t* argv,
+                                              size_t* off) const {
+  if (command.empty() || !info) {
+    DNOTREACHED();
+    return common::make_error_inval();
+  }
+
+  commands_args_t standart_argv;
+  if (!ParseCommandLine(command, &standart_argv)) {
+    return common::make_error_inval();
+  }
+
+  common::Error err = FindCommand(standart_argv, info, off);
+  if (err) {
+    return err;
+  }
+
+  if (argv) {
+    *argv = standart_argv;
+  }
+  return common::Error();
+}
+
 common::Error ICommandTranslator::FindCommand(commands_args_t argv, const CommandHolder** info, size_t* off) const {
-  if (!info || !off) {
+  if (!info || argv.empty()) {
     return common::make_error_inval();
   }
 
@@ -274,7 +299,9 @@ common::Error ICommandTranslator::FindCommand(commands_args_t argv, const Comman
     size_t loff = 0;
     if (cmd->IsCommand(argv, &loff)) {
       *info = cmd;
-      *off = loff;
+      if (off) {
+        *off = loff;
+      }
       return common::Error();
     }
   }

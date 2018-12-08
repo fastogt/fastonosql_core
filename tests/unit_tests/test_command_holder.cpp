@@ -28,7 +28,9 @@
 #define GET2 GEN_CMD_STRING("GET2")
 #define CONFIG GEN_CMD_STRING("CONFIG")
 #define GET_CONFIG GEN_CMD_STRING("GET CONFIG")
-#define GET_CONFIG_INVALID GEN_CMD_STRING("GET CONFIGE")
+#define GET_CONFIG_INVALID_CMD GEN_CMD_STRING("GET CONFIGE")
+#define JSON_GET_LOWER_CMD GEN_CMD_STRING("json.get")
+#define JSON_GET_UPPER_CMD GEN_CMD_STRING("JSON.GET")
 
 namespace core = fastonosql::core;
 
@@ -71,6 +73,15 @@ static const std::vector<core::CommandHolder> cmds = {core::CommandHolder(SET,
                                                                           core::CommandInfo::Native,
                                                                           &test),
                                                       core::CommandHolder(CONFIG,
+                                                                          "<key>",
+                                                                          "Set the value of a key.",
+                                                                          UNDEFINED_SINCE,
+                                                                          UNDEFINED_EXAMPLE_STR,
+                                                                          1,
+                                                                          0,
+                                                                          core::CommandInfo::Native,
+                                                                          &test),
+                                                      core::CommandHolder(JSON_GET_UPPER_CMD,
                                                                           "<key>",
                                                                           "Set the value of a key.",
                                                                           UNDEFINED_SINCE,
@@ -169,6 +180,10 @@ TEST(CommandHolder, execute) {
   ASSERT_FALSE(err);
   ASSERT_EQ(hld->name, CONFIG);
 
+  err = ft->FindCommand(JSON_GET_LOWER_CMD, &hld);
+  ASSERT_FALSE(err);
+  ASSERT_EQ(hld->name, JSON_GET_UPPER_CMD);
+
   err = hand->Execute(cmd_not_exists, NULL);
   ASSERT_TRUE(err);
 
@@ -176,7 +191,7 @@ TEST(CommandHolder, execute) {
   err = hand->Execute(cmd_get_config, NULL);
   ASSERT_TRUE(!err);
 
-  const core::commands_args_t cmd_get_config_invalid = {GET_CONFIG_INVALID, GEN_CMD_STRING("alex")};
+  const core::commands_args_t cmd_get_config_invalid = {GET_CONFIG_INVALID_CMD, GEN_CMD_STRING("alex")};
   err = hand->Execute(cmd_get_config_invalid, NULL);
   ASSERT_TRUE(err);
 
