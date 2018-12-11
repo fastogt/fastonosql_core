@@ -42,7 +42,7 @@ common::Error CommandTranslator::CreateKeyCommandImpl(const NDbKValue& key, comm
   const NValue value = key.GetValue();
 
   command_buffer_writer_t wr;
-  wr << LEVELDB_SET_KEY_COMMAND " " << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
+  wr << LEVELDB_SET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << value.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -54,7 +54,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 
   const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LEVELDB_GET_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << LEVELDB_GET_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -62,7 +62,7 @@ common::Error CommandTranslator::LoadKeyCommandImpl(const NKey& key,
 common::Error CommandTranslator::DeleteKeyCommandImpl(const NKey& key, command_buffer_t* cmdstring) const {
   const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LEVELDB_DELETE_KEY_COMMAND " " << key_str.GetForCommandLine();
+  wr << LEVELDB_DELETE_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }
@@ -72,7 +72,7 @@ common::Error CommandTranslator::RenameKeyCommandImpl(const NKey& key,
                                                       command_buffer_t* cmdstring) const {
   const auto key_str = key.GetKey();
   command_buffer_writer_t wr;
-  wr << LEVELDB_RENAME_KEY_COMMAND " " << key_str.GetForCommandLine() << " " << new_name.GetForCommandLine();
+  wr << LEVELDB_RENAME_KEY_COMMAND SPACE_STR << key_str.GetForCommandLine() << SPACE_STR << new_name.GetForCommandLine();
   *cmdstring = wr.str();
   return common::Error();
 }

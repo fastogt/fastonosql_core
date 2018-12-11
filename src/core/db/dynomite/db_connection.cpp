@@ -35,7 +35,7 @@ const ConstantCommandsArray kCommands = {
                   "[command]",
                   "Return how to use command",
                   UNDEFINED_SINCE,
-                  DB_HELP_COMMAND " " DB_GET_KEY_COMMAND,
+                  DB_HELP_COMMAND SPACE_STR DB_GET_KEY_COMMAND,
                   0,
                   1,
                   CommandInfo::Native,
