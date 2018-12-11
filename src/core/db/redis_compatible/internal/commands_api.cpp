@@ -92,7 +92,7 @@ common::Error CommandsApi<DBConnection>::LFastoSet(internal::CommandHandler* han
   const NKey key(key_str);
 
   common::ArrayValue* arr = common::Value::CreateArrayValue();
-  for (size_t i = 1; i < argv.size(); ++i) {
+  for (size_t i = argv.size() - 1; i > 0; --i) {
     arr->AppendString(argv[i]);
   }
 
