@@ -34,7 +34,6 @@
 #define JSON_START_ARRAY_CHAR '['
 #define JSON_END_ARRAY_CHAR ']'
 
-#define DEFAULT_DELIMITER SPACE_STR
 #define ALL_COMMANDS "*"
 #define ALL_KEYS_PATTERNS "*"
 #define ALL_PUBSUB_CHANNELS "*"

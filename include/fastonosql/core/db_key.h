@@ -64,6 +64,7 @@ typedef std::vector<NKey> NKeys;
 class NValue : public common::ValueSPtr {
  public:
   typedef common::ValueSPtr base_class;
+  static const char default_delimiter[];
 
   NValue();
 
@@ -73,7 +74,7 @@ class NValue : public common::ValueSPtr {
   explicit NValue(const base_class& other);
 
   readable_string_t GetData() const;
-  readable_string_t GetForCommandLine(const std::string& delimiter = DEFAULT_DELIMITER) const;
+  readable_string_t GetForCommandLine() const;
 };
 
 class NDbKValue {

@@ -55,16 +55,18 @@ bool NKey::Equals(const NKey& other) const {
   return ttl_ == other.ttl_;
 }
 
+const char NValue::default_delimiter[] = SPACE_STR;
+
 NValue::NValue() : base_class() {}
 
 NValue::NValue(const base_class& other) : base_class(other) {}
 
 readable_string_t NValue::GetData() const {
-  return ConvertValue(get(), DEFAULT_DELIMITER);
+  return ConvertValue(get(), default_delimiter);
 }
 
-readable_string_t NValue::GetForCommandLine(const std::string& delimiter) const {
-  return ConvertValueForCommandLine(get(), delimiter);
+readable_string_t NValue::GetForCommandLine() const {
+  return ConvertValueForCommandLine(get(), default_delimiter);
 }
 
 NDbKValue::NDbKValue() : key_(), value_() {}
