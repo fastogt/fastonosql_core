@@ -32,7 +32,7 @@
 #define DB_DBKCOUNT_COMMAND "DBKCOUNT"  // exist for all
 #define DB_QUIT_COMMAND "QUIT"          // exist for all
 
-#define DB_JSONDUMP_COMMAND "DUMPTOJSON"       // exist for all
+#define DB_JSONDUMP_COMMAND "DUMPTOJSON"     // exist for all
 #define DB_STORE_VALUE_COMMAND "DUMPTOFILE"  // exist for all
 
 #define DB_SET_TTL_COMMAND "EXPIRE"
