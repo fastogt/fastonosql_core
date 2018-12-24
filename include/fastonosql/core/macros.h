@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #define SPACE_CHAR ' '
 #define SPACE_STR " "
 #define END_LINE_CHAR '\n'
