@@ -378,42 +378,6 @@ IF(BUILD_WITH_LMDB)
   ENDIF(OS_WINDOWS)
 ENDIF(BUILD_WITH_LMDB)
 
-#upscaledb
-IF(BUILD_WITH_UPSCALEDB)
-  SET(Boost_USE_MULTITHREADED ON)
-  SET(Boost_USE_STATIC_LIBS ON)
-  FIND_PACKAGE(Boost COMPONENTS thread system REQUIRED)
-  FIND_LIBRARY(UPSCALEDB_LIBRARY upscaledb)
-  FIND_PATH(UPSCALEDB_INCLUDE_DIR NAMES ups/upscaledb.h PATH_SUFFIXES include)
-  SET(HAVE_UPSCALEDB ON)
-  SET(DB_INCLUDE_DIRS ${DB_INCLUDE_DIRS} ${UPSCALEDB_INCLUDE_DIR})
-
-  #core
-  SET(HEADERS_CORE_DB_UPSCALEDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/config.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/command_translator.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/server_info.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/db_connection.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/upscaledb/database_info.h
-  )
-  SET(SOURCES_CORE_DB_UPSCALEDB
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/internal/commands_api.h
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/internal/commands_api.cpp
-
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/config.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/command_translator.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/server_info.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/db_connection.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/upscaledb/database_info.cpp
-  )
-
-  SET(DB_LIBS ${DB_LIBS} ${UPSCALEDB_LIBRARY} ${Boost_LIBRARIES})
-  IF(ZLIB_FOUND)
-    SET(DB_INCLUDE_DIRS ${DB_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
-    SET(DB_LIBS ${DB_LIBS} ${ZLIB_LIBRARIES})
-  ENDIF(ZLIB_FOUND)
-ENDIF(BUILD_WITH_UPSCALEDB)
-
 #forestdb
 IF(BUILD_WITH_FORESTDB)
   FIND_LIBRARY(FORESTDB_LIBRARY forestdb)
@@ -486,7 +450,6 @@ SET(CORE_HEADERS
   ${HEADERS_CORE_DB_ROCKSDB}
   ${HEADERS_CORE_DB_UNQLITE}
   ${HEADERS_CORE_DB_LMDB}
-  ${HEADERS_CORE_DB_UPSCALEDB}
   ${HEADERS_CORE_DB_FORESTDB}
 )
 
@@ -529,7 +492,6 @@ SET(CORE_SOURCES
   ${SOURCES_CORE_DB_ROCKSDB}
   ${SOURCES_CORE_DB_UNQLITE}
   ${SOURCES_CORE_DB_LMDB}
-  ${SOURCES_CORE_DB_UPSCALEDB}
   ${SOURCES_CORE_DB_FORESTDB}
 )
 

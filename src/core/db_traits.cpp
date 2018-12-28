@@ -39,9 +39,6 @@
 #if defined(BUILD_WITH_LMDB)
 #include <fastonosql/core/db/lmdb/server_info.h>
 #endif
-#if defined(BUILD_WITH_UPSCALEDB)
-#include <fastonosql/core/db/upscaledb/server_info.h>
-#endif
 #if defined(BUILD_WITH_FORESTDB)
 #include <fastonosql/core/db/forestdb/server_info.h>
 #endif
@@ -99,11 +96,6 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uin
     return lmdb::GetSupportedValueTypes();
   }
 #endif
-#if defined(BUILD_WITH_UPSCALEDB)
-  if (type == UPSCALEDB) {
-    return upscaledb::GetSupportedValueTypes();
-  }
-#endif
 #if defined(BUILD_WITH_FORESTDB)
   if (type == FORESTDB) {
     return forestdb::GetSupportedValueTypes();
@@ -158,11 +150,6 @@ std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
 #if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
     return lmdb::GetInfoFields();
-  }
-#endif
-#if defined(BUILD_WITH_UPSCALEDB)
-  if (type == UPSCALEDB) {
-    return upscaledb::GetInfoFields();
   }
 #endif
 #if defined(BUILD_WITH_FORESTDB)

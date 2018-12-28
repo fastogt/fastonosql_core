@@ -48,17 +48,14 @@ enum ConnectionType : uint8_t {
 #if defined(HAVE_LMDB)
   LMDB = 6,
 #endif
-#if defined(HAVE_UPSCALEDB)
-  UPSCALEDB = 7,
-#endif
 #if defined(HAVE_FORESTDB)
-  FORESTDB = 8,
+  FORESTDB = 7,
 #endif
 #if defined(HAVE_PIKA)
-  PIKA = 9,
+  PIKA = 8,
 #endif
 #if defined(HAVE_DYNOMITE)
-  DYNOMITE = 10
+  DYNOMITE = 9
 #endif
 };  // supported types
 

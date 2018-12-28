@@ -49,5 +49,4 @@
 #cmakedefine HAVE_ROCKSDB
 #cmakedefine HAVE_UNQLITE
 #cmakedefine HAVE_LMDB
-#cmakedefine HAVE_UPSCALEDB
 #cmakedefine HAVE_FORESTDB
