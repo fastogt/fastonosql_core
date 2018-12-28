@@ -37,9 +37,6 @@
 #ifdef BUILD_WITH_UNQLITE
 #include <fastonosql/core/db/unqlite/db_connection.h>
 #endif
-#ifdef BUILD_WITH_UPSCALEDB
-#include <fastonosql/core/db/upscaledb/db_connection.h>
-#endif
 
 using namespace fastonosql;
 
@@ -180,26 +177,6 @@ TEST(Connection, unqlite) {
   core::unqlite::DBConnection db(nullptr);
   core::unqlite::Config lcfg;
   lcfg.SetCreateIfMissingDB(true);  // workaround
-  common::Error err = db.Connect(lcfg);
-  ASSERT_TRUE(!err);
-  ASSERT_TRUE(db.IsConnected());
-
-  CheckSetGet(&db);
-
-  err = db.Disconnect();
-  ASSERT_TRUE(!err);
-  ASSERT_TRUE(!db.IsConnected());
-
-  common::ErrnoError errn = common::file_system::remove_file(lcfg.db_path);
-  ASSERT_TRUE(!errn);
-}
-#endif
-
-#ifdef BUILD_WITH_UPSCALEDB
-TEST(Connection, upscaledb) {
-  core::upscaledb::DBConnection db(nullptr);
-  core::upscaledb::Config lcfg;
-  lcfg.create_if_missing = true;  // workaround
   common::Error err = db.Connect(lcfg);
   ASSERT_TRUE(!err);
   ASSERT_TRUE(db.IsConnected());

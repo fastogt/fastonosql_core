@@ -57,10 +57,6 @@
 #include <fastonosql/core/db/unqlite/config.h>
 #endif
 
-#ifdef BUILD_WITH_UPSCALEDB
-#include <fastonosql/core/db/upscaledb/config.h>
-#endif
-
 #ifdef BUILD_WITH_FORESTDB
 #include <fastonosql/core/db/forestdb/config.h>
 #endif
@@ -208,17 +204,6 @@ TEST(Connection, unqlite) {
   Checker(conf);
 
   conf.env_flags = 33;
-  Checker(conf);
-}
-#endif
-
-#ifdef BUILD_WITH_UPSCALEDB
-TEST(Connection, upscaledb) {
-  fastonosql::core::upscaledb::Config conf;
-  Checker(conf);
-
-  conf.dbnum = 2;
-  conf.create_if_missing = true;
   Checker(conf);
 }
 #endif

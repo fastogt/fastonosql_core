@@ -21,8 +21,8 @@
 #include <common/macros.h>  // for NOTREACHED, SIZEOFMASS
 
 namespace {
-const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB",     "LevelDB", "RocksDB", "UnQLite",
-                                  "LMDB",  "UpscaleDB", "ForestDB", "Pika",    "Dynomite"};
+const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",     "LevelDB", "RocksDB",
+                                  "UnQLite", "LMDB",      "ForestDB", "Pika",    "Dynomite"};
 const char* kConnnectionMode[] = {"Interactive mode"};
 const char* kServerType[] = {"Master", "Slave"};
 const char* kServerState[] = {"Up", "Down"};
@@ -117,11 +117,6 @@ bool IsLocalType(ConnectionType type) {
 #endif
 #if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
-    return true;
-  }
-#endif
-#if defined(BUILD_WITH_UPSCALEDB)
-  if (type == UPSCALEDB) {
     return true;
   }
 #endif
