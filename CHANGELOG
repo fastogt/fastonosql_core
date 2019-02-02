@@ -1,3 +1,6 @@
+1.6.1 / February 2, 2018
+- [Redis] Fixed discovery cluster
+
 1.6.0 / December 29, 2018
 [Alexandr Topilski]
 - [UpscaleDB] Removed api

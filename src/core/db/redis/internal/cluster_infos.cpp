@@ -135,7 +135,7 @@ common::Error MakeDiscoveryClusterInfo(const common::net::HostAndPort& parentHos
   size_t pos = 0;
   size_t start = 0;
 
-  while ((pos = text.find(MARKER_STR, start)) != std::string::npos) {
+  while ((pos = text.find(END_LINE_STR, start)) != std::string::npos) {
     std::string line = text.substr(start, pos - start);
 
     ServerCommonInfo inf;
