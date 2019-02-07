@@ -166,6 +166,7 @@ common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, Nativ
     std::string passphrase_str = sinfo.GetPassPharse();
     const char* passphrase = passphrase_str.empty() ? nullptr : passphrase_str.c_str();
     int rssh_method = SSH_UNKNOWN;
+    int redm = DIRECT_CONNECTION;
     if (ssh_method == SSHInfo::PUBLICKEY) {
       if (!private_key || !common::file_system::is_file_exist(private_key)) {
         return common::make_error(common::MemSPrintf("Invalid input private_key path: (%s).", private_key));
@@ -177,13 +178,19 @@ common::Error CreateConnection(const Config& config, const SSHInfo& sinfo, Nativ
         }
       }
       rssh_method = SSH_PUBLICKEY;
+      redm |= SSH_CONNECTION;
     } else if (ssh_method == SSHInfo::ASK_PASSWORD) {
       rssh_method = SSH_PASSWORD;
+      redm |= SSH_CONNECTION;
     } else if (ssh_method == SSHInfo::PASSWORD) {
       rssh_method = SSH_PASSWORD;
+      redm |= SSH_CONNECTION;
+    }
+    if (is_ssl) {
+      redm |= SSL_CONNECTION;
     }
     lcontext = redisConnectSSH(host, port, ssh_address, ssh_port, username, password, public_key, private_key,
-                               passphrase, is_ssl, rssh_method);
+                               passphrase, redm, rssh_method);
   }
 
   if (!lcontext) {
