@@ -1,6 +1,6 @@
 1.6.2 / February 9, 2019
 [Alexandr Topilski]
-- [Redis] hiredis new version integration
+- [Redis] Update hiredis to 0.14 version
 
 1.6.1 / February 2, 2019
 [Alexandr Topilski]
