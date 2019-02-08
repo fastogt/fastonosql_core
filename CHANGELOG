@@ -1,4 +1,9 @@
-1.6.1 / February 2, 2018
+1.6.2 / February 9, 2019
+[Alexandr Topilski]
+- [Redis] hiredis new version integration
+
+1.6.1 / February 2, 2019
+[Alexandr Topilski]
 - [Redis] Fixed discovery cluster
 
 1.6.0 / December 29, 2018
