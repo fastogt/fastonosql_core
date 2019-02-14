@@ -433,6 +433,7 @@ class rocksdb_handle {
 
   DISALLOW_COPY_AND_ASSIGN(rocksdb_handle);
 };
+
 common::Error CreateConnection(const Config& config, NativeConnection** context) {
   if (!context) {
     return common::make_error_inval();
