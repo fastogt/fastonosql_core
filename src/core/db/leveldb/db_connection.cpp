@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/db/leveldb/db_connection.h>
 
-#include <leveldb/c.h>  // for leveldb_major_version, etc
+#include <leveldb/c.h>
 #include <leveldb/db.h>
 
 #include <common/convert2string.h>

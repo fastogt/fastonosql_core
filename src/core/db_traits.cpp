@@ -63,8 +63,6 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uin
   if (type == REDIS) {
     return redis::GetSupportedValueTypes(server_version);
   }
-#else
-  UNUSED(server_version);
 #endif
 #if defined(BUILD_WITH_MEMCACHED)
   if (type == MEMCACHED) {

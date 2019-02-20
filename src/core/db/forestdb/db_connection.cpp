@@ -21,7 +21,7 @@
 #include <libforestdb/forestdb.h>
 
 #include <common/file_system/file_system.h>
-#include <common/utils.h>  // for c_strornull
+#include <common/utils.h>
 
 #include <fastonosql/core/db/forestdb/command_translator.h>
 #include <fastonosql/core/db/forestdb/database_info.h>

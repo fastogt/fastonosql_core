@@ -23,7 +23,7 @@ extern "C" {
 }
 
 #include <common/convert2string.h>
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 
 #define UNQLITE_DEFAULT_ENV_FLAGS (UNQLITE_OPEN_CREATE | UNQLITE_OPEN_READWRITE)
 

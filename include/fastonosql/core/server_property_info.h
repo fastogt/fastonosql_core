@@ -22,7 +22,7 @@
 #include <utility>
 #include <vector>
 
-#include <common/value.h>  // for ArrayValue
+#include <common/value.h>
 
 namespace fastonosql {
 namespace core {

@@ -18,12 +18,12 @@
 
 #include <fastonosql/core/db/lmdb/db_connection.h>
 
-#include <lmdb.h>  // for mdb_txn_abort, MDB_val
+#include <lmdb.h>
 
-#include <common/utils.h>  // for c_strornull
+#include <common/utils.h>
 
 #include <fastonosql/core/db/lmdb/command_translator.h>
-#include <fastonosql/core/db/lmdb/config.h>  // for Config
+#include <fastonosql/core/db/lmdb/config.h>
 #include <fastonosql/core/db/lmdb/database_info.h>
 #include "core/db/lmdb/internal/commands_api.h"
 

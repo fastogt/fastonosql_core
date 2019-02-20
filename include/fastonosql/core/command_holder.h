@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <common/error.h>  // for Error
+#include <common/error.h>
 
 #include <fastonosql/core/command_info.h>
 #include <fastonosql/core/types.h>

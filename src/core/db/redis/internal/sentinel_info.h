@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <common/error.h>  // for Error
+#include <common/error.h>
 
 #include <fastonosql/core/sentinel/sentinel_discovery_info.h>
 

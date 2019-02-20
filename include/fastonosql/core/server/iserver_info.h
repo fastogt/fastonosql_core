@@ -18,11 +18,11 @@
 
 #pragma once
 
-#include <memory>  // for shared_ptr
+#include <memory>
 #include <string>
 
-#include <common/net/types.h>  // for HostAndPortAndSlot
-#include <common/types.h>      // for time64_t
+#include <common/net/types.h>
+#include <common/types.h>
 
 namespace common {
 class Value;

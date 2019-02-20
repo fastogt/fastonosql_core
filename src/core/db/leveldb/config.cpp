@@ -18,10 +18,10 @@
 
 #include <fastonosql/core/db/leveldb/config.h>
 
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 #include <common/macros.h>
 
-#include <leveldb/options.h>  // for Options
+#include <leveldb/options.h>
 
 #define LEVELDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
 #define LEVELDB_COMPRESSION_FIELD ARGS_FROM_FIELD("compression")

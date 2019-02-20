@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/internal/command_handler.h>
 
-#include <fastonosql/core/command_holder.h>  // for CommandHolder
+#include <fastonosql/core/command_holder.h>
 
 namespace fastonosql {
 namespace core {

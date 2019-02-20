@@ -18,7 +18,7 @@
 
 #include "core/db/unqlite/internal/commands_api.h"
 
-#include <fastonosql/core/db/unqlite/db_connection.h>  // for DBConnection
+#include <fastonosql/core/db/unqlite/db_connection.h>
 
 namespace fastonosql {
 namespace core {

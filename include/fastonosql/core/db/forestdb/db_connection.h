@@ -22,10 +22,10 @@
 
 #include <libforestdb/fdb_errors.h>
 
-#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/forestdb/config.h>
-#include <fastonosql/core/db/forestdb/server_info.h>  // for ServerInfo
+#include <fastonosql/core/db/forestdb/server_info.h>
 
 namespace fastonosql {
 namespace core {

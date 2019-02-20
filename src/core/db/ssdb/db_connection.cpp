@@ -24,7 +24,7 @@
 
 #include <common/convert2string.h>
 
-#include <SSDB.h>  // for Status, Client
+#include <SSDB.h>
 
 #include <fastonosql/core/db/ssdb/command_translator.h>
 #include <fastonosql/core/db/ssdb/database_info.h>

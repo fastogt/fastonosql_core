@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include <common/intrusive_ptr.h>  // for intrusive_ptr, etc
+#include <common/intrusive_ptr.h>
 #include <common/value.h>
 
 #include <fastonosql/core/connection_types.h>

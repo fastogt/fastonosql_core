@@ -20,9 +20,9 @@
 
 #include <string>
 
-#include <common/net/types.h>  // for HostAndPortAndSlot
+#include <common/net/types.h>
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionType, etc
+#include <fastonosql/core/connection_types.h>
 
 namespace fastonosql {
 namespace core {

@@ -20,9 +20,9 @@
 
 #include <string>
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionType
+#include <fastonosql/core/connection_types.h>
 
-#include <fastonosql/core/internal/connection.h>  // for Connection, ConnectionAllocatorTr...
+#include <fastonosql/core/internal/connection.h>
 
 namespace fastonosql {
 namespace core {

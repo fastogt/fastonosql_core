@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include <fastonosql/core/icommand_translator.h>  // for ICommandTranslator
+#include <fastonosql/core/icommand_translator.h>
 
 #define REDIS_GET_PTTL_COMMAND "PTTL"
 #define REDIS_CHANGE_PTTL_COMMAND "PEXPIRE"

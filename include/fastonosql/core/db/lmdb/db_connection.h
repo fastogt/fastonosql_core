@@ -20,10 +20,10 @@
 
 #include <string>
 
-#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/lmdb/config.h>
-#include <fastonosql/core/db/lmdb/server_info.h>  // for ServerInfo
+#include <fastonosql/core/db/lmdb/server_info.h>
 
 namespace fastonosql {
 namespace core {

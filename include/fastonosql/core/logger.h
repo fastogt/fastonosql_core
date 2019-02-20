@@ -21,7 +21,7 @@
 #include <string>
 
 #include <common/logger.h>
-#include <common/patterns/singleton_pattern.h>  // for LazySingleton
+#include <common/patterns/singleton_pattern.h>
 
 namespace fastonosql {
 namespace core {

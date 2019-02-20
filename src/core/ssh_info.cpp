@@ -19,7 +19,7 @@
 #include <fastonosql/core/ssh_info.h>
 
 #include <common/convert2string.h>
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 
 #include <fastonosql/core/macros.h>
 

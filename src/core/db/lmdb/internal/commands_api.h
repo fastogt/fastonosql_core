@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "core/internal/commands_api.h"  // for ApiTraits
+#include "core/internal/commands_api.h"
 
 #define LMDB_DROPDB_COMMAND "DROPDB"
 

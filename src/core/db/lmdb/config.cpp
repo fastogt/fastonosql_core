@@ -18,10 +18,10 @@
 
 #include <fastonosql/core/db/lmdb/config.h>
 
-#include <lmdb.h>  // for mdb_txn_abort, MDB_val
+#include <lmdb.h>
 
 #include <common/convert2string.h>
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 
 #define LMDB_DEFAULT_ENV_FLAGS MDB_NOSUBDIR
 

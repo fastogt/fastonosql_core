@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/db_key.h>  // for NDbKValue, NKey, NKeys, ttl_t
+#include <fastonosql/core/db_key.h>
 
 namespace fastonosql {
 namespace core {

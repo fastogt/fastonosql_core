@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include <common/error.h>  // for Error
+#include <common/error.h>
 
 #include <fastonosql/core/cluster/cluster_discovery_info.h>
 

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <fastonosql/core/icommand_translator_base.h>  // for ICommandTranslator
+#include <fastonosql/core/icommand_translator_base.h>
 
 namespace fastonosql {
 namespace core {

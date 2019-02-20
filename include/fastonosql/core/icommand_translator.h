@@ -22,7 +22,7 @@
 #include <vector>
 
 #include <fastonosql/core/command_holder.h>
-#include <fastonosql/core/db_key.h>  // for NKey, NDbKValue, ttl_t
+#include <fastonosql/core/db_key.h>
 #include <fastonosql/core/types.h>
 
 #define DB_FLUSHDB_COMMAND "FLUSHDB"    // exist for all

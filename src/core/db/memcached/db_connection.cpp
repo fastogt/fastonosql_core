@@ -22,7 +22,7 @@
 #include <libmemcached/util.h>
 
 #include <fastonosql/core/db/memcached/command_translator.h>
-#include <fastonosql/core/db/memcached/config.h>  // for Config
+#include <fastonosql/core/db/memcached/config.h>
 #include <fastonosql/core/db/memcached/database_info.h>
 #include "core/db/memcached/internal/commands_api.h"
 

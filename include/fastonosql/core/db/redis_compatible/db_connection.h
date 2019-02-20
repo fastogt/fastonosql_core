@@ -23,7 +23,7 @@
 
 #include <common/convert2string.h>
 
-#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/redis_compatible/config.h>
 

@@ -18,7 +18,7 @@
 
 #include "core/db/redis/internal/sentinel_info.h"
 
-#include <hiredis/hiredis.h>  // for redisReply
+#include <hiredis/hiredis.h>
 
 #include <common/convert2string.h>
 #include <common/string_util.h>

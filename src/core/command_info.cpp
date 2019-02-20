@@ -19,7 +19,7 @@
 #include <fastonosql/core/command_info.h>
 
 #include <common/convert2string.h>
-#include <common/string_util.h>  // for FullEqualsASCII
+#include <common/string_util.h>
 
 namespace fastonosql {
 namespace core {

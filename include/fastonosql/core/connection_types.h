@@ -20,7 +20,7 @@
 
 #include <fastonosql/config.h>
 
-#include <string>  // for string
+#include <string>
 #include <vector>
 
 namespace fastonosql {

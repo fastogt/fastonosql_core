@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <common/value.h>  // for Value, Value::Type, etc
+#include <common/value.h>
 
 #include <fastonosql/core/macros.h>
 #include <fastonosql/core/types.h>

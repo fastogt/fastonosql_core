@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <common/net/types.h>  // for operator==, HostAndPort
+#include <common/net/types.h>
 
 namespace fastonosql {
 namespace core {

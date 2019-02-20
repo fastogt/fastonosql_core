@@ -20,9 +20,9 @@
 
 #include <vector>
 
-#include <common/types.h>  // for ClonableBase
+#include <common/types.h>
 
-#include <fastonosql/core/db_key.h>  // for NDbKValue
+#include <fastonosql/core/db_key.h>
 
 namespace fastonosql {
 namespace core {

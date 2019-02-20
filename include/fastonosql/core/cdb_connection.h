@@ -26,8 +26,8 @@
 
 #include <fastonosql/core/cdb_connection_client.h>
 #include <fastonosql/core/connection_commands_traits.h>
-#include <fastonosql/core/internal/command_handler.h>  // for CommandHandler, etc
-#include <fastonosql/core/internal/db_connection.h>    // for DBConnection
+#include <fastonosql/core/internal/command_handler.h>
+#include <fastonosql/core/internal/db_connection.h>
 
 #include <fastonosql/core/database/idatabase_info.h>
 #include <fastonosql/core/server/iserver_info.h>

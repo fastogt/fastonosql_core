@@ -18,15 +18,15 @@
 
 #include "core/db/redis/internal/cluster_infos.h"
 
-#include <stddef.h>  // for size_t
-#include <memory>    // for __shared_ptr
+#include <stddef.h>
+#include <memory>
 
-#include <common/convert2string.h>  // for ConvertFromString
-#include <common/net/types.h>       // for HostAndPortAndSlot, etc
-#include <common/string_util.h>     // for Tokenize
-#include <common/value.h>           // for ErrorValue, etc
+#include <common/convert2string.h>
+#include <common/net/types.h>
+#include <common/string_util.h>
+#include <common/value.h>
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionType::REDIS, etc
+#include <fastonosql/core/connection_types.h>
 #include <fastonosql/core/macros.h>
 
 namespace fastonosql {

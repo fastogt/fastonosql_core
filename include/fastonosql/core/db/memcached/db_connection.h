@@ -20,7 +20,7 @@
 
 #include <string>
 
-#include <fastonosql/core/cdb_connection.h>  // for CDBConnection
+#include <fastonosql/core/cdb_connection.h>
 
 #include <fastonosql/core/db/memcached/config.h>
 #include <fastonosql/core/db/memcached/server_info.h>

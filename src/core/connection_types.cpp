@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/connection_types.h>
 
-#include <common/macros.h>  // for NOTREACHED, SIZEOFMASS
+#include <common/macros.h>
 
 namespace {
 const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",     "LevelDB", "RocksDB",

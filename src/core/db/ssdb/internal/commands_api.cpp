@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <fastonosql/core/db/ssdb/db_connection.h>  // for DBConnection
+#include <fastonosql/core/db/ssdb/db_connection.h>
 
 namespace fastonosql {
 namespace core {

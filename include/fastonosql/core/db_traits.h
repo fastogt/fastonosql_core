@@ -22,9 +22,9 @@
 #include <utility>
 #include <vector>
 
-#include <common/value.h>  // for Value, Value::Type
+#include <common/value.h>
 
-#include <fastonosql/core/connection_types.h>  // for ConnectionType
+#include <fastonosql/core/connection_types.h>
 
 namespace fastonosql {
 namespace core {

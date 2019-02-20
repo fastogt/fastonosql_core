@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/db/forestdb/config.h>
 
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 
 #define FORESTDB_DB_NAME_FIELD ARGS_FROM_FIELD("n")
 

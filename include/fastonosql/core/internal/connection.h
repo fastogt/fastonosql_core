@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <common/error.h>  // for Error
+#include <common/error.h>
 
 namespace fastonosql {
 namespace core {

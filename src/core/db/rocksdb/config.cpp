@@ -18,7 +18,7 @@
 
 #include <fastonosql/core/db/rocksdb/config.h>
 
-#include <common/file_system/types.h>  // for prepare_path
+#include <common/file_system/types.h>
 #include <common/macros.h>
 
 #define ROCKSDB_COMPARATOR_FIELD ARGS_FROM_FIELD("comparator")
