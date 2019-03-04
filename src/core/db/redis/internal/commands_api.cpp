@@ -1570,6 +1570,95 @@ common::Error CommandsApi::FtSuglen(internal::CommandHandler* handler, commands_
                          out);
 }
 
+common::Error CommandsApi::FtConfig(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("CONFIG"))}, argv),
+                         out);
+}
+
+common::Error CommandsApi::FtSynupdate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNUPDATE"))}, argv), out);
+}
+
+common::Error CommandsApi::FtAlter(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("ALTER"))}, argv),
+                         out);
+}
+
+common::Error CommandsApi::FtDictdump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("DICTDUMP"))}, argv), out);
+}
+
+common::Error CommandsApi::FtDebug(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("DEBUG"))}, argv),
+                         out);
+}
+
+common::Error CommandsApi::FtDictdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("DICTDEL"))}, argv), out);
+}
+
+common::Error CommandsApi::FtAggregate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("AGGREGATE"))}, argv), out);
+}
+
+common::Error CommandsApi::FtSynforceupdate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNFORCEUPDATE"))}, argv), out);
+}
+common::Error CommandsApi::FtExplaincli(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("EXPLAINCLI"))}, argv), out);
+}
+
+common::Error CommandsApi::FtSpellcheck(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SPELLCHECK"))}, argv), out);
+}
+
+common::Error CommandsApi::FtSyndump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNDUMP"))}, argv), out);
+}
+
+common::Error CommandsApi::FtSynadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNADD"))}, argv), out);
+}
+
+common::Error CommandsApi::FtDictadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("DICTADD"))}, argv), out);
+}
+
+common::Error CommandsApi::FtTagvals(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("TAGVALS"))}, argv), out);
+}
+
+common::Error CommandsApi::FtCursor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(
+      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("CURSOR"))}, argv), out);
+}
+
 common::Error CommandsApi::JsonDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   const nkey_t key_str(argv[0]);
   const NKey key(key_str);

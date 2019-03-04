@@ -284,6 +284,21 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error FtSugget(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error FtSugdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error FtSuglen(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtConfig(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtSynupdate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtAlter(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtDictdump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtDebug(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtDictdel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtAggregate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtSynforceupdate(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtExplaincli(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtSpellcheck(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtSyndump(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtSynadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtDictadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtTagvals(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error FtCursor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 
   // rejson
   static common::Error JsonDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);

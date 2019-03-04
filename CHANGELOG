@@ -1,3 +1,7 @@
+1.6.4 /
+[Alexandr Topilski]
+- [Redis] More redis search commands
+
 1.6.3 / February 20, 2019
 [Alexandr Topilski]
 - [RocksDB] Update sources to version 5.18.0

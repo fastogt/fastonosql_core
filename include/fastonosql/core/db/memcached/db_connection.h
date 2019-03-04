@@ -25,7 +25,7 @@
 #include <fastonosql/core/db/memcached/config.h>
 #include <fastonosql/core/db/memcached/server_info.h>
 
-struct memcached_st;  // lines 37-37
+struct memcached_st;
 
 namespace fastonosql {
 namespace core {
