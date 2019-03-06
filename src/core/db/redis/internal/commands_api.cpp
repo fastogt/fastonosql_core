@@ -1637,8 +1637,8 @@ common::Error CommandsApi::FtSyndump(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::FtSynadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(
-      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNADD"))}, argv), out);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("SYNADD"))}, argv),
+                         out);
 }
 
 common::Error CommandsApi::FtDictadd(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
@@ -1655,8 +1655,8 @@ common::Error CommandsApi::FtTagvals(internal::CommandHandler* handler, commands
 
 common::Error CommandsApi::FtCursor(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
-  return red->CommonExec(
-      redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("CURSOR"))}, argv), out);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING(REDIS_SEARCH_MODULE_COMMAND("CURSOR"))}, argv),
+                         out);
 }
 
 common::Error CommandsApi::JsonDel(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {

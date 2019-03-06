@@ -853,14 +853,17 @@ common::Error DBConnection::KeysImpl(const raw_key_t& key_start,
 
 common::Error DBConnection::DBKeysCountImpl(keys_limit_t* size) {
   keys_limit_t sz = 0;
+  common::Error err;
+#if 0
   std::string ret;
-  common::Error err = GetProperty(ROCKSDB_KEYS_COUNT_PROPERTY, &ret);
+  err = GetProperty(ROCKSDB_KEYS_COUNT_PROPERTY, &ret);
   if (!err) {
     if (common::ConvertFromString(ret, &sz)) {
       *size = sz;
       return common::Error();
     }
   }
+#endif
 
   // old calc
   ::rocksdb::ReadOptions ro;
