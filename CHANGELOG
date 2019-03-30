@@ -1,3 +1,7 @@
+1.7.0 /
+[Alexandr Topilski]
+- [KeyDB] New api for KeyDB database
+
 1.6.4 / March 8, 2019
 [Alexandr Topilski]
 - [Redis] More redis search commands

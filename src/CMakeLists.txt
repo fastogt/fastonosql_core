@@ -70,7 +70,7 @@ SET(DATABASE_SOURCES
 
 # core engines
 #redis or pika (compatible with redis protocol)
-IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITE)
+IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITE OR BUILD_WITH_KEYDB)
   FIND_PACKAGE(OpenSSL REQUIRED)
   FIND_PACKAGE(Libssh2 REQUIRED CONFIG)
   FIND_PACKAGE(Hiredis REQUIRED)
@@ -98,7 +98,7 @@ IF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITE)
   IF(OS_WINDOWS)
     SET(DB_LIBS ${DB_LIBS} crypt32)
   ENDIF(OS_WINDOWS)
-ENDIF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITE)
+ENDIF(BUILD_WITH_REDIS OR BUILD_WITH_PIKA OR BUILD_WITH_DYNOMITE OR BUILD_WITH_KEYDB)
 
 #redis
 IF(BUILD_WITH_REDIS)
@@ -151,7 +151,7 @@ IF(BUILD_WITH_DYNOMITE)
   SET(HEADERS_CORE_DB_DYNOMITE
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/dynomite/config.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/dynomite/command_translator.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/redis/server_info.h
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/dynomite/server_info.h
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/dynomite/server_info.h # redis server info dynomite - proxy
     ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/dynomite/db_connection.h
   )
@@ -161,11 +161,36 @@ IF(BUILD_WITH_DYNOMITE)
 
     ${CMAKE_SOURCE_DIR}/src/core/db/dynomite/config.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/dynomite/command_translator.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/redis/server_info.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/dynomite/server_info.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/dynomite/server_info.cpp
     ${CMAKE_SOURCE_DIR}/src/core/db/dynomite/db_connection.cpp
   )
 ENDIF(BUILD_WITH_DYNOMITE)
+
+#keydb
+IF(BUILD_WITH_KEYDB)
+  SET(HAVE_KEYDB ON)
+  SET(HEADERS_CORE_DB_KEYDB
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/keydb/config.h
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/keydb/server_info.h
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/keydb/db_connection.h
+    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/keydb/command_translator.h
+  )
+  SET(SOURCES_CORE_DB_KEYDB
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/modules.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/commands_api.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/commands_api.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/cluster_infos.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/sentinel_info.h
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/cluster_infos.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/internal/sentinel_info.cpp
+
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/config.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/server_info.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/db_connection.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/db/keydb/command_translator.cpp
+  )
+ENDIF(BUILD_WITH_KEYDB)
 
 #memcached
 IF(BUILD_WITH_MEMCACHED)
@@ -444,6 +469,7 @@ SET(CORE_HEADERS
   ${HEADERS_CORE_DB_REDIS}
   ${HEADERS_CORE_DB_PIKA}
   ${HEADERS_CORE_DB_DYNOMITE}
+  ${HEADERS_CORE_DB_KEYDB}
   ${HEADERS_CORE_DB_MEMCACHED}
   ${HEADERS_CORE_DB_SSDB}
   ${HEADERS_CORE_DB_LEVELDB}
@@ -486,6 +512,7 @@ SET(CORE_SOURCES
   ${SOURCES_CORE_DB_REDIS}
   ${SOURCES_CORE_DB_PIKA}
   ${SOURCES_CORE_DB_DYNOMITE}
+  ${SOURCES_CORE_DB_KEYDB}
   ${SOURCES_CORE_DB_MEMCACHED}
   ${SOURCES_CORE_DB_SSDB}
   ${SOURCES_CORE_DB_LEVELDB}

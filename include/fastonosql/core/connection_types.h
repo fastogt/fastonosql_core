@@ -55,7 +55,10 @@ enum ConnectionType : uint8_t {
   PIKA = 8,
 #endif
 #if defined(HAVE_DYNOMITE)
-  DYNOMITE = 9
+  DYNOMITE = 9,
+#endif
+#if defined(HAVE_KEYDB)
+  KEYDB = 10
 #endif
 };  // supported types
 

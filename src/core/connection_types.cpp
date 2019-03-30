@@ -21,8 +21,8 @@
 #include <common/macros.h>
 
 namespace {
-const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB",     "LevelDB", "RocksDB",
-                                  "UnQLite", "LMDB",      "ForestDB", "Pika",    "Dynomite"};
+const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB", "LevelDB",  "RocksDB", "UnQLite",
+                                  "LMDB",  "ForestDB",  "Pika", "Dynomite", "KeyDB"};
 const char* kConnnectionMode[] = {"Interactive mode"};
 const char* kServerType[] = {"Master", "Slave"};
 const char* kServerState[] = {"Up", "Down"};
@@ -45,6 +45,11 @@ bool IsRedisCompatible(ConnectionType type) {
 #endif
 #if defined(BUILD_WITH_DYNOMITE)
   if (type == DYNOMITE) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_KEYDB)
+  if (type == KEYDB) {
     return true;
   }
 #endif
@@ -77,6 +82,11 @@ bool IsRemoteType(ConnectionType type) {
     return true;
   }
 #endif
+#if defined(BUILD_WITH_KEYDB)
+  if (type == KEYDB) {
+    return true;
+  }
+#endif
   return false;
 }
 
@@ -98,6 +108,11 @@ bool IsSupportTTLKeys(ConnectionType type) {
 #endif
 #if defined(BUILD_WITH_SSDB)
   if (type == SSDB) {
+    return true;
+  }
+#endif
+#if defined(BUILD_WITH_KEYDB)
+  if (type == KEYDB) {
     return true;
   }
 #endif
