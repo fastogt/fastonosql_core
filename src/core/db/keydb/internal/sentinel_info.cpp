@@ -20,8 +20,8 @@
 
 #include <hiredis/hiredis.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <common/convert2string.h>
 #include <common/string_util.h>

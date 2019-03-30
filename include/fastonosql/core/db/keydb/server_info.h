@@ -33,6 +33,7 @@
 #define KEYDB_STATS_LABEL "# Stats"
 #define KEYDB_REPLICATION_LABEL "# Replication"
 #define KEYDB_CPU_LABEL "# CPU"
+#define KEYDB_CLUSTER_LABEL "# Cluster"
 #define KEYDB_KEYSPACE_LABEL "# Keyspace"
 
 // Server
@@ -52,12 +53,15 @@
 #define KEYDB_SERVER_UPTIME_IN_DAYS_LABEL "uptime_in_days"
 #define KEYDB_SERVER_HZ_LABEL "hz"
 #define KEYDB_SERVER_LRU_CLOCK_LABEL "lru_clock"
+#define KEYDB_SERVER_EXECUTABLE_LABEL "executable"
+#define KEYDB_SERVER_CONFIG_FILE_LABEL "config_file"
 
 // Clients
 #define KEYDB_CLIENTS_CONNECTED_CLIENTS_LABEL "connected_clients"
 #define KEYDB_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL "client_longest_output_list"
 #define KEYDB_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL "client_biggest_input_buf"
 #define KEYDB_CLIENTS_BLOCKED_CLIENTS_LABEL "blocked_clients"
+#define KEYDB_CLIENTS_THREAD_0_CLIENTS_LABEL "thread_0_clients"
 
 // Memory
 #define KEYDB_MEMORY_USED_MEMORY_LABEL "used_memory"
@@ -68,6 +72,8 @@
 #define KEYDB_MEMORY_USED_MEMORY_LUA_LABEL "used_memory_lua"
 #define KEYDB_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL "mem_fragmentation_ratio"
 #define KEYDB_MEMORY_MEM_ALLOCATOR_LABEL "mem_allocator"
+#define KEYDB_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL "active_defrag_running"
+#define KEYDB_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL "lazyfree_pending_objects"
 
 // Persistence
 #define KEYDB_PERSISTENCE_LOADING_LABEL "loading"
@@ -100,6 +106,12 @@
 #define KEYDB_STATS_PUBSUB_CHANNELS_LABEL "pubsub_channels"
 #define KEYDB_STATS_PUBSUB_PATTERNS_LABEL "pubsub_patterns"
 #define KEYDB_STATS_LATEST_FORK_USEC_LABEL "latest_fork_usec"
+#define KEYDB_STATS_MIGRATE_CACHED_SOCKETS_LABEL "migrate_cached_sockets"
+#define KEYDB_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL "slave_expires_tracked_keys"
+#define KEYDB_STATS_ACTIVE_DEFRAG_HITS_LABEL "active_defrag_hits"
+#define KEYDB_STATS_ACTIVE_DEFRAG_MISSES_LABEL "active_defrag_misses"
+#define KEYDB_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL "active_defrag_key_hits"
+#define KEYDB_STATS_ACTIVE_DEFRAG_KEY_LABEL "active_defrag_key_misses"
 
 // Replication
 #define KEYDB_REPLICATION_ROLE_LABEL "role"
@@ -115,6 +127,11 @@
 #define KEYDB_CPU_USED_CPU_USER_LABEL "used_cpu_user"
 #define KEYDB_CPU_USED_CPU_SYS_CHILDREN_LABEL "used_cpu_sys_children"
 #define KEYDB_CPU_USED_CPU_USER_CHILDREN_LABEL "used_cpu_user_children"
+#define KEYDB_CPU_SERVER_THREADS_LABEL "server_threads"
+#define KEYDB_CPU_LONG_LOCK_WAITS_LABEL "long_lock_waits"
+
+// CLUSTER
+#define KEYDB_CLUSTER_CLUSTER_ENABLED_LABEL "cluster_enabled"
 
 namespace fastonosql {
 namespace core {
@@ -146,6 +163,8 @@ class ServerInfo : public IServerInfo {
     uint32_t uptime_in_days_;
     uint32_t hz_;
     uint32_t lru_clock_;
+    std::string executable_;
+    std::string config_file_;
   } server_;
 
   struct Clients : IStateField {
@@ -157,6 +176,7 @@ class ServerInfo : public IServerInfo {
     uint32_t client_longest_output_list_;
     uint32_t client_biggest_input_buf_;
     uint32_t blocked_clients_;
+    uint32_t thread_0_clients_;
   } clients_;
 
   struct Memory : IStateField {
@@ -172,6 +192,8 @@ class ServerInfo : public IServerInfo {
     uint32_t used_memory_lua_;
     float mem_fragmentation_ratio_;
     std::string mem_allocator_;
+    uint32_t active_defrag_running_;
+    uint32_t lazyfree_pending_objects_;
   } memory_;
 
   struct Persistence : IStateField {
@@ -214,6 +236,12 @@ class ServerInfo : public IServerInfo {
     uint32_t pubsub_channels_;
     uint32_t pubsub_patterns_;
     uint32_t latest_fork_usec_;
+    uint32_t migrate_cached_sockets_;
+    uint32_t slave_expires_tracked_keys_;
+    uint32_t active_defrag_hits_;
+    uint32_t active_defrag_misses_;
+    uint32_t active_defrag_key_hits_;
+    uint32_t active_defrag_key_misses_;
   } stats_;
 
   struct Replication : IStateField {
@@ -239,7 +267,17 @@ class ServerInfo : public IServerInfo {
     float used_cpu_user_;
     float used_cpu_sys_children_;
     float used_cpu_user_children_;
+    uint32_t server_threads_;
+    uint32_t long_lock_waits_;
   } cpu_;
+
+  struct Cluster : IStateField {
+    Cluster();
+    explicit Cluster(const std::string& cluster_text);
+
+    common::Value* GetValueByIndex(unsigned char index) const override;
+    uint32_t cluster_enabled_;
+  } cluster_;
 
   struct Keyspace : IStateField {
     common::Value* GetValueByIndex(unsigned char index) const override;
@@ -253,6 +291,7 @@ class ServerInfo : public IServerInfo {
              const Stats& stats,
              const Replication& repl,
              const Cpu& cpu,
+             const Cluster& cluster,
              const Keyspace& key);
   explicit ServerInfo(const std::string& content);
 

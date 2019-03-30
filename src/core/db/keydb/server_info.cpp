@@ -49,13 +49,16 @@ const std::vector<Field> kRedisServerFields = {
     Field(KEYDB_SERVER_UPTIME_IN_SECONDS_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_SERVER_UPTIME_IN_DAYS_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_SERVER_HZ_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_SERVER_LRU_CLOCK_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(KEYDB_SERVER_LRU_CLOCK_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_SERVER_EXECUTABLE_LABEL, common::Value::TYPE_STRING),
+    Field(KEYDB_SERVER_CONFIG_FILE_LABEL, common::Value::TYPE_STRING)};
 
 const std::vector<Field> kRedisClientFields = {
     Field(KEYDB_CLIENTS_CONNECTED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_CLIENTS_BLOCKED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(KEYDB_CLIENTS_BLOCKED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_CLIENTS_THREAD_0_CLIENTS_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisMemoryFields = {
     Field(KEYDB_MEMORY_USED_MEMORY_LABEL, common::Value::TYPE_UINTEGER),
@@ -65,7 +68,9 @@ const std::vector<Field> kRedisMemoryFields = {
     Field(KEYDB_MEMORY_USED_MEMORY_PEAK_HUMAN_LABEL, common::Value::TYPE_STRING),
     Field(KEYDB_MEMORY_USED_MEMORY_LUA_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL, common::Value::TYPE_DOUBLE),
-    Field(KEYDB_MEMORY_MEM_ALLOCATOR_LABEL, common::Value::TYPE_STRING)};
+    Field(KEYDB_MEMORY_MEM_ALLOCATOR_LABEL, common::Value::TYPE_STRING),
+    Field(KEYDB_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisPersistenceFields = {
     Field(KEYDB_PERSISTENCE_LOADING_LABEL, common::Value::TYPE_UINTEGER),
@@ -97,7 +102,13 @@ const std::vector<Field> kRedisStatsFields = {
     Field(KEYDB_STATS_KEYSPACE_MISSES_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_STATS_PUBSUB_CHANNELS_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_STATS_PUBSUB_PATTERNS_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_STATS_LATEST_FORK_USEC_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(KEYDB_STATS_LATEST_FORK_USEC_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_MIGRATE_CACHED_SOCKETS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_ACTIVE_DEFRAG_HITS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_ACTIVE_DEFRAG_MISSES_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(KEYDB_STATS_ACTIVE_DEFRAG_KEY_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisReplicationFields = {
     Field(KEYDB_REPLICATION_ROLE_LABEL, common::Value::TYPE_STRING),
@@ -108,11 +119,15 @@ const std::vector<Field> kRedisReplicationFields = {
     Field(KEYDB_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL, common::Value::TYPE_UINTEGER),
     Field(KEYDB_REPLICATION_BACKLOG_HISTEN_LABEL, common::Value::TYPE_UINTEGER)};
 
-const std::vector<Field> kRedisCpuFields = {
-    Field(KEYDB_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_UINTEGER),
-    Field(KEYDB_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kRedisCpuFields = {Field(KEYDB_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(KEYDB_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(KEYDB_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(KEYDB_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(KEYDB_CPU_SERVER_THREADS_LABEL, common::Value::TYPE_UINTEGER),
+                                            Field(KEYDB_CPU_LONG_LOCK_WAITS_LABEL, common::Value::TYPE_UINTEGER)};
+
+const std::vector<Field> kRedisClusterFields = {
+    Field(KEYDB_CLUSTER_CLUSTER_ENABLED_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisKeyspaceFields = {};
 
@@ -131,7 +146,9 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Server& value) {
              << KEYDB_SERVER_UPTIME_IN_SECONDS_LABEL COLON_STR << value.uptime_in_seconds_ << KEYDB_INFO_MARKER
              << KEYDB_SERVER_UPTIME_IN_DAYS_LABEL COLON_STR << value.uptime_in_days_ << KEYDB_INFO_MARKER
              << KEYDB_SERVER_HZ_LABEL COLON_STR << value.hz_ << KEYDB_INFO_MARKER
-             << KEYDB_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << KEYDB_INFO_MARKER;
+             << KEYDB_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << KEYDB_INFO_MARKER
+             << KEYDB_SERVER_EXECUTABLE_LABEL COLON_STR << value.executable_ << KEYDB_INFO_MARKER
+             << KEYDB_SERVER_CONFIG_FILE_LABEL COLON_STR << value.config_file_ << KEYDB_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
@@ -139,7 +156,8 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
              << KEYDB_CLIENTS_CLIENT_LONGEST_OUTPUT_LIST_LABEL COLON_STR << value.client_longest_output_list_
              << KEYDB_INFO_MARKER << KEYDB_CLIENTS_CLIENT_BIGGEST_INPUT_BUF_LABEL COLON_STR
              << value.client_biggest_input_buf_ << KEYDB_INFO_MARKER << KEYDB_CLIENTS_BLOCKED_CLIENTS_LABEL COLON_STR
-             << value.blocked_clients_ << KEYDB_INFO_MARKER;
+             << value.blocked_clients_ << KEYDB_INFO_MARKER << KEYDB_CLIENTS_THREAD_0_CLIENTS_LABEL COLON_STR
+             << value.thread_0_clients_ << KEYDB_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Memory& value) {
@@ -151,7 +169,10 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Memory& value) {
              << KEYDB_INFO_MARKER << KEYDB_MEMORY_USED_MEMORY_LUA_LABEL COLON_STR << value.used_memory_lua_
              << KEYDB_INFO_MARKER << KEYDB_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL COLON_STR
              << value.mem_fragmentation_ratio_ << KEYDB_INFO_MARKER << KEYDB_MEMORY_MEM_ALLOCATOR_LABEL COLON_STR
-             << value.mem_allocator_ << KEYDB_INFO_MARKER;
+             << value.mem_allocator_ << KEYDB_INFO_MARKER << KEYDB_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL COLON_STR
+             << value.active_defrag_running_ << KEYDB_INFO_MARKER
+             << KEYDB_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL COLON_STR << value.lazyfree_pending_objects_
+             << KEYDB_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Persistence& value) {
@@ -192,7 +213,13 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << KEYDB_STATS_KEYSPACE_MISSES_LABEL COLON_STR << value.keyspace_misses_ << KEYDB_INFO_MARKER
              << KEYDB_STATS_PUBSUB_CHANNELS_LABEL COLON_STR << value.pubsub_channels_ << KEYDB_INFO_MARKER
              << KEYDB_STATS_PUBSUB_PATTERNS_LABEL COLON_STR << value.pubsub_patterns_ << KEYDB_INFO_MARKER
-             << KEYDB_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER;
+             << KEYDB_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_MIGRATE_CACHED_SOCKETS_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_ACTIVE_DEFRAG_HITS_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_ACTIVE_DEFRAG_MISSES_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER
+             << KEYDB_STATS_ACTIVE_DEFRAG_KEY_LABEL COLON_STR << value.latest_fork_usec_ << KEYDB_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Replication& value) {
@@ -211,6 +238,10 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Cpu& value) {
              << KEYDB_CPU_USED_CPU_USER_LABEL COLON_STR << value.used_cpu_user_ << KEYDB_INFO_MARKER
              << KEYDB_CPU_USED_CPU_SYS_CHILDREN_LABEL COLON_STR << value.used_cpu_sys_children_ << KEYDB_INFO_MARKER
              << KEYDB_CPU_USED_CPU_USER_CHILDREN_LABEL COLON_STR << value.used_cpu_user_children_ << KEYDB_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Cluster& value) {
+  return out << KEYDB_CLUSTER_CLUSTER_ENABLED_LABEL << value.cluster_enabled_ << KEYDB_INFO_MARKER;
 }
 
 }  // namespace
@@ -241,6 +272,8 @@ std::vector<info_field_t> GetInfoFields() {
           std::make_pair(KEYDB_STATS_LABEL, kRedisStatsFields),
           std::make_pair(KEYDB_REPLICATION_LABEL, kRedisReplicationFields),
           std::make_pair(KEYDB_CPU_LABEL, kRedisCpuFields),
+          std::make_pair(KEYDB_CLUSTER_LABEL, kRedisClusterFields),
+          std::make_pair(KEYDB_CLUSTER_LABEL, kRedisClusterFields),
           std::make_pair(KEYDB_KEYSPACE_LABEL, kRedisKeyspaceFields)};
 }
 
@@ -259,7 +292,9 @@ ServerInfo::Server::Server::Server()
       uptime_in_seconds_(0),
       uptime_in_days_(0),
       hz_(0),
-      lru_clock_(0) {}
+      lru_clock_(0),
+      executable_(),
+      config_file_() {}
 
 ServerInfo::Server::Server(const std::string& server_text)
     : redis_version_(),
@@ -276,7 +311,9 @@ ServerInfo::Server::Server(const std::string& server_text)
       uptime_in_seconds_(0),
       uptime_in_days_(0),
       hz_(0),
-      lru_clock_(0) {
+      lru_clock_(0),
+      executable_(),
+      config_file_() {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = server_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
@@ -335,6 +372,10 @@ ServerInfo::Server::Server(const std::string& server_text)
       if (common::ConvertFromString(value, &lru_clock)) {
         lru_clock_ = lru_clock;
       }
+    } else if (field == KEYDB_SERVER_EXECUTABLE_LABEL) {
+      executable_ = value;
+    } else if (field == KEYDB_SERVER_CONFIG_FILE_LABEL) {
+      config_file_ = value;
     }
     start = pos + 2;
   }
@@ -383,10 +424,18 @@ common::Value* ServerInfo::Server::GetValueByIndex(unsigned char index) const {
 }
 
 ServerInfo::Clients::Clients()
-    : connected_clients_(0), client_longest_output_list_(0), client_biggest_input_buf_(0), blocked_clients_(0) {}
+    : connected_clients_(0),
+      client_longest_output_list_(0),
+      client_biggest_input_buf_(0),
+      blocked_clients_(0),
+      thread_0_clients_(0) {}
 
 ServerInfo::Clients::Clients(const std::string& client_text)
-    : connected_clients_(0), client_longest_output_list_(0), client_biggest_input_buf_(0), blocked_clients_(0) {
+    : connected_clients_(0),
+      client_longest_output_list_(0),
+      client_biggest_input_buf_(0),
+      blocked_clients_(0),
+      thread_0_clients_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = client_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
@@ -414,6 +463,11 @@ ServerInfo::Clients::Clients(const std::string& client_text)
       if (common::ConvertFromString(value, &blocked_clients)) {
         blocked_clients_ = blocked_clients;
       }
+    } else if (field == KEYDB_CLIENTS_THREAD_0_CLIENTS_LABEL) {
+      uint32_t thread_0_clients;
+      if (common::ConvertFromString(value, &thread_0_clients)) {
+        thread_0_clients_ = thread_0_clients;
+      }
     }
     start = pos + 2;
   }
@@ -429,6 +483,8 @@ common::Value* ServerInfo::Clients::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(client_biggest_input_buf_);
     case 3:
       return new common::FundamentalValue(blocked_clients_);
+    case 4:
+      return new common::FundamentalValue(thread_0_clients_);
     default:
       break;
   }
@@ -445,7 +501,9 @@ ServerInfo::Memory::Memory()
       used_memory_peak_human_(),
       used_memory_lua_(0),
       mem_fragmentation_ratio_(0),
-      mem_allocator_() {}
+      mem_allocator_(),
+      active_defrag_running_(0),
+      lazyfree_pending_objects_(0) {}
 
 ServerInfo::Memory::Memory(const std::string& memory_text)
     : used_memory_(0),
@@ -455,7 +513,9 @@ ServerInfo::Memory::Memory(const std::string& memory_text)
       used_memory_peak_human_(),
       used_memory_lua_(0),
       mem_fragmentation_ratio_(0),
-      mem_allocator_() {
+      mem_allocator_(),
+      active_defrag_running_(0),
+      lazyfree_pending_objects_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = memory_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
@@ -494,6 +554,16 @@ ServerInfo::Memory::Memory(const std::string& memory_text)
       }
     } else if (field == KEYDB_MEMORY_MEM_ALLOCATOR_LABEL) {
       mem_allocator_ = value;
+    } else if (field == KEYDB_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL) {
+      uint32_t active_defrag_running;
+      if (common::ConvertFromString(value, &active_defrag_running)) {
+        active_defrag_running_ = active_defrag_running;
+      }
+    } else if (field == KEYDB_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL) {
+      uint32_t lazyfree_pending_objects;
+      if (common::ConvertFromString(value, &lazyfree_pending_objects)) {
+        lazyfree_pending_objects_ = lazyfree_pending_objects;
+      }
     }
     start = pos + 2;
   }
@@ -517,6 +587,10 @@ common::Value* ServerInfo::Memory::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(mem_fragmentation_ratio_);
     case 7:
       return common::Value::CreateStringValueFromBasicString(mem_allocator_);
+    case 8:
+      return new common::FundamentalValue(active_defrag_running_);
+    case 9:
+      return new common::FundamentalValue(lazyfree_pending_objects_);
     default:
       break;
   }
@@ -681,7 +755,13 @@ ServerInfo::Stats::Stats()
       keyspace_misses_(0),
       pubsub_channels_(0),
       pubsub_patterns_(0),
-      latest_fork_usec_(0) {}
+      latest_fork_usec_(0),
+      migrate_cached_sockets_(0),
+      slave_expires_tracked_keys_(0),
+      active_defrag_hits_(0),
+      active_defrag_misses_(0),
+      active_defrag_key_hits_(0),
+      active_defrag_key_misses_(0) {}
 
 ServerInfo::Stats::Stats(const std::string& stats_text)
     : total_connections_received_(0),
@@ -697,7 +777,13 @@ ServerInfo::Stats::Stats(const std::string& stats_text)
       keyspace_misses_(0),
       pubsub_channels_(0),
       pubsub_patterns_(0),
-      latest_fork_usec_(0) {
+      latest_fork_usec_(0),
+      migrate_cached_sockets_(0),
+      slave_expires_tracked_keys_(0),
+      active_defrag_hits_(0),
+      active_defrag_misses_(0),
+      active_defrag_key_hits_(0),
+      active_defrag_key_misses_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = stats_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
@@ -775,7 +861,38 @@ ServerInfo::Stats::Stats(const std::string& stats_text)
       if (common::ConvertFromString(value, &latest_fork_usec)) {
         latest_fork_usec_ = latest_fork_usec;
       }
+    } else if (field == KEYDB_STATS_MIGRATE_CACHED_SOCKETS_LABEL) {
+      uint32_t migrate_cached_sockets;
+      if (common::ConvertFromString(value, &migrate_cached_sockets)) {
+        migrate_cached_sockets_ = migrate_cached_sockets;
+      }
+    } else if (field == KEYDB_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL) {
+      uint32_t slave_expires_tracked_keys;
+      if (common::ConvertFromString(value, &slave_expires_tracked_keys)) {
+        slave_expires_tracked_keys_ = slave_expires_tracked_keys;
+      }
+    } else if (field == KEYDB_STATS_ACTIVE_DEFRAG_HITS_LABEL) {
+      uint32_t active_defrag_hits;
+      if (common::ConvertFromString(value, &active_defrag_hits)) {
+        active_defrag_hits_ = active_defrag_hits;
+      }
+    } else if (field == KEYDB_STATS_ACTIVE_DEFRAG_MISSES_LABEL) {
+      uint32_t active_defrag_misses;
+      if (common::ConvertFromString(value, &active_defrag_misses)) {
+        active_defrag_misses_ = active_defrag_misses;
+      }
+    } else if (field == KEYDB_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL) {
+      uint32_t active_defrag_key_hits;
+      if (common::ConvertFromString(value, &active_defrag_key_hits)) {
+        active_defrag_key_hits_ = active_defrag_key_hits;
+      }
+    } else if (field == KEYDB_STATS_ACTIVE_DEFRAG_KEY_LABEL) {
+      uint32_t active_defrag_key_misses;
+      if (common::ConvertFromString(value, &active_defrag_key_misses)) {
+        active_defrag_key_misses_ = active_defrag_key_misses;
+      }
     }
+
     start = pos + 2;
   }
 }
@@ -810,6 +927,18 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(pubsub_patterns_);
     case 13:
       return new common::FundamentalValue(latest_fork_usec_);
+    case 14:
+      return new common::FundamentalValue(migrate_cached_sockets_);
+    case 15:
+      return new common::FundamentalValue(slave_expires_tracked_keys_);
+    case 16:
+      return new common::FundamentalValue(active_defrag_hits_);
+    case 17:
+      return new common::FundamentalValue(active_defrag_misses_);
+    case 18:
+      return new common::FundamentalValue(active_defrag_key_hits_);
+    case 19:
+      return new common::FundamentalValue(active_defrag_key_misses_);
     default:
       break;
   }
@@ -904,10 +1033,21 @@ common::Value* ServerInfo::Replication::GetValueByIndex(unsigned char index) con
   return nullptr;
 }
 
-ServerInfo::Cpu::Cpu() : used_cpu_sys_(0), used_cpu_user_(0), used_cpu_sys_children_(0), used_cpu_user_children_(0) {}
+ServerInfo::Cpu::Cpu()
+    : used_cpu_sys_(0),
+      used_cpu_user_(0),
+      used_cpu_sys_children_(0),
+      used_cpu_user_children_(0),
+      server_threads_(0),
+      long_lock_waits_(0) {}
 
 ServerInfo::Cpu::Cpu(const std::string& cpu_text)
-    : used_cpu_sys_(0), used_cpu_user_(0), used_cpu_sys_children_(0), used_cpu_user_children_(0) {
+    : used_cpu_sys_(0),
+      used_cpu_user_(0),
+      used_cpu_sys_children_(0),
+      used_cpu_user_children_(0),
+      server_threads_(0),
+      long_lock_waits_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = cpu_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
@@ -935,6 +1075,16 @@ ServerInfo::Cpu::Cpu(const std::string& cpu_text)
       if (common::ConvertFromString(value, &used_cpu_user_children)) {
         used_cpu_user_children_ = used_cpu_user_children;
       }
+    } else if (field == KEYDB_CPU_SERVER_THREADS_LABEL) {
+      uint32_t server_threads;
+      if (common::ConvertFromString(value, &server_threads)) {
+        server_threads_ = server_threads;
+      }
+    } else if (field == KEYDB_CPU_LONG_LOCK_WAITS_LABEL) {
+      uint32_t long_lock_waits;
+      if (common::ConvertFromString(value, &long_lock_waits)) {
+        long_lock_waits_ = long_lock_waits;
+      }
     }
     start = pos + 2;
   }
@@ -950,6 +1100,42 @@ common::Value* ServerInfo::Cpu::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(used_cpu_sys_children_);
     case 3:
       return new common::FundamentalValue(used_cpu_user_children_);
+    case 4:
+      return new common::FundamentalValue(server_threads_);
+    case 5:
+      return new common::FundamentalValue(long_lock_waits_);
+    default:
+      break;
+  }
+
+  NOTREACHED();
+  return nullptr;
+}
+
+ServerInfo::Cluster::Cluster() : cluster_enabled_(0) {}
+
+ServerInfo::Cluster::Cluster(const std::string& cluster_text) : cluster_enabled_(0) {
+  size_t pos = 0;
+  size_t start = 0;
+  while ((pos = cluster_text.find(KEYDB_INFO_MARKER, start)) != std::string::npos) {
+    std::string line = cluster_text.substr(start, pos - start);
+    size_t delem = line.find_first_of(':');
+    std::string field = line.substr(0, delem);
+    std::string value = line.substr(delem + 1);
+    if (field == KEYDB_CLUSTER_CLUSTER_ENABLED_LABEL) {
+      uint32_t cluster_enabled;
+      if (common::ConvertFromString(value, &cluster_enabled)) {
+        cluster_enabled_ = cluster_enabled;
+      }
+    }
+    start = pos + 2;
+  }
+}
+
+common::Value* ServerInfo::Cluster::GetValueByIndex(unsigned char index) const {
+  switch (index) {
+    case 0:
+      return new common::FundamentalValue(cluster_enabled_);
     default:
       break;
   }
@@ -973,6 +1159,7 @@ ServerInfo::ServerInfo(const Server& serv,
                        const Stats& stats,
                        const Replication& repl,
                        const Cpu& cpu,
+                       const Cluster& cluster,
                        const Keyspace& key)
     : IServerInfo(),
       server_(serv),
@@ -982,6 +1169,7 @@ ServerInfo::ServerInfo(const Server& serv,
       stats_(stats),
       replication_(repl),
       cpu_(cpu),
+      cluster_(cluster),
       keysp_(key) {}
 
 ServerInfo::ServerInfo(const std::string& content) {
@@ -1065,7 +1253,8 @@ std::string ServerInfo::ToString() const {
   str << KEYDB_SERVER_LABEL KEYDB_INFO_MARKER << server_ << KEYDB_CLIENTS_LABEL KEYDB_INFO_MARKER << clients_
       << KEYDB_MEMORY_LABEL KEYDB_INFO_MARKER << memory_ << KEYDB_PERSISTENCE_LABEL KEYDB_INFO_MARKER << persistence_
       << KEYDB_STATS_LABEL KEYDB_INFO_MARKER << stats_ << KEYDB_REPLICATION_LABEL KEYDB_INFO_MARKER << replication_
-      << KEYDB_CPU_LABEL KEYDB_INFO_MARKER << cpu_ << KEYDB_KEYSPACE_LABEL KEYDB_INFO_MARKER;
+      << KEYDB_CPU_LABEL KEYDB_INFO_MARKER << cpu_ << KEYDB_CLUSTER_LABEL KEYDB_INFO_MARKER << cluster_
+      << KEYDB_KEYSPACE_LABEL KEYDB_INFO_MARKER;
   return str.str();
 }
 
