@@ -1067,6 +1067,38 @@ common::Value* ServerInfo::Cpu::GetValueByIndex(unsigned char index) const {
   return nullptr;
 }
 
+ServerInfo::Cluster::Cluster() : cluster_enabled_(0) {}
+
+ServerInfo::Cluster::Cluster(const std::string& cluster_text) : cluster_enabled_(0) {
+  size_t pos = 0;
+  size_t start = 0;
+  while ((pos = cluster_text.find(REDIS_INFO_MARKER, start)) != std::string::npos) {
+    std::string line = cluster_text.substr(start, pos - start);
+    size_t delem = line.find_first_of(':');
+    std::string field = line.substr(0, delem);
+    std::string value = line.substr(delem + 1);
+    if (field == REDIS_CLUSTER_CLUSTER_ENABLED_LABEL) {
+      uint32_t cluster_enabled;
+      if (common::ConvertFromString(value, &cluster_enabled)) {
+        cluster_enabled_ = cluster_enabled;
+      }
+    }
+    start = pos + 2;
+  }
+}
+
+common::Value* ServerInfo::Cluster::GetValueByIndex(unsigned char index) const {
+  switch (index) {
+    case 0:
+      return new common::FundamentalValue(cluster_enabled_);
+    default:
+      break;
+  }
+
+  NOTREACHED();
+  return nullptr;
+}
+
 common::Value* ServerInfo::Keyspace::GetValueByIndex(unsigned char index) const {
   UNUSED(index);
 
