@@ -190,7 +190,7 @@ class ServerInfo : public IServerInfo {
     uint32_t used_memory_peak_;
     std::string used_memory_peak_human_;
     uint32_t used_memory_lua_;
-    float mem_fragmentation_ratio_;
+    double mem_fragmentation_ratio_;
     std::string mem_allocator_;
     uint32_t active_defrag_running_;
     uint32_t lazyfree_pending_objects_;
@@ -263,10 +263,10 @@ class ServerInfo : public IServerInfo {
     explicit Cpu(const std::string& cpu_text);
     common::Value* GetValueByIndex(unsigned char index) const override;
 
-    float used_cpu_sys_;
-    float used_cpu_user_;
-    float used_cpu_sys_children_;
-    float used_cpu_user_children_;
+    double used_cpu_sys_;
+    double used_cpu_user_;
+    double used_cpu_sys_children_;
+    double used_cpu_user_children_;
     uint32_t server_threads_;
     uint32_t long_lock_waits_;
   } cpu_;

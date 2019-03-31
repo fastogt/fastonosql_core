@@ -273,7 +273,6 @@ std::vector<info_field_t> GetInfoFields() {
           std::make_pair(KEYDB_REPLICATION_LABEL, kRedisReplicationFields),
           std::make_pair(KEYDB_CPU_LABEL, kRedisCpuFields),
           std::make_pair(KEYDB_CLUSTER_LABEL, kRedisClusterFields),
-          std::make_pair(KEYDB_CLUSTER_LABEL, kRedisClusterFields),
           std::make_pair(KEYDB_KEYSPACE_LABEL, kRedisKeyspaceFields)};
 }
 

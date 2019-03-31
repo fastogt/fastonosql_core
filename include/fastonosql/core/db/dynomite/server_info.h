@@ -42,8 +42,9 @@ class ServerInfo : public redis::ServerInfo {
              const Stats& stats,
              const Replication& repl,
              const Cpu& cpu,
+             const Cluster& cluster,
              const Keyspace& key)
-      : base_class(serv, clients, memory, pers, stats, repl, cpu, key) {}
+      : base_class(serv, clients, memory, pers, stats, repl, cpu, cluster, key) {}
   explicit ServerInfo(const std::string& content) : base_class(content) {}
 };
 

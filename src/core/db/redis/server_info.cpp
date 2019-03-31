@@ -49,7 +49,9 @@ const std::vector<Field> kRedisServerFields = {
     Field(REDIS_SERVER_UPTIME_IN_SECONDS_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_SERVER_UPTIME_IN_DAYS_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_SERVER_HZ_LABEL, common::Value::TYPE_UINTEGER),
-    Field(REDIS_SERVER_LRU_CLOCK_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(REDIS_SERVER_LRU_CLOCK_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_SERVER_EXECUTABLE_LABEL, common::Value::TYPE_STRING),
+    Field(REDIS_SERVER_CONFIG_FILE_LABEL, common::Value::TYPE_STRING)};
 
 const std::vector<Field> kRedisClientFields = {
     Field(REDIS_CLIENTS_CONNECTED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER),
@@ -65,7 +67,9 @@ const std::vector<Field> kRedisMemoryFields = {
     Field(REDIS_MEMORY_USED_MEMORY_PEAK_HUMAN_LABEL, common::Value::TYPE_STRING),
     Field(REDIS_MEMORY_USED_MEMORY_LUA_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL, common::Value::TYPE_DOUBLE),
-    Field(REDIS_MEMORY_MEM_ALLOCATOR_LABEL, common::Value::TYPE_STRING)};
+    Field(REDIS_MEMORY_MEM_ALLOCATOR_LABEL, common::Value::TYPE_STRING),
+    Field(REDIS_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisPersistenceFields = {
     Field(REDIS_PERSISTENCE_LOADING_LABEL, common::Value::TYPE_UINTEGER),
@@ -97,7 +101,13 @@ const std::vector<Field> kRedisStatsFields = {
     Field(REDIS_STATS_KEYSPACE_MISSES_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_STATS_PUBSUB_CHANNELS_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_STATS_PUBSUB_PATTERNS_LABEL, common::Value::TYPE_UINTEGER),
-    Field(REDIS_STATS_LATEST_FORK_USEC_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(REDIS_STATS_LATEST_FORK_USEC_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_MIGRATE_CACHED_SOCKETS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_ACTIVE_DEFRAG_HITS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_ACTIVE_DEFRAG_MISSES_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL, common::Value::TYPE_UINTEGER),
+    Field(REDIS_STATS_ACTIVE_DEFRAG_KEY_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisReplicationFields = {
     Field(REDIS_REPLICATION_ROLE_LABEL, common::Value::TYPE_STRING),
@@ -112,6 +122,9 @@ const std::vector<Field> kRedisCpuFields = {Field(REDIS_CPU_USED_CPU_SYS_LABEL, 
                                             Field(REDIS_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_DOUBLE),
                                             Field(REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_DOUBLE),
                                             Field(REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_DOUBLE)};
+
+const std::vector<Field> kRedisClusterFields = {
+    Field(REDIS_CLUSTER_CLUSTER_ENABLED_LABEL, common::Value::TYPE_UINTEGER)};
 
 const std::vector<Field> kRedisKeyspaceFields = {};
 
@@ -130,7 +143,9 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Server& value) {
              << REDIS_SERVER_UPTIME_IN_SECONDS_LABEL COLON_STR << value.uptime_in_seconds_ << REDIS_INFO_MARKER
              << REDIS_SERVER_UPTIME_IN_DAYS_LABEL COLON_STR << value.uptime_in_days_ << REDIS_INFO_MARKER
              << REDIS_SERVER_HZ_LABEL COLON_STR << value.hz_ << REDIS_INFO_MARKER
-             << REDIS_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << REDIS_INFO_MARKER;
+             << REDIS_SERVER_LRU_CLOCK_LABEL COLON_STR << value.lru_clock_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_EXECUTABLE_LABEL COLON_STR << value.executable_ << REDIS_INFO_MARKER
+             << REDIS_SERVER_CONFIG_FILE_LABEL COLON_STR << value.config_file_ << REDIS_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Clients& value) {
@@ -150,7 +165,10 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Memory& value) {
              << REDIS_INFO_MARKER << REDIS_MEMORY_USED_MEMORY_LUA_LABEL COLON_STR << value.used_memory_lua_
              << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL COLON_STR
              << value.mem_fragmentation_ratio_ << REDIS_INFO_MARKER << REDIS_MEMORY_MEM_ALLOCATOR_LABEL COLON_STR
-             << value.mem_allocator_ << REDIS_INFO_MARKER;
+             << value.mem_allocator_ << REDIS_INFO_MARKER << REDIS_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL COLON_STR
+             << value.active_defrag_running_ << REDIS_INFO_MARKER
+             << REDIS_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL COLON_STR << value.lazyfree_pending_objects_
+             << REDIS_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Persistence& value) {
@@ -191,7 +209,13 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
              << REDIS_STATS_KEYSPACE_MISSES_LABEL COLON_STR << value.keyspace_misses_ << REDIS_INFO_MARKER
              << REDIS_STATS_PUBSUB_CHANNELS_LABEL COLON_STR << value.pubsub_channels_ << REDIS_INFO_MARKER
              << REDIS_STATS_PUBSUB_PATTERNS_LABEL COLON_STR << value.pubsub_patterns_ << REDIS_INFO_MARKER
-             << REDIS_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER;
+             << REDIS_STATS_LATEST_FORK_USEC_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_MIGRATE_CACHED_SOCKETS_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_ACTIVE_DEFRAG_HITS_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_ACTIVE_DEFRAG_MISSES_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER
+             << REDIS_STATS_ACTIVE_DEFRAG_KEY_LABEL COLON_STR << value.latest_fork_usec_ << REDIS_INFO_MARKER;
 }
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Replication& value) {
@@ -210,6 +234,10 @@ std::ostream& operator<<(std::ostream& out, const ServerInfo::Cpu& value) {
              << REDIS_CPU_USED_CPU_USER_LABEL COLON_STR << value.used_cpu_user_ << REDIS_INFO_MARKER
              << REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL COLON_STR << value.used_cpu_sys_children_ << REDIS_INFO_MARKER
              << REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL COLON_STR << value.used_cpu_user_children_ << REDIS_INFO_MARKER;
+}
+
+std::ostream& operator<<(std::ostream& out, const ServerInfo::Cluster& value) {
+  return out << REDIS_CLUSTER_CLUSTER_ENABLED_LABEL << value.cluster_enabled_ << REDIS_INFO_MARKER;
 }
 
 }  // namespace
@@ -240,6 +268,7 @@ std::vector<info_field_t> GetInfoFields() {
           std::make_pair(REDIS_STATS_LABEL, kRedisStatsFields),
           std::make_pair(REDIS_REPLICATION_LABEL, kRedisReplicationFields),
           std::make_pair(REDIS_CPU_LABEL, kRedisCpuFields),
+          std::make_pair(REDIS_CLUSTER_LABEL, kRedisClusterFields),
           std::make_pair(REDIS_KEYSPACE_LABEL, kRedisKeyspaceFields)};
 }
 
@@ -258,7 +287,9 @@ ServerInfo::Server::Server::Server()
       uptime_in_seconds_(0),
       uptime_in_days_(0),
       hz_(0),
-      lru_clock_(0) {}
+      lru_clock_(0),
+      executable_(),
+      config_file_() {}
 
 ServerInfo::Server::Server(const std::string& server_text)
     : redis_version_(),
@@ -275,7 +306,9 @@ ServerInfo::Server::Server(const std::string& server_text)
       uptime_in_seconds_(0),
       uptime_in_days_(0),
       hz_(0),
-      lru_clock_(0) {
+      lru_clock_(0),
+      executable_(),
+      config_file_() {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = server_text.find(REDIS_INFO_MARKER, start)) != std::string::npos) {
@@ -334,6 +367,10 @@ ServerInfo::Server::Server(const std::string& server_text)
       if (common::ConvertFromString(value, &lru_clock)) {
         lru_clock_ = lru_clock;
       }
+    } else if (field == REDIS_SERVER_EXECUTABLE_LABEL) {
+      executable_ = value;
+    } else if (field == REDIS_SERVER_CONFIG_FILE_LABEL) {
+      config_file_ = value;
     }
     start = pos + 2;
   }
@@ -444,7 +481,9 @@ ServerInfo::Memory::Memory()
       used_memory_peak_human_(),
       used_memory_lua_(0),
       mem_fragmentation_ratio_(0),
-      mem_allocator_() {}
+      mem_allocator_(),
+      active_defrag_running_(0),
+      lazyfree_pending_objects_(0) {}
 
 ServerInfo::Memory::Memory(const std::string& memory_text)
     : used_memory_(0),
@@ -454,7 +493,9 @@ ServerInfo::Memory::Memory(const std::string& memory_text)
       used_memory_peak_human_(),
       used_memory_lua_(0),
       mem_fragmentation_ratio_(0),
-      mem_allocator_() {
+      mem_allocator_(),
+      active_defrag_running_(0),
+      lazyfree_pending_objects_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = memory_text.find(REDIS_INFO_MARKER, start)) != std::string::npos) {
@@ -493,6 +534,16 @@ ServerInfo::Memory::Memory(const std::string& memory_text)
       }
     } else if (field == REDIS_MEMORY_MEM_ALLOCATOR_LABEL) {
       mem_allocator_ = value;
+    } else if (field == REDIS_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL) {
+      uint32_t active_defrag_running;
+      if (common::ConvertFromString(value, &active_defrag_running)) {
+        active_defrag_running_ = active_defrag_running;
+      }
+    } else if (field == REDIS_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL) {
+      uint32_t lazyfree_pending_objects;
+      if (common::ConvertFromString(value, &lazyfree_pending_objects)) {
+        lazyfree_pending_objects_ = lazyfree_pending_objects;
+      }
     }
     start = pos + 2;
   }
@@ -516,6 +567,10 @@ common::Value* ServerInfo::Memory::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(mem_fragmentation_ratio_);
     case 7:
       return common::Value::CreateStringValueFromBasicString(mem_allocator_);
+    case 8:
+      return new common::FundamentalValue(active_defrag_running_);
+    case 9:
+      return new common::FundamentalValue(lazyfree_pending_objects_);
     default:
       break;
   }
@@ -680,7 +735,13 @@ ServerInfo::Stats::Stats()
       keyspace_misses_(0),
       pubsub_channels_(0),
       pubsub_patterns_(0),
-      latest_fork_usec_(0) {}
+      latest_fork_usec_(0),
+      migrate_cached_sockets_(0),
+      slave_expires_tracked_keys_(0),
+      active_defrag_hits_(0),
+      active_defrag_misses_(0),
+      active_defrag_key_hits_(0),
+      active_defrag_key_misses_(0) {}
 
 ServerInfo::Stats::Stats(const std::string& stats_text)
     : total_connections_received_(0),
@@ -696,7 +757,13 @@ ServerInfo::Stats::Stats(const std::string& stats_text)
       keyspace_misses_(0),
       pubsub_channels_(0),
       pubsub_patterns_(0),
-      latest_fork_usec_(0) {
+      latest_fork_usec_(0),
+      migrate_cached_sockets_(0),
+      slave_expires_tracked_keys_(0),
+      active_defrag_hits_(0),
+      active_defrag_misses_(0),
+      active_defrag_key_hits_(0),
+      active_defrag_key_misses_(0) {
   size_t pos = 0;
   size_t start = 0;
   while ((pos = stats_text.find(REDIS_INFO_MARKER, start)) != std::string::npos) {
@@ -774,7 +841,38 @@ ServerInfo::Stats::Stats(const std::string& stats_text)
       if (common::ConvertFromString(value, &latest_fork_usec)) {
         latest_fork_usec_ = latest_fork_usec;
       }
+    } else if (field == REDIS_STATS_MIGRATE_CACHED_SOCKETS_LABEL) {
+      uint32_t migrate_cached_sockets;
+      if (common::ConvertFromString(value, &migrate_cached_sockets)) {
+        migrate_cached_sockets_ = migrate_cached_sockets;
+      }
+    } else if (field == REDIS_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL) {
+      uint32_t slave_expires_tracked_keys;
+      if (common::ConvertFromString(value, &slave_expires_tracked_keys)) {
+        slave_expires_tracked_keys_ = slave_expires_tracked_keys;
+      }
+    } else if (field == REDIS_STATS_ACTIVE_DEFRAG_HITS_LABEL) {
+      uint32_t active_defrag_hits;
+      if (common::ConvertFromString(value, &active_defrag_hits)) {
+        active_defrag_hits_ = active_defrag_hits;
+      }
+    } else if (field == REDIS_STATS_ACTIVE_DEFRAG_MISSES_LABEL) {
+      uint32_t active_defrag_misses;
+      if (common::ConvertFromString(value, &active_defrag_misses)) {
+        active_defrag_misses_ = active_defrag_misses;
+      }
+    } else if (field == REDIS_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL) {
+      uint32_t active_defrag_key_hits;
+      if (common::ConvertFromString(value, &active_defrag_key_hits)) {
+        active_defrag_key_hits_ = active_defrag_key_hits;
+      }
+    } else if (field == REDIS_STATS_ACTIVE_DEFRAG_KEY_LABEL) {
+      uint32_t active_defrag_key_misses;
+      if (common::ConvertFromString(value, &active_defrag_key_misses)) {
+        active_defrag_key_misses_ = active_defrag_key_misses;
+      }
     }
+
     start = pos + 2;
   }
 }
@@ -809,6 +907,18 @@ common::Value* ServerInfo::Stats::GetValueByIndex(unsigned char index) const {
       return new common::FundamentalValue(pubsub_patterns_);
     case 13:
       return new common::FundamentalValue(latest_fork_usec_);
+    case 14:
+      return new common::FundamentalValue(migrate_cached_sockets_);
+    case 15:
+      return new common::FundamentalValue(slave_expires_tracked_keys_);
+    case 16:
+      return new common::FundamentalValue(active_defrag_hits_);
+    case 17:
+      return new common::FundamentalValue(active_defrag_misses_);
+    case 18:
+      return new common::FundamentalValue(active_defrag_key_hits_);
+    case 19:
+      return new common::FundamentalValue(active_defrag_key_misses_);
     default:
       break;
   }
@@ -972,6 +1082,7 @@ ServerInfo::ServerInfo(const Server& serv,
                        const Stats& stats,
                        const Replication& repl,
                        const Cpu& cpu,
+                       const Cluster& cluster,
                        const Keyspace& key)
     : IServerInfo(),
       server_(serv),
@@ -981,6 +1092,7 @@ ServerInfo::ServerInfo(const Server& serv,
       stats_(stats),
       replication_(repl),
       cpu_(cpu),
+      cluster_(cluster),
       keysp_(key) {}
 
 ServerInfo::ServerInfo(const std::string& content) {
@@ -1064,7 +1176,8 @@ std::string ServerInfo::ToString() const {
   str << REDIS_SERVER_LABEL REDIS_INFO_MARKER << server_ << REDIS_CLIENTS_LABEL REDIS_INFO_MARKER << clients_
       << REDIS_MEMORY_LABEL REDIS_INFO_MARKER << memory_ << REDIS_PERSISTENCE_LABEL REDIS_INFO_MARKER << persistence_
       << REDIS_STATS_LABEL REDIS_INFO_MARKER << stats_ << REDIS_REPLICATION_LABEL REDIS_INFO_MARKER << replication_
-      << REDIS_CPU_LABEL REDIS_INFO_MARKER << cpu_ << REDIS_KEYSPACE_LABEL REDIS_INFO_MARKER;
+      << REDIS_CPU_LABEL REDIS_INFO_MARKER << cpu_ << REDIS_CLUSTER_LABEL REDIS_INFO_MARKER << cluster_
+      << REDIS_KEYSPACE_LABEL REDIS_INFO_MARKER;
   return str.str();
 }
 

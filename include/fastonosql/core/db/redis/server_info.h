@@ -33,6 +33,7 @@
 #define REDIS_STATS_LABEL "# Stats"
 #define REDIS_REPLICATION_LABEL "# Replication"
 #define REDIS_CPU_LABEL "# CPU"
+#define REDIS_CLUSTER_LABEL "# Cluster"
 #define REDIS_KEYSPACE_LABEL "# Keyspace"
 
 // Server
@@ -52,6 +53,8 @@
 #define REDIS_SERVER_UPTIME_IN_DAYS_LABEL "uptime_in_days"
 #define REDIS_SERVER_HZ_LABEL "hz"
 #define REDIS_SERVER_LRU_CLOCK_LABEL "lru_clock"
+#define REDIS_SERVER_EXECUTABLE_LABEL "executable"
+#define REDIS_SERVER_CONFIG_FILE_LABEL "config_file"
 
 // Clients
 #define REDIS_CLIENTS_CONNECTED_CLIENTS_LABEL "connected_clients"
@@ -68,6 +71,8 @@
 #define REDIS_MEMORY_USED_MEMORY_LUA_LABEL "used_memory_lua"
 #define REDIS_MEMORY_MEM_FRAGMENTATION_RATIO_LABEL "mem_fragmentation_ratio"
 #define REDIS_MEMORY_MEM_ALLOCATOR_LABEL "mem_allocator"
+#define REDIS_MEMORY_ACTIVE_DEFRAG_RUNNING_LABEL "active_defrag_running"
+#define REDIS_MEMORY_LAZYFREE_PENDING_OBJECTS_LABEL "lazyfree_pending_objects"
 
 // Persistence
 #define REDIS_PERSISTENCE_LOADING_LABEL "loading"
@@ -100,6 +105,12 @@
 #define REDIS_STATS_PUBSUB_CHANNELS_LABEL "pubsub_channels"
 #define REDIS_STATS_PUBSUB_PATTERNS_LABEL "pubsub_patterns"
 #define REDIS_STATS_LATEST_FORK_USEC_LABEL "latest_fork_usec"
+#define REDIS_STATS_MIGRATE_CACHED_SOCKETS_LABEL "migrate_cached_sockets"
+#define REDIS_STATS_SLAVE_EXPIRES_TRAKED_KEYS_LABEL "slave_expires_tracked_keys"
+#define REDIS_STATS_ACTIVE_DEFRAG_HITS_LABEL "active_defrag_hits"
+#define REDIS_STATS_ACTIVE_DEFRAG_MISSES_LABEL "active_defrag_misses"
+#define REDIS_STATS_ACTIVE_DEFRAG_KEY_HITS_LABEL "active_defrag_key_hits"
+#define REDIS_STATS_ACTIVE_DEFRAG_KEY_LABEL "active_defrag_key_misses"
 
 // Replication
 #define REDIS_REPLICATION_ROLE_LABEL "role"
@@ -115,6 +126,9 @@
 #define REDIS_CPU_USED_CPU_USER_LABEL "used_cpu_user"
 #define REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL "used_cpu_sys_children"
 #define REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL "used_cpu_user_children"
+
+// CLUSTER
+#define REDIS_CLUSTER_CLUSTER_ENABLED_LABEL "cluster_enabled"
 
 namespace fastonosql {
 namespace core {
@@ -146,6 +160,8 @@ class ServerInfo : public IServerInfo {
     uint32_t uptime_in_days_;
     uint32_t hz_;
     uint32_t lru_clock_;
+    std::string executable_;
+    std::string config_file_;
   } server_;
 
   struct Clients : IStateField {
@@ -170,8 +186,10 @@ class ServerInfo : public IServerInfo {
     uint32_t used_memory_peak_;
     std::string used_memory_peak_human_;
     uint32_t used_memory_lua_;
-    float mem_fragmentation_ratio_;
+    double mem_fragmentation_ratio_;
     std::string mem_allocator_;
+    uint32_t active_defrag_running_;
+    uint32_t lazyfree_pending_objects_;
   } memory_;
 
   struct Persistence : IStateField {
@@ -214,6 +232,12 @@ class ServerInfo : public IServerInfo {
     uint32_t pubsub_channels_;
     uint32_t pubsub_patterns_;
     uint32_t latest_fork_usec_;
+    uint32_t migrate_cached_sockets_;
+    uint32_t slave_expires_tracked_keys_;
+    uint32_t active_defrag_hits_;
+    uint32_t active_defrag_misses_;
+    uint32_t active_defrag_key_hits_;
+    uint32_t active_defrag_key_misses_;
   } stats_;
 
   struct Replication : IStateField {
@@ -235,11 +259,19 @@ class ServerInfo : public IServerInfo {
     explicit Cpu(const std::string& cpu_text);
     common::Value* GetValueByIndex(unsigned char index) const override;
 
-    float used_cpu_sys_;
-    float used_cpu_user_;
-    float used_cpu_sys_children_;
-    float used_cpu_user_children_;
+    double used_cpu_sys_;
+    double used_cpu_user_;
+    double used_cpu_sys_children_;
+    double used_cpu_user_children_;
   } cpu_;
+
+  struct Cluster : IStateField {
+    Cluster();
+    explicit Cluster(const std::string& cluster_text);
+
+    common::Value* GetValueByIndex(unsigned char index) const override;
+    uint32_t cluster_enabled_;
+  } cluster_;
 
   struct Keyspace : IStateField {
     common::Value* GetValueByIndex(unsigned char index) const override;
@@ -253,6 +285,7 @@ class ServerInfo : public IServerInfo {
              const Stats& stats,
              const Replication& repl,
              const Cpu& cpu,
+             const Cluster& cluster,
              const Keyspace& key);
   explicit ServerInfo(const std::string& content);
 
