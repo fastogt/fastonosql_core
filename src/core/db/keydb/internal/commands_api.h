@@ -229,6 +229,8 @@ struct CommandsApi : public redis_compatible::CommandsApi<DBConnection> {
   static common::Error PFSelfTest(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error XSetID(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
   static common::Error LolWut(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Hello(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
+  static common::Error Acl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 #if defined(PRO_VERSION)
   static common::Error ModuleList(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out);
 #endif

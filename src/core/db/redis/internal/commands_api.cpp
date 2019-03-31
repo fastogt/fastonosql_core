@@ -1439,6 +1439,16 @@ common::Error CommandsApi::LolWut(internal::CommandHandler* handler, commands_ar
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("LOLWUT")}, argv), out);
 }
 
+common::Error CommandsApi::Hello(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("HELLO")}, argv), out);
+}
+
+common::Error CommandsApi::Acl(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
+  DBConnection* red = static_cast<DBConnection*>(handler);
+  return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("ACL")}, argv), out);
+}
+
 common::Error CommandsApi::Asking(internal::CommandHandler* handler, commands_args_t argv, FastoObject* out) {
   DBConnection* red = static_cast<DBConnection*>(handler);
   return red->CommonExec(redis_compatible::ExpandCommand({GEN_CMD_STRING("ASKING")}, argv), out);
