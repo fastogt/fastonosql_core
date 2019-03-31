@@ -52,7 +52,6 @@
 #include <fastonosql/core/db/keydb/server_info.h>
 #endif
 
-
 namespace fastonosql {
 namespace core {
 
