@@ -48,6 +48,10 @@
 #if defined(BUILD_WITH_DYNOMITE)
 #include <fastonosql/core/db/dynomite/server_info.h>
 #endif
+#if defined(BUILD_WITH_KEYDB)
+#include <fastonosql/core/db/keydb/server_info.h>
+#endif
+
 
 namespace fastonosql {
 namespace core {
@@ -107,6 +111,11 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uin
 #if defined(BUILD_WITH_DYNOMITE)
   if (type == DYNOMITE) {
     return dynomite::GetSupportedValueTypes();
+  }
+#endif
+#if defined(BUILD_WITH_KEYDB)
+  if (type == KEYDB) {
+    return keydb::GetSupportedValueTypes(server_version);
   }
 #endif
 
