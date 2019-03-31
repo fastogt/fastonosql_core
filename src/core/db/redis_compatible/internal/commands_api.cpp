@@ -615,6 +615,9 @@ common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handle
 #if defined(BUILD_WITH_DYNOMITE)
 #include <fastonosql/core/db/dynomite/db_connection.h>
 #endif
+#if defined(BUILD_WITH_KEYDB)
+#include <fastonosql/core/db/keydb/db_connection.h>
+#endif
 
 namespace fastonosql {
 namespace core {
@@ -627,6 +630,9 @@ template class CommandsApi<pika::DBConnection>;
 #endif
 #if defined(BUILD_WITH_DYNOMITE)
 template class CommandsApi<dynomite::DBConnection>;
+#endif
+#if defined(BUILD_WITH_KEYDB)
+template class CommandsApi<keydb::DBConnection>;
 #endif
 }  // namespace redis_compatible
 }  // namespace core

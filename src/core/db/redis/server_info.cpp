@@ -108,11 +108,10 @@ const std::vector<Field> kRedisReplicationFields = {
     Field(REDIS_REPLICATION_BACKLOG_FIRST_BYTE_OFFSET_LABEL, common::Value::TYPE_UINTEGER),
     Field(REDIS_REPLICATION_BACKLOG_HISTEN_LABEL, common::Value::TYPE_UINTEGER)};
 
-const std::vector<Field> kRedisCpuFields = {
-    Field(REDIS_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_DOUBLE),
-    Field(REDIS_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_DOUBLE),
-    Field(REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_DOUBLE),
-    Field(REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_DOUBLE)};
+const std::vector<Field> kRedisCpuFields = {Field(REDIS_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(REDIS_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(REDIS_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_DOUBLE),
+                                            Field(REDIS_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_DOUBLE)};
 
 const std::vector<Field> kRedisKeyspaceFields = {};
 
