@@ -332,9 +332,11 @@ bool DecodeIDBKey(StringPiece* slice, std::unique_ptr<IndexedDBKey>* value) {
   unsigned char type = (*slice)[0];
   slice->remove_prefix(1);
   switch (type) {
-    case kIndexedDBKeyNullTypeByte:
-      *value = std::make_unique<IndexedDBKey>();
+    case kIndexedDBKeyNullTypeByte: {
+      auto val = new IndexedDBKey();
+      *value = std::unique_ptr<IndexedDBKey>(val);
       return true;
+    }
     case kIndexedDBKeyArrayTypeByte: {
       int64_t length = 0;
       if (!DecodeVarInt(slice, &length) || length < 0)
@@ -346,35 +348,40 @@ bool DecodeIDBKey(StringPiece* slice, std::unique_ptr<IndexedDBKey>* value) {
           return false;
         array.push_back(*key);
       }
-      *value = std::make_unique<IndexedDBKey>(array);
+      auto arr = new IndexedDBKey(array);
+      *value = std::unique_ptr<IndexedDBKey>(arr);
       return true;
     }
     case kIndexedDBKeyBinaryTypeByte: {
       std::string binary;
       if (!DecodeBinary(slice, &binary))
         return false;
-      *value = std::make_unique<IndexedDBKey>(binary);
+      auto val = new IndexedDBKey(binary);
+      *value = std::unique_ptr<IndexedDBKey>(val);
       return true;
     }
     case kIndexedDBKeyStringTypeByte: {
       common::string16 s;
       if (!DecodeStringWithLength(slice, &s))
         return false;
-      *value = std::make_unique<IndexedDBKey>(s);
+      auto val = new IndexedDBKey(s);
+      *value = std::unique_ptr<IndexedDBKey>(val);
       return true;
     }
     case kIndexedDBKeyDateTypeByte: {
       double d;
       if (!DecodeDouble(slice, &d))
         return false;
-      *value = std::make_unique<IndexedDBKey>(d, kWebIDBKeyTypeDate);
+      auto val = new IndexedDBKey(d, kWebIDBKeyTypeDate);
+      *value = std::unique_ptr<IndexedDBKey>(val);
       return true;
     }
     case kIndexedDBKeyNumberTypeByte: {
       double d;
       if (!DecodeDouble(slice, &d))
         return false;
-      *value = std::make_unique<IndexedDBKey>(d, kWebIDBKeyTypeNumber);
+      auto val = new IndexedDBKey(d, kWebIDBKeyTypeNumber);
+      *value = std::unique_ptr<IndexedDBKey>(val);
       return true;
     }
   }
