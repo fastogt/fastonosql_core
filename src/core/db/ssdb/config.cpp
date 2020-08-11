@@ -27,7 +27,7 @@ namespace core {
 namespace ssdb {
 namespace {
 
-const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_SSDB_SERVER_PORT);
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHostIPV4(DEFAULT_SSDB_SERVER_PORT);
 
 }  // namespace
 

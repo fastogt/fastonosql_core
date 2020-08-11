@@ -24,7 +24,8 @@ namespace fastonosql {
 namespace core {
 namespace dynomite {
 namespace {
-const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_DYNOMITE_SERVER_PORT);
+const common::net::HostAndPort kDefaultHost =
+    common::net::HostAndPort::CreateLocalHostIPV4(DEFAULT_DYNOMITE_SERVER_PORT);
 }
 
 Config::Config() : base_class(kDefaultHost) {}

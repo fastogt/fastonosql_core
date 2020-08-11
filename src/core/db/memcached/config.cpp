@@ -29,7 +29,8 @@ namespace memcached {
 
 namespace {
 
-const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_MEMCACHED_SERVER_PORT);
+const common::net::HostAndPort kDefaultHost =
+    common::net::HostAndPort::CreateLocalHostIPV4(DEFAULT_MEMCACHED_SERVER_PORT);
 
 }  // namespace
 

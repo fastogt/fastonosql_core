@@ -110,7 +110,7 @@ bool PublicPrivate::IsValid() const {
 }
 
 SSHInfo::SSHInfo()
-    : host_(common::net::HostAndPort::CreateLocalHost(DEFAULT_SSH_PORT)),
+    : host_(common::net::HostAndPort::CreateLocalHostIPV4(DEFAULT_SSH_PORT)),
       username_(),
       key_(),
       current_method_(UNKNOWN),

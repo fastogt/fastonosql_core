@@ -24,7 +24,7 @@ namespace fastonosql {
 namespace core {
 namespace pika {
 namespace {
-const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHost(DEFAULT_PIKA_SERVER_PORT);
+const common::net::HostAndPort kDefaultHost = common::net::HostAndPort::CreateLocalHostIPV4(DEFAULT_PIKA_SERVER_PORT);
 }
 
 Config::Config() : base_class(kDefaultHost) {}
