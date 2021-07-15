@@ -271,7 +271,7 @@ common::Error ValueFromReplay(redisReply* reply, common::Value** out) {
       break;
     }
     case REDIS_REPLY_INTEGER: {
-      *out = common::Value::CreateLongLongIntegerValue(reply->integer);
+      *out = common::Value::CreateInteger64Value(reply->integer);
       break;
     }
     case REDIS_REPLY_ARRAY: {

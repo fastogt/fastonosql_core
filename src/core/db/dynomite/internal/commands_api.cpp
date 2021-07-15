@@ -376,7 +376,7 @@ common::Error CommandsApi::MsetNX(internal::CommandHandler* handler, commands_ar
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -404,13 +404,13 @@ common::Error CommandsApi::Pexpire(internal::CommandHandler* handler, commands_a
 
   common::Error err = red->PExpire(key, ttl);
   if (err) {
-    common::FundamentalValue* val = common::Value::CreateUIntegerValue(0);
+    common::FundamentalValue* val = common::Value::CreateUInteger32Value(0);
     FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
     out->AddChildren(child);
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(1);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(1);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -457,7 +457,7 @@ common::Error CommandsApi::Pttl(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(ttl);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(ttl);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

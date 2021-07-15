@@ -26,12 +26,12 @@ namespace fastonosql {
 namespace core {
 namespace leveldb {
 namespace {
-const std::vector<Field> kLeveldbCommonFields = {Field(LEVELDB_STATS_LEVEL_LABEL, common::Value::TYPE_UINTEGER),
-                                                 Field(LEVELDB_STATS_FILES_LABEL, common::Value::TYPE_UINTEGER),
-                                                 Field(LEVELDB_STATS_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER),
-                                                 Field(LEVELDB_STATS_TIME_SEC_LABEL, common::Value::TYPE_UINTEGER),
-                                                 Field(LEVELDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER),
-                                                 Field(LEVELDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kLeveldbCommonFields = {Field(LEVELDB_STATS_LEVEL_LABEL, common::Value::TYPE_UINTEGER32),
+                                                 Field(LEVELDB_STATS_FILES_LABEL, common::Value::TYPE_UINTEGER32),
+                                                 Field(LEVELDB_STATS_SIZE_MB_LABEL, common::Value::TYPE_UINTEGER32),
+                                                 Field(LEVELDB_STATS_TIME_SEC_LABEL, common::Value::TYPE_UINTEGER32),
+                                                 Field(LEVELDB_STATS_READ_MB_LABEL, common::Value::TYPE_UINTEGER32),
+                                                 Field(LEVELDB_STATS_WRITE_MB_LABEL, common::Value::TYPE_UINTEGER32)};
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
   return out << LEVELDB_STATS_LEVEL_LABEL COLON_STR << value.level << MARKER_STR << LEVELDB_STATS_FILES_LABEL COLON_STR

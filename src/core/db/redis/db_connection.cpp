@@ -4125,7 +4125,7 @@ common::Error DBConnection::ClThrottle(const NKey& key,
   }
 
   ttl_t ttl;
-  if (client_ && arr->GetLongLongInteger(arr->GetSize() - 1, &ttl)) {
+  if (client_ && arr->GetInteger64(arr->GetSize() - 1, &ttl)) {
     client_->OnLoadedKeyTTL(key, ttl);
   }
 

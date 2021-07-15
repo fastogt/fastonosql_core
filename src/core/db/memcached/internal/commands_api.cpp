@@ -167,7 +167,7 @@ common::Error CommandsApi::Incr(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateULongLongIntegerValue(result);
+  common::FundamentalValue* val = common::Value::CreateUInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -188,7 +188,7 @@ common::Error CommandsApi::Decr(internal::CommandHandler* handler, commands_args
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateULongLongIntegerValue(result);
+  common::FundamentalValue* val = common::Value::CreateUInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, mem->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

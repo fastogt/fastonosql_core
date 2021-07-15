@@ -31,44 +31,46 @@ namespace core {
 namespace pika {
 namespace {
 
-const std::vector<Field> kPikaServerFields = {Field(PIKA_SERVER_VERSION_LABEL, common::Value::TYPE_STRING),
-                                              Field(PIKA_SERVER_GIT_SHA_LABEL, common::Value::TYPE_STRING),
-                                              Field(PIKA_SERVER_BUILD_COMPILE_DATE_LABEL, common::Value::TYPE_STRING),
-                                              Field(PIKA_SERVER_OS_LABEL, common::Value::TYPE_STRING),
-                                              Field(PIKA_SERVER_ARCH_BITS_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_PROCESS_ID_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_TCP_PORT_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_THREAD_NUM_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_SYNC_THREAD_NUM_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_UPTIME_IN_SECONDS_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_UPTIME_IN_DAYS_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(PIKA_SERVER_CONFIG_FILE_LABEL, common::Value::TYPE_STRING),
-                                              Field(PIKA_SERVER_SERVER_ID_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kPikaServerFields = {
+    Field(PIKA_SERVER_VERSION_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_SERVER_GIT_SHA_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_SERVER_BUILD_COMPILE_DATE_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_SERVER_OS_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_SERVER_ARCH_BITS_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_PROCESS_ID_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_TCP_PORT_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_THREAD_NUM_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_SYNC_THREAD_NUM_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_UPTIME_IN_SECONDS_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_UPTIME_IN_DAYS_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_SERVER_CONFIG_FILE_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_SERVER_SERVER_ID_LABEL, common::Value::TYPE_UINTEGER32)};
 
-const std::vector<Field> kPikaDataFields = {Field(PIKA_DATA_DB_SIZE_LABEL, common::Value::TYPE_UINTEGER),
-                                            Field(PIKA_DATA_DB_SIZE_HUMAN_LABEL, common::Value::TYPE_STRING),
-                                            Field(PIKA_DATA_COMPRESSION_LABEL, common::Value::TYPE_STRING),
-                                            Field(PIKA_DATA_USED_MEMORY_LABEL, common::Value::TYPE_UINTEGER),
-                                            Field(PIKA_DATA_USED_MEMORY_HUMAN_LABEL, common::Value::TYPE_STRING),
-                                            Field(PIKA_DATA_DB_MEMTABLE_USAGE_LABEL, common::Value::TYPE_UINTEGER),
-                                            Field(PIKA_DATA_DB_TABLEREADER_USAGE_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kPikaDataFields = {
+    Field(PIKA_DATA_DB_SIZE_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_DATA_DB_SIZE_HUMAN_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_DATA_COMPRESSION_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_DATA_USED_MEMORY_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_DATA_USED_MEMORY_HUMAN_LABEL, common::Value::TYPE_STRING),
+    Field(PIKA_DATA_DB_MEMTABLE_USAGE_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_DATA_DB_TABLEREADER_USAGE_LABEL, common::Value::TYPE_UINTEGER32)};
 
-const std::vector<Field> kPikaLogFields = {Field(PIKA_LOG_SIZE_LABEL, common::Value::TYPE_UINTEGER),
+const std::vector<Field> kPikaLogFields = {Field(PIKA_LOG_SIZE_LABEL, common::Value::TYPE_UINTEGER32),
                                            Field(PIKA_LOG_SIZE_HUMAN_LABEL, common::Value::TYPE_STRING),
                                            Field(PIKA_LOG_SAFETY_PURGE_LABEL, common::Value::TYPE_STRING),
-                                           Field(PIKA_LOG_EXPIRE_LOGS_DAYS_LABEL, common::Value::TYPE_UINTEGER),
-                                           Field(PIKA_LOG_EXPIRE_LOGS_NUMS_LABEL, common::Value::TYPE_UINTEGER),
+                                           Field(PIKA_LOG_EXPIRE_LOGS_DAYS_LABEL, common::Value::TYPE_UINTEGER32),
+                                           Field(PIKA_LOG_EXPIRE_LOGS_NUMS_LABEL, common::Value::TYPE_UINTEGER32),
                                            Field(PIKA_LOG_BINLOG_OFFSET_LABEL, common::Value::TYPE_STRING)};
 
 const std::vector<Field> kPikaClientFields = {
-    Field(PIKA_CLIENTS_CONNECTED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(PIKA_CLIENTS_CONNECTED_CLIENTS_LABEL, common::Value::TYPE_UINTEGER32)};
 
 const std::vector<Field> kPikaHubFields = {};
 
 const std::vector<Field> kPikaStatsFields = {
-    Field(PIKA_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL, common::Value::TYPE_UINTEGER),
-    Field(PIKA_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL, common::Value::TYPE_UINTEGER),
-    Field(PIKA_STATS_TOTAL_COMMANDS_PROCESSED_LABEL, common::Value::TYPE_UINTEGER),
+    Field(PIKA_STATS_TOTAL_CONNECTIONS_RECEIVED_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_STATS_INSTANTANEOUS_OPS_PER_SEC_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_STATS_TOTAL_COMMANDS_PROCESSED_LABEL, common::Value::TYPE_UINTEGER32),
     Field(PIKA_STATS_IS_BGSAVING_LABEL, common::Value::TYPE_STRING),
     Field(PIKA_STATS_IS_SLOTS_RELOADING_LABEL, common::Value::TYPE_STRING),
     Field(PIKA_STATS_IS_SLOTS_CLEANUPING_LABEL, common::Value::TYPE_STRING),
@@ -77,14 +79,15 @@ const std::vector<Field> kPikaStatsFields = {
     Field(PIKA_STATS_COMPACT_CRON_LABEL, common::Value::TYPE_STRING),
     Field(PIKA_STATS_COMPACT_INTERVAL_LABEL, common::Value::TYPE_STRING)};
 
-const std::vector<Field> kPikaCpuFields = {Field(PIKA_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_UINTEGER),
-                                           Field(PIKA_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_UINTEGER),
-                                           Field(PIKA_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_UINTEGER),
-                                           Field(PIKA_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_UINTEGER)};
+const std::vector<Field> kPikaCpuFields = {
+    Field(PIKA_CPU_USED_CPU_SYS_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_CPU_USED_CPU_USER_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_CPU_USED_CPU_SYS_CHILDREN_LABEL, common::Value::TYPE_UINTEGER32),
+    Field(PIKA_CPU_USED_CPU_USER_CHILDREN_LABEL, common::Value::TYPE_UINTEGER32)};
 
 const std::vector<Field> kPikaReplicationFields = {
     Field(PIKA_REPLICATION_ROLE_LABEL, common::Value::TYPE_STRING),
-    Field(PIKA_REPLICATION_CONNECTED_SLAVES_LABEL, common::Value::TYPE_UINTEGER)};
+    Field(PIKA_REPLICATION_CONNECTED_SLAVES_LABEL, common::Value::TYPE_UINTEGER32)};
 
 const std::vector<Field> kPikaKeySpaceFields = {};
 

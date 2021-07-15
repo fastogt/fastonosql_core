@@ -125,7 +125,7 @@ common::Error ApiTraits<CDBConnection>::Scan(internal::CommandHandler* handler,
   }
 
   common::ArrayValue* mar = common::Value::CreateArrayValue();
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(cursor_out);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(cursor_out);
   mar->Append(val);
   mar->Append(ar);
 
@@ -175,7 +175,7 @@ common::Error ApiTraits<CDBConnection>::DBKeysCount(internal::CommandHandler* ha
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(dbkcount);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(dbkcount);
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -328,7 +328,7 @@ common::Error ApiTraits<CDBConnection>::Delete(internal::CommandHandler* handler
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(keys_deleted.size());  // keys_limit_t
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(keys_deleted.size());  // keys_limit_t
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -392,7 +392,7 @@ common::Error ApiTraits<CDBConnection>::GetTTL(internal::CommandHandler* handler
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(ttl);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(ttl);
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -486,7 +486,7 @@ common::Error ApiTraits<CDBConnection>::JsonDump(CommandHandler* handler, comman
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(cursor_out);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(cursor_out);
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -520,7 +520,7 @@ common::Error ApiTraits<CDBConnection>::CsvDump(CommandHandler* handler, command
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(cursor_out);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(cursor_out);
   FastoObject* child = new FastoObject(out, val, cdb->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

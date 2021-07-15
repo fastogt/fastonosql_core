@@ -57,7 +57,7 @@ typedef std::vector<db_name_t> db_names_t;
 typedef uint32_t keys_limit_t;  // UIntegerValue
 typedef keys_limit_t cursor_t;
 
-typedef long long ttl_t;  // in seconds or NO_TTL, EXPIRED_TTL
+typedef int64_t ttl_t;  // in seconds or NO_TTL, EXPIRED_TTL
 typedef ttl_t pttl_t;
 COMPILE_ASSERT(std::numeric_limits<ttl_t>::max() >= NO_TTL && NO_TTL >= std::numeric_limits<ttl_t>::min(),
                "NO_TTL define must be in ttl type range");

@@ -28,7 +28,7 @@ namespace unqlite {
 namespace {
 const std::vector<Field> kUnqliteCommonFields = {
     Field(UNQLITE_STATS_DB_FILE_PATH_LABEL, common::Value::TYPE_STRING),
-    Field(UNQLITE_STATS_DB_FILE_SIZE_LABEL, common::Value::TYPE_ULONG_INTEGER)};
+    Field(UNQLITE_STATS_DB_FILE_SIZE_LABEL, common::Value::TYPE_UINTEGER64)};
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {
   return out << UNQLITE_STATS_DB_FILE_PATH_LABEL COLON_STR << value.db_path << MARKER_STR

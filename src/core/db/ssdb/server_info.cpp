@@ -27,9 +27,9 @@ namespace core {
 namespace ssdb {
 namespace {
 const std::vector<Field> kSsdbCommonFields = {Field(SSDB_COMMON_VERSION_LABEL, common::Value::TYPE_STRING),
-                                              Field(SSDB_COMMON_LINKS_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(SSDB_COMMON_TOTAL_CALLS_LABEL, common::Value::TYPE_UINTEGER),
-                                              Field(SSDB_COMMON_DBSIZE_LABEL, common::Value::TYPE_UINTEGER),
+                                              Field(SSDB_COMMON_LINKS_LABEL, common::Value::TYPE_UINTEGER32),
+                                              Field(SSDB_COMMON_TOTAL_CALLS_LABEL, common::Value::TYPE_UINTEGER32),
+                                              Field(SSDB_COMMON_DBSIZE_LABEL, common::Value::TYPE_UINTEGER32),
                                               Field(SSDB_COMMON_BINLOGS_LABEL, common::Value::TYPE_STRING)};
 
 std::ostream& operator<<(std::ostream& out, const ServerInfo::Stats& value) {

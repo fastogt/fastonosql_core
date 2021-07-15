@@ -78,7 +78,7 @@ common::Error CommandsApi<DBConnection>::Lpush(internal::CommandHandler* handler
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(list_len);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -103,7 +103,7 @@ common::Error CommandsApi<DBConnection>::LFastoSet(internal::CommandHandler* han
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(list_len);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -158,7 +158,7 @@ common::Error CommandsApi<DBConnection>::Sadd(internal::CommandHandler* handler,
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(added_items);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(added_items);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -183,7 +183,7 @@ common::Error CommandsApi<DBConnection>::SFastoSet(internal::CommandHandler* han
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(list_len);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(list_len);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -235,7 +235,7 @@ common::Error CommandsApi<DBConnection>::Zadd(internal::CommandHandler* handler,
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(added_items);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(added_items);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -314,7 +314,7 @@ common::Error CommandsApi<DBConnection>::ZFastoSet(internal::CommandHandler* han
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(added_items);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(added_items);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -440,7 +440,7 @@ common::Error CommandsApi<DBConnection>::Append(internal::CommandHandler* handle
     return err;
   }
 
-  auto* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -489,7 +489,7 @@ common::Error CommandsApi<DBConnection>::SetNX(internal::CommandHandler* handler
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateLongLongIntegerValue(result);
+  common::FundamentalValue* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -509,7 +509,7 @@ common::Error CommandsApi<DBConnection>::Decr(internal::CommandHandler* handler,
     return err;
   }
 
-  auto* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -533,7 +533,7 @@ common::Error CommandsApi<DBConnection>::DecrBy(internal::CommandHandler* handle
     return err;
   }
 
-  auto* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -553,7 +553,7 @@ common::Error CommandsApi<DBConnection>::Incr(internal::CommandHandler* handler,
     return err;
   }
 
-  auto* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -577,7 +577,7 @@ common::Error CommandsApi<DBConnection>::IncrBy(internal::CommandHandler* handle
     return err;
   }
 
-  auto* val = common::Value::CreateLongLongIntegerValue(result);
+  auto* val = common::Value::CreateInteger64Value(result);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -618,13 +618,13 @@ common::Error CommandsApi<DBConnection>::Persist(internal::CommandHandler* handl
   DBConnection* red = static_cast<DBConnection*>(handler);
   common::Error err = red->SetTTL(key, NO_TTL);  // PERSIST
   if (err) {
-    common::FundamentalValue* val = common::Value::CreateUIntegerValue(0);
+    common::FundamentalValue* val = common::Value::CreateUInteger32Value(0);
     FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
     out->AddChildren(child);
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(1);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(1);
   FastoObject* child = new FastoObject(out, val, red->GetDelimiter());
   out->AddChildren(child);
   return common::Error();
@@ -644,7 +644,7 @@ common::Error CommandsApi<DBConnection>::DBSize(internal::CommandHandler* handle
     return err;
   }
 
-  common::FundamentalValue* val = common::Value::CreateUIntegerValue(dbkcount);
+  common::FundamentalValue* val = common::Value::CreateUInteger32Value(dbkcount);
   FastoObject* child = new FastoObject(out, val, redis->GetDelimiter());
   out->AddChildren(child);
   return common::Error();

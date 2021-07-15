@@ -404,38 +404,6 @@ IF(BUILD_WITH_LMDB)
   ENDIF(OS_WINDOWS)
 ENDIF(BUILD_WITH_LMDB)
 
-#forestdb
-IF(BUILD_WITH_FORESTDB)
-  FIND_LIBRARY(FORESTDB_LIBRARY forestdb)
-  FIND_PATH(FORESTDB_INCLUDE_DIR NAMES libforestdb/forestdb.h PATH_SUFFIXES include)
-  SET(HAVE_FORESTDB ON)
-  SET(INCLUDE_DIRS ${INCLUDE_DIRS} ${FORESTDB_INCLUDE_DIR})
-
-  #core
-  SET(HEADERS_CORE_DB_FORESTDB
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/config.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/command_translator.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/server_info.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/db_connection.h
-    ${CMAKE_SOURCE_DIR}/include/fastonosql/core/db/forestdb/database_info.h)
-  SET(SOURCES_CORE_DB_FORESTDB
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/internal/commands_api.h
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/internal/commands_api.cpp
-
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/config.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/command_translator.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/server_info.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/db_connection.cpp
-    ${CMAKE_SOURCE_DIR}/src/core/db/forestdb/database_info.cpp
-  )
-
-  SET(DB_LIBS ${DB_LIBS} ${FORESTDB_LIBRARY})
-  IF(SNAPPY_FOUND)
-    SET(DB_INCLUDE_DIRS ${DB_INCLUDE_DIRS} ${SNAPPY_INCLUDE_DIRS})
-    SET(DB_LIBS ${DB_LIBS} ${SNAPPY_LIBRARIES})
-  ENDIF(SNAPPY_FOUND)
-ENDIF(BUILD_WITH_FORESTDB)
-
 SET(CORE_HEADERS
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/cdb_connection_client.h
   ${CMAKE_SOURCE_DIR}/include/fastonosql/core/cdb_connection.h
@@ -477,7 +445,6 @@ SET(CORE_HEADERS
   ${HEADERS_CORE_DB_ROCKSDB}
   ${HEADERS_CORE_DB_UNQLITE}
   ${HEADERS_CORE_DB_LMDB}
-  ${HEADERS_CORE_DB_FORESTDB}
 )
 
 SET(CORE_SOURCES
@@ -520,7 +487,6 @@ SET(CORE_SOURCES
   ${SOURCES_CORE_DB_ROCKSDB}
   ${SOURCES_CORE_DB_UNQLITE}
   ${SOURCES_CORE_DB_LMDB}
-  ${SOURCES_CORE_DB_FORESTDB}
 )
 
 #dependencies ${ZLIB_LIBRARIES} ${SNAPPY_LIBRARIES} ${LZ4_LIBRARIES} ${BZIP2_LIBRARIES}

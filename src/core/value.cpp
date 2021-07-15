@@ -28,22 +28,9 @@
 #include <fastonosql/core/types.h>
 
 namespace {
-const char* kValueTypes[] = {"TYPE_NULL",
-                             "TYPE_BOOLEAN",
-                             "TYPE_INTEGER",
-                             "TYPE_UINTEGER",
-                             "TYPE_LONG_INTEGER",
-                             "TYPE_ULONG_INTEGER",
-                             "TYPE_LONG_LONG_INTEGER",
-                             "TYPE_ULONG_LONG_INTEGER",
-                             "TYPE_DOUBLE",
-                             "TYPE_TIME",
-                             "TYPE_STRING",
-                             "TYPE_ARRAY",
-                             "TYPE_BYTE_ARRAY",
-                             "TYPE_SET",
-                             "TYPE_ZSET",
-                             "TYPE_HASH"};
+const char* kValueTypes[] = {"TYPE_NULL",       "TYPE_BOOLEAN", "TYPE_INTEGER32", "TYPE_UINTEGER3232", "TYPE_INTEGER64",
+                             "TYPE_UINTEGER64", "TYPE_DOUBLE",  "TYPE_TIME",      "TYPE_STRING",       "TYPE_ARRAY",
+                             "TYPE_BYTE_ARRAY", "TYPE_SET",     "TYPE_ZSET",      "TYPE_HASH"};
 static_assert(arraysize(kValueTypes) == static_cast<size_t>(common::Value::Type::TYPE_HASH) + 1,
               "kValueTypes Has Wrong Size");
 
@@ -256,23 +243,17 @@ common::Value* CreateEmptyValueFromType(common::Value::Type value_type) {
     case common::Value::TYPE_BOOLEAN: {
       return common::Value::CreateBooleanValue(false);
     }
-    case common::Value::TYPE_INTEGER: {
-      return common::Value::CreateIntegerValue(0);
+    case common::Value::TYPE_INTEGER32: {
+      return common::Value::CreateInteger32Value(0);
     }
-    case common::Value::TYPE_UINTEGER: {
-      return common::Value::CreateUIntegerValue(0);
+    case common::Value::TYPE_UINTEGER32: {
+      return common::Value::CreateUInteger32Value(0);
     }
-    case common::Value::TYPE_LONG_INTEGER: {
-      return common::Value::CreateLongIntegerValue(0);
+    case common::Value::TYPE_INTEGER64: {
+      return common::Value::CreateInteger64Value(0);
     }
-    case common::Value::TYPE_ULONG_INTEGER: {
-      return common::Value::CreateULongIntegerValue(0);
-    }
-    case common::Value::TYPE_LONG_LONG_INTEGER: {
-      return common::Value::CreateLongLongIntegerValue(0);
-    }
-    case common::Value::TYPE_ULONG_LONG_INTEGER: {
-      return common::Value::CreateULongLongIntegerValue(0);
+    case common::Value::TYPE_UINTEGER64: {
+      return common::Value::CreateUInteger64Value(0);
     }
     case common::Value::TYPE_DOUBLE: {
       return common::Value::CreateDoubleValue(0);
@@ -357,17 +338,13 @@ convert_to_t ConvertValue(common::Value* value, const std::string& delimiter) {
     return GEN_CMD_STRING("(nil)");
   } else if (value_type == common::Value::TYPE_BOOLEAN) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER32) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_UINTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER64) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER64) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
-    return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER64) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (value_type == common::Value::TYPE_DOUBLE) {
     return ConvertValue(static_cast<common::FundamentalValue*>(value), delimiter);
@@ -522,44 +499,30 @@ convert_to_t ConvertValue(common::FundamentalValue* value, const std::string& de
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER32) {
     int res;
-    if (!value->GetAsInteger(&res)) {
+    if (!value->GetAsInteger32(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_UINTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER32) {
     unsigned int res;
-    if (!value->GetAsUInteger(&res)) {
+    if (!value->GetAsUInteger32(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER64) {
     long res;
-    if (!value->GetAsLongInteger(&res)) {
+    if (!value->GetAsInteger64(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER64) {
     unsigned long res;
-    if (!value->GetAsULongInteger(&res)) {
-      DNOTREACHED();
-      return convert_to_t();
-    }
-    return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
-    long long res;
-    if (!value->GetAsLongLongInteger(&res)) {
-      DNOTREACHED();
-      return convert_to_t();
-    }
-    return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
-    unsigned long long res;
-    if (!value->GetAsULongLongInteger(&res)) {
+    if (!value->GetAsUInteger64(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
@@ -700,17 +663,13 @@ convert_to_t ConvertValueForCommandLine(common::Value* value, const std::string&
     return GEN_CMD_STRING("(nil)");
   } else if (value_type == common::Value::TYPE_BOOLEAN) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER32) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_UINTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER32) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER64) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
-    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
-    return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
-  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER64) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
   } else if (value_type == common::Value::TYPE_DOUBLE) {
     return ConvertValueForCommandLine(static_cast<common::FundamentalValue*>(value), delimiter);
@@ -863,44 +822,30 @@ convert_to_t ConvertValueForCommandLine(common::FundamentalValue* value, const s
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER32) {
     int res;
-    if (!value->GetAsInteger(&res)) {
+    if (!value->GetAsInteger32(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_UINTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER32) {
     unsigned int res;
-    if (!value->GetAsUInteger(&res)) {
+    if (!value->GetAsUInteger32(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_LONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_INTEGER64) {
     long res;
-    if (!value->GetAsLongInteger(&res)) {
+    if (!value->GetAsInteger64(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
     return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_ULONG_INTEGER) {
+  } else if (value_type == common::Value::TYPE_UINTEGER64) {
     unsigned long res;
-    if (!value->GetAsULongInteger(&res)) {
-      DNOTREACHED();
-      return convert_to_t();
-    }
-    return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_LONG_LONG_INTEGER) {
-    long long res;
-    if (!value->GetAsLongLongInteger(&res)) {
-      DNOTREACHED();
-      return convert_to_t();
-    }
-    return common::ConvertToCharBytes(res);
-  } else if (value_type == common::Value::TYPE_ULONG_LONG_INTEGER) {
-    unsigned long long res;
-    if (!value->GetAsULongLongInteger(&res)) {
+    if (!value->GetAsUInteger64(&res)) {
       DNOTREACHED();
       return convert_to_t();
     }
