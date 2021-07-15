@@ -21,8 +21,8 @@
 #include <common/macros.h>
 
 namespace {
-const char* kConnnectionType[] = {"Redis", "Memcached", "SSDB", "LevelDB",  "RocksDB", "UnQLite",
-                                  "LMDB",  "ForestDB",  "Pika", "Dynomite", "KeyDB"};
+const char* kConnnectionType[] = {"Redis",   "Memcached", "SSDB", "LevelDB",  "RocksDB",
+                                  "UnQLite", "LMDB",      "Pika", "Dynomite", "KeyDB"};
 const char* kConnnectionMode[] = {"Interactive mode"};
 const char* kServerType[] = {"Master", "Slave"};
 const char* kServerState[] = {"Up", "Down"};
@@ -140,11 +140,6 @@ bool IsLocalType(ConnectionType type) {
     return true;
   }
 #endif
-#if defined(BUILD_WITH_FORESTDB)
-  if (type == FORESTDB) {
-    return true;
-  }
-#endif
   return false;
 }
 
@@ -163,11 +158,6 @@ bool IsCanCreateDatabase(ConnectionType type) {
     return true;
   }
 #endif
-#if defined(BUILD_WITH_FORESTDB)
-  if (type == FORESTDB) {
-    return true;
-  }
-#endif
   return false;
 }
 
@@ -179,11 +169,6 @@ bool IsCanRemoveDatabase(ConnectionType type) {
 #endif
 #if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
-    return true;
-  }
-#endif
-#if defined(BUILD_WITH_FORESTDB)
-  if (type == FORESTDB) {
     return true;
   }
 #endif

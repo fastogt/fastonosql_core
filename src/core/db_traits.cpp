@@ -39,9 +39,6 @@
 #if defined(BUILD_WITH_LMDB)
 #include <fastonosql/core/db/lmdb/server_info.h>
 #endif
-#if defined(BUILD_WITH_FORESTDB)
-#include <fastonosql/core/db/forestdb/server_info.h>
-#endif
 #if defined(BUILD_WITH_PIKA)
 #include <fastonosql/core/db/pika/server_info.h>
 #endif
@@ -95,11 +92,6 @@ std::vector<common::Value::Type> GetSupportedValueTypes(ConnectionType type, uin
 #if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
     return lmdb::GetSupportedValueTypes();
-  }
-#endif
-#if defined(BUILD_WITH_FORESTDB)
-  if (type == FORESTDB) {
-    return forestdb::GetSupportedValueTypes();
   }
 #endif
 #if defined(BUILD_WITH_PIKA)
@@ -156,11 +148,6 @@ std::vector<info_field_t> GetInfoFieldsFromType(ConnectionType type) {
 #if defined(BUILD_WITH_LMDB)
   if (type == LMDB) {
     return lmdb::GetInfoFields();
-  }
-#endif
-#if defined(BUILD_WITH_FORESTDB)
-  if (type == FORESTDB) {
-    return forestdb::GetInfoFields();
   }
 #endif
 #if defined(BUILD_WITH_PIKA)

@@ -41,7 +41,7 @@ const std::vector<Field> kRocksdbCommonFields = {Field(ROCKSDB_STATS_LEVEL_LABEL
                                                  Field(ROCKSDB_STATS_WR_MBS_LABEL, common::Value::TYPE_DOUBLE),
                                                  Field(ROCKSDB_STATS_COMP_SEC_LABEL, common::Value::TYPE_DOUBLE),
                                                  Field(ROCKSDB_STATS_COMP_CNT_LABEL, common::Value::TYPE_DOUBLE),
-                                                 Field(ROCKSDB_STATS_AVG_SEC_LABEL, common::Value::TYPE_UINTEGER),
+                                                 Field(ROCKSDB_STATS_AVG_SEC_LABEL, common::Value::TYPE_UINTEGER32),
                                                  Field(ROCKSDB_STATS_KEY_IN_LABEL, common::Value::TYPE_DOUBLE),
                                                  Field(ROCKSDB_STATS_KEY_DROP_LABEL, common::Value::TYPE_DOUBLE)};
 
